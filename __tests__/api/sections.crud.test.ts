@@ -1,15 +1,28 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
+type SectionRecord = {
+  id: string;
+  title: string;
+  content: string;
+  order: number;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 // In-memory store to simulate DB
-const store: any[] = [];
+const store: SectionRecord[] = [];
+
+type WhereUser = { userId?: string };
+type WhereId = { id: string; userId?: string };
 
 const prismaMock = {
   section: {
-    count: vi.fn(async ({ where }: any) =>
+    count: vi.fn(async ({ where }: { where?: WhereUser }) =>
       store.filter((s) => !where?.userId || s.userId === where.userId).length
     ),
-    create: vi.fn(async ({ data }: any) => {
-      const created = {
+    create: vi.fn(async ({ data }: { data: Omit<SectionRecord, "id" | "createdAt" | "updatedAt"> }) => {
+      const created: SectionRecord = {
         id: `sec-${store.length + 1}`,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -18,23 +31,23 @@ const prismaMock = {
       store.push(created);
       return created;
     }),
-    findMany: vi.fn(async ({ where, orderBy }: any) => {
+    findMany: vi.fn(async ({ where, orderBy }: { where?: WhereUser; orderBy?: { order: "asc" }[] }) => {
       const items = store.filter((s) => !where?.userId || s.userId === where.userId);
       if (orderBy?.length) {
-        return items.sort((a, b) => a.order - b.order || a.createdAt - b.createdAt);
+        return items.sort((a, b) => a.order - b.order || a.createdAt.getTime() - b.createdAt.getTime());
       }
       return items;
     }),
-    findFirst: vi.fn(async ({ where }: any) =>
+    findFirst: vi.fn(async ({ where }: { where: WhereId }) =>
       store.find((s) => s.id === where.id && (!where.userId || s.userId === where.userId)) ?? null
     ),
-    update: vi.fn(async ({ where, data }: any) => {
+    update: vi.fn(async ({ where, data }: { where: { id: string }; data: Partial<SectionRecord> }) => {
       const idx = store.findIndex((s) => s.id === where.id);
       if (idx === -1) throw new Error("Not found");
       store[idx] = { ...store[idx], ...data, updatedAt: new Date() };
       return store[idx];
     }),
-    delete: vi.fn(async ({ where }: any) => {
+    delete: vi.fn(async ({ where }: { where: { id: string } }) => {
       const idx = store.findIndex((s) => s.id === where.id);
       if (idx === -1) throw new Error("Not found");
       const [removed] = store.splice(idx, 1);
@@ -52,10 +65,15 @@ vi.mock("@/lib/auth", () => ({ auth: authMock }));
 const routePromise = import("@/app/api/sections/route");
 const routeWithIdPromise = import("@/app/api/sections/[id]/route");
 
+type RouteContext = { params: Promise<{ id: string }> };
+
 describe("sections API CRUD", () => {
   beforeEach(() => {
     store.length = 0;
-    Object.values(prismaMock.section).forEach((fn: any) => fn.mockClear?.());
+    Object.values(prismaMock.section).forEach((fn) => {
+      const maybe = fn as { mockClear?: () => void };
+      maybe.mockClear?.();
+    });
     authMock.mockReset();
     authMock.mockResolvedValue({ user: { id: "user-1" } });
   });
@@ -101,7 +119,7 @@ describe("sections API CRUD", () => {
       })
     );
     const created = await createdRes.json();
-    const ctx = { params: Promise.resolve({ id: created.id }) } as any;
+    const ctx: RouteContext = { params: Promise.resolve({ id: created.id }) };
 
     const res = await PUT(
       new Request("http://localhost/api/sections/id", {
@@ -127,7 +145,7 @@ describe("sections API CRUD", () => {
       })
     );
     const created = await createdRes.json();
-    const ctx = { params: Promise.resolve({ id: created.id }) } as any;
+    const ctx: RouteContext = { params: Promise.resolve({ id: created.id }) };
 
     const res = await DELETE(new Request("http://localhost/api/sections/id"), ctx);
     expect(res.status).toBe(200);

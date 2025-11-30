@@ -52,8 +52,8 @@ export default async function Home() {
       </header>
 
       {!user && (
-        <section className="border-b border-mdt-border bg-white">
-          <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-10 md:flex-row md:items-center md:py-14">
+        <div className="border-b border-mdt-border bg-white">
+          <section className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-12 md:flex-row md:items-center md:py-16">
             <div className="flex-1 space-y-4">
               <Pill>New · Build your agent town</Pill>
               <h1 className="text-display text-mdt-text">
@@ -71,6 +71,11 @@ export default async function Home() {
                   <Link href="/api/auth/signin?callbackUrl=/">Browse the town</Link>
                 </Button>
               </div>
+              <div className="flex flex-wrap gap-2">
+                <Pill>Secure by default</Pill>
+                <Pill tone="yellow">Reusable sections</Pill>
+                <Pill>Live preview</Pill>
+              </div>
             </div>
 
             <div className="mt-6 flex-1 md:mt-0">
@@ -86,8 +91,61 @@ export default async function Home() {
                 </div>
               </Card>
             </div>
-          </div>
-        </section>
+          </section>
+
+          <section className="mx-auto max-w-6xl px-4 pb-14">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card className="h-full space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-mdt-lg bg-[rgba(0,87,217,0.08)]" />
+                  <span className="text-h3">Compose fast</span>
+                </div>
+                <p className="text-body-sm text-mdt-muted">
+                  Capture markdown sections once and drop them into any agent or toolchain.
+                  Live preview keeps output honest.
+                </p>
+              </Card>
+              <Card className="h-full space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-mdt-lg bg-[rgba(255,204,0,0.18)]" />
+                  <span className="text-h3">Stay organized</span>
+                </div>
+                <p className="text-body-sm text-mdt-muted">
+                  A left-rail list and ordering keep your system prompts, tools, and style blocks tidy.
+                </p>
+              </Card>
+              <Card className="h-full space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-mdt-lg bg-[rgba(255,51,51,0.14)]" />
+                  <span className="text-h3">Own your data</span>
+                </div>
+                <p className="text-body-sm text-mdt-muted">
+                  Auth via GitHub, backed by your own database. Export and iterate without losing history.
+                </p>
+              </Card>
+            </div>
+
+            <div className="mt-12 grid gap-6 rounded-mdt-lg border border-mdt-border bg-white p-6 shadow-mdt-sm md:grid-cols-3">
+              <div className="md:col-span-2 space-y-2">
+                <h3 className="text-h2">How it works</h3>
+                <ol className="list-decimal space-y-2 pl-4 text-body text-mdt-muted">
+                  <li>Sign in with GitHub to create your private town.</li>
+                  <li>Add sections (system, style, tools) and edit them with live preview.</li>
+                  <li>Remix sections into your agents or export as markdown.</li>
+                </ol>
+              </div>
+              <div className="flex flex-col gap-3 rounded-mdt-md bg-mdt-bg p-4">
+                <span className="text-body font-semibold">Ready to start?</span>
+                <Button asChild>
+                  <Link href="/api/auth/signin?callbackUrl=/">Sign in with GitHub</Link>
+                </Button>
+                <Button variant="secondary" asChild>
+                  <Link href="/api/auth/signin?callbackUrl=/">Browse your town</Link>
+                </Button>
+              </div>
+            </div>
+          </section>
+        </div>
       )}
 
       <main className="mx-auto max-w-6xl px-4 pb-16 pt-8">
