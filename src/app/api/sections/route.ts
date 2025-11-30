@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rateLimiter";
 
 const MAX_CONTENT_LENGTH = 10_000;
 const MAX_TITLE_LENGTH = 140;
@@ -40,6 +41,11 @@ export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(`post:${ip}`)) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
   const body = await request.json().catch(() => ({}));

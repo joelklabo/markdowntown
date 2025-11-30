@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rateLimiter";
 
 const MAX_CONTENT_LENGTH = 10_000;
 const MAX_TITLE_LENGTH = 140;
@@ -32,6 +33,11 @@ export async function PUT(request: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(`put:${ip}`)) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
   const body = await request.json().catch(() => ({}));
@@ -86,6 +92,11 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const ip = (await _request)?.headers?.get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(`del:${ip}`)) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
   const section = await authorizeSection(context, session.user.id);
