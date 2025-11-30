@@ -131,7 +131,7 @@ export function SectionComposer() {
 
   return (
     <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
-      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm transition duration-200 ease-out hover:shadow-mdt-md">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-sm font-semibold text-zinc-800">Sections</h2>
           <button
@@ -149,11 +149,12 @@ export function SectionComposer() {
               No sections yet. Create your first one.
             </p>
           )}
-          {sections.map((section) => (
+          {sections.map((section, idx) => (
             <button
               key={section.id}
               onClick={() => setSelected(section)}
-              className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition ${
+              style={{ transitionDelay: `${idx * 15}ms` }}
+              className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-200 ${
                 selected?.id === section.id
                   ? "bg-indigo-50 text-indigo-700"
                   : "hover:bg-zinc-50"
@@ -166,7 +167,7 @@ export function SectionComposer() {
         </div>
       </div>
 
-      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm transition duration-200 ease-out hover:shadow-mdt-md">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-zinc-800">Editor</span>
@@ -213,7 +214,7 @@ export function SectionComposer() {
         </div>
       </div>
 
-      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm transition duration-200 ease-out hover:shadow-mdt-md">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-zinc-800">Preview</span>
