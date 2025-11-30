@@ -8,22 +8,27 @@ export type AbuseSignal = {
   at?: Date;
 };
 
-const REPORTS_DIR = path.join(process.cwd(), "logs");
-const REPORTS_FILE = path.join(REPORTS_DIR, "abuse-signals.log");
+function getPaths() {
+  const dir = path.join(process.cwd(), "logs");
+  const file = path.join(dir, "abuse-signals.log");
+  return { dir, file };
+}
 
 function ensureFile() {
-  if (!fs.existsSync(REPORTS_DIR)) fs.mkdirSync(REPORTS_DIR, { recursive: true });
-  if (!fs.existsSync(REPORTS_FILE)) fs.writeFileSync(REPORTS_FILE, "");
+  const { dir, file } = getPaths();
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(file)) fs.writeFileSync(file, "");
 }
 
 export function logAbuseSignal(signal: AbuseSignal) {
   try {
+    const { file } = getPaths();
     ensureFile();
     const entry = {
       ...signal,
       at: signal.at ?? new Date().toISOString(),
     };
-    fs.appendFileSync(REPORTS_FILE, JSON.stringify(entry) + "\n", { encoding: "utf8" });
+    fs.appendFileSync(file, JSON.stringify(entry) + "\n", { encoding: "utf8" });
   } catch (err) {
     console.error("Failed to log abuse signal", err);
   }
