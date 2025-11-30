@@ -4,7 +4,10 @@ import path from "node:path";
 export default defineConfig({
   test: {
     environment: "jsdom",
-    environmentMatchGlobs: [["**/__tests__/api/**", "node"]],
+    environmentMatchGlobs: [
+      ["**/__tests__/api/**", "node"],
+      ["**/__tests__/e2e/**", "node"],
+    ],
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     clearMocks: true,
