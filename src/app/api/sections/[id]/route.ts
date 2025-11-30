@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
-
-const MAX_CONTENT_LENGTH = 10_000;
-const MAX_TITLE_LENGTH = 140;
+import { MAX_CONTENT_LENGTH, MAX_TITLE_LENGTH } from "@/lib/validation";
 
 type RouteContext = { params: Promise<{ id: string }> };
 

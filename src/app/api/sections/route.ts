@@ -2,26 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
-
-const MAX_CONTENT_LENGTH = 10_000;
-const MAX_TITLE_LENGTH = 140;
-
-export function validatePayload(title: string | null, content: string) {
-  if (!title) {
-    return "Title is required";
-  }
-  if (title.length > MAX_TITLE_LENGTH) {
-    return `Title is too long (max ${MAX_TITLE_LENGTH} characters)`;
-  }
-  if (content.length > MAX_CONTENT_LENGTH) {
-    return `Content is too long (max ${MAX_CONTENT_LENGTH} characters)`;
-  }
-  const lower = content.toLowerCase();
-  if (lower.includes("<script") || lower.includes("<iframe") || lower.includes("javascript:")) {
-    return "Content contains disallowed markup";
-  }
-  return null;
-}
+import { validateSectionPayload } from "@/lib/validation";
 
 export async function GET() {
   const session = await auth();
@@ -56,7 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
 
-  const validationError = validatePayload(title, content);
+  const validationError = validateSectionPayload(title, content);
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
