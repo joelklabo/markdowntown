@@ -7,13 +7,29 @@ MarkdownTown will support **Agents** that can generate or transform section cont
 - Agents can be attached to a `Section` (`section.agentId`).
 - When executed, an agent receives the section content and returns markdown that is written back to the section.
 
-## Minimal execution contract (to be implemented)
+## Minimal execution contract (implemented as a helper)
+See `src/lib/agents.ts`:
 ```ts
-type AgentRuntime = (input: {
-  sectionId: string;
-  content: string;
-  config: Record<string, unknown>;
-}) => Promise<{ content: string }>;
+export type AgentContext = {
+  userId?: string;
+  sections: { id: string; title: string; content: string }[];
+};
+
+export type AgentPlugin = {
+  id: string;
+  name: string;
+  description?: string;
+  run: (ctx: AgentContext) => Promise<string> | string;
+};
+
+// Sample agent
+export const sampleAgent: AgentPlugin = {
+  id: "sample-agent",
+  name: "Sample Agent",
+  description: "Returns a summary list of section titles.",
+  run: ({ sections }) =>
+    sections.map((s, i) => `${i + 1}. ${s.title || "Untitled"}`).join("\\n"),
+};
 ```
 
 ## Next steps

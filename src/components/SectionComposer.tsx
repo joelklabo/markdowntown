@@ -104,6 +104,7 @@ export function SectionComposer() {
 
   async function deleteSection(id: string) {
     if (!id) return;
+    if (!window.confirm("Delete this section? This cannot be undone.")) return;
     setSaving(true);
     setError(null);
     try {
