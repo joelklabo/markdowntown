@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { PosthogProvider } from "@/providers/PosthogProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -62,7 +63,9 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <PosthogProvider>{children}</PosthogProvider>
+        <ThemeProvider>
+          <PosthogProvider>{children}</PosthogProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

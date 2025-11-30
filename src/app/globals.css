@@ -8,6 +8,11 @@
     @apply bg-mdt-bg text-mdt-text;
   }
 
+  .dark html,
+  .dark body {
+    @apply bg-mdt-bg-dark text-mdt-text-dark;
+  }
+
   :focus-visible {
     outline: 2px solid #0057d9;
     outline-offset: 2px;
@@ -37,6 +42,12 @@
   .btn-secondary:hover {
     @apply bg-[#EFF6FF];
   }
+  .dark .btn-secondary {
+    @apply bg-mdt-bg-soft-dark text-mdt-text-dark border-mdt-border-dark;
+  }
+  .dark .btn-secondary:hover {
+    @apply bg-[#1f2e4a];
+  }
 
   .card {
     @apply bg-white rounded-mdt-md border border-mdt-border
@@ -44,6 +55,12 @@
   }
   .card:hover {
     @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
+  }
+  .dark .card {
+    @apply bg-mdt-bg-soft-dark border-mdt-border-dark shadow-none text-mdt-text-dark;
+  }
+  .dark .card:hover {
+    @apply border-[#2d3b55] shadow-mdt-sm;
   }
 
   .pill {
@@ -55,6 +72,15 @@
   }
   .pill-yellow {
     @apply bg-[rgba(255,204,0,0.12)] text-[#92400E];
+  }
+  .dark .pill {
+    @apply text-mdt-text-dark;
+  }
+  .dark .pill-primary {
+    @apply bg-[rgba(0,87,217,0.18)] text-mdt-text-dark;
+  }
+  .dark .pill-yellow {
+    @apply bg-[rgba(255,204,0,0.18)] text-mdt-text-dark;
   }
 
   .skip-link {
@@ -68,6 +94,9 @@
 .markdown-preview {
   font-size: 0.95rem;
   line-height: 1.6;
+}
+.dark .markdown-preview {
+  color: #e5e7eb;
 }
 
 .markdown-preview h1,
@@ -88,6 +117,10 @@
   border-radius: 0.25rem;
   font-size: 0.9rem;
 }
+.dark .markdown-preview code {
+  background: #111827;
+  color: #e5e7eb;
+}
 
 .markdown-preview pre {
   background: #0b1021;
@@ -96,6 +129,9 @@
   border-radius: 0.5rem;
   overflow-x: auto;
   font-size: 0.9rem;
+}
+.dark .markdown-preview pre {
+  background: #0f172a;
 }
 
 @media (max-width: 768px) {

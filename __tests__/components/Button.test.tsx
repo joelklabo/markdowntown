@@ -2,14 +2,18 @@ import { render } from "@testing-library/react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
-vi.mock("next/link", () => ({
-  __esModule: true,
-  default: ({ children, href, ...rest }: any) => (
+vi.mock("next/link", () => {
+  type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    children: React.ReactNode;
+    href: string;
+  };
+  const Link = ({ children, href, ...rest }: LinkProps) => (
     <a href={href} {...rest}>
       {children}
     </a>
-  ),
-}));
+  );
+  return { __esModule: true, default: Link };
+});
 
 describe("Button", () => {
   it("applies variant classes", () => {

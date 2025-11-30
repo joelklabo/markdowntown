@@ -4,14 +4,18 @@ import userEvent from "@testing-library/user-event";
 import { SectionComposer } from "@/components/SectionComposer";
 
 // Mock next/link for Slot usage inside Button
-vi.mock("next/link", () => ({
-  __esModule: true,
-  default: ({ children, href, ...rest }: any) => (
+vi.mock("next/link", () => {
+  type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    children: React.ReactNode;
+    href: string;
+  };
+  const Link = ({ children, href, ...rest }: LinkProps) => (
     <a href={href} {...rest}>
       {children}
     </a>
-  ),
-}));
+  );
+  return { __esModule: true, default: Link };
+});
 
 // Mock react-markdown and remark-gfm to keep render lightweight
 vi.mock("react-markdown", () => ({
@@ -25,9 +29,9 @@ vi.mock("remark-gfm", () => ({ __esModule: true, default: () => ({}) }));
 // Mock next/dynamic to return the component immediately
 vi.mock("next/dynamic", () => ({
   __esModule: true,
-  default: (loader: any) => {
+  default: (loader: () => Promise<{ default: React.ComponentType<unknown> }>) => {
     const Comp = React.lazy(loader);
-    return (props: any) => (
+    return (props: Record<string, unknown>) => (
       <React.Suspense fallback={<div>loading...</div>}>
         <Comp {...props} />
       </React.Suspense>
@@ -39,25 +43,29 @@ const sections = [
   { id: "1", title: "Hello", content: "# Hi", order: 1 },
 ];
 
+type MockResponse = { ok: boolean; json: () => Promise<unknown> };
+
 function mockFetch() {
   let call = 0;
   global.fetch = vi.fn(async (_url: string, init?: RequestInit) => {
     // first call load, second POST create
     if (!init) {
-      return {
-        ok: true,
-        json: async () => sections,
-      } as any;
+      return { ok: true, json: async () => sections } satisfies MockResponse;
     }
     if (init.method === "POST") {
       call += 1;
       return {
         ok: true,
-        json: async () => ({ id: `new-${call}`, title: "Untitled section", content: "", order: sections.length + call }),
-      } as any;
+        json: async () => ({
+          id: `new-${call}`,
+          title: "Untitled section",
+          content: "",
+          order: sections.length + call,
+        }),
+      } satisfies MockResponse;
     }
-    return { ok: true, json: async () => ({}) } as any;
-  }) as any;
+    return { ok: true, json: async () => ({}) } satisfies MockResponse;
+  }) as unknown as typeof fetch;
 }
 
 describe("SectionComposer", () => {
@@ -79,7 +87,10 @@ describe("SectionComposer", () => {
     await userEvent.click(addButton);
 
     await waitFor(() => {
-      expect((fetch as any).mock.calls.some(([, init]: any) => init?.method === "POST")).toBe(true);
+      const mocked = fetch as unknown as vi.Mock;
+      expect(
+        mocked.mock.calls.some(([, init]: [string, RequestInit | undefined]) => init?.method === "POST")
+      ).toBe(true);
     });
   });
 });

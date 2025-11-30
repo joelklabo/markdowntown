@@ -144,13 +144,13 @@ export function SectionComposer() {
   }
 
   const panelClass =
-    "composer-panel rounded-2xl border border-mdt-border bg-white shadow-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-[#bfd4ff] focus-within:shadow-mdt-md";
+    "composer-panel rounded-2xl border border-mdt-border bg-white shadow-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-[#bfd4ff] focus-within:shadow-mdt-md dark:bg-mdt-bg-soft-dark dark:border-mdt-border-dark dark:hover:shadow-mdt-sm";
 
   return (
     <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
       <div className={panelClass} aria-live="polite" aria-busy={isLoading}>
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-sm font-semibold text-zinc-800">Sections</h2>
+        <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3 dark:border-mdt-border-dark">
+          <h2 className="text-sm font-semibold text-zinc-800 dark:text-mdt-text-dark">Sections</h2>
           <Button
             onClick={createSection}
             disabled={saving}
@@ -177,10 +177,10 @@ export function SectionComposer() {
                 onClick={() => setSelected(section)}
                 style={{ transitionDelay: `${idx * 15}ms` }}
                 aria-current={selected?.id === section.id}
-                className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-mdt-fast ease-mdt-emphasized focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+                className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-mdt-fast ease-mdt-emphasized focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark ${
                   selected?.id === section.id
-                    ? "bg-indigo-50 text-indigo-700 focus-visible:ring-indigo-500"
-                    : "hover:bg-zinc-50"
+                    ? "bg-indigo-50 text-indigo-700 focus-visible:ring-indigo-500 dark:bg-[#1d2f4d] dark:text-mdt-text-dark"
+                    : "hover:bg-zinc-50 dark:hover:bg-[#1c273a]"
                 }`}
               >
                 <span className="truncate text-sm font-medium">{section.title}</span>
@@ -194,10 +194,10 @@ export function SectionComposer() {
       </div>
 
       <div className={panelClass} aria-busy={saving}>
-        <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3 dark:border-mdt-border-dark">
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-zinc-800">Editor</span>
-            <span className="text-xs text-zinc-500">
+            <span className="text-sm font-semibold text-zinc-800 dark:text-mdt-text-dark">Editor</span>
+            <span className="text-xs text-zinc-500 dark:text-mdt-muted-dark">
               Live Markdown saves back to your Section
             </span>
           </div>
@@ -208,7 +208,7 @@ export function SectionComposer() {
               onClick={() => deleteSection(selected.id)}
               disabled={saving}
               aria-label={`Delete section ${selected.title || selected.id}`}
-              className="text-red-600 hover:text-red-500"
+              className="text-red-600 hover:text-red-500 dark:text-red-400"
             >
               Delete
             </Button>
@@ -224,7 +224,7 @@ export function SectionComposer() {
             }
             onBlur={() => selected && saveSection(selected)}
             disabled={!selected}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
           />
           <textarea
             placeholder="Write markdown here..."
@@ -233,7 +233,7 @@ export function SectionComposer() {
             onBlur={() => selected && saveSection(selected)}
             disabled={!selected}
             rows={18}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
           />
           {error && (
             <p className="text-sm font-medium text-red-600" role="alert">
@@ -244,10 +244,12 @@ export function SectionComposer() {
       </div>
 
       <div className={panelClass}>
-        <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3 dark:border-mdt-border-dark">
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-zinc-800">Preview</span>
-            <span className="text-xs text-zinc-500">Rendered Markdown</span>
+            <span className="text-sm font-semibold text-zinc-800 dark:text-mdt-text-dark">
+              Preview
+            </span>
+            <span className="text-xs text-zinc-500 dark:text-mdt-muted-dark">Rendered Markdown</span>
           </div>
         </div>
         <div className="markdown-preview px-4 py-4">

@@ -6,20 +6,22 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default async function Home() {
   const session = await getSession();
   const user = session?.user;
 
   return (
-    <div className="min-h-screen bg-mdt-bg-soft text-mdt-text">
-      <header className="border-b border-mdt-border bg-white">
+    <div className="min-h-screen bg-mdt-bg-soft text-mdt-text dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
+      <header className="border-b border-mdt-border bg-white dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <BrandLogo />
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             {user ? (
               <>
-                <div className="hidden items-center gap-2 rounded-mdt-pill bg-mdt-bg px-3 py-1 text-sm font-medium text-mdt-muted sm:flex">
+                <div className="hidden items-center gap-2 rounded-mdt-pill bg-mdt-bg px-3 py-1 text-sm font-medium text-mdt-muted sm:flex dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
                   {user.image && (
                     <Image
                       src={user.image}
@@ -52,7 +54,7 @@ export default async function Home() {
       </header>
 
       {!user && (
-        <div className="border-b border-mdt-border bg-white">
+        <div className="border-b border-mdt-border bg-white dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
           <section className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-12 md:flex-row md:items-center md:py-16">
             <div className="flex-1 space-y-4">
               <Pill>New · Build your agent town</Pill>
@@ -125,7 +127,7 @@ export default async function Home() {
               </Card>
             </div>
 
-            <div className="mt-12 grid gap-6 rounded-mdt-lg border border-mdt-border bg-white p-6 shadow-mdt-sm md:grid-cols-3">
+            <div className="mt-12 grid gap-6 rounded-mdt-lg border border-mdt-border bg-white p-6 shadow-mdt-sm md:grid-cols-3 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
               <div className="md:col-span-2 space-y-2">
                 <h3 className="text-h2">How it works</h3>
                 <ol className="list-decimal space-y-2 pl-4 text-body text-mdt-muted">
@@ -152,7 +154,7 @@ export default async function Home() {
         {user ? (
           <SectionComposer />
         ) : (
-          <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm space-y-4">
+          <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm space-y-4 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
             <h2 className="text-h2 font-semibold text-mdt-text">Sign in to start composing</h2>
             <p className="mt-3 text-body text-mdt-muted">
               Connect your GitHub account to start creating and mixing markdown sections with live
