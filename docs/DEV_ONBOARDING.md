@@ -45,6 +45,10 @@ pnpm type-check    # TypeScript
 pnpm test          # Vitest (jsdom + node environments)
 ```
 
+## Analytics & monitoring (opt-in)
+- Set `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN` to enable Sentry in dev.
+- Set `NEXT_PUBLIC_POSTHOG_KEY` (and optional `NEXT_PUBLIC_POSTHOG_HOST`) to enable PostHog.
+
 ## Build & serve
 ```bash
 pnpm build

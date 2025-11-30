@@ -57,3 +57,4 @@ docker run -p 3000:3000 \
 - Release process: `docs/RELEASE_PROCESS.md`
 - Migration policy: `docs/MIGRATIONS.md`
 - Monitoring/analytics: set `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, and optional `NEXT_PUBLIC_POSTHOG_HOST`.
+- Beads CLI quick reference: `docs/BEADS.md`
