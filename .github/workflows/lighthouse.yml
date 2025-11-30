@@ -1,0 +1,23 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Lighthouse against production
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://markdown.town/
+          budgetPath: ./lighthouse-budget.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 1
+          configPath: ''
