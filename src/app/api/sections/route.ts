@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { validateSectionPayload } from "@/lib/validation";
+import { getSectionsCached } from "@/lib/cache";
 
 export async function GET() {
   const session = await auth();
@@ -10,10 +11,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const sections = await prisma.section.findMany({
-    where: { userId: session.user.id },
-    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-  });
+  const sections = await getSectionsCached(session.user.id);
 
   return NextResponse.json(sections);
 }

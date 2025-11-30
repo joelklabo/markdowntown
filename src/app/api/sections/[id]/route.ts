@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { MAX_CONTENT_LENGTH, MAX_TITLE_LENGTH } from "@/lib/validation";
+import { getSectionsCached } from "@/lib/cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -83,6 +84,9 @@ export async function PUT(request: Request, context: RouteContext) {
     data: updateData,
   });
 
+  // warm cache
+  void getSectionsCached(session.user.id);
+
   return NextResponse.json(updated);
 }
 
@@ -104,5 +108,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   await prisma.section.delete({ where: { id } });
+  void getSectionsCached(session.user.id);
   return NextResponse.json({ ok: true });
 }
