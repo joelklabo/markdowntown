@@ -130,8 +130,8 @@ export function SectionComposer() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1.1fr_1.1fr]">
-      <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+    <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
+      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-sm font-semibold text-zinc-800">Sections</h2>
           <button
@@ -166,7 +166,7 @@ export function SectionComposer() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-zinc-800">Editor</span>
@@ -213,7 +213,7 @@ export function SectionComposer() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-zinc-800">Preview</span>
