@@ -59,3 +59,4 @@ docker run -p 3000:3000 \
 - Migration policy: `docs/MIGRATIONS.md`
 - Monitoring/analytics: set `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, and optional `NEXT_PUBLIC_POSTHOG_HOST`.
 - Beads CLI quick reference: `docs/BEADS.md`
+- E2E workflow (conditional): set secrets `GITHUB_CLIENT_ID_TEST`, `GITHUB_CLIENT_SECRET_TEST`, `GITHUB_TEST_USER`, `GITHUB_TEST_PASS` to enable GitHub OAuth Playwright runs on CI
