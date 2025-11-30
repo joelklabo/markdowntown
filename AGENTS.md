@@ -35,4 +35,4 @@ export const sampleAgent: AgentPlugin = {
 ## Next steps
 1) Add a registry so the backend can map `agentId` -> runtime implementation.
 2) Add an API route `/api/sections/{id}/run-agent` to trigger execution.
-3) Provide a sample agent (e.g., heading normalizer) that works without external APIs.
+3) Provide a sample agent (e.g., heading normalizer) that works without external APIs. See `src/lib/agents/sample.ts`.
