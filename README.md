@@ -10,6 +10,7 @@ Compose and preview markdown sections in a three-panel editor, backed by Next.js
 - Dockerfile, GitHub Actions CI (lint, type-check, build), Beads backlog.
 - Design system: MarkdownTown brand icon, Tailwind tokens, global utilities, and UI primitives (BrandLogo, Button, Card, Pill).
 - Release docs: Semantic Versioning, CHANGELOG, and migration/release guides in `docs/`.
+- CDN-friendly asset headers; ACA scaling set to min=1, max=5.
 
 ## Quick start
 ```bash
