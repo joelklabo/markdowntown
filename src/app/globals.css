@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-mdt-bg text-mdt-text;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-mdt-pill
+      px-4 py-2 text-[0.95rem] font-medium transition
+      duration-150 ease-out border border-transparent;
+  }
+
+  .btn-primary {
+    @apply bg-mdt-blue text-white shadow-mdt-btn;
+  }
+  .btn-primary:hover {
+    @apply bg-[#0047B3] shadow-mdt-btn-hover -translate-y-[1px];
+  }
+  .btn-primary:active {
+    @apply translate-y-0 shadow-mdt-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-mdt-blue border-mdt-blue;
+  }
+  .btn-secondary:hover {
+    @apply bg-[#EFF6FF];
+  }
+
+  .card {
+    @apply bg-white rounded-mdt-md border border-mdt-border
+      shadow-mdt-sm p-4 transition duration-150 ease-out;
+  }
+  .card:hover {
+    @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
+  }
+
+  .pill {
+    @apply inline-flex items-center rounded-mdt-pill px-2 py-[2px]
+      text-caption font-medium;
+  }
+  .pill-primary {
+    @apply bg-[rgba(0,87,217,0.08)] text-mdt-blue;
+  }
+  .pill-yellow {
+    @apply bg-[rgba(255,204,0,0.12)] text-[#92400E];
+  }
+}
+
+.markdown-preview {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.markdown-preview p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-preview code {
+  padding: 0.1rem 0.35rem;
+  background: #f6f8fa;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.markdown-preview pre {
+  background: #0b1021;
+  color: #e5e7eb;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}

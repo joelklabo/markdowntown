@@ -1,0 +1,68 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AZURE_RESOURCE_GROUP: satoshis-stg-west-rg
+  AZURE_CONTAINERAPP_ENV: satoshis-env-stg-west
+  AZURE_CONTAINERAPP_NAME: markdowntown-app
+  ACR_LOGIN_SERVER: satoshiswestacr.azurecr.io
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          NEXTAUTH_SECRET: dummy
+          NEXTAUTH_URL: https://markdown.town
+          DATABASE_URL: postgres://user:pass@host/db
+        run: pnpm build
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI - build & push image
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::7}
+          IMAGE=$ACR_LOGIN_SERVER/markdowntown:$IMAGE_TAG
+          az acr login -n satoshiswestacr
+          docker build -t $IMAGE .
+          docker push $IMAGE
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      - name: Deploy to Container Apps
+        run: |
+          az containerapp update \
+            -n $AZURE_CONTAINERAPP_NAME \
+            -g $AZURE_RESOURCE_GROUP \
+            --image $IMAGE
+
+      - name: Kick migrate job (optional)
+        if: false  # enable when ready
+        run: |
+          az containerapp job start -n markdowntown-migrate -g $AZURE_RESOURCE_GROUP
+
+    # Secrets required:
+    # AZURE_CREDENTIALS: Service principal JSON with access to RG and ACR
