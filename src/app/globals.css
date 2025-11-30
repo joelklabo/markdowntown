@@ -37,14 +37,14 @@
     @apply bg-white rounded-mdt-md border border-mdt-border
       shadow-mdt-sm p-4 transition duration-150 ease-out;
   }
-  .card:hover {
-    @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
-  }
+.card:hover {
+  @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
+}
 
-  .pill {
-    @apply inline-flex items-center rounded-mdt-pill px-2 py-[2px]
-      text-caption font-medium;
-  }
+.pill {
+  @apply inline-flex items-center rounded-mdt-pill px-2 py-[2px]
+    text-caption font-medium;
+}
   .pill-primary {
     @apply bg-[rgba(0,87,217,0.08)] text-mdt-blue;
   }

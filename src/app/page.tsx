@@ -152,7 +152,7 @@ export default async function Home() {
         {user ? (
           <SectionComposer />
         ) : (
-          <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm">
+          <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm space-y-4">
             <h2 className="text-h2 font-semibold text-mdt-text">Sign in to start composing</h2>
             <p className="mt-3 text-body text-mdt-muted">
               Connect your GitHub account to start creating and mixing markdown sections with live
