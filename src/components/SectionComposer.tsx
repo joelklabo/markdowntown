@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import type { Pluggable } from "unified";
+import { Button } from "./ui/Button";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  loading: () => <p className="text-sm text-zinc-500">Loading preview…</p>,
+});
 
 type Section = {
   id: string;
@@ -24,6 +29,15 @@ export function SectionComposer() {
   const [isLoading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remarkGfm, setRemarkGfm] = useState<Pluggable | null>(null);
+
+  useEffect(() => {
+    import("remark-gfm").then((mod) => {
+      const plugin =
+        (mod as { default?: Pluggable }).default ?? (mod as unknown as Pluggable);
+      setRemarkGfm(plugin);
+    });
+  }, []);
 
   const combinedMarkdown = useMemo(() => {
     return sections
@@ -129,45 +143,57 @@ export function SectionComposer() {
     });
   }
 
+  const panelClass =
+    "composer-panel rounded-2xl border border-mdt-border bg-white shadow-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-[#bfd4ff] focus-within:shadow-mdt-md";
+
   return (
     <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
-      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm transition duration-200 ease-out hover:shadow-mdt-md">
+      <div className={panelClass} aria-live="polite" aria-busy={isLoading}>
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-sm font-semibold text-zinc-800">Sections</h2>
-          <button
+          <Button
             onClick={createSection}
             disabled={saving}
-            className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+            size="sm"
+            aria-label="Add a new section"
           >
             Add
-          </button>
+          </Button>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto px-2 py-2">
-          {isLoading && <p className="px-2 py-2 text-sm text-zinc-500">Loading...</p>}
+        <div className="max-h-[70vh] overflow-y-auto px-2 py-2" role="list">
+          {isLoading && (
+            <p className="px-2 py-2 text-sm text-zinc-500" role="status">
+              Loading...
+            </p>
+          )}
           {!isLoading && sections.length === 0 && (
             <p className="px-2 py-2 text-sm text-zinc-500">
               No sections yet. Create your first one.
             </p>
           )}
           {sections.map((section, idx) => (
-            <button
-              key={section.id}
-              onClick={() => setSelected(section)}
-              style={{ transitionDelay: `${idx * 15}ms` }}
-              className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-200 ${
-                selected?.id === section.id
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "hover:bg-zinc-50"
-              }`}
-            >
-              <span className="truncate text-sm font-medium">{section.title}</span>
-              <span className="text-[11px] text-zinc-500">#{section.order}</span>
-            </button>
+            <div role="listitem" key={section.id}>
+              <button
+                onClick={() => setSelected(section)}
+                style={{ transitionDelay: `${idx * 15}ms` }}
+                aria-current={selected?.id === section.id}
+                className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-mdt-fast ease-mdt-emphasized focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+                  selected?.id === section.id
+                    ? "bg-indigo-50 text-indigo-700 focus-visible:ring-indigo-500"
+                    : "hover:bg-zinc-50"
+                }`}
+              >
+                <span className="truncate text-sm font-medium">{section.title}</span>
+                <span className="text-[11px] text-zinc-500" aria-label={`Order ${section.order}`}>
+                  #{section.order}
+                </span>
+              </button>
+            </div>
           ))}
         </div>
       </div>
 
-      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm transition duration-200 ease-out hover:shadow-mdt-md">
+      <div className={panelClass} aria-busy={saving}>
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-zinc-800">Editor</span>
@@ -176,13 +202,16 @@ export function SectionComposer() {
             </span>
           </div>
           {selected && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => deleteSection(selected.id)}
               disabled={saving}
-              className="text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+              aria-label={`Delete section ${selected.title || selected.id}`}
+              className="text-red-600 hover:text-red-500"
             >
               Delete
-            </button>
+            </Button>
           )}
         </div>
         <div className="flex flex-col gap-3 px-4 py-4">
@@ -214,7 +243,7 @@ export function SectionComposer() {
         </div>
       </div>
 
-      <div className="composer-panel rounded-2xl border border-zinc-200 bg-white shadow-sm transition duration-200 ease-out hover:shadow-mdt-md">
+      <div className={panelClass}>
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-zinc-800">Preview</span>
@@ -223,7 +252,9 @@ export function SectionComposer() {
         </div>
         <div className="markdown-preview px-4 py-4">
           {combinedMarkdown ? (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{combinedMarkdown}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={remarkGfm ? [remarkGfm] : undefined}>
+              {combinedMarkdown}
+            </ReactMarkdown>
           ) : (
             <p className="text-sm text-zinc-500">Start typing to see a preview.</p>
           )}

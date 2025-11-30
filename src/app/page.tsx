@@ -148,7 +148,7 @@ export default async function Home() {
         </div>
       )}
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-8">
+      <main id="main-content" className="mx-auto max-w-6xl px-4 pb-16 pt-8">
         {user ? (
           <SectionComposer />
         ) : (

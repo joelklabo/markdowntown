@@ -7,6 +7,11 @@
   body {
     @apply bg-mdt-bg text-mdt-text;
   }
+
+  :focus-visible {
+    outline: 2px solid #0057d9;
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
@@ -35,21 +40,28 @@
 
   .card {
     @apply bg-white rounded-mdt-md border border-mdt-border
-      shadow-mdt-sm p-4 transition duration-150 ease-out;
+      shadow-mdt-sm p-4 transition duration-mdt-base ease-mdt-emphasized;
   }
-.card:hover {
-  @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
-}
+  .card:hover {
+    @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
+  }
 
-.pill {
-  @apply inline-flex items-center rounded-mdt-pill px-2 py-[2px]
+  .pill {
+    @apply inline-flex items-center rounded-mdt-pill px-2 py-[2px]
     text-caption font-medium;
-}
+  }
   .pill-primary {
     @apply bg-[rgba(0,87,217,0.08)] text-mdt-blue;
   }
   .pill-yellow {
     @apply bg-[rgba(255,204,0,0.12)] text-[#92400E];
+  }
+
+  .skip-link {
+    @apply absolute left-[-999px] top-[-999px] z-50 rounded-mdt-pill bg-mdt-blue px-3 py-2 text-sm font-medium text-white;
+  }
+  .skip-link:focus-visible {
+    @apply left-3 top-3;
   }
 }
 

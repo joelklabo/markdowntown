@@ -28,7 +28,7 @@ export async function GET() {
   const entries = lines.map((l) => {
     try {
       return JSON.parse(l);
-    } catch (e) {
+    } catch {
       return { raw: l };
     }
   });

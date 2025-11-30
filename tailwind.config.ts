@@ -34,6 +34,14 @@ const config: Config = {
         "mdt-btn": "0 2px 6px rgba(0,87,217,0.25)",
         "mdt-btn-hover": "0 4px 10px rgba(0,87,217,0.35)",
       },
+      transitionDuration: {
+        "mdt-fast": "120ms",
+        "mdt-base": "180ms",
+        "mdt-slow": "260ms",
+      },
+      transitionTimingFunction: {
+        "mdt-emphasized": "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
