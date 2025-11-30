@@ -11,6 +11,7 @@ Compose and preview markdown sections in a three-panel editor, backed by Next.js
 - Design system: MarkdownTown brand icon, Tailwind tokens, global utilities, and UI primitives (BrandLogo, Button, Card, Pill).
 - Release docs: Semantic Versioning, CHANGELOG, and migration/release guides in `docs/`.
 - CDN-friendly asset headers; ACA scaling set to min=1, max=5; HTTP scale rule concurrentRequests=50.
+- Open Graph image: `public/og-image-base.svg` registered in Next metadata.
 
 ## Quick start
 ```bash

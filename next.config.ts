@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  metadata: {
+    openGraph: {
+      images: [
+        {
+          url: "/og-image-base.svg",
+          width: 1200,
+          height: 630,
+          alt: "MarkdownTown",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["/og-image-base.svg"],
+    },
+  },
   async headers() {
     return [
       {
