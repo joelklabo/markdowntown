@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { validateSectionPayload } from "@/lib/validation";
 import { getSectionsCached } from "@/lib/cache";
+import { logAbuseSignal } from "@/lib/reports";
 
 const CREATE_WINDOW = 60_000;
 const CREATE_MAX = 10;
@@ -40,9 +41,11 @@ export async function POST(request: Request) {
 
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   if (!rateLimit(`post:${ip}`)) {
+    logAbuseSignal({ ip, userId: session.user.id, reason: "rate-limit-post" });
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
   if (!throttleCreate(session.user.id)) {
+    logAbuseSignal({ ip, userId: session.user.id, reason: "throttle-post" });
     return NextResponse.json({ error: "Too many new sections, please wait a minute." }, { status: 429 });
   }
 
