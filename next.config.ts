@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  sentry: {
+    hideSourceMaps: true,
+  },
 };
 
 export default nextConfig;

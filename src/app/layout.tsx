@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { PosthogProvider } from "@/providers/PosthogProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-mdt-bg text-mdt-text font-sans antialiased">
-        {children}
+        <PosthogProvider>{children}</PosthogProvider>
       </body>
     </html>
   );
