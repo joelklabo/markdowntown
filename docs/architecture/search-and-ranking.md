@@ -13,8 +13,10 @@ Epic: markdowntown-7z8
 - **Ranking**: combine term rank + popularity score.
 
 ### Ranking formula (Trending)
-score = 0.5 * log1p(copies) + 0.25 * log1p(votesUp - votesDown) + 0.15 * log1p(views) + 0.1 * freshness
-- Freshness = max(0, 14 - days_since_updated) / 14
+```text
+score = 0.5*log1p(copies) + 0.25*log1p(votesUp - votesDown) + 0.15*log1p(views) + 0.1*freshness
+freshness = max(0, 14 - days_since_updated) / 14
+```
 - Compute daily in a materialized view per type.
 
 ### Top / Most copied / New

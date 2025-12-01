@@ -21,7 +21,7 @@ Issue: markdowntown-7z8.15
 
 ## Validation & safety
 - Auth required for all writes; rate limit per-IP + per-user (stricter for comments).
-- Comment body: max length, strip HTML/JS, block <script>/<iframe>/javascript:.
+- Comment body: max length, strip HTML/JS, block `<script>`, `<iframe>`, and `javascript:` URLs.
 - Votes only allow +1 or -1; favorites idempotent.
 - Respect visibility: only public content exposed; owner can see own private items.
 

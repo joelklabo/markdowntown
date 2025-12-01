@@ -43,4 +43,3 @@ Epic: markdowntown-7z8
 ## Backfill/compatibility
 - Keep legacy `/api/sections` temporarily reading from Snippet with view limited to owner; mark deprecated.
 - Add a migration script to generate slugs and default visibility; seed public library content.
-

@@ -1,6 +1,6 @@
 # MarkdownTown Design System
 
-_Last updated: Dec 1, 2025_
+Last updated: Dec 1, 2025
 
 ## Principles
 - **Semantic first:** use intent-based tokens (e.g., `mdt-surface`, `mdt-text-muted`, `mdt-primary`) instead of hard-coded hex values. Enables theming and accessibility tweaks without refactoring components.

@@ -17,7 +17,7 @@ Issue: markdowntown-7z8.17
 
 ## Trending tags computation
 - Query counts filtered by updatedAt window (7d/30d) across public items:
-  ```
+  ```sql
   SELECT tag, count(*) AS count
   FROM (
     SELECT unnest(tags) AS tag, updated_at FROM snippets WHERE visibility='PUBLIC'

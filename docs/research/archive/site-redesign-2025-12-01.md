@@ -1,5 +1,5 @@
 # Site Redesign Research (Public Library & agents.md Builder)
-_Date: 2025-12-01_
+Date: 2025-12-01
 
 ## Goals
 - Allow anonymous visitors to browse, search, and copy markdown snippets/templates; keep auth for create/favorite/vote/comment.

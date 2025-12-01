@@ -24,4 +24,3 @@ Epic: markdowntown-7z8
 
 ## SEO
 - Use slug in canonical/OG/sitemap; avoid exposing ids in public URLs once migration done.
-

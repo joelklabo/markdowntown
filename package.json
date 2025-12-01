@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:e2e": "E2E_BASE_URL=https://markdown.town vitest run __tests__/e2e/SectionFlow.test.ts",
     "test:coverage": "vitest run --coverage",
-    "lint:md": "node scripts/lint-markdown.js --config markdownlint.config.cjs",
+    "lint:md": "node scripts/lint-markdown.js \"**/*.md\" \"!node_modules/**\" \"!.next/**\" \"!coverage/**\" \"!dist/**\"",
     "format:styles": "prettier src/app/globals.css --write",
     "docs:openapi": "node scripts/validate-openapi.js",
     "analyze": "ANALYZE=true pnpm exec next build --webpack"
