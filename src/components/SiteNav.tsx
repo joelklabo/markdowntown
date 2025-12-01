@@ -75,14 +75,22 @@ export function SiteNav({ user }: { user?: User }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
+    if (hydrated) return;
     try {
       const stored = localStorage.getItem("mdt_recent_searches");
-      if (stored) setRecentSearches(JSON.parse(stored));
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setRecentSearches(parsed);
+      }
     } catch {
       // ignore
+    } finally {
+      setHydrated(true);
     }
-  }, []);
+  }, [hydrated]);
 
   useEffect(() => {
     if (showMobileSearch) {

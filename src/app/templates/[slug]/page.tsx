@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { TemplateFormPreview, type TemplateField, renderTemplateBody } from "@/components/template/TemplateFormPreview";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { getPublicTemplate } from "@/lib/publicTemplates";
+import { getPublicTemplate, type PublicTemplate } from "@/lib/publicTemplates";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
 import { TemplateActions } from "@/components/template/TemplateActions";
@@ -14,6 +14,17 @@ import { TemplateActions } from "@/components/template/TemplateActions";
 type TemplateParams = { slug: string };
 
 const findTemplateBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "template");
+
+type TemplateView = {
+  id: string;
+  slug?: string;
+  title: string;
+  description: string | null;
+  body: string;
+  tags: string[];
+  stats: { views: number; copies: number; votes: number };
+  badge?: string;
+};
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +38,7 @@ export async function generateMetadata({
   if (!item) return { title: "Template not found" };
   return {
     title: `${item.title} | MarkdownTown`,
-    description: (item as any).description ?? "",
+    description: item.description ?? "",
   };
 }
 
@@ -37,20 +48,41 @@ export default async function TemplateDetail({
   params: Promise<TemplateParams>;
 }) {
   const { slug } = await params;
-  const template = await getPublicTemplate(slug);
+  const template: PublicTemplate | null = await getPublicTemplate(slug);
   const fallback = findTemplateBySlug(slug);
-  const data = template ?? fallback;
+  const data: TemplateView | null = template
+    ? {
+        id: template.id,
+        slug: template.slug,
+        title: template.title,
+        description: template.description ?? "",
+        body: template.body ?? "",
+        tags: template.tags,
+        stats: template.stats,
+        badge: (template as { badge?: string }).badge,
+      }
+    : fallback
+      ? {
+          id: fallback.id,
+          slug: fallback.slug,
+          title: fallback.title,
+          description: fallback.description ?? "",
+          body: fallback.description ?? "",
+          tags: fallback.tags,
+          stats: { views: fallback.stats.views, copies: fallback.stats.copies, votes: fallback.stats.votes },
+          badge: fallback.badge,
+        }
+      : null;
+
   if (!data) return notFound();
 
   const fields: TemplateField[] =
-    (Array.isArray((data as any).fields) ? ((data as any).fields as TemplateField[]) : []) || [];
-  const body = (data as any).body ?? (data as any).description ?? "";
-  const tags = normalizeTags((data as any).tags ?? [], { strict: false }).tags;
-  const stats = (data as any).stats ?? {
-    views: (data as any).views ?? 0,
-    copies: (data as any).copies ?? 0,
-    votes: (data as any).uses ?? 0,
-  };
+    Array.isArray((template as { fields?: TemplateField[] } | null)?.fields) && template
+      ? (template.fields as TemplateField[])
+      : [];
+  const body = data.body ?? "";
+  const tags = normalizeTags(data.tags ?? [], { strict: false }).tags;
+  const stats = data.stats ?? { views: 0, copies: 0, votes: 0 };
 
   const relatedPublic = template
     ? await listPublicItems({ limit: 6, tags, type: "template" })
@@ -65,8 +97,8 @@ export default async function TemplateDetail({
     type: item.type,
   });
   const related = relatedPublic.length
-    ? relatedPublic.filter((rel) => rel.id !== (data as any).id).map(toCard).slice(0, 3)
-    : sampleItems.filter((i) => i.type === "template" && i.id !== (data as any).id).slice(0, 3);
+    ? relatedPublic.filter((rel) => rel.id !== data.id).map(toCard).slice(0, 3)
+    : sampleItems.filter((i) => i.type === "template" && i.id !== data.id).slice(0, 3);
 
   const initialValues = Object.fromEntries(fields.map((f) => [f.name, f.placeholder ?? (f.required ? "" : "")]));
   const initialRendered = renderTemplateBody(body, initialValues);
@@ -77,23 +109,23 @@ export default async function TemplateDetail({
         segments={[
           { href: "/", label: "Home" },
           { href: "/templates", label: "Templates" },
-          { label: (data as any).title },
+          { label: data.title },
         ]}
       />
 
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Pill tone="blue">Template</Pill>
-          {(data as any).badge && <Pill tone="yellow">{(data as any).badge}</Pill>}
+          {data.badge && <Pill tone="yellow">{data.badge}</Pill>}
         </div>
-        <h1 className="text-display leading-tight">{(data as any).title}</h1>
-        <p className="text-body text-mdt-muted max-w-3xl">{(data as any).description}</p>
+        <h1 className="text-display leading-tight">{data.title}</h1>
+        <p className="text-body text-mdt-muted max-w-3xl">{data.description}</p>
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <Pill key={tag} tone="gray">#{tag}</Pill>
           ))}
         </div>
-        <TemplateActions id={(data as any).id} slug={(data as any).slug} title={(data as any).title} rendered={initialRendered} />
+        <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
         <div className="text-xs text-mdt-muted flex gap-3">
           <span>{stats.views.toLocaleString()} views</span>
           <span>{stats.copies.toLocaleString()} copies</span>
@@ -101,7 +133,7 @@ export default async function TemplateDetail({
         </div>
       </div>
 
-      <TemplateFormPreview title={(data as any).title} body={body} fields={fields} />
+      <TemplateFormPreview title={data.title} body={body} fields={fields} />
 
       <Card className="space-y-3">
         <h4 className="text-h4">Related templates</h4>
@@ -118,7 +150,7 @@ export default async function TemplateDetail({
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this template</p>
             <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{(data as any).title}</p>
           </div>
-          <TemplateActions id={(data as any).id} slug={(data as any).slug} title={(data as any).title} rendered={initialRendered} />
+          <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
         </div>
       </div>
     </main>

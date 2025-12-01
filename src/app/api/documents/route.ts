@@ -31,6 +31,8 @@ export async function POST(request: Request) {
   const description = (body.description ?? "").toString();
   const renderedContent = (body.renderedContent ?? "").toString();
   const tags = normalizeTags(body.tags ?? [], { strict: false }).tags;
+  const slugBase = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const slug = `${slugBase || "doc"}-${Date.now().toString(36)}`;
 
   const doc = await prisma.document.create({
     data: {
@@ -40,6 +42,7 @@ export async function POST(request: Request) {
       tags,
       visibility: "PRIVATE",
       userId: session.user.id,
+      slug,
     },
   });
 
