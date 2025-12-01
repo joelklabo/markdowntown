@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "./BrandLogo";
 import { Button } from "./ui/Button";
 import { ThemeToggle } from "./ThemeToggle";
@@ -22,12 +22,35 @@ export function SiteNav({ user }: { user?: User }) {
   const pathname = usePathname();
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   function onSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = query.trim();
     router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
+    setShowMobileSearch(false);
   }
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const isMac = /mac/i.test(navigator.userAgent);
+      const cmdK = (isMac && e.metaKey && e.key.toLowerCase() === "k") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "k");
+      if (cmdK) {
+        e.preventDefault();
+        setShowMobileSearch(true);
+        inputRef.current?.focus();
+      }
+      if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
+        e.preventDefault();
+        setShowMobileSearch(true);
+        inputRef.current?.focus();
+      }
+    }
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const bottomNavItems = [
     { href: "/", label: "Home" },
@@ -72,6 +95,7 @@ export function SiteNav({ user }: { user?: User }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search"
+                ref={inputRef}
               />
             </form>
             <ThemeToggle />
@@ -106,18 +130,56 @@ export function SiteNav({ user }: { user?: User }) {
         {bottomNavItems.map((item) => {
           const active = pathname === item.href;
           return (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
+              onClick={() => {
+                if (item.href === "/browse") {
+                  setShowMobileSearch(true);
+                  setTimeout(() => inputRef.current?.focus(), 10);
+                  return;
+                }
+                router.push(item.href);
+              }}
               className={`flex flex-col items-center gap-1 rounded-md px-2 py-1 ${
                 active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
               }`}
             >
               <span>{item.label}</span>
-            </Link>
+            </button>
           );
         })}
       </nav>
+
+      {/* Mobile search modal */}
+      {showMobileSearch && (
+        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden" role="dialog" aria-modal="true">
+          <div className="absolute inset-x-3 top-16 rounded-2xl border border-mdt-border bg-white p-4 shadow-mdt-lg dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Search</p>
+              <button
+                onClick={() => setShowMobileSearch(false)}
+                className="text-sm text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-white"
+                aria-label="Close search"
+              >
+                Esc
+              </button>
+            </div>
+            <form onSubmit={onSearch} className="flex items-center gap-2 rounded-lg border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+              <input
+                ref={inputRef}
+                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
+                placeholder="Search snippets, templates…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Search"
+              />
+              <Button type="submit" size="sm">
+                Go
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
