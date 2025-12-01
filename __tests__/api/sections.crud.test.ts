@@ -86,6 +86,7 @@ describe("sections API CRUD", () => {
   });
 
   it("creates and lists sections for the user", async () => {
+    authMock.mockResolvedValue({ user: { id: "user-1" } });
     const { POST, GET } = await routePromise;
     await POST(
       new Request("http://localhost/api/sections", {
