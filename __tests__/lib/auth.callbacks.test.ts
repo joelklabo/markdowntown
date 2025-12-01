@@ -69,31 +69,28 @@ describe("auth callbacks", () => {
     });
 
     const sessionFn = authOptions.callbacks?.session;
-    const result = await sessionFn?.(
-      {
-        session: {
-          user: {
-            id: "",
-            email: "me@example.com",
-            name: "Me",
-            image: undefined,
-            username: undefined,
-            emailVerified: null,
-          },
-          expires: "",
-        },
+    const result = await sessionFn?.({
+      session: {
         user: {
-          id: "user-1",
-          username: "mdtuser",
+          id: "",
           email: "me@example.com",
-          name: "Full Name",
-          image: "https://img",
+          name: "Me",
+          image: undefined,
+          username: undefined,
           emailVerified: null,
         },
-        token: {},
+        expires: "",
       },
-      { trigger: "signIn", newSession: false }
-    );
+      user: {
+        id: "user-1",
+        username: "mdtuser",
+        email: "me@example.com",
+        name: "Full Name",
+        image: "https://img",
+        emailVerified: null,
+      },
+      token: {},
+    } as any);
 
     expect(result?.user?.id).toBe("user-1");
     expect(result?.user?.username).toBe("mdtuser");
