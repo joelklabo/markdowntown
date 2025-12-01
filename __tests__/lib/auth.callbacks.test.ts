@@ -86,6 +86,7 @@ describe("auth callbacks", () => {
         email: "me@example.com",
         name: "Full Name",
         image: "https://img",
+        emailVerified: null,
       },
       token: {},
     });
@@ -110,10 +111,11 @@ describe("auth callbacks", () => {
         image: "https://img",
       },
       profile: {
-        avatar_url: "https://avatar",
+        image: "https://avatar",
         name: "Full Name",
         id: 42,
-      },
+        email: "me@example.com",
+      } as any,
       account: {
         provider: "github",
         type: "oauth",
