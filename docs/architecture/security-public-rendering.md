@@ -16,6 +16,7 @@ Epic: markdowntown-7z8
 - CSP: ensure responses include CSP default-src 'self'; script-src none for exported markdown where applicable.
 - OG/image endpoints: validate slug, 404 on non-public; limit font/assets; set s-maxage.
 - Logging/abuse: log rate-limit hits and disallowed content; add report-abuse endpoint if not already.
+- **Tests:** add regression cases that ensure malicious markdown (script/iframe/javascript: links) is stripped in preview, detail, and export.
 
 ## Action items
 - Add sanitization step to markdown rendering pipeline (frontend + server). Enable on preview and export.
@@ -23,4 +24,3 @@ Epic: markdowntown-7z8
 - Ensure export/download routes use sanitized content and set `Content-Disposition: attachment`.
 - Extend rateLimiter buckets for engagement endpoints.
 - Automated tests: malicious markdown should not execute (script/iframe/javascript: links) in preview/detail/export.
-
