@@ -148,7 +148,7 @@ export default async function TemplateDetail({
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this template</p>
-            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{(data as any).title}</p>
+            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{data.title}</p>
           </div>
           <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
         </div>
