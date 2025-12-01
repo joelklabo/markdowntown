@@ -114,7 +114,7 @@ describe("auth callbacks", () => {
         login: "mdtuser",
         avatar_url: "https://avatar",
         name: "Full Name",
-      } as any,
+      } satisfies Partial<import("next-auth/providers/github").GithubProfile>,
       account: null,
       isNewUser: true,
       credentials: {},
