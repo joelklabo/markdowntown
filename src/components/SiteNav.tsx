@@ -68,11 +68,15 @@ export function SiteNav({ user }: { user?: User }) {
         setShowMobileSearch(true);
         inputRef.current?.focus();
       }
+      if (e.key === "Escape" && showMobileSearch) {
+        e.preventDefault();
+        setShowMobileSearch(false);
+      }
     }
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [showMobileSearch]);
 
   const [hydrated, setHydrated] = useState(false);
 
