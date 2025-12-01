@@ -129,7 +129,7 @@ describe("auth callbacks", () => {
       },
       isNewUser: true,
       credentials: {},
-    } as const);
+    } as Parameters<NonNullable<typeof authOptions.events?.signIn>>[0]);
 
     expect(prismaUpdate).toHaveBeenCalledWith({
       where: { id: "user-1" },
