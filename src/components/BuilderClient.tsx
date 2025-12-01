@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { Pill } from "./ui/Pill";
@@ -16,8 +17,22 @@ type Props = {
 };
 
 export function BuilderClient({ templates, snippets, requireAuth }: Props) {
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templates[0]?.id ?? null);
-  const [selectedSnippets, setSelectedSnippets] = useState<string[]>([]);
+  const search = useSearchParams();
+  const preselectedTemplate = search?.get("template");
+  const preselectedSnippets = (search?.get("add") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(
+    preselectedTemplate && templates.some((t) => t.id === preselectedTemplate)
+      ? preselectedTemplate
+      : templates[0]?.id ?? null
+  );
+  const [selectedSnippets, setSelectedSnippets] = useState<string[]>(() => {
+    const valid = preselectedSnippets.filter((id) => snippets.some((s) => s.id === id));
+    return valid.length ? valid : [];
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,8 +102,69 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     window.location.href = `/documents/${doc.id}`;
   }
 
+  const steps = ["Template", "Snippets", "Arrange", "Preview", "Export"] as const;
+  const [stepIndex, setStepIndex] = useState(0);
+
+  function goStep(next: number) {
+    const clamped = Math.max(0, Math.min(next, steps.length - 1));
+    setStepIndex(clamped);
+    const anchor = document.querySelector(`[data-step-anchor=\"${steps[clamped].toLowerCase()}\"]`) as HTMLElement | null;
+    anchor?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function nextStep() {
+    goStep(stepIndex + 1);
+  }
+
+  function prevStep() {
+    goStep(stepIndex - 1);
+  }
+
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
+    <main id="main-content" className="mx-auto max-w-6xl px-4 pb-24 pt-6 space-y-6">
+      <div className="sticky top-16 z-10 rounded-xl border border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm backdrop-blur-md dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
+            {steps.map((label, idx) => {
+              const active = idx === stepIndex;
+              const done = idx < stepIndex;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => goStep(idx)}
+                  className={`flex items-center gap-2 rounded-md px-2 py-1 transition ${
+                    active
+                      ? "bg-mdt-blue text-white"
+                      : done
+                        ? "bg-mdt-bg text-mdt-text dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+                        : "text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-mdt-text-dark"
+                  }`}
+                  aria-current={active ? "step" : undefined}
+                >
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs">
+                    {idx + 1}
+                  </span>
+                  <span className="hidden sm:inline">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-32 rounded-full bg-mdt-bg dark:bg-mdt-bg-dark">
+              <div
+                className="h-2 rounded-full bg-mdt-blue transition-all"
+                style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
+                aria-hidden
+              />
+            </div>
+            <span className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
+              Step {stepIndex + 1} of {steps.length}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <p className="text-caption text-mdt-muted">Builder</p>
@@ -108,7 +184,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[320px_320px_1fr]">
-        <Card className="space-y-3">
+        <Card className="space-y-3" data-step-anchor="template">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Templates</h3>
             <Pill tone="yellow">Pick one</Pill>
@@ -135,7 +211,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           </div>
         </Card>
 
-        <Card className="space-y-3">
+        <Card className="space-y-3" data-step-anchor="snippets">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Snippets</h3>
             <Pill tone="blue">Add</Pill>
@@ -148,6 +224,16 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                   <button
                     data-testid="builder-snippet"
                     onClick={() => toggleSnippet(snip.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        moveSnippet(snip.id, -1);
+                      }
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        moveSnippet(snip.id, 1);
+                      }
+                    }}
                     className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                       active
                         ? "border-indigo-400 bg-indigo-50 dark:bg-[#1d2f4d]"
@@ -188,7 +274,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           </div>
         </Card>
 
-        <Card className="flex flex-col gap-3">
+        <Card className="flex flex-col gap-3" data-step-anchor="preview">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Preview</h3>
             <div className="flex gap-2">
