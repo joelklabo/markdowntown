@@ -67,22 +67,21 @@ export async function listPublicItems(input: ListPublicItemsInput = {}): Promise
 
     const normalizedTags = normalizeInputTags(tags);
 
-    const whereCommon = (table: "Snippet" | "Template" | "Document") => {
-      const where: Prisma.SnippetWhereInput | Prisma.TemplateWhereInput | Prisma.DocumentWhereInput = {
-        visibility: "PUBLIC",
-      };
+    const snippetWhere: Prisma.SnippetWhereInput = { visibility: "PUBLIC" };
+    const templateWhere: Prisma.TemplateWhereInput = { visibility: "PUBLIC" };
+    const documentWhere: Prisma.DocumentWhereInput = { visibility: "PUBLIC" };
 
-      if (normalizedTags.length) {
-        (where as Record<string, unknown>).tags = { hasEvery: normalizedTags };
-      }
+    if (normalizedTags.length) {
+      snippetWhere.tags = { hasEvery: normalizedTags };
+      templateWhere.tags = { hasEvery: normalizedTags };
+      documentWhere.tags = { hasEvery: normalizedTags };
+    }
 
-      if (search) {
-        const searchField = table === "Snippet" ? "title" : "title";
-        (where as Record<string, unknown>)[searchField] = { contains: search, mode: "insensitive" };
-      }
-
-      return where;
-    };
+    if (search) {
+      snippetWhere.title = { contains: search, mode: "insensitive" };
+      templateWhere.title = { contains: search, mode: "insensitive" };
+      documentWhere.title = { contains: search, mode: "insensitive" };
+    }
 
     const wantSnippets = type === "all" || type === "snippet";
     const wantTemplates = type === "all" || type === "template";
@@ -92,7 +91,7 @@ export async function listPublicItems(input: ListPublicItemsInput = {}): Promise
 
     if (wantSnippets) {
       const snippets = await prisma.snippet.findMany({
-        where: whereCommon("Snippet"),
+        where: snippetWhere,
         select: {
           id: true,
           slug: true,
@@ -129,7 +128,7 @@ export async function listPublicItems(input: ListPublicItemsInput = {}): Promise
 
     if (wantTemplates) {
       const templates = await prisma.template.findMany({
-        where: whereCommon("Template"),
+        where: templateWhere,
         select: {
           id: true,
           slug: true,
@@ -165,7 +164,7 @@ export async function listPublicItems(input: ListPublicItemsInput = {}): Promise
 
     if (wantFiles) {
       const documents = await prisma.document.findMany({
-        where: whereCommon("Document"),
+        where: documentWhere,
         select: {
           id: true,
           slug: true,

@@ -4,6 +4,7 @@ import path from "node:path";
 export default defineConfig({
   test: {
     environment: "jsdom",
+    // @ts-expect-error upstream typing lag; supported in Vitest runtime
     environmentMatchGlobs: [
       ["**/__tests__/api/**", "node"],
       ["**/__tests__/e2e/**", "node"],

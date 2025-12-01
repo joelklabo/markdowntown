@@ -32,13 +32,16 @@ function normalizeSearchTags(searchParams?: { tag?: string | string[]; tags?: st
   return normalizeTags(value, { strict: false }).tags;
 }
 
+type BrowseSearchParams = { tag?: string | string[]; tags?: string | string[]; sort?: string; type?: string; q?: string };
+
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams?: { tag?: string | string[]; tags?: string | string[] };
+  searchParams?: Promise<BrowseSearchParams> | BrowseSearchParams;
 }) {
-  const activeTags = normalizeSearchTags(searchParams);
-  const sortParam = searchParams?.sort;
+  const params = (await searchParams) ?? {};
+  const activeTags = normalizeSearchTags(params);
+  const sortParam = params.sort;
   const sort =
     sortParam === "copied"
       ? "copies"
@@ -46,7 +49,7 @@ export default async function BrowsePage({
         ? "views"
         : "recent";
 
-  const typeParam = (searchParams as { type?: string } | undefined)?.type;
+  const typeParam = params.type;
   const type =
     typeParam === "template"
       ? "template"
@@ -56,7 +59,7 @@ export default async function BrowsePage({
           ? "snippet"
           : "all";
 
-  const query = (searchParams as { q?: string } | undefined)?.q ?? null;
+  const query = params.q ?? null;
 
   const baseParams = new URLSearchParams();
   activeTags.forEach((tag) => baseParams.append("tag", tag));
