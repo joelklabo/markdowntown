@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Enable pnpm
+        run: corepack enable
       - name: Validate OpenAPI
         run: pnpm install --frozen-lockfile && pnpm docs:openapi
       - name: Run Lighthouse against production
