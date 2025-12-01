@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { listTopTags } from "@/lib/publicTags";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

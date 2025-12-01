@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { listPublicItems, type ListPublicItemsInput } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

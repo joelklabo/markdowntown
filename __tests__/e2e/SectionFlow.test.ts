@@ -24,7 +24,7 @@ describe("Section flow", () => {
       const home = await page.goto(baseURL!, { waitUntil: "domcontentloaded", timeout: 15000 });
       expect(home?.status()).toBeGreaterThanOrEqual(200);
       expect(home?.status()).toBeLessThan(400);
-      await page.getByRole("link", { name: /browse/i }).waitFor({ state: "visible" });
+      await page.getByRole("link", { name: /browse/i }).first().waitFor({ state: "visible" });
 
       const browse = await page.goto(`${baseURL}/browse`, { waitUntil: "domcontentloaded", timeout: 15000 });
       expect(browse?.status()).toBeGreaterThanOrEqual(200);

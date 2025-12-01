@@ -8,16 +8,20 @@ import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
-  const sample = sampleItems.find((i) => i.id === id && i.type === "snippet");
+type SnippetParams = { slug: string };
+
+const findSnippetBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "snippet");
+
+export async function generateMetadata({ params }: { params: Promise<SnippetParams> }): Promise<Metadata> {
+  const { slug } = await params;
+  const sample = findSnippetBySlug(slug);
   if (sample) {
     return {
       title: `${sample.title} | MarkdownTown`,
       description: sample.description,
     };
   }
-  const section = await getPublicSection(id);
+  const section = await getPublicSection(slug);
   if (section) {
     return {
       title: `${section.title} | MarkdownTown`,
@@ -27,10 +31,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: "Snippet not found" };
 }
 
-export default async function SnippetDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const sample = sampleItems.find((i) => i.id === id && i.type === "snippet");
-  const section = sample ? null : await getPublicSection(id);
+export default async function SnippetDetail({ params }: { params: Promise<SnippetParams> }) {
+  const { slug } = await params;
+  const sample = findSnippetBySlug(slug);
+  const section = sample ? null : await getPublicSection(slug);
   const item =
     sample ||
     (section && {

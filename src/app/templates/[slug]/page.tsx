@@ -6,8 +6,17 @@ import { Pill } from "@/components/ui/Pill";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const item = sampleItems.find((i) => i.id === params.id && i.type === "template");
+type TemplateParams = { slug: string };
+
+const findTemplateBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "template");
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<TemplateParams>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const item = findTemplateBySlug(slug);
   if (!item) return { title: "Template not found" };
   return {
     title: `${item.title} | MarkdownTown`,
@@ -15,8 +24,13 @@ export function generateMetadata({ params }: { params: { id: string } }): Metada
   };
 }
 
-export default function TemplateDetail({ params }: { params: { id: string } }) {
-  const item = sampleItems.find((i) => i.id === params.id && i.type === "template");
+export default async function TemplateDetail({
+  params,
+}: {
+  params: Promise<TemplateParams>;
+}) {
+  const { slug } = await params;
+  const item = findTemplateBySlug(slug);
   if (!item) return notFound();
 
   return (
