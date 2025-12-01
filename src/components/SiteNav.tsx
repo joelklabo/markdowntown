@@ -11,8 +11,8 @@ import { ThemeToggle } from "./ThemeToggle";
 const links = [
   { href: "/browse", label: "Browse" },
   { href: "/templates", label: "Templates" },
-  { href: "/builder", label: "Builder" },
   { href: "/tags", label: "Tags" },
+  { href: "/builder", label: "Builder" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -23,7 +23,10 @@ export function SiteNav({ user }: { user?: User }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   function onSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,42 +56,61 @@ export function SiteNav({ user }: { user?: User }) {
   }, []);
 
   const bottomNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/browse", label: "Browse" },
-    { href: "/templates", label: "Templates" },
-    { href: "/builder", label: "Builder" },
+    { href: "/", label: "Home", icon: "🏠" },
+    { href: "/browse", label: "Browse", icon: "🔎" },
+    { href: "/templates", label: "Templates", icon: "📄" },
+    { href: "/builder", label: "Builder", icon: "🛠️" },
   ];
 
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-mdt-border bg-white/90 backdrop-blur-md shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
+        <div className="mx-auto grid max-w-6xl grid-cols-[auto,1fr,auto] items-center gap-2 px-4 py-3 md:grid-cols-[auto,auto,1fr] md:gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2" aria-label="MarkdownTown home">
               <BrandLogo />
             </Link>
-            <nav className="hidden items-center gap-3 text-sm font-medium text-mdt-muted md:flex dark:text-mdt-muted-dark">
-              {links.map((link) => {
-                const active = pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`rounded-md px-2 py-1 transition-colors ${
-                      active
-                        ? "bg-mdt-bg/80 text-mdt-text dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
-                        : "hover:text-mdt-text dark:hover:text-white"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border text-mdt-muted shadow-sm md:hidden dark:border-mdt-border-dark dark:text-mdt-muted-dark"
+              onClick={() => {
+                setShowMobileSearch(true);
+                setTimeout(() => inputRef.current?.focus(), 10);
+              }}
+              aria-label="Search"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+            </button>
           </div>
 
-          <div className="flex flex-1 items-center justify-end gap-3 md:flex-none">
-            <form onSubmit={onSearch} className="hidden min-w-[260px] items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+          <nav className="hidden items-center justify-center gap-3 text-sm font-medium text-mdt-muted md:flex dark:text-mdt-muted-dark">
+            {links.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-md px-3 py-2 transition-colors ${
+                    active
+                      ? "bg-mdt-bg/80 text-mdt-text shadow-sm dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+                      : "hover:text-mdt-text dark:hover:text-white"
+                  }`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center justify-end gap-2">
+            <form
+              onSubmit={onSearch}
+              className="hidden min-w-[260px] items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
+            >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
                 placeholder="Search snippets, templates…"
@@ -98,13 +120,15 @@ export function SiteNav({ user }: { user?: User }) {
                 ref={inputRef}
               />
             </form>
-            <ThemeToggle />
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
             {user ? (
               <div className="flex items-center gap-2 rounded-mdt-pill bg-mdt-bg px-3 py-1 text-sm font-medium text-mdt-muted dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
                 {user.image && (
                   <Image src={user.image} alt={user.name ?? "avatar"} width={28} height={28} className="rounded-full" />
                 )}
-                <span>{user.username ?? user.name ?? user.email ?? "Signed in"}</span>
+                <span className="hidden sm:inline">{user.username ?? user.name ?? user.email ?? "Signed in"}</span>
                 <form action="/api/auth/signout" method="post">
                   <Button variant="ghost" size="sm" type="submit">
                     Sign out
@@ -113,39 +137,63 @@ export function SiteNav({ user }: { user?: User }) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" className="hidden md:inline-flex" asChild>
                   <Link href="/api/auth/signin?callbackUrl=/">Sign in</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/builder">Use a template</Link>
+                  <Link href="/templates">Use a template</Link>
                 </Button>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border text-mdt-muted shadow-sm md:hidden dark:border-mdt-border-dark dark:text-mdt-muted-dark"
+                  aria-label="More"
+                  onClick={() => setShowMobileMenu((open) => !open)}
+                >
+                  <span aria-hidden="true">☰</span>
+                </button>
               </div>
             )}
           </div>
         </div>
+
+        {showMobileMenu && (
+          <div className="absolute right-4 top-14 z-30 w-44 rounded-xl border border-mdt-border bg-white p-3 shadow-mdt-lg md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <div className="flex flex-col gap-2 text-sm text-mdt-text dark:text-mdt-text-dark">
+              <Link href="/docs" className="rounded-md px-2 py-2 hover:bg-mdt-bg dark:hover:bg-mdt-bg-dark" onClick={() => setShowMobileMenu(false)}>
+                Docs
+              </Link>
+              {!user && (
+                <Link
+                  href="/api/auth/signin?callbackUrl=/"
+                  className="rounded-md px-2 py-2 hover:bg-mdt-bg dark:hover:bg-mdt-bg-dark"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Sign in
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-white/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark dark:text-mdt-muted-dark">
         {bottomNavItems.map((item) => {
-          const active = pathname === item.href;
+          const active = isActive(item.href);
           return (
-            <button
+            <Link
               key={item.href}
-              onClick={() => {
-                if (item.href === "/browse") {
-                  setShowMobileSearch(true);
-                  setTimeout(() => inputRef.current?.focus(), 10);
-                  return;
-                }
-                router.push(item.href);
-              }}
+              href={item.href}
               className={`flex flex-col items-center gap-1 rounded-md px-2 py-1 ${
                 active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
               }`}
+              aria-current={active ? "page" : undefined}
             >
+              <span className="text-lg" aria-hidden>
+                {item.icon}
+              </span>
               <span>{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>
