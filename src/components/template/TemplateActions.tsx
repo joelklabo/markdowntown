@@ -1,0 +1,62 @@
+"use client";
+
+import { Button } from "@/components/ui/Button";
+import { track } from "@/lib/analytics";
+
+type Props = {
+  id: string;
+  slug?: string;
+  title: string;
+  rendered: string;
+};
+
+export function TemplateActions({ id, slug, title, rendered }: Props) {
+  const detailHref = `/templates/${slug ?? id}`;
+  const builderHref = `/builder?template=${slug ?? id}`;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(rendered);
+      track("template_copy", { id, slug, title });
+    } catch (err) {
+      console.warn("copy failed", err);
+    }
+  }
+
+  function download() {
+    try {
+      const blob = new Blob([rendered], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slug ?? id}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+      track("template_download", { id, slug, title });
+    } catch (err) {
+      console.warn("download failed", err);
+    }
+  }
+
+  function useBuilder() {
+    track("template_use_builder", { id, slug, title });
+    window.location.href = builderHref;
+  }
+
+  return (
+    <div className="flex gap-2 flex-wrap">
+      <Button size="sm" onClick={copy}>
+        Copy
+      </Button>
+      <Button variant="secondary" size="sm" onClick={download}>
+        Download
+      </Button>
+      <Button variant="ghost" size="sm" onClick={useBuilder}>
+        Use in builder
+      </Button>
+      <Button variant="ghost" size="sm" asChild>
+        <a href={detailHref}>Open detail</a>
+      </Button>
+    </div>
+  );
+}

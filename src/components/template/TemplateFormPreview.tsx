@@ -19,7 +19,7 @@ type Props = {
   fields: TemplateField[];
 };
 
-function renderBody(template: string, values: Record<string, string>) {
+export function renderTemplateBody(template: string, values: Record<string, string>) {
   return template.replace(/{{\s*([\w.-]+)\s*}}/g, (_, key) => values[key] ?? "");
 }
 
@@ -32,7 +32,7 @@ export function TemplateFormPreview({ title, body, fields }: Props) {
     [fields]
   );
   const [values, setValues] = useState<Record<string, string>>(initial);
-  const preview = useMemo(() => renderBody(body, values), [body, values]);
+  const preview = useMemo(() => renderTemplateBody(body, values), [body, values]);
 
   return (
     <Card className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
