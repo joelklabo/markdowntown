@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { TemplateFormPreview, type TemplateField } from "@/components/template/TemplateFormPreview";
 import { LibraryCard } from "@/components/LibraryCard";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 type TemplateParams = { slug: string };
 
@@ -56,6 +57,14 @@ Checklist:
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
+      <Breadcrumb
+        segments={[
+          { href: "/", label: "Home" },
+          { href: "/templates", label: "Templates" },
+          { label: item.title },
+        ]}
+      />
+
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Pill tone="blue">Template</Pill>

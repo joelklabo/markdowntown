@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { SnippetTabs } from "@/components/snippet/SnippetTabs";
 import { LibraryCard } from "@/components/LibraryCard";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 type SnippetParams = { slug: string };
 
@@ -55,6 +56,14 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
+      <Breadcrumb
+        segments={[
+          { href: "/", label: "Home" },
+          { href: "/browse", label: "Browse" },
+          { label: item.title },
+        ]}
+      />
+
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Pill tone="blue">Snippet</Pill>

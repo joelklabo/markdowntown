@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -27,6 +28,13 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
+      <Breadcrumb
+        segments={[
+          { href: "/", label: "Home" },
+          { href: "/browse", label: "Browse" },
+          { label: item.title },
+        ]}
+      />
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Pill tone="blue">agents.md</Pill>
