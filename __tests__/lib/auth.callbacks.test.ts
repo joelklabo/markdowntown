@@ -90,7 +90,7 @@ describe("auth callbacks", () => {
         emailVerified: null,
       },
       token: {},
-    } as any);
+    } satisfies Parameters<NonNullable<typeof sessionFn>>[0]);
 
     expect(result?.user?.id).toBe("user-1");
     expect(result?.user?.username).toBe("mdtuser");
