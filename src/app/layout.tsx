@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { PosthogProvider } from "@/providers/PosthogProvider";
+import { PosthogProviderLazy } from "@/providers/PosthogProviderLazy";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { getSession } from "@/lib/auth";
 import { SiteNav } from "@/components/SiteNav";
@@ -71,12 +71,12 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <ThemeProvider>
-          <PosthogProvider>
+          <PosthogProviderLazy>
             <SiteNav user={user} />
             <PerfVitals />
             <main id="main-content">{children}</main>
             <Footer />
-          </PosthogProvider>
+          </PosthogProviderLazy>
         </ThemeProvider>
       </body>
     </html>
