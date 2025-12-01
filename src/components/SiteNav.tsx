@@ -377,12 +377,12 @@ export function SiteNav({ user }: { user?: User }) {
                 <Link
                   key={link.label}
                   href={link.href}
-                  target={link.external ? \"_blank\" : undefined}
-                  rel={link.external ? \"noreferrer\" : undefined}
-                  className=\"rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-bg dark:border-mdt-border-dark dark:text-mdt-text-dark dark:hover:bg-mdt-bg-dark\"
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noreferrer" : undefined}
+                  className="rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-bg dark:border-mdt-border-dark dark:text-mdt-text-dark dark:hover:bg-mdt-bg-dark"
                   onClick={() => {
                     setShowOverflowSheet(false);
-                    track(\"nav_click\", { href: link.href, placement: \"overflow\" });
+                    track("nav_click", { href: link.href, placement: "overflow" });
                   }}
                 >
                   {link.label}

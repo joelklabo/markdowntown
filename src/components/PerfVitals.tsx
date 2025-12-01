@@ -5,6 +5,14 @@ import { usePathname } from "next/navigation";
 
 type MetricPayload = Record<string, unknown>;
 
+declare global {
+  interface Window {
+    posthog?: { capture: (event: string, payload: MetricPayload) => void };
+  }
+}
+
+type LayoutShiftEntry = PerformanceEntry & { value: number; hadRecentInput: boolean };
+
 function emit(event: string, data: MetricPayload) {
   if (typeof window === "undefined") return;
   const payload = { event, ...data };
@@ -53,7 +61,7 @@ export function PerfVitals() {
     let clsValue = 0;
     const clsObserver = new PerformanceObserver((entryList) => {
       for (const entry of entryList.getEntries()) {
-        const shift = entry as LayoutShift;
+        const shift = entry as LayoutShiftEntry;
         if (!shift.hadRecentInput) clsValue += shift.value;
       }
     });

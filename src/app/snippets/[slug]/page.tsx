@@ -10,7 +10,6 @@ import { SnippetTabs } from "@/components/snippet/SnippetTabs";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { SnippetActions } from "@/components/snippet/SnippetActions";
-import { Card } from "@/components/ui/Card";
 
 type SnippetParams = { slug: string };
 
@@ -103,9 +102,9 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
           <div className="flex flex-col items-end gap-2">
             <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
             <div className="flex gap-3 text-xs text-mdt-muted">
-              <span aria-label=\"Views\">📄 {item.stats.views.toLocaleString()}</span>
-              <span aria-label=\"Copies\">📋 {item.stats.copies.toLocaleString()}</span>
-              <span aria-label=\"Votes\">👍 {item.stats.votes.toLocaleString()}</span>
+              <span aria-label="Views">📄 {item.stats.views.toLocaleString()}</span>
+              <span aria-label="Copies">📋 {item.stats.copies.toLocaleString()}</span>
+              <span aria-label="Votes">👍 {item.stats.votes.toLocaleString()}</span>
             </div>
           </div>
         </div>
