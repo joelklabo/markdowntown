@@ -77,7 +77,6 @@ describe("auth callbacks", () => {
           name: "Me",
           image: undefined,
           username: undefined,
-          emailVerified: null,
         },
         expires: "",
       },
@@ -87,12 +86,9 @@ describe("auth callbacks", () => {
         email: "me@example.com",
         name: "Full Name",
         image: "https://img",
-        emailVerified: null,
       },
       token: {},
-      trigger: "signIn",
-      newSession: true,
-    } as Parameters<NonNullable<typeof sessionFn>>[0]);
+    } as any);
 
     expect(result?.user?.id).toBe("user-1");
     expect(result?.user?.username).toBe("mdtuser");
@@ -112,14 +108,12 @@ describe("auth callbacks", () => {
         email: "me@example.com",
         name: "Full Name",
         image: "https://img",
-        emailVerified: null,
-      },
+      } as any,
       profile: {
-        login: "mdtuser",
         avatar_url: "https://avatar",
         name: "Full Name",
         id: 42,
-      },
+      } as any,
       account: {
         provider: "github",
         type: "oauth",
