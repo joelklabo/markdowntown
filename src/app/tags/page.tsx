@@ -1,4 +1,4 @@
-import { sampleTags } from "@/lib/sampleContent";
+import { listTopTags } from "@/lib/publicTags";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   description: "Explore tags to find snippets, templates, and agents.md files by topic.",
 };
 
-export default function TagsPage() {
+export const revalidate = 300;
+
+export default async function TagsPage() {
+  const tags = await listTopTags(100, 30);
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-6">
       <div className="space-y-1">
@@ -20,7 +23,8 @@ export default function TagsPage() {
       </div>
 
       <Card className="flex flex-wrap gap-3">
-        {sampleTags.map(({ tag, count }) => (
+        {tags.length === 0 && <p className="text-body text-mdt-muted">No tags yet. Check back soon.</p>}
+        {tags.map(({ tag, count }) => (
           <Link
             key={tag}
             href={`/browse?tag=${encodeURIComponent(tag)}`}

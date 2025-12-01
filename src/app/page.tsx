@@ -6,10 +6,13 @@ import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
 import { sampleItems, sampleTags } from "@/lib/sampleContent";
+import { listTopTags } from "@/lib/publicTags";
 
 export default async function Home() {
   const session = await getSession();
   const user = session?.user;
+  const liveTags = await listTopTags(12, 30);
+  const tags = liveTags.length ? liveTags : sampleTags;
 
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
@@ -177,7 +180,7 @@ export default async function Home() {
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {sampleTags.slice(0, 12).map(({ tag, count }) => (
+                    {tags.slice(0, 12).map(({ tag, count }) => (
                       <Link
                         key={tag}
                         href={`/browse?tag=${encodeURIComponent(tag)}`}
