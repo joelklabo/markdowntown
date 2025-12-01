@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
 import { sampleItems } from "@/lib/sampleContent";
 import { getPublicSection } from "@/lib/publicSections";
+import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { normalizeTags } from "@/lib/tags";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { SnippetTabs } from "@/components/snippet/SnippetTabs";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { SnippetActions } from "@/components/snippet/SnippetActions";
 
 type SnippetParams = { slug: string };
 
@@ -34,6 +34,20 @@ export async function generateMetadata({ params }: { params: Promise<SnippetPara
   return { title: "Snippet not found" };
 }
 
+export const dynamic = "force-dynamic";
+
+function toSampleCard(item: PublicItem | { id: string; slug?: string | null; title: string; description: string; tags: string[]; stats: { views: number; copies: number; votes: number }; type: "snippet" | "template" | "file" }) {
+  return {
+    id: item.id,
+    slug: item.slug ?? undefined,
+    title: item.title,
+    description: item.description ?? "",
+    tags: normalizeTags(item.tags, { strict: false }).tags,
+    stats: item.stats,
+    type: item.type,
+  };
+}
+
 export default async function SnippetDetail({ params }: { params: Promise<SnippetParams> }) {
   const { slug } = await params;
   const sample = findSnippetBySlug(slug);
@@ -52,7 +66,12 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
   if (!item) return notFound();
 
   const rawContent = `# ${item.title}\n\n${item.description}`;
-  const related = sampleItems.filter((i) => i.type === "snippet" && i.id !== item.id).slice(0, 3);
+  const relatedPublic = section
+    ? await listPublicItems({ limit: 6, tags: section.tags, type: "snippet" })
+    : [];
+  const related = relatedPublic.length
+    ? relatedPublic.filter((rel) => rel.id !== item.id).map(toSampleCard).slice(0, 3)
+    : sampleItems.filter((i) => i.type === "snippet" && i.id !== item.id).slice(0, 3);
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
@@ -76,13 +95,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
             <Pill key={tag} tone="gray">#{tag}</Pill>
           ))}
         </div>
-        <div className="flex gap-2">
-          <Button size="sm">Copy</Button>
-          <Button variant="secondary" size="sm">Download</Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/builder?add=${item.id}`}>Add to builder</Link>
-          </Button>
-        </div>
+        <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
         <div className="text-xs text-mdt-muted flex gap-3">
           <span>{item.stats.views.toLocaleString()} views</span>
           <span>{item.stats.copies.toLocaleString()} copies</span>
@@ -107,12 +120,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this snippet</p>
             <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{item.title}</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" asChild>
-              <Link href={`/builder?add=${item.id}`}>Builder</Link>
-            </Button>
-            <Button size="sm">Copy</Button>
-          </div>
+          <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} variant="bar" />
         </div>
       </div>
     </main>
