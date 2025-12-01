@@ -11,11 +11,10 @@ import { sampleTags } from "@/lib/sampleContent";
 import { track } from "@/lib/analytics";
 
 const links = [
+  { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
   { href: "/templates", label: "Templates" },
-  { href: "/tags", label: "Tags" },
   { href: "/builder", label: "Builder" },
-  { href: "/docs", label: "Docs" },
 ];
 
 type User = { name?: string | null; username?: string | null; email?: string | null; image?: string | null } | null;
