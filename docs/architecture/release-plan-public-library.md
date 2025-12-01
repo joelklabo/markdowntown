@@ -41,6 +41,7 @@ Owner: devops/product
 ## Rollback
 - If migration fails: restore DB snapshot; redeploy previous Prisma client.
 - If public flag causes issues: disable `public_library` and `builder_v2`; public pages return 404/redirect; APIs can return 404 while private flows remain.
+- Keep `robots.txt` disallow `/` during rollback to avoid index churn.
 
 ## Monitoring & checks
 - Dashboards: error rate (4xx/5xx) on public endpoints; latency p75; cache hit rate; copy/download/favorite events.
