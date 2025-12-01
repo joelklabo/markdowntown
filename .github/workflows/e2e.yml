@@ -12,11 +12,6 @@ concurrency:
 
 jobs:
   e2e:
-    if: >-
-      ${ { secrets.GITHUB_CLIENT_ID_TEST != '' &&
-          secrets.GITHUB_CLIENT_SECRET_TEST != '' &&
-          secrets.GITHUB_TEST_USER != '' &&
-          secrets.GITHUB_TEST_PASS != '' } }
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
