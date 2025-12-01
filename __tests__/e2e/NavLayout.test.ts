@@ -1,0 +1,49 @@
+import { chromium, Browser } from "playwright";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
+
+const baseURL = process.env.E2E_BASE_URL;
+const headless = true;
+
+describe("Navigation and browse layout integrity", () => {
+  let browser: Browser;
+
+  beforeAll(async () => {
+    browser = await chromium.launch({ headless });
+  });
+
+  afterAll(async () => {
+    await browser?.close();
+  });
+
+  const maybe = baseURL ? it : it.skip;
+
+  maybe("keeps header actions on one line and enforces card min width", { timeout: 45000 }, async () => {
+    const context = await browser.newContext({ baseURL, viewport: { width: 1280, height: 900 } });
+    const page = await context.newPage();
+
+    await page.goto("/browse", { waitUntil: "domcontentloaded" });
+
+    // Header buttons should not wrap
+    const header = page.locator("header");
+    const cta = header.getByRole("link", { name: /Use a template/i });
+    const signIn = header.getByRole("link", { name: /Sign in/i });
+    await Promise.all([cta.waitFor(), signIn.waitFor()]);
+    const ctaBox = await cta.boundingBox();
+    const signBox = await signIn.boundingBox();
+    expect(ctaBox?.height).toBeLessThan(48);
+    expect(signBox?.height).toBeLessThan(40);
+
+    // Cards maintain usable width
+    const firstCard = page.locator("main .card").first();
+    await firstCard.waitFor({ state: "visible" });
+    const cardBox = await firstCard.boundingBox();
+    expect(cardBox?.width).toBeGreaterThan(240);
+
+    // At least two columns at desktop width
+    const cards = await page.locator("main .card").all();
+    const xs = await Promise.all(cards.slice(0, 2).map(async (c) => (await c.boundingBox())?.x ?? 0));
+    expect(new Set(xs).size).toBeGreaterThan(1);
+
+    await context.close();
+  });
+});

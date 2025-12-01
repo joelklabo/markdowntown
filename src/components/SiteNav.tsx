@@ -172,10 +172,10 @@ export function SiteNav({ user }: { user?: User }) {
             })}
           </nav>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 flex-nowrap">
             <form
               onSubmit={onSearch}
-              className="hidden min-w-[320px] items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
+              className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
             >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
@@ -197,7 +197,7 @@ export function SiteNav({ user }: { user?: User }) {
                 {user.image && (
                   <Image src={user.image} alt={user.name ?? "avatar"} width={28} height={28} className="rounded-full" />
                 )}
-                <span className="hidden sm:inline">{user.username ?? user.name ?? user.email ?? "Signed in"}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{user.username ?? user.name ?? user.email ?? "Signed in"}</span>
                 <form action="/api/auth/signout" method="post">
                   <Button variant="ghost" size="sm" type="submit">
                     Sign out
@@ -206,12 +206,12 @@ export function SiteNav({ user }: { user?: User }) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="hidden md:inline-flex" asChild>
+                <Button variant="ghost" size="sm" className="hidden md:inline-flex whitespace-nowrap" asChild>
                   <Link href="/api/auth/signin?callbackUrl=/" onClick={() => track("nav_click", { href: "signin", placement: "desktop" })}>
                     Sign in
                   </Link>
                 </Button>
-                <Button size="sm" asChild>
+                <Button size="sm" className="whitespace-nowrap" asChild>
                   <Link href={ctaHref} onClick={() => track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" })}>
                     Use a template
                   </Link>
