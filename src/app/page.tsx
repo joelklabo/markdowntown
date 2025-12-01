@@ -1,12 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getSession } from "@/lib/auth";
 import { SectionComposer } from "@/components/SectionComposer";
-import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { LibraryCard } from "@/components/LibraryCard";
+import { sampleItems, sampleTags } from "@/lib/sampleContent";
 
 export default async function Home() {
   const session = await getSession();
@@ -14,69 +13,29 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
-      <header className="border-b border-mdt-border bg-white dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <BrandLogo />
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            {user ? (
-              <>
-                <div className="hidden items-center gap-2 rounded-mdt-pill bg-mdt-bg px-3 py-1 text-sm font-medium text-mdt-muted sm:flex dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
-                  {user.image && (
-                    <Image
-                      src={user.image}
-                      alt={user.name ?? "avatar"}
-                      width={28}
-                      height={28}
-                      className="rounded-full"
-                    />
-                  )}
-                  <span>{user.username ?? user.name ?? user.email ?? "Signed in"}</span>
-                </div>
-                <form action="/api/auth/signout" method="post">
-                  <Button variant="ghost" size="sm" type="submit">
-                    Sign out
-                  </Button>
-                </form>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Sign in</Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Get started</Link>
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
       {!user && (
         <div className="border-b border-mdt-border bg-white dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
           <section className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-12 md:flex-row md:items-center md:py-16">
             <div className="flex-1 space-y-4">
-              <Pill>New · Build your agent town</Pill>
-              <h1 className="text-display text-mdt-text">
-                Your little town of reusable Markdown prompts.
-              </h1>
+              <Pill>New · agents.md made reusable</Pill>
+              <h1 className="text-display text-mdt-text">Build one source of truth for your agents.md.</h1>
               <p className="text-body text-mdt-muted max-w-xl">
-                MarkdownTown lets you collect, remix, and reuse markdown sections for AI agents.
-                Snap blocks together like houses on a street.
+                Browse ready-to-use snippets and templates, assemble the perfect agents.md with a builder,
+                then copy or download—all without signing in. Log in when you want to save, vote, or comment.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Start composing</Link>
+                  <Link href="/builder">Start builder</Link>
                 </Button>
                 <Button variant="secondary" asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Browse the town</Link>
+                  <Link href="/browse">Browse library</Link>
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Pill>Secure by default</Pill>
-                <Pill tone="yellow">Reusable sections</Pill>
+                <Pill>Copy without login</Pill>
+                <Pill tone="yellow">Templates with placeholders</Pill>
                 <Pill>Live preview</Pill>
+                <Pill tone="green">Export to agents.md</Pill>
               </div>
             </div>
 
@@ -131,43 +90,131 @@ export default async function Home() {
               <div className="md:col-span-2 space-y-2">
                 <h3 className="text-h2">How it works</h3>
                 <ol className="list-decimal space-y-2 pl-4 text-body text-mdt-muted">
-                  <li>Sign in with GitHub to create your private town.</li>
-                  <li>Add sections (system, style, tools) and edit them with live preview.</li>
-                  <li>Remix sections into your agents or export as markdown.</li>
+                  <li>Browse public snippets and templates—copy or download without signing in.</li>
+                  <li>Open the builder to pick a template, add snippets, reorder, and preview agents.md.</li>
+                  <li>Copy or download the final file; sign in only if you want to save, vote, or comment.</li>
                 </ol>
               </div>
               <div className="flex flex-col gap-3 rounded-mdt-md bg-mdt-bg p-4">
                 <span className="text-body font-semibold">Ready to start?</span>
                 <Button asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Sign in with GitHub</Link>
+                  <Link href="/builder">Open builder</Link>
                 </Button>
                 <Button variant="secondary" asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Browse your town</Link>
+                  <Link href="/browse">Browse library</Link>
                 </Button>
+              </div>
+            </div>
+
+            <div className="mt-12 space-y-8">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-caption text-mdt-muted">Featured</p>
+                    <h3 className="text-h2">Trending snippets & templates</h3>
+                  </div>
+                  <Button variant="secondary" asChild>
+                    <Link href="/browse">Browse all</Link>
+                  </Button>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {sampleItems
+                    .filter((i) => i.badge === "trending" || i.badge === "staff")
+                    .slice(0, 3)
+                    .map((item) => (
+                      <LibraryCard key={item.id} item={item} />
+                    ))}
+                </div>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+                <Card className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-caption text-mdt-muted">Most copied</p>
+                      <h3 className="text-h3">agents.md files people grab</h3>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href="/browse?sort=copied">See list</Link>
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    {sampleItems
+                      .filter((i) => i.type === "file")
+                      .sort((a, b) => b.stats.copies - a.stats.copies)
+                      .slice(0, 3)
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between rounded-lg border border-mdt-border px-3 py-3 text-sm dark:border-mdt-border-dark"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Pill tone="blue">agents.md</Pill>
+                              {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
+                            </div>
+                            <p className="font-semibold text-mdt-text dark:text-mdt-text-dark">{item.title}</p>
+                            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
+                              {item.stats.copies.toLocaleString()} copies · {item.stats.views.toLocaleString()} views
+                            </p>
+                          </div>
+                          <Button size="sm" asChild>
+                            <Link href={`/files/${item.id}`}>Copy</Link>
+                          </Button>
+                        </div>
+                      ))}
+                  </div>
+                </Card>
+
+                <Card className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-caption text-mdt-muted">Tags</p>
+                      <h3 className="text-h3">What people search</h3>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href="/tags">View tags</Link>
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sampleTags.slice(0, 12).map(({ tag, count }) => (
+                      <Link
+                        key={tag}
+                        href={`/browse?tag=${encodeURIComponent(tag)}`}
+                        className="rounded-mdt-pill border border-mdt-border px-3 py-1 text-sm text-mdt-text transition hover:-translate-y-[1px] hover:border-indigo-300 hover:shadow-mdt-sm dark:border-mdt-border-dark dark:text-mdt-text-dark"
+                      >
+                        #{tag} · {count}
+                      </Link>
+                    ))}
+                  </div>
+                </Card>
               </div>
             </div>
           </section>
         </div>
       )}
 
-      <main id="main-content" className="mx-auto max-w-6xl px-4 pb-16 pt-8">
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8">
         {user ? (
           <SectionComposer />
         ) : (
           <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm space-y-4 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-            <h2 className="text-h2 font-semibold text-mdt-text">Sign in to start composing</h2>
+            <h2 className="text-h2 font-semibold text-mdt-text">Start building now</h2>
             <p className="mt-3 text-body text-mdt-muted">
-              Connect your GitHub account to start creating and mixing markdown sections with live
-              preview. Your sections stay private to your account.
+              Assemble an agents.md with public snippets and templates, then copy or download. Sign in
+              later to save and keep favorites in sync across projects.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Button asChild>
-                <Link href="/api/auth/signin?callbackUrl=/">Sign in with GitHub</Link>
+                <Link href="/builder">Open builder</Link>
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link href="/browse">Browse library</Link>
               </Button>
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

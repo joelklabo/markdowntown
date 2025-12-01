@@ -62,9 +62,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  const nextOrder = await prisma.section.count({ where: { userId: session.user.id } });
+  const nextOrder = await prisma.snippet.count({ where: { userId: session.user.id } });
 
-  const section = await prisma.section.create({
+  const section = await prisma.snippet.create({
     data: {
       title,
       content,

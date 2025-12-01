@@ -89,6 +89,8 @@ describe("auth callbacks", () => {
         emailVerified: null,
       },
       token: {},
+      newSession: null,
+      trigger: "update",
     });
 
     expect(result?.user?.id).toBe("user-1");
@@ -102,6 +104,14 @@ describe("auth callbacks", () => {
       GITHUB_CLIENT_SECRET: "secret",
     });
 
+    const ghProfile = {
+      id: 42,
+      login: "mdtuser",
+      avatar_url: "https://avatar",
+      name: "Full Name",
+      email: "me@example.com",
+    } as unknown as import("next-auth").Profile;
+
     await authOptions.events?.signIn?.({
       user: {
         id: "user-1",
@@ -110,13 +120,7 @@ describe("auth callbacks", () => {
         name: "Full Name",
         image: "https://img",
       },
-      profile: {
-        id: 42,
-        login: "mdtuser",
-        avatar_url: "https://avatar",
-        name: "Full Name",
-        email: "me@example.com",
-      } satisfies Partial<import("next-auth/providers/github").GithubProfile>,
+      profile: ghProfile,
       account: {
         provider: "github",
         type: "oauth",
@@ -125,7 +129,6 @@ describe("auth callbacks", () => {
         token_type: "bearer",
       },
       isNewUser: true,
-      credentials: {},
     });
 
     expect(prismaUpdate).toHaveBeenCalledWith({

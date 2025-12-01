@@ -9,7 +9,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 async function authorizeSection(context: RouteContext, userId: string) {
   const { id } = await context.params;
-  return prisma.section.findFirst({
+  return prisma.snippet.findFirst({
     where: { id, userId },
   });
 }
@@ -79,7 +79,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const updated = await prisma.section.update({
+  const updated = await prisma.snippet.update({
     where: { id },
     data: updateData,
   });
@@ -107,7 +107,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  await prisma.section.delete({ where: { id } });
+  await prisma.snippet.delete({ where: { id } });
   void getSectionsCached(session.user.id);
   return NextResponse.json({ ok: true });
 }

@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { PosthogProvider } from "@/providers/PosthogProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { getSession } from "@/lib/auth";
+import { SiteNav } from "@/components/SiteNav";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,11 +54,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
+  const user = session?.user ?? null;
+
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-mdt-bg text-mdt-text font-sans antialiased">
@@ -64,7 +69,10 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ThemeProvider>
-          <PosthogProvider>{children}</PosthogProvider>
+          <PosthogProvider>
+            <SiteNav user={user} />
+            <main id="main-content">{children}</main>
+          </PosthogProvider>
         </ThemeProvider>
       </body>
     </html>
