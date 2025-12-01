@@ -24,7 +24,7 @@ export function SiteNav({ user }: { user?: User }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showOverflowSheet, setShowOverflowSheet] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -68,15 +68,21 @@ export function SiteNav({ user }: { user?: User }) {
         setShowMobileSearch(true);
         inputRef.current?.focus();
       }
-      if (e.key === "Escape" && showMobileSearch) {
-        e.preventDefault();
-        setShowMobileSearch(false);
+      if (e.key === "Escape") {
+        if (showMobileSearch) {
+          e.preventDefault();
+          setShowMobileSearch(false);
+        }
+        if (showOverflowSheet) {
+          e.preventDefault();
+          setShowOverflowSheet(false);
+        }
       }
     }
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [showMobileSearch]);
+  }, [showMobileSearch, showOverflowSheet]);
 
   const [hydrated, setHydrated] = useState(false);
 
@@ -96,14 +102,14 @@ export function SiteNav({ user }: { user?: User }) {
   }, [hydrated]);
 
   useEffect(() => {
-    if (showMobileSearch) {
+    if (showMobileSearch || showOverflowSheet) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = prev;
       };
     }
-  }, [showMobileSearch]);
+  }, [showMobileSearch, showOverflowSheet]);
 
   const bottomNavItems = [
     { href: "/", label: "Home", icon: "🏠", type: "link" as const },
@@ -111,6 +117,13 @@ export function SiteNav({ user }: { user?: User }) {
     { href: "/templates", label: "Templates", icon: "📄", type: "link" as const },
     { href: "/builder", label: "Builder", icon: "🛠️", type: "link" as const },
     { label: "Search", icon: "⌘K", type: "search" as const },
+  ];
+
+  const overflowLinks = [
+    { href: "/docs", label: "Docs" },
+    { href: "https://github.com/joelklabo/markdowntown/blob/main/CHANGELOG.md", label: "Changelog", external: true },
+    { href: "/privacy", label: "Privacy" },
+    { href: "https://github.com/joelklabo/markdowntown", label: "GitHub", external: true },
   ];
 
   return (
@@ -202,44 +215,26 @@ export function SiteNav({ user }: { user?: User }) {
                     Use a template
                   </Link>
                 </Button>
-                <button
-                  type="button"
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border text-mdt-muted shadow-sm md:hidden dark:border-mdt-border-dark dark:text-mdt-muted-dark"
-                  aria-label="More"
-                  onClick={() => setShowMobileMenu((open) => !open)}
-                >
-                  <span aria-hidden="true">☰</span>
-                </button>
               </div>
             )}
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border text-mdt-muted shadow-sm md:hidden dark:border-mdt-border-dark dark:text-mdt-muted-dark"
+              aria-label="Open menu"
+              onClick={() => setShowOverflowSheet(true)}
+            >
+              <span aria-hidden="true">⋯</span>
+            </button>
           </div>
         </div>
-
-        {showMobileMenu && (
-          <div className="absolute right-4 top-14 z-30 w-44 rounded-xl border border-mdt-border bg-white p-3 shadow-mdt-lg md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-            <div className="flex flex-col gap-2 text-sm text-mdt-text dark:text-mdt-text-dark">
-              <Link href="/docs" className="rounded-md px-2 py-2 hover:bg-mdt-bg dark:hover:bg-mdt-bg-dark" onClick={() => setShowMobileMenu(false)}>
-                Docs
-              </Link>
-              {!user && (
-                <Link
-                  href="/api/auth/signin?callbackUrl=/"
-                  className="rounded-md px-2 py-2 hover:bg-mdt-bg dark:hover:bg-mdt-bg-dark"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Sign in
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Mobile bottom nav */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-white/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark dark:text-mdt-muted-dark"
+        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-white/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95 dark:text-mdt-muted-dark"
         role="navigation"
         aria-label="Primary"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 10px)" }}
       >
         {bottomNavItems.map((item) => {
           const active = item.type === "link" ? isActive(item.href ?? "") : false;
@@ -248,9 +243,9 @@ export function SiteNav({ user }: { user?: User }) {
               {item.type === "link" ? (
                 <Link
                   href={item.href!}
-                  className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-md px-2 ${
+                  className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-md px-2 transition ${
                     active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
-                  }`}
+                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark`}
                   onClick={() => track("nav_click", { href: item.href, placement: "bottom" })}
                   aria-current={active ? "page" : undefined}
                 >
@@ -268,7 +263,7 @@ export function SiteNav({ user }: { user?: User }) {
                     setTimeout(() => inputRef.current?.focus(), 10);
                     track("nav_search_open", { source: "bottom_nav" });
                   }}
-                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text dark:text-mdt-text-dark"
+                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text transition hover:text-mdt-text dark:text-mdt-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark"
                   aria-label="Open search"
                 >
                   <span className="text-xs font-mono" aria-hidden>
@@ -353,6 +348,46 @@ export function SiteNav({ user }: { user?: User }) {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showOverflowSheet && (
+        <div className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm md:hidden" role="dialog" aria-modal="true" aria-label="More">
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label="Close menu overlay"
+            onClick={() => setShowOverflowSheet(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border border-mdt-border bg-white p-4 shadow-mdt-lg dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="h-1.5 w-12 rounded-full bg-mdt-border dark:bg-mdt-border-dark" aria-hidden />
+              <button
+                type="button"
+                className="text-sm text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-white"
+                onClick={() => setShowOverflowSheet(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {overflowLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  target={link.external ? \"_blank\" : undefined}
+                  rel={link.external ? \"noreferrer\" : undefined}
+                  className=\"rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-bg dark:border-mdt-border-dark dark:text-mdt-text-dark dark:hover:bg-mdt-bg-dark\"
+                  onClick={() => {
+                    setShowOverflowSheet(false);
+                    track(\"nav_click\", { href: link.href, placement: \"overflow\" });
+                  }}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}
