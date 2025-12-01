@@ -162,10 +162,22 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                   </button>
                   {active && (
                     <div className="flex flex-col gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => moveSnippet(snip.id, -1)} aria-label="Move up">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveSnippet(snip.id, -1)}
+                        aria-label="Move up"
+                        disabled={selectedSnippets.indexOf(snip.id) === 0}
+                      >
                         ↑
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => moveSnippet(snip.id, 1)} aria-label="Move down">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveSnippet(snip.id, 1)}
+                        aria-label="Move down"
+                        disabled={selectedSnippets.indexOf(snip.id) === selectedSnippets.length - 1}
+                      >
                         ↓
                       </Button>
                     </div>

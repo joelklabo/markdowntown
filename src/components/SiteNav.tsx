@@ -157,7 +157,7 @@ export function SiteNav({ user }: { user?: User }) {
           <div className="flex items-center justify-end gap-2">
             <form
               onSubmit={onSearch}
-              className="hidden min-w-[260px] items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
+              className="hidden min-w-[320px] items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
             >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
@@ -167,6 +167,9 @@ export function SiteNav({ user }: { user?: User }) {
                 aria-label="Search"
                 ref={inputRef}
               />
+              <Button type="submit" size="sm">
+                Search
+              </Button>
             </form>
             <div className="hidden md:block">
               <ThemeToggle />
