@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Run markdownlint-cli2 via child_process; keep CommonJS to avoid lint rule issues.
+/* eslint-disable @typescript-eslint/no-require-imports */
+// Run markdownlint-cli2 via child_process; keep CommonJS.
 const { spawnSync } = require("node:child_process");
 const args = process.argv.slice(2);
 if (args.length === 0) {
