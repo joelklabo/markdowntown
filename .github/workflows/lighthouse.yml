@@ -32,8 +32,7 @@ jobs:
           urls: |
             https://markdown.town/
           budgetPath: ./lighthouse-budget.json
-          uploadArtifacts: true
+          uploadArtifacts: false
           temporaryPublicStorage: true
           runs: 1
           configPath: ''
-          artifactName: lhci-report
