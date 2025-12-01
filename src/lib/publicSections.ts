@@ -1,10 +1,12 @@
 import { prisma } from "./prisma";
+import { normalizeTags } from "./tags";
 
 export type PublicSection = {
   id: string;
   slug?: string | null;
   title: string;
   content: string;
+  tags: string[];
   updatedAt: Date;
   createdAt: Date;
 };
@@ -22,11 +24,15 @@ export async function listPublicSections(limit = 24): Promise<PublicSection[]> {
       slug: true,
       title: true,
       content: true,
+      tags: true,
       updatedAt: true,
       createdAt: true,
     },
   });
-  return sections;
+  return sections.map((section) => ({
+    ...section,
+    tags: normalizeTags(section.tags, { strict: false }).tags,
+  }));
 }
 
 export async function getPublicSection(idOrSlug: string): Promise<PublicSection | null> {
@@ -40,9 +46,15 @@ export async function getPublicSection(idOrSlug: string): Promise<PublicSection 
       slug: true,
       title: true,
       content: true,
+      tags: true,
       updatedAt: true,
       createdAt: true,
     },
   });
-  return section ?? null;
+  if (!section) return null;
+
+  return {
+    ...section,
+    tags: normalizeTags(section.tags, { strict: false }).tags,
+  };
 }

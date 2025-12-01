@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "./prisma";
+import { normalizeTags } from "./tags";
 
 export type PublicTag = { tag: string; count: number };
 
@@ -23,7 +24,18 @@ async function queryTags(limit: number, windowDays?: number | null): Promise<Pub
     LIMIT ${limit};
   `);
 
-  return results.map((row) => ({ tag: row.tag, count: Number(row.count) }));
+  const aggregated = new Map<string, number>();
+
+  results.forEach((row) => {
+    const normalized = normalizeTags([row.tag], { strict: false }).tags[0];
+    if (!normalized) return;
+    aggregated.set(normalized, (aggregated.get(normalized) ?? 0) + Number(row.count));
+  });
+
+  return Array.from(aggregated.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([tag, count]) => ({ tag, count }));
 }
 
 export async function listTopTags(limit = 50, windowDays?: number | null) {

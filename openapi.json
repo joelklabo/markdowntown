@@ -94,6 +94,11 @@
           "title": { "type": "string" },
           "content": { "type": "string" },
           "order": { "type": "integer" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string", "maxLength": 32 },
+            "maxItems": 8
+          },
           "userId": { "type": "string" },
           "createdAt": { "type": "string", "format": "date-time" },
           "updatedAt": { "type": "string", "format": "date-time" }
@@ -103,7 +108,12 @@
         "type": "object",
         "properties": {
           "title": { "type": "string" },
-          "content": { "type": "string" }
+          "content": { "type": "string" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string", "maxLength": 32 },
+            "maxItems": 8
+          }
         }
       }
     }

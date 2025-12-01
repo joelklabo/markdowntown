@@ -4,6 +4,7 @@ import { getPublicSection } from "@/lib/publicSections";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -34,7 +35,7 @@ export default async function SnippetDetail({ params }: { params: { id: string }
       id: section.id,
       title: section.title,
       description: section.content.slice(0, 240) || "Markdown snippet",
-      tags: [] as string[],
+      tags: normalizeTags(section.tags, { strict: false }).tags,
       stats: { views: 0, copies: 0, votes: 0 },
       badge: undefined,
     });

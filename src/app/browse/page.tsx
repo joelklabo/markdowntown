@@ -1,9 +1,10 @@
-import { sampleItems } from "@/lib/sampleContent";
-import { listPublicSections } from "@/lib/publicSections";
+import { sampleItems, type SampleItem } from "@/lib/sampleContent";
+import { listPublicSections, type PublicSection } from "@/lib/publicSections";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -12,21 +13,43 @@ export const metadata: Metadata = {
   description: "Discover reusable snippets, templates, and agents.md files to assemble your next agents.md.",
 };
 
-function sectionToCard(section: { id: string; title: string; content: string; updatedAt: Date }) {
+function sectionToCard(section: PublicSection): SampleItem {
   const description = section.content?.slice(0, 140) || "Markdown snippet";
+  const tags = normalizeTags(section.tags, { strict: false }).tags;
   return {
     id: section.id,
+    slug: section.slug ?? undefined,
     title: section.title,
     description,
-    tags: [] as string[],
+    tags,
     stats: { copies: 0, views: 0, votes: 0 },
     type: "snippet" as const,
   };
 }
 
-export default async function BrowsePage() {
+function normalizeSearchTags(searchParams?: { tag?: string | string[]; tags?: string | string[] }) {
+  const raw = searchParams?.tag ?? searchParams?.tags ?? [];
+  const value = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  return normalizeTags(value, { strict: false }).tags;
+}
+
+export default async function BrowsePage({
+  searchParams,
+}: {
+  searchParams?: { tag?: string | string[]; tags?: string | string[] };
+}) {
+  const activeTags = normalizeSearchTags(searchParams);
   const sections = await listPublicSections(30);
-  const cards = sections.length > 0 ? sections.map(sectionToCard) : sampleItems;
+  const cards: SampleItem[] = sections.length > 0 ? sections.map(sectionToCard) : sampleItems;
+  const normalizedCards: SampleItem[] = cards.map((item) => ({
+    ...item,
+    tags: normalizeTags(item.tags, { strict: false }).tags,
+  }));
+  const filtered = activeTags.length
+    ? normalizedCards.filter((item) =>
+        activeTags.every((tag) => item.tags.includes(tag))
+      )
+    : normalizedCards;
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
@@ -79,16 +102,31 @@ export default async function BrowsePage() {
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Popular tags</p>
             <div className="flex flex-wrap gap-2">
               {["system", "tools", "templates", "qa", "style", "cli"].map((tag) => (
-                <Pill key={tag} tone="gray">#{tag}</Pill>
+                <Pill key={tag} tone="gray">#{normalizeTags(tag, { strict: false }).tags[0] ?? tag}</Pill>
               ))}
             </div>
           </div>
         </Card>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((item) => (
+          {activeTags.length > 0 && (
+            <div className="sm:col-span-2 lg:col-span-3 flex flex-wrap gap-2" aria-label="Active tag filters">
+              {activeTags.map((tag) => (
+                <Pill key={tag} tone="blue">#{tag}</Pill>
+              ))}
+              <Link href="/browse" className="text-sm text-indigo-600 underline">
+                Clear filters
+              </Link>
+            </div>
+          )}
+          {filtered.map((item) => (
             <LibraryCard key={item.id} item={item} />
           ))}
+          {filtered.length === 0 && (
+            <div className="sm:col-span-2 lg:col-span-3 rounded-lg border border-mdt-border bg-white p-6 text-sm text-mdt-muted dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark">
+              No results for those tags yet. Try removing a filter.
+            </div>
+          )}
         </div>
       </div>
     </main>

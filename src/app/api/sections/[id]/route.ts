@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { MAX_CONTENT_LENGTH, MAX_TITLE_LENGTH } from "@/lib/validation";
 import { getSectionsCached } from "@/lib/cache";
+import { normalizeTags } from "@/lib/tags";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -67,6 +68,13 @@ export async function PUT(request: Request, context: RouteContext) {
   }
   if (typeof body.order === "number") {
     updateData.order = body.order;
+  }
+  if (Object.prototype.hasOwnProperty.call(body, "tags")) {
+    const { tags, error: tagError } = normalizeTags(body.tags);
+    if (tagError) {
+      return NextResponse.json({ error: tagError }, { status: 400 });
+    }
+    updateData.tags = tags;
   }
 
   if (Object.keys(updateData).length === 0) {

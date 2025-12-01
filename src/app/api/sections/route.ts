@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { validateSectionPayload } from "@/lib/validation";
+import { normalizeTags } from "@/lib/tags";
 import { getSectionsCached } from "@/lib/cache";
 import { logAbuseSignal } from "@/lib/reports";
 
@@ -52,9 +53,14 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const title = typeof body.title === "string" && body.title.trim() ? body.title.trim() : null;
   const content = typeof body.content === "string" ? body.content : "";
+  const { tags, error: tagError } = normalizeTags(body.tags);
 
   if (!title) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
+  }
+
+  if (tagError) {
+    return NextResponse.json({ error: tagError }, { status: 400 });
   }
 
   const validationError = validateSectionPayload(title, content);
@@ -70,6 +76,7 @@ export async function POST(request: Request) {
       content,
       order: nextOrder,
       userId: session.user.id,
+      tags,
     },
   });
 

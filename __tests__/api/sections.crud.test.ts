@@ -6,6 +6,7 @@ type SectionRecord = {
   content: string;
   order: number;
   userId: string;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -27,6 +28,7 @@ const prismaMock = {
         createdAt: new Date(),
         updatedAt: new Date(),
         ...data,
+        tags: data.tags ?? [],
       };
       store.push(created);
       return created;
@@ -133,6 +135,31 @@ describe("sections API CRUD", () => {
     expect(res.status).toBe(200);
     expect(updated.title).toBe("New title");
     expect(updated.content).toBe("New content");
+  });
+
+  it("normalizes tags on create and update", async () => {
+    const { POST } = await routePromise;
+    const { PUT } = await routeWithIdPromise;
+
+    const createdRes = await POST(
+      new Request("http://localhost/api/sections", {
+        method: "POST",
+        body: JSON.stringify({ title: "Tags", content: "Body", tags: ["System Prompt"] }),
+      })
+    );
+    const created = await createdRes.json();
+    expect(created.tags).toEqual(["system-prompt"]);
+
+    const ctx: RouteContext = { params: Promise.resolve({ id: created.id }) };
+    const res = await PUT(
+      new Request("http://localhost/api/sections/id", {
+        method: "PUT",
+        body: JSON.stringify({ tags: ["Style Guide", "Style Guide"] }),
+      }),
+      ctx
+    );
+    const updated = await res.json();
+    expect(updated.tags).toEqual(["style-guide"]);
   });
 
   it("deletes a section", async () => {

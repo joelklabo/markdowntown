@@ -27,6 +27,7 @@ describe("POST /api/sections validation", () => {
       content: "",
       order: 0,
       userId: "user-1",
+      tags: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -59,5 +60,43 @@ describe("POST /api/sections validation", () => {
     );
     expect(res.status).toBe(201);
     expect(createMock).toHaveBeenCalledOnce();
+  });
+
+  it("rejects too many tags", async () => {
+    const { POST } = await import("@/app/api/sections/route");
+    const res = await POST(
+      new Request("http://localhost/api/sections", {
+        method: "POST",
+        body: JSON.stringify({
+          title: "Tags",
+          content: "Content",
+          tags: Array.from({ length: 9 }, (_, i) => `tag-${i}`),
+        }),
+      })
+    );
+
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toMatch(/too many tags/i);
+  });
+
+  it("normalizes tags on create", async () => {
+    const { POST } = await import("@/app/api/sections/route");
+    await POST(
+      new Request("http://localhost/api/sections", {
+        method: "POST",
+        body: JSON.stringify({
+          title: "Tags",
+          content: "Content",
+          tags: ["System Prompt", "Style"],
+        }),
+      })
+    );
+
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ tags: ["system-prompt", "style"] }),
+      })
+    );
   });
 });

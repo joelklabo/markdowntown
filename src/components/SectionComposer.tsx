@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import type { Pluggable } from "unified";
 import { Button } from "./ui/Button";
+import { normalizeTags, TAG_MAX_COUNT, TAG_MAX_LENGTH } from "@/lib/tags";
 
 const ReactMarkdown = dynamic(() => import("react-markdown"), {
   loading: () => <p className="text-sm text-zinc-500">Loading preview…</p>,
@@ -14,6 +15,7 @@ type Section = {
   title: string;
   content: string;
   order: number;
+  tags: string[];
 };
 
 const emptySelection: Section = {
@@ -21,6 +23,7 @@ const emptySelection: Section = {
   title: "",
   content: "",
   order: 0,
+  tags: [],
 };
 
 export function SectionComposer() {
@@ -29,6 +32,8 @@ export function SectionComposer() {
   const [isLoading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tagInput, setTagInput] = useState("");
+  const [tagError, setTagError] = useState<string | null>(null);
   const [remarkGfm, setRemarkGfm] = useState<Pluggable | null>(null);
 
   useEffect(() => {
@@ -51,6 +56,11 @@ export function SectionComposer() {
     loadSections();
   }, []);
 
+  useEffect(() => {
+    setTagInput((selected?.tags ?? []).join(", "));
+    setTagError(null);
+  }, [selected?.id]);
+
   async function loadSections() {
     setLoading(true);
     setError(null);
@@ -59,9 +69,13 @@ export function SectionComposer() {
       if (!res.ok) {
         throw new Error(`Failed to load sections (${res.status})`);
       }
-      const data: Section[] = await res.json();
-      setSections(data);
-      setSelected(data[0] ?? null);
+      const raw = (await res.json()) as Section[];
+      const normalized = raw.map((section) => ({
+        ...section,
+        tags: normalizeTags((section as { tags?: unknown }).tags, { strict: false }).tags,
+      }));
+      setSections(normalized);
+      setSelected(normalized[0] ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load sections");
     } finally {
@@ -83,8 +97,9 @@ export function SectionComposer() {
       });
       if (!res.ok) throw new Error("Could not create section");
       const created: Section = await res.json();
-      setSections((prev) => [...prev, created]);
-      setSelected(created);
+      const normalized = { ...created, tags: normalizeTags(created.tags, { strict: false }).tags };
+      setSections((prev) => [...prev, normalized]);
+      setSelected(normalized);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
     } finally {
@@ -103,12 +118,15 @@ export function SectionComposer() {
         body: JSON.stringify({
           title: next.title,
           content: next.content,
+          tags: next.tags ?? [],
         }),
       });
       if (!res.ok) throw new Error("Could not save section");
       const updated: Section = await res.json();
-      setSections((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-      setSelected(updated);
+      const normalized = { ...updated, tags: normalizeTags(updated.tags, { strict: false }).tags };
+      setSections((prev) => prev.map((s) => (s.id === normalized.id ? normalized : s)));
+      setSelected(normalized);
+      setTagInput(normalized.tags.join(", "));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -141,6 +159,25 @@ export function SectionComposer() {
       );
       return next;
     });
+  }
+
+  function handleTagsChange(value: string) {
+    setTagInput(value);
+    const tokens = value
+      .split(/[,\n]/)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
+    const { tags, error: tagsError } = normalizeTags(tokens);
+    if (tagsError) {
+      setTagError(tagsError);
+      return;
+    }
+
+    setTagError(null);
+    if (selected) {
+      updateSelected({ tags });
+    }
   }
 
   const panelClass =
@@ -226,6 +263,30 @@ export function SectionComposer() {
             disabled={!selected}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
           />
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-zinc-700 dark:text-mdt-text-dark" htmlFor="section-tags">
+              Tags (comma separated)
+            </label>
+            <input
+              id="section-tags"
+              type="text"
+              placeholder="system, tools, style"
+              value={tagInput}
+              onChange={(e) => handleTagsChange(e.target.value)}
+              onBlur={() => selected && !tagError && saveSection(selected)}
+              disabled={!selected}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
+            />
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-mdt-muted-dark">
+              <span>Lowercase & kebab-case enforced. Max {TAG_MAX_COUNT} tags, {TAG_MAX_LENGTH} chars each.</span>
+              <span>{selected?.tags?.length ?? 0}/{TAG_MAX_COUNT}</span>
+            </div>
+            {tagError && (
+              <p className="text-xs font-semibold text-red-600" role="alert">
+                {tagError}
+              </p>
+            )}
+          </div>
           <textarea
             placeholder="Write markdown here..."
             value={selected?.content ?? ""}

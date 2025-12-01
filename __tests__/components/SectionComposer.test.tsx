@@ -40,8 +40,18 @@ vi.mock("next/dynamic", () => ({
   },
 }));
 
-const sections = [
-  { id: "1", title: "Hello", content: "# Hi", order: 1 },
+type TestSection = { id: string; title: string; content: string; order: number; tags: string[] };
+
+const initialSection: TestSection = {
+  id: "1",
+  title: "Hello",
+  content: "# Hi",
+  order: 1,
+  tags: ["style"],
+};
+
+const sections: TestSection[] = [
+  { ...initialSection },
 ];
 
 type MockResponse = { ok: boolean; json: () => Promise<unknown> };
@@ -53,17 +63,26 @@ function mockFetch() {
     if (!init) {
       return { ok: true, json: async () => sections } satisfies MockResponse;
     }
+    const payload = init.body ? JSON.parse(init.body as string) : {};
     if (init.method === "POST") {
       call += 1;
+      const created = {
+        id: `new-${call}`,
+        title: payload.title ?? "Untitled section",
+        content: payload.content ?? "",
+        order: sections.length + call,
+        tags: payload.tags ?? [],
+      };
+      sections.push(created);
       return {
         ok: true,
-        json: async () => ({
-          id: `new-${call}`,
-          title: "Untitled section",
-          content: "",
-          order: sections.length + call,
-        }),
+        json: async () => created,
       } satisfies MockResponse;
+    }
+    if (init.method === "PUT") {
+      const updated = { ...sections[0], ...payload };
+      sections[0] = updated;
+      return { ok: true, json: async () => updated } satisfies MockResponse;
     }
     return { ok: true, json: async () => ({}) } satisfies MockResponse;
   }) as unknown as typeof fetch;
@@ -71,6 +90,8 @@ function mockFetch() {
 
 describe("SectionComposer", () => {
   beforeEach(() => {
+    sections.length = 0;
+    sections.push({ ...initialSection });
     mockFetch();
   });
 
@@ -90,6 +111,22 @@ describe("SectionComposer", () => {
     await waitFor(() => {
       const calls = (fetch as unknown as Mock).mock.calls as [string, RequestInit | undefined][];
       expect(calls.some(([, init]) => init?.method === "POST")).toBe(true);
+    });
+  });
+
+  it("normalizes tag input and saves on blur", async () => {
+    render(<SectionComposer />);
+    const tagField = await screen.findByLabelText(/tags/i);
+
+    await userEvent.type(tagField, ", System Prompt");
+    await userEvent.tab();
+
+    await waitFor(() => {
+      const calls = (fetch as unknown as Mock).mock.calls as [string, RequestInit | undefined][];
+      const putCall = calls.find(([, init]) => init?.method === "PUT");
+      expect(putCall).toBeDefined();
+      const body = JSON.parse(putCall?.[1]?.body as string);
+      expect(body.tags).toEqual(["style", "system-prompt"]);
     });
   });
 });
