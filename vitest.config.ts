@@ -12,10 +12,12 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "lcov"],
       reportsDirectory: "./coverage",
-      lines: 55,
-      statements: 55,
-      branches: 40,
-      functions: 45,
+      thresholds: {
+        lines: 55,
+        statements: 55,
+        branches: 40,
+        functions: 45,
+      },
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "**/next.config.*",
