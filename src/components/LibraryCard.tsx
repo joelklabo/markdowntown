@@ -17,7 +17,15 @@ function badgeLabel(badge?: SampleItem["badge"]) {
   }
 }
 
-export function LibraryCard({ item }: { item: SampleItem }) {
+type Handlers = {
+  onCopySnippet?: (item: SampleItem) => void;
+  onUseTemplate?: (item: SampleItem) => void;
+  onAddToBuilder?: (item: SampleItem) => void;
+  onDownloadFile?: (item: SampleItem) => void;
+  copied?: boolean;
+};
+
+export function LibraryCard({ item, copied, onCopySnippet, onUseTemplate, onAddToBuilder, onDownloadFile }: { item: SampleItem } & Handlers) {
   const badge = badgeLabel(item.badge);
   const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : "agents.md";
   const slug = item.slug ?? item.id;
@@ -33,12 +41,57 @@ export function LibraryCard({ item }: { item: SampleItem }) {
       ? { label: "Use template", href: `/templates/${slug}` }
       : item.type === "file"
         ? { label: "Download", href: `/files/${slug}` }
-        : { label: "Copy", href: detailHref };
+        : { label: copied ? "Copied" : "Copy", href: detailHref };
 
   const secondaryAction =
     item.type === "file"
       ? null
       : { label: "Add to builder", href: `/builder?add=${slug}` };
+
+  const renderPrimary = () => {
+    if (item.type === "snippet" && onCopySnippet) {
+      return (
+        <Button size="sm" onClick={() => onCopySnippet(item)} aria-label={`Copy ${item.title}`}>
+          {primaryAction.label}
+        </Button>
+      );
+    }
+    if (item.type === "template" && onUseTemplate) {
+      return (
+        <Button size="sm" onClick={() => onUseTemplate(item)} aria-label={`Use template ${item.title}`}>
+          {primaryAction.label}
+        </Button>
+      );
+    }
+    if (item.type === "file" && onDownloadFile) {
+      return (
+        <Button size="sm" onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
+          {primaryAction.label}
+        </Button>
+      );
+    }
+    return (
+      <Button size="sm" asChild>
+        <Link href={primaryAction.href}>{primaryAction.label}</Link>
+      </Button>
+    );
+  };
+
+  const renderSecondary = () => {
+    if (!secondaryAction) return null;
+    if (onAddToBuilder) {
+      return (
+        <Button variant="secondary" size="sm" onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to builder`}>
+          {secondaryAction.label}
+        </Button>
+      );
+    }
+    return (
+      <Button variant="secondary" size="sm" asChild>
+        <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
+      </Button>
+    );
+  };
 
   return (
     <Card className="flex h-full flex-col justify-between">
@@ -64,14 +117,8 @@ export function LibraryCard({ item }: { item: SampleItem }) {
           <span>👍 {item.stats.votes.toLocaleString()} votes</span>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" asChild>
-            <Link href={primaryAction.href}>{primaryAction.label}</Link>
-          </Button>
-          {secondaryAction && (
-            <Button variant="secondary" size="sm" asChild>
-              <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
-            </Button>
-          )}
+          {renderPrimary()}
+          {renderSecondary()}
         </div>
       </div>
     </Card>

@@ -1,6 +1,5 @@
 import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
-import { LibraryCard } from "@/components/LibraryCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
@@ -9,6 +8,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { listTopTags } from "@/lib/publicTags";
 import { BrowseSearch } from "@/components/browse/BrowseSearch";
+import { BrowseResults } from "@/components/browse/BrowseResults";
+import { BrowseFilterPills } from "@/components/browse/BrowseFilterPills";
 
 export const metadata: Metadata = {
   title: "Browse library | MarkdownTown",
@@ -94,62 +95,28 @@ export default async function BrowsePage({
     tags: normalizeTags(item.tags, { strict: false }).tags,
   }));
 
-  const filterPills = (
-    <>
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Sort</p>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: "Trending", key: "trending" },
-            { label: "New", key: "new" },
-            { label: "Most copied", key: "copied" },
-            { label: "Top rated", key: "top" },
-          ].map((option) => (
-            <Pill
-              key={option.label}
-              tone={(sortParam ?? "new") === option.key ? "blue" : "gray"}
-            >
-              <Link href={hrefWith({ sort: option.key })}>{option.label}</Link>
-            </Pill>
-          ))}
-        </div>
-      </div>
+  const sortOptions = [
+    { label: "Trending", key: "trending" },
+    { label: "New", key: "new" },
+    { label: "Most copied", key: "copied" },
+    { label: "Top rated", key: "top" },
+  ].map((option) => ({ ...option, href: hrefWith({ sort: option.key }), active: (sortParam ?? "new") === option.key }));
 
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Types</p>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: "All", key: "all" },
-            { label: "Snippets", key: "snippet" },
-            { label: "Templates", key: "template" },
-            { label: "agents.md", key: "file" },
-          ].map((option) => (
-            <Pill
-              key={option.key}
-              tone={(typeParam ?? "all") === option.key ? "blue" : "gray"}
-            >
-              <Link href={hrefWith({ type: option.key })}>{option.label}</Link>
-            </Pill>
-          ))}
-        </div>
-      </div>
+  const typeOptions = [
+    { label: "All", key: "all" },
+    { label: "Snippets", key: "snippet" },
+    { label: "Templates", key: "template" },
+    { label: "agents.md", key: "file" },
+  ].map((option) => ({ ...option, href: hrefWith({ type: option.key }), active: (typeParam ?? "all") === option.key }));
 
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Popular tags</p>
-        <div className="flex flex-wrap gap-2">
-          {popularTags.map((tag) => {
-            const normalized = normalizeTags(tag, { strict: false }).tags[0] ?? tag;
-            const active = activeTags.includes(normalized);
-            return (
-              <Pill key={tag} tone={active ? "blue" : "gray"}>
-                <Link href={hrefWith({ tag: normalized })}>#{normalized}</Link>
-              </Pill>
-            );
-          })}
-        </div>
-      </div>
-    </>
-  );
+  const popularTagOptions = popularTags.map((tag) => {
+    const normalized = normalizeTags(tag, { strict: false }).tags[0] ?? tag;
+    const active = activeTags.includes(normalized);
+    return { label: normalized, href: hrefWith({ tag: normalized }), active };
+  });
+
+  const activeTagOptions = activeTags.map((tag) => ({ label: tag, removeHref: hrefWith({ removeTag: tag }) }));
+  const clearTagsHref = hrefWith({ clearTags: true });
 
   const filtered = query
     ? cards.filter((item) =>
@@ -215,14 +182,30 @@ export default async function BrowsePage({
       </Card>
 
       <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-        <Card className="hidden space-y-4 md:block">{filterPills}</Card>
+        <Card className="hidden space-y-4 md:block">
+          <BrowseFilterPills
+            sortOptions={sortOptions}
+            typeOptions={typeOptions}
+            popularTags={popularTagOptions}
+            activeTags={activeTagOptions}
+            clearTagsHref={clearTagsHref}
+          />
+        </Card>
 
         <div className="md:hidden">
           <details className="rounded-lg border border-mdt-border bg-white p-3 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
             <summary className="cursor-pointer text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">
               Filters & tags
             </summary>
-            <div className="mt-3 space-y-4">{filterPills}</div>
+            <div className="mt-3 space-y-4">
+              <BrowseFilterPills
+                sortOptions={sortOptions}
+                typeOptions={typeOptions}
+                popularTags={popularTagOptions}
+                activeTags={activeTagOptions}
+                clearTagsHref={clearTagsHref}
+              />
+            </div>
           </details>
         </div>
 
@@ -246,14 +229,7 @@ export default async function BrowsePage({
               </Link>
             </div>
           )}
-          {filtered.map((item) => (
-            <LibraryCard key={item.id} item={item} />
-          ))}
-          {filtered.length === 0 && (
-            <div className="sm:col-span-2 lg:col-span-3 rounded-lg border border-mdt-border bg-white p-6 text-sm text-mdt-muted dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark">
-              No results for those tags yet. Try removing a filter.
-            </div>
-          )}
+          <BrowseResults initialItems={filtered} query={query} sortParam={sortParam} typeParam={typeParam} activeTags={activeTags} />
         </div>
       </div>
     </main>

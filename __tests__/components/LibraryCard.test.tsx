@@ -27,8 +27,10 @@ describe("LibraryCard", () => {
     badge: "trending",
   };
 
-  it("shows metadata and actions for snippet items", () => {
-    render(<LibraryCard item={item} />);
+  it("shows metadata and handles quick actions for snippet items", () => {
+    const onCopy = vi.fn();
+    const onAdd = vi.fn();
+    render(<LibraryCard item={item} onCopySnippet={onCopy} onAddToBuilder={onAdd} />);
 
     expect(screen.getByText("Snippet")).toBeInTheDocument();
     expect(screen.getByText("Trending")).toBeInTheDocument();
@@ -36,10 +38,9 @@ describe("LibraryCard", () => {
     expect(screen.getByText("#cli")).toBeInTheDocument();
     expect(screen.getByText("#qa")).toBeInTheDocument();
 
-    const copyLink = screen.getByText("Copy").closest("a");
-    expect(copyLink).toHaveAttribute("href", "/snippets/demo-snippet");
-
-    const addLink = screen.getByText("Add to builder").closest("a");
-    expect(addLink).toHaveAttribute("href", "/builder?add=demo-snippet");
+    screen.getByRole("button", { name: /copy snippet demo/i });
+    screen.getByRole("button", { name: /add snippet demo to builder/i });
+    screen.getByRole("button", { name: /copy/i }).click();
+    expect(onCopy).toHaveBeenCalled();
   });
 });
