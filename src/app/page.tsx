@@ -5,14 +5,41 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
-import { sampleItems, sampleTags } from "@/lib/sampleContent";
+import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
 import { listTopTags } from "@/lib/publicTags";
+import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 
 export default async function Home() {
   const session = await getSession();
   const user = session?.user;
   const liveTags = await listTopTags(12, 30);
   const tags = liveTags.length ? liveTags : sampleTags;
+  const liveItems = await listPublicItems({ limit: 12, sort: "recent" });
+  const mostCopiedFiles = await listPublicItems({ limit: 3, sort: "copies", type: "file" });
+
+  const normalizeItem = (item: PublicItem): SampleItem => ({
+    id: item.id,
+    slug: item.slug ?? undefined,
+    title: item.title,
+    description: item.description || "Markdown snippet",
+    tags: item.tags,
+    stats: item.stats,
+    type: item.type,
+  });
+
+  const items: SampleItem[] = (liveItems.length ? liveItems : sampleItems).map((i) =>
+    ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem))
+  );
+
+  const trending = items
+    .slice()
+    .sort((a, b) => b.stats.copies - a.stats.copies || b.stats.views - a.stats.views)
+    .slice(0, 3);
+
+  const copiedFiles: SampleItem[] = (mostCopiedFiles.length ? mostCopiedFiles : sampleItems)
+    .filter((i) => ("type" in i ? (i as PublicItem).type === "file" : (i as SampleItem).type === "file"))
+    .slice(0, 3)
+    .map((i) => ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem)));
 
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
@@ -121,12 +148,12 @@ export default async function Home() {
                   </Button>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {sampleItems
-                    .filter((i) => i.badge === "trending" || i.badge === "staff")
-                    .slice(0, 3)
-                    .map((item) => (
-                      <LibraryCard key={item.id} item={item} />
-                    ))}
+                  {trending.map((item) => (
+                    <LibraryCard key={item.id} item={item} />
+                  ))}
+                  {trending.length === 0 && (
+                    <Card className="p-4 text-sm text-mdt-muted">No public items yet. Check back soon.</Card>
+                  )}
                 </div>
               </div>
 
@@ -142,30 +169,29 @@ export default async function Home() {
                     </Button>
                   </div>
                   <div className="space-y-3">
-                    {sampleItems
-                      .filter((i) => i.type === "file")
-                      .sort((a, b) => b.stats.copies - a.stats.copies)
-                      .slice(0, 3)
-                      .map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between rounded-lg border border-mdt-border px-3 py-3 text-sm dark:border-mdt-border-dark"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Pill tone="blue">agents.md</Pill>
-                              {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
-                            </div>
-                            <p className="font-semibold text-mdt-text dark:text-mdt-text-dark">{item.title}</p>
-                            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
-                              {item.stats.copies.toLocaleString()} copies · {item.stats.views.toLocaleString()} views
-                            </p>
+                    {copiedFiles.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between rounded-lg border border-mdt-border px-3 py-3 text-sm dark:border-mdt-border-dark"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Pill tone="blue">agents.md</Pill>
+                            {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
                           </div>
-                          <Button size="sm" asChild>
-                            <Link href={`/files/${item.id}`}>Copy</Link>
-                          </Button>
+                          <p className="font-semibold text-mdt-text dark:text-mdt-text-dark">{item.title}</p>
+                          <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
+                            {item.stats.copies.toLocaleString()} copies · {item.stats.views.toLocaleString()} views
+                          </p>
                         </div>
-                      ))}
+                        <Button size="sm" asChild>
+                          <Link href={`/files/${item.slug ?? item.id}`}>Copy</Link>
+                        </Button>
+                      </div>
+                    ))}
+                    {copiedFiles.length === 0 && (
+                      <p className="text-sm text-mdt-muted">No public files yet.</p>
+                    )}
                   </div>
                 </Card>
 

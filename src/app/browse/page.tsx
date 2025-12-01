@@ -1,5 +1,5 @@
-import { sampleItems, type SampleItem } from "@/lib/sampleContent";
-import { listPublicSections, type PublicSection } from "@/lib/publicSections";
+import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
+import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -7,23 +7,22 @@ import { Pill } from "@/components/ui/Pill";
 import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { listTopTags } from "@/lib/publicTags";
 
 export const metadata: Metadata = {
   title: "Browse library | MarkdownTown",
   description: "Discover reusable snippets, templates, and agents.md files to assemble your next agents.md.",
 };
 
-function sectionToCard(section: PublicSection): SampleItem {
-  const description = section.content?.slice(0, 140) || "Markdown snippet";
-  const tags = normalizeTags(section.tags, { strict: false }).tags;
+function toCard(item: PublicItem): SampleItem {
   return {
-    id: section.id,
-    slug: section.slug ?? undefined,
-    title: section.title,
-    description,
-    tags,
-    stats: { copies: 0, views: 0, votes: 0 },
-    type: "snippet" as const,
+    id: item.id,
+    slug: item.slug ?? undefined,
+    title: item.title,
+    description: item.description || "Markdown snippet",
+    tags: normalizeTags(item.tags, { strict: false }).tags,
+    stats: item.stats,
+    type: item.type,
   };
 }
 
@@ -39,17 +38,57 @@ export default async function BrowsePage({
   searchParams?: { tag?: string | string[]; tags?: string | string[] };
 }) {
   const activeTags = normalizeSearchTags(searchParams);
-  const sections = await listPublicSections(30);
-  const cards: SampleItem[] = sections.length > 0 ? sections.map(sectionToCard) : sampleItems;
-  const normalizedCards: SampleItem[] = cards.map((item) => ({
+  const sortParam = searchParams?.sort;
+  const sort =
+    sortParam === "copied"
+      ? "copies"
+      : sortParam === "top" || sortParam === "trending"
+        ? "views"
+        : "recent";
+
+  const typeParam = (searchParams as { type?: string } | undefined)?.type;
+  const type =
+    typeParam === "template"
+      ? "template"
+      : typeParam === "file"
+        ? "file"
+        : typeParam === "snippet"
+          ? "snippet"
+          : "all";
+
+  const query = (searchParams as { q?: string } | undefined)?.q ?? null;
+
+  const baseParams = new URLSearchParams();
+  activeTags.forEach((tag) => baseParams.append("tag", tag));
+  if (sortParam) baseParams.set("sort", sortParam);
+  if (typeParam) baseParams.set("type", typeParam);
+  if (query) baseParams.set("q", query);
+
+  const hrefWith = (overrides: { sort?: string; type?: string; tag?: string; clearTags?: boolean }) => {
+    const params = new URLSearchParams(baseParams);
+    if (overrides.sort) params.set("sort", overrides.sort);
+    if (overrides.type) params.set("type", overrides.type);
+    if (overrides.clearTags) params.delete("tag");
+    if (overrides.tag) params.append("tag", overrides.tag);
+    const search = params.toString();
+    return `/browse${search ? `?${search}` : ""}`;
+  };
+
+  const items = await listPublicItems({ limit: 60, tags: activeTags, sort, type, search: query });
+  const popularTagsRaw = await listTopTags(12, 30);
+  const popularTags = popularTagsRaw.length ? popularTagsRaw.map((t) => t.tag) : sampleTags.map((t) => t.tag);
+
+  const cards: SampleItem[] = (items.length ? items.map(toCard) : sampleItems).map((item) => ({
     ...item,
     tags: normalizeTags(item.tags, { strict: false }).tags,
   }));
-  const filtered = activeTags.length
-    ? normalizedCards.filter((item) =>
-        activeTags.every((tag) => item.tags.includes(tag))
+
+  const filtered = query
+    ? cards.filter((item) =>
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.description.toLowerCase().includes(query.toLowerCase())
       )
-    : normalizedCards;
+    : cards;
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
@@ -78,13 +117,16 @@ export default async function BrowsePage({
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Sort</p>
             <div className="flex flex-wrap gap-2">
               {[
-                { label: "Trending", href: "?sort=trending" },
-                { label: "New", href: "?sort=new" },
-                { label: "Most copied", href: "?sort=copied" },
-                { label: "Top rated", href: "?sort=top" },
+                { label: "Trending", key: "trending" },
+                { label: "New", key: "new" },
+                { label: "Most copied", key: "copied" },
+                { label: "Top rated", key: "top" },
               ].map((option) => (
-                <Pill key={option.label} tone="gray">
-                  <Link href={option.href}>{option.label}</Link>
+                <Pill
+                  key={option.label}
+                  tone={(sortParam ?? "new") === option.key ? "blue" : "gray"}
+                >
+                  <Link href={hrefWith({ sort: option.key })}>{option.label}</Link>
                 </Pill>
               ))}
             </div>
@@ -92,18 +134,33 @@ export default async function BrowsePage({
           <div className="space-y-2">
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Types</p>
             <div className="flex flex-wrap gap-2">
-              <Pill tone="blue">All</Pill>
-              <Pill tone="gray">Snippets</Pill>
-              <Pill tone="gray">Templates</Pill>
-              <Pill tone="gray">agents.md</Pill>
+              {[
+                { label: "All", key: "all" },
+                { label: "Snippets", key: "snippet" },
+                { label: "Templates", key: "template" },
+                { label: "agents.md", key: "file" },
+              ].map((option) => (
+                <Pill
+                  key={option.key}
+                  tone={(typeParam ?? "all") === option.key ? "blue" : "gray"}
+                >
+                  <Link href={hrefWith({ type: option.key })}>{option.label}</Link>
+                </Pill>
+              ))}
             </div>
           </div>
           <div className="space-y-2">
             <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Popular tags</p>
             <div className="flex flex-wrap gap-2">
-              {["system", "tools", "templates", "qa", "style", "cli"].map((tag) => (
-                <Pill key={tag} tone="gray">#{normalizeTags(tag, { strict: false }).tags[0] ?? tag}</Pill>
-              ))}
+              {popularTags.map((tag) => {
+                const normalized = normalizeTags(tag, { strict: false }).tags[0] ?? tag;
+                const active = activeTags.includes(normalized);
+                return (
+                  <Pill key={tag} tone={active ? "blue" : "gray"}>
+                    <Link href={hrefWith({ tag: normalized })}>#{normalized}</Link>
+                  </Pill>
+                );
+              })}
             </div>
           </div>
         </Card>
@@ -114,7 +171,7 @@ export default async function BrowsePage({
               {activeTags.map((tag) => (
                 <Pill key={tag} tone="blue">#{tag}</Pill>
               ))}
-              <Link href="/browse" className="text-sm text-indigo-600 underline">
+              <Link href={hrefWith({ clearTags: true })} className="text-sm text-indigo-600 underline">
                 Clear filters
               </Link>
             </div>
