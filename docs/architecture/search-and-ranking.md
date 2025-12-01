@@ -5,6 +5,7 @@ Epic: markdowntown-7z8
 ## Goals
 - Fast discovery across Snippets, Templates, Documents with filters and sorts: Trending, New, Most copied, Top rated.
 - Keep infra simple (stay in Postgres) but allow future upgrade to external search if needed.
+- Align search API implementation tasks (markdowntown-7z8.19) with research doc `docs/research/search-ranking-tag-clouds.md`.
 
 ## Approach (Postgres-first)
 - **FTS**: use `to_tsvector('english', title || ' ' || coalesce(content/description,''))` on Snippet/Template/Document. Create GIN indexes on tsvector fields.
@@ -41,6 +42,7 @@ score = 0.5 * log1p(copies) + 0.25 * log1p(votesUp - votesDown) + 0.15 * log1p(v
 3) Create MVs for trending per type; add SQL script + cron (Supabase/PG cron or app-scheduled job).
 4) Implement search endpoint using `plpgsql` functions or Prisma raw queries; paginate with cursor.
 5) Hook browse page to search/sort params; default to trending feed endpoints when no query.
+6) Cache empty-query + sort combos for 60s; term queries `no-store`.
 
 ## Perf notes
 - Limit page size to 50; keep responses <200ms by using precomputed scores and covering indexes.
@@ -50,4 +52,3 @@ score = 0.5 * log1p(copies) + 0.25 * log1p(votesUp - votesDown) + 0.15 * log1p(v
 - PG FTS ranking can be noisy for very short content; may need boosting weights or switching to trigram for q < 3 chars.
 - MV refresh lag; score may be slightly stale—acceptable for browse feeds.
 - Copies/votes stored as counters; ensure rollup jobs keep stats consistent with events.
-
