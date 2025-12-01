@@ -119,7 +119,7 @@ describe("auth callbacks", () => {
         avatar_url: "https://avatar",
         name: "Full Name",
         id: 42,
-      } as import("next-auth/providers/github").GithubProfile,
+      },
       account: {
         provider: "github",
         type: "oauth",
