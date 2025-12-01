@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "./BrandLogo";
 import { Button } from "./ui/Button";
 import { ThemeToggle } from "./ThemeToggle";
+import { sampleTags } from "@/lib/sampleContent";
 
 const links = [
   { href: "/browse", label: "Browse" },
@@ -24,14 +25,30 @@ export function SiteNav({ user }: { user?: User }) {
   const [query, setQuery] = useState("");
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const ctaHref = pathname === "/" ? "#templates" : "/templates";
 
+  function persistRecent(term: string) {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    setRecentSearches((prev) => {
+      const next = [trimmed, ...prev.filter((v) => v !== trimmed)].slice(0, 6);
+      try {
+        localStorage.setItem("mdt_recent_searches", JSON.stringify(next));
+      } catch {
+        /* noop */
+      }
+      return next;
+    });
+  }
+
   function onSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = query.trim();
+    persistRecent(q);
     router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
     setShowMobileSearch(false);
   }
@@ -54,6 +71,15 @@ export function SiteNav({ user }: { user?: User }) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("mdt_recent_searches");
+      if (stored) setRecentSearches(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
   }, []);
 
   useEffect(() => {
@@ -201,7 +227,7 @@ export function SiteNav({ user }: { user?: User }) {
               {item.type === "link" ? (
                 <Link
                   href={item.href!}
-                  className={`group flex h-14 flex-col items-center justify-center gap-1 rounded-md px-2 ${
+                  className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-md px-2 ${
                     active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
                   }`}
                   aria-current={active ? "page" : undefined}
@@ -219,7 +245,7 @@ export function SiteNav({ user }: { user?: User }) {
                     setShowMobileSearch(true);
                     setTimeout(() => inputRef.current?.focus(), 10);
                   }}
-                  className="flex h-14 w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text dark:text-mdt-text-dark"
+                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text dark:text-mdt-text-dark"
                   aria-label="Open search"
                 >
                   <span className="text-xs font-mono" aria-hidden>
@@ -247,7 +273,7 @@ export function SiteNav({ user }: { user?: User }) {
                 Esc
               </button>
             </div>
-            <form onSubmit={onSearch} className="flex items-center gap-2 rounded-lg border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <form onSubmit={onSearch} className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
               <input
                 ref={inputRef}
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
@@ -256,10 +282,52 @@ export function SiteNav({ user }: { user?: User }) {
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search"
               />
-              <Button type="submit" size="sm">
-                Go
-              </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-wrap gap-2 text-[11px] text-mdt-muted dark:text-mdt-muted-dark">
+                  {sampleTags.slice(0, 6).map((tag) => (
+                    <button
+                      key={tag.tag}
+                      type="button"
+                      className="rounded-md border border-mdt-border px-2 py-1 hover:text-mdt-text dark:border-mdt-border-dark"
+                      onClick={() => {
+                        setQuery(tag.tag);
+                        setTimeout(() => inputRef.current?.focus(), 10);
+                      }}
+                    >
+                      #{tag.tag}
+                    </button>
+                  ))}
+                </div>
+                <Button type="submit" size="sm">
+                  Search
+                </Button>
+              </div>
             </form>
+
+            {(recentSearches.length > 0 || sampleTags.length > 0) && (
+              <div className="mt-3 space-y-2">
+                {recentSearches.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-mdt-muted dark:text-mdt-muted-dark">Recent</p>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {recentSearches.map((term) => (
+                        <button
+                          key={term}
+                          type="button"
+                          className="rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text hover:bg-mdt-bg dark:border-mdt-border-dark dark:text-mdt-text-dark dark:hover:bg-mdt-bg-dark"
+                          onClick={() => {
+                            setQuery(term);
+                            setTimeout(() => inputRef.current?.focus(), 10);
+                          }}
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
