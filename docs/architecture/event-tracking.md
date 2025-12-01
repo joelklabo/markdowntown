@@ -34,4 +34,5 @@ Epic: markdowntown-7z8
 2) Add server-side `Event` write for downloads/copies/exports (non-blocking, try/catch).
 3) Nightly rollup script to update stats counters.
 4) Dashboard presets in PostHog for funnels + content performance.
-
+5) Wire feature flags: only emit public-library events when flag on; avoid logging PII in metadata.
+6) Add sampling/tuning knobs for high-volume events (copy/download) to control noise.
