@@ -94,6 +94,63 @@ export default async function BrowsePage({
     tags: normalizeTags(item.tags, { strict: false }).tags,
   }));
 
+  const filterPills = (
+    <>
+      <div className="space-y-2">
+        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Sort</p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "Trending", key: "trending" },
+            { label: "New", key: "new" },
+            { label: "Most copied", key: "copied" },
+            { label: "Top rated", key: "top" },
+          ].map((option) => (
+            <Pill
+              key={option.label}
+              tone={(sortParam ?? "new") === option.key ? "blue" : "gray"}
+            >
+              <Link href={hrefWith({ sort: option.key })}>{option.label}</Link>
+            </Pill>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Types</p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "All", key: "all" },
+            { label: "Snippets", key: "snippet" },
+            { label: "Templates", key: "template" },
+            { label: "agents.md", key: "file" },
+          ].map((option) => (
+            <Pill
+              key={option.key}
+              tone={(typeParam ?? "all") === option.key ? "blue" : "gray"}
+            >
+              <Link href={hrefWith({ type: option.key })}>{option.label}</Link>
+            </Pill>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Popular tags</p>
+        <div className="flex flex-wrap gap-2">
+          {popularTags.map((tag) => {
+            const normalized = normalizeTags(tag, { strict: false }).tags[0] ?? tag;
+            const active = activeTags.includes(normalized);
+            return (
+              <Pill key={tag} tone={active ? "blue" : "gray"}>
+                <Link href={hrefWith({ tag: normalized })}>#{normalized}</Link>
+              </Pill>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
+
   const filtered = query
     ? cards.filter((item) =>
         item.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -158,58 +215,16 @@ export default async function BrowsePage({
       </Card>
 
       <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-        <Card className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Sort</p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { label: "Trending", key: "trending" },
-                { label: "New", key: "new" },
-                { label: "Most copied", key: "copied" },
-                { label: "Top rated", key: "top" },
-              ].map((option) => (
-                <Pill
-                  key={option.label}
-                  tone={(sortParam ?? "new") === option.key ? "blue" : "gray"}
-                >
-                  <Link href={hrefWith({ sort: option.key })}>{option.label}</Link>
-                </Pill>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Types</p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { label: "All", key: "all" },
-                { label: "Snippets", key: "snippet" },
-                { label: "Templates", key: "template" },
-                { label: "agents.md", key: "file" },
-              ].map((option) => (
-                <Pill
-                  key={option.key}
-                  tone={(typeParam ?? "all") === option.key ? "blue" : "gray"}
-                >
-                  <Link href={hrefWith({ type: option.key })}>{option.label}</Link>
-                </Pill>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Popular tags</p>
-            <div className="flex flex-wrap gap-2">
-              {popularTags.map((tag) => {
-                const normalized = normalizeTags(tag, { strict: false }).tags[0] ?? tag;
-                const active = activeTags.includes(normalized);
-                return (
-                  <Pill key={tag} tone={active ? "blue" : "gray"}>
-                    <Link href={hrefWith({ tag: normalized })}>#{normalized}</Link>
-                  </Pill>
-                );
-              })}
-            </div>
-          </div>
-        </Card>
+        <Card className="hidden space-y-4 md:block">{filterPills}</Card>
+
+        <div className="md:hidden">
+          <details className="rounded-lg border border-mdt-border bg-white p-3 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <summary className="cursor-pointer text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">
+              Filters & tags
+            </summary>
+            <div className="mt-3 space-y-4">{filterPills}</div>
+          </details>
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {activeTags.length > 0 && (

@@ -28,6 +28,18 @@ export function LibraryCard({ item }: { item: SampleItem }) {
         ? `/files/${slug}`
         : `/snippets/${slug}`;
 
+  const primaryAction =
+    item.type === "template"
+      ? { label: "Use template", href: `/templates/${slug}` }
+      : item.type === "file"
+        ? { label: "Download", href: `/files/${slug}` }
+        : { label: "Copy", href: detailHref };
+
+  const secondaryAction =
+    item.type === "file"
+      ? null
+      : { label: "Add to builder", href: `/builder?add=${slug}` };
+
   return (
     <Card className="flex h-full flex-col justify-between">
       <div className="space-y-3">
@@ -52,12 +64,14 @@ export function LibraryCard({ item }: { item: SampleItem }) {
           <span>👍 {item.stats.votes.toLocaleString()} votes</span>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" asChild>
-            <Link href={`/builder?add=${slug}`}>Add</Link>
-          </Button>
           <Button size="sm" asChild>
-            <Link href={detailHref}>Copy</Link>
+            <Link href={primaryAction.href}>{primaryAction.label}</Link>
           </Button>
+          {secondaryAction && (
+            <Button variant="secondary" size="sm" asChild>
+              <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
+            </Button>
+          )}
         </div>
       </div>
     </Card>
