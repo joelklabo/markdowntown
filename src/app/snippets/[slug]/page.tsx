@@ -7,6 +7,8 @@ import { Pill } from "@/components/ui/Pill";
 import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { SnippetTabs } from "@/components/snippet/SnippetTabs";
+import { LibraryCard } from "@/components/LibraryCard";
 
 type SnippetParams = { slug: string };
 
@@ -48,6 +50,9 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
 
   if (!item) return notFound();
 
+  const rawContent = `# ${item.title}\n\n${item.description}`;
+  const related = sampleItems.filter((i) => i.type === "snippet" && i.id !== item.id).slice(0, 3);
+
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
       <div className="space-y-2">
@@ -76,33 +81,31 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
         </div>
       </div>
 
-      <Card className="space-y-3">
-        <h3 className="text-h3">Rendered preview</h3>
-        <div className="rounded-lg border border-mdt-border bg-white p-4 text-sm leading-6 dark:border-mdt-border-dark dark:bg-mdt-bg-dark">
-          <p>{item.description}</p>
-          <p className="text-mdt-muted text-xs mt-3">(Sample rendering until real markdown content is wired.)</p>
-        </div>
-      </Card>
+      <SnippetTabs title={item.title} rendered={item.description} raw={rawContent} />
 
       <Card className="space-y-3">
-        <h3 className="text-h3">Raw markdown</h3>
-        <pre className="rounded-lg border border-mdt-border bg-[#0f172a]/5 p-4 font-mono text-xs whitespace-pre-wrap dark:border-mdt-border-dark dark:bg-[#0f172a] text-mdt-text-dark">
-# {item.title}
-
-{item.description}
-        </pre>
-      </Card>
-
-      <Card className="space-y-2">
-        <h4 className="text-h4">Related</h4>
-        <div className="flex flex-wrap gap-2 text-sm text-mdt-muted">
-          {sampleItems.filter((i) => i.type === "snippet" && i.id !== item.id).slice(0, 3).map((rel) => (
-            <Link key={rel.id} href={`/snippets/${rel.id}`} className="underline">
-              {rel.title}
-            </Link>
+        <h4 className="text-h4">Related snippets</h4>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {related.map((rel) => (
+            <LibraryCard key={rel.id} item={rel} />
           ))}
         </div>
       </Card>
+
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this snippet</p>
+            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{item.title}</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" asChild>
+              <Link href={`/builder?add=${item.id}`}>Builder</Link>
+            </Button>
+            <Button size="sm">Copy</Button>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
