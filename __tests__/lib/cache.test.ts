@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { memoize } from "@/lib/cache";
 
 describe("memoize", () => {
   it("returns cached result for identical key", async () => {
-    const fn = vi.fn(async (x: number) => x * 2);
+    const fn = vi.fn<(x: number) => Promise<number>>(async (x) => x * 2);
     const wrapped = memoize(fn);
     const first = await wrapped("a", 2);
     const second = await wrapped("a", 2);
@@ -13,7 +13,7 @@ describe("memoize", () => {
   });
 
   it("differentiates keys", async () => {
-    const fn = vi.fn(async (x: number) => x * 2);
+    const fn = vi.fn<(x: number) => Promise<number>>(async (x) => x * 2);
     const wrapped = memoize(fn);
     await wrapped("a", 2);
     await wrapped("b", 2);

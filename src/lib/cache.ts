@@ -9,7 +9,7 @@ export const getSectionsCached = cache(async (userId: string) => {
   });
 });
 
-export function memoize<F extends (...args: unknown[]) => Promise<unknown> | unknown>(fn: F) {
+export function memoize<F extends (...args: any[]) => Promise<any> | any>(fn: F) {
   const store = new Map<string, Promise<unknown> | unknown>();
   return async (key: string, ...args: Parameters<F>): Promise<Awaited<ReturnType<F>>> => {
     if (store.has(key)) return store.get(key) as Awaited<ReturnType<F>>;

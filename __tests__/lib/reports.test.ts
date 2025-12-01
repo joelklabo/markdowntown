@@ -1,19 +1,16 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { describe, expect, it, vi } from "vitest";
 import { logAbuseSignal } from "@/lib/reports";
-
-const originalCwd = process.cwd;
 
 function withTempCwd(cb: () => void) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mdt-reports-"));
-  // @ts-expect-error override for test
-  process.cwd = () => tmp;
+  const spy = vi.spyOn(process, "cwd").mockReturnValue(tmp);
   try {
     cb();
   } finally {
-    // @ts-expect-error restore
-    process.cwd = originalCwd;
+    spy.mockRestore();
   }
   return tmp;
 }

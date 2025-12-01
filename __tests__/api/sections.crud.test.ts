@@ -58,7 +58,7 @@ const prismaMock = {
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 
-const authMock = vi.fn(async () => ({ user: { id: "user-1" } }));
+const authMock = vi.fn<() => Promise<{ user: { id: string } } | null>>();
 vi.mock("@/lib/auth", () => ({ auth: authMock }));
 
 // Route handlers under test

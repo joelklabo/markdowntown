@@ -1,6 +1,7 @@
 import React from "react";
 import { render, waitFor, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi, type Mock } from "vitest";
 import { SectionComposer } from "@/components/SectionComposer";
 
 // Mock next/link for Slot usage inside Button
@@ -87,10 +88,8 @@ describe("SectionComposer", () => {
     await userEvent.click(addButton);
 
     await waitFor(() => {
-      const mocked = fetch as unknown as vi.Mock;
-      expect(
-        mocked.mock.calls.some(([, init]: [string, RequestInit | undefined]) => init?.method === "POST")
-      ).toBe(true);
+      const calls = (fetch as unknown as Mock).mock.calls as [string, RequestInit | undefined][];
+      expect(calls.some(([, init]) => init?.method === "POST")).toBe(true);
     });
   });
 });
