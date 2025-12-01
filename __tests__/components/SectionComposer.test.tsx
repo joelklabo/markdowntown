@@ -119,7 +119,7 @@ describe("SectionComposer", () => {
     const tagField = await screen.findByLabelText(/tags/i);
 
     await userEvent.type(tagField, ", System Prompt");
-    await userEvent.tab();
+    tagField.blur();
 
     await waitFor(() => {
       const calls = (fetch as unknown as Mock).mock.calls as [string, RequestInit | undefined][];
