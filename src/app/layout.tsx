@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { getSession } from "@/lib/auth";
 import { SiteNav } from "@/components/SiteNav";
 import { Footer } from "@/components/Footer";
+import { PerfVitals } from "@/components/PerfVitals";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -72,6 +73,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <PosthogProvider>
             <SiteNav user={user} />
+            <PerfVitals />
             <main id="main-content">{children}</main>
             <Footer />
           </PosthogProvider>
