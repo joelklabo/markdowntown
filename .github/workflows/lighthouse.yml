@@ -1,4 +1,4 @@
-name: Lighthouse CI
+name: Lighthouse Perf Budget
 
 on:
   pull_request:
