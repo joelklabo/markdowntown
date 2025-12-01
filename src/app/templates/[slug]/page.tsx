@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { TemplateFormPreview, type TemplateField } from "@/components/template/TemplateFormPreview";
+import { LibraryCard } from "@/components/LibraryCard";
 
 type TemplateParams = { slug: string };
 
@@ -33,6 +35,25 @@ export default async function TemplateDetail({
   const item = findTemplateBySlug(slug);
   if (!item) return notFound();
 
+  const fields: TemplateField[] = [
+    { name: "project_name", label: "Project name", placeholder: "my-repo", required: true },
+    { name: "style", label: "Style", placeholder: "concise, direct", description: "Tone or style guidance." },
+    { name: "audience", label: "Audience", placeholder: "team, execs, contributors" },
+  ];
+
+  const templateBody = `# {{project_name}} bug-hunt session
+
+Context: focus on {{audience}}.
+
+Style: {{style}}.
+
+Checklist:
+- Repro steps captured
+- Expected vs. actual recorded
+- Logs/screenshots attached`;
+
+  const related = sampleItems.filter((i) => i.type === "template" && i.id !== item.id).slice(0, 3);
+
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
       <div className="space-y-2">
@@ -47,8 +68,8 @@ export default async function TemplateDetail({
             <Pill key={tag} tone="gray">#{tag}</Pill>
           ))}
         </div>
-        <div className="flex gap-2">
-          <Button size="sm">Copy filled</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm">Copy</Button>
           <Button variant="secondary" size="sm">Download</Button>
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/builder?template=${item.id}`}>Use in builder</Link>
@@ -61,28 +82,31 @@ export default async function TemplateDetail({
         </div>
       </div>
 
-      <Card className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <h3 className="text-h3">Fill placeholders</h3>
-          <div className="space-y-2 text-sm text-mdt-muted">
-            <div className="flex items-center justify-between rounded-lg border border-mdt-border px-3 py-2 dark:border-mdt-border-dark">
-              <span>project_name</span>
-              <input className="w-40 rounded-md border border-mdt-border px-2 py-1 text-xs" placeholder="my-repo" />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-mdt-border px-3 py-2 dark:border-mdt-border-dark">
-              <span>style</span>
-              <input className="w-40 rounded-md border border-mdt-border px-2 py-1 text-xs" placeholder="concise" />
-            </div>
-            <p className="text-xs text-mdt-muted">(Sample form; real template fields will render here.)</p>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-h3">Live preview</h3>
-          <div className="rounded-lg border border-mdt-border bg-white p-4 text-sm leading-6 dark:border-mdt-border-dark dark:bg-mdt-bg-dark min-h-[200px]">
-            Preview will update as you fill fields.
-          </div>
+      <TemplateFormPreview title={item.title} body={templateBody} fields={fields} />
+
+      <Card className="space-y-3">
+        <h4 className="text-h4">Related templates</h4>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {related.map((rel) => (
+            <LibraryCard key={rel.id} item={rel} />
+          ))}
         </div>
       </Card>
+
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this template</p>
+            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{item.title}</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" asChild>
+              <Link href={`/builder?template=${item.id}`}>Builder</Link>
+            </Button>
+            <Button size="sm">Copy</Button>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
