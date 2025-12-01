@@ -1,27 +1,26 @@
-# Auth Gating UX & API Guardrails
-Date: 2025-12-01
-Epic: markdowntown-7z8
+# Auth Gating UX (Inline Prompts & Retry)
+Date: 2025-12-01  
+Issue: markdowntown-7z8.31
 
-## Principles
-- Browsing, search, copy/download/export are open to anonymous users.
-- Creating/editing, saving documents, favorites/pins, votes, and comments require auth.
-- Don’t block the flow: inline prompts preserve context and resume the action after login.
+## Goals
+- Let anon users browse/copy/download freely while prompting sign-in for save/favorite/vote/comment actions.
+- Preserve action context so the intended operation completes after login.
 
-## UX patterns
-- **Inline toast/modal** when user clicks a gated action: “Sign in to favorite/save/comment. We’ll bring you back here.” Include primary CTA “Sign in” and secondary “Continue browsing”.
-- **Optimistic resume**: encode pending action in `callbackUrl` (e.g., `callbackUrl=/snippets/slug?action=favorite`). After login, replay the action client-side.
-- **Button states**: show lock icon + tooltip for gated actions; keep primary CTA enabled to trigger sign-in, not hidden.
-- **Builder**: allow assemble/copy/download anonymous; “Save as Document” triggers sign-in flow.
+## Patterns
+- Inline CTA states: show lock icon + tooltip “Sign in to …”; allow click to open auth prompt.
+- Modal/panel gate: when user clicks gated action, open sign-in modal with summary of intended action.
+- After auth, redirect back with `callbackUrl` and serialized pending action (target type/id, action).
+- For builder save, keep draft state client-side and replay save on return.
 
-## API guardrails
-- Write endpoints (create/update/delete/vote/favorite/comment/save document) require session.
-- Rate limit by IP + user (existing limiter) with tuned buckets for engagement endpoints (e.g., votes/comments).
-- Validate visibility: cannot favorite/vote/comment on private items unless owner.
-- Sanitization: comments/markdown run through existing validation; strip disallowed HTML.
+## Implementation checklist
+- [ ] Add gate component that wraps gated buttons and triggers sign-in modal + action payload.
+- [ ] Wire NextAuth `callbackUrl` to include return path and action params; on page load, replay action if permitted.
+- [ ] Show optimistic UI copy/favorite/vote toggle but roll back if auth missing.
+- [ ] Ensure API returns 401 with clear error; client detects and opens gate.
+- [ ] Respect cache separation: user overlay fetch (`/api/user/state`) uncached; public payload cached.
+- [ ] Analytics: track gate shown, gate accepted, gate dismissed.
 
-## Pending actions to implement
-- Frontend wrappers for gated actions (higher-order button component) that opens sign-in modal and stores intent.
-- Server: engagement endpoints with auth + rate limit + visibility checks.
-- Resume logic post-login (read `action` query, perform API call, then toast result).
-- Telemetry: track `gated_shown`, `gated_accept`, `gated_dismiss`, and conversion to signup.
-
+## UX details
+- Keep prompts concise; include benefit copy (“Save to access later”, “Vote to surface quality”).
+- Do not block copy/download; gated actions only.
+- Mobile: use bottom sheet for sign-in prompt.
