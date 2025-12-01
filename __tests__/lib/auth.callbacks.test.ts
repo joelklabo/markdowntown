@@ -111,11 +111,12 @@ describe("auth callbacks", () => {
         image: "https://img",
       },
       profile: {
-        image: "https://avatar",
-        name: "Full Name",
         id: 42,
+        login: "mdtuser",
+        avatar_url: "https://avatar",
+        name: "Full Name",
         email: "me@example.com",
-      } as any,
+      } satisfies Partial<import("next-auth/providers/github").GithubProfile>,
       account: {
         provider: "github",
         type: "oauth",
