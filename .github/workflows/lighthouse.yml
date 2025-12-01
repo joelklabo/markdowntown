@@ -36,3 +36,4 @@ jobs:
           temporaryPublicStorage: true
           runs: 1
           configPath: ''
+          artifactName: lhci-report
