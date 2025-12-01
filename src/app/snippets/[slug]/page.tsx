@@ -10,6 +10,7 @@ import { SnippetTabs } from "@/components/snippet/SnippetTabs";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { SnippetActions } from "@/components/snippet/SnippetActions";
+import { Card } from "@/components/ui/Card";
 
 type SnippetParams = { slug: string };
 
@@ -84,25 +85,31 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
         ]}
       />
 
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Pill tone="blue">Snippet</Pill>
-          {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
+      <Card className="space-y-3 p-5 sticky top-16 z-10">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Pill tone="blue">Snippet</Pill>
+              {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
+            </div>
+            <h1 className="text-display leading-tight">{item.title}</h1>
+            <p className="text-body text-mdt-muted max-w-3xl">{item.description}</p>
+            <div className="flex flex-wrap gap-2">
+              {item.tags.map((tag) => (
+                <Pill key={tag} tone="gray">#{tag}</Pill>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
+            <div className="flex gap-3 text-xs text-mdt-muted">
+              <span aria-label=\"Views\">📄 {item.stats.views.toLocaleString()}</span>
+              <span aria-label=\"Copies\">📋 {item.stats.copies.toLocaleString()}</span>
+              <span aria-label=\"Votes\">👍 {item.stats.votes.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
-        <h1 className="text-display leading-tight">{item.title}</h1>
-        <p className="text-body text-mdt-muted max-w-3xl">{item.description}</p>
-        <div className="flex flex-wrap gap-2">
-          {item.tags.map((tag) => (
-            <Pill key={tag} tone="gray">#{tag}</Pill>
-          ))}
-        </div>
-        <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
-        <div className="text-xs text-mdt-muted flex gap-3">
-          <span>{item.stats.views.toLocaleString()} views</span>
-          <span>{item.stats.copies.toLocaleString()} copies</span>
-          <span>{item.stats.votes.toLocaleString()} votes</span>
-        </div>
-      </div>
+      </Card>
 
       <SnippetTabs title={item.title} rendered={item.description} raw={rawContent} />
 
