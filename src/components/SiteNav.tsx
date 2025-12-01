@@ -8,6 +8,7 @@ import { BrandLogo } from "./BrandLogo";
 import { Button } from "./ui/Button";
 import { ThemeToggle } from "./ThemeToggle";
 import { sampleTags } from "@/lib/sampleContent";
+import { track } from "@/lib/analytics";
 
 const links = [
   { href: "/browse", label: "Browse" },
@@ -49,6 +50,7 @@ export function SiteNav({ user }: { user?: User }) {
     e.preventDefault();
     const q = query.trim();
     persistRecent(q);
+    track("nav_search_submit", { q });
     router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
     setShowMobileSearch(false);
   }
@@ -136,6 +138,7 @@ export function SiteNav({ user }: { user?: User }) {
                       ? "bg-mdt-bg/80 text-mdt-text shadow-sm dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
                       : "hover:text-mdt-text dark:hover:text-white"
                   } focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500`}
+                  onClick={() => track("nav_click", { href: link.href, placement: "desktop" })}
                   aria-current={active ? "page" : undefined}
                 >
                   {link.label}
@@ -176,10 +179,14 @@ export function SiteNav({ user }: { user?: User }) {
             ) : (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="hidden md:inline-flex" asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/">Sign in</Link>
+                  <Link href="/api/auth/signin?callbackUrl=/" onClick={() => track("nav_click", { href: "signin", placement: "desktop" })}>
+                    Sign in
+                  </Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href={ctaHref}>Use a template</Link>
+                  <Link href={ctaHref} onClick={() => track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" })}>
+                    Use a template
+                  </Link>
                 </Button>
                 <button
                   type="button"
@@ -230,6 +237,7 @@ export function SiteNav({ user }: { user?: User }) {
                   className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-md px-2 ${
                     active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
                   }`}
+                  onClick={() => track("nav_click", { href: item.href, placement: "bottom" })}
                   aria-current={active ? "page" : undefined}
                 >
                   <span className="text-lg leading-none" aria-hidden>
@@ -244,6 +252,7 @@ export function SiteNav({ user }: { user?: User }) {
                   onClick={() => {
                     setShowMobileSearch(true);
                     setTimeout(() => inputRef.current?.focus(), 10);
+                    track("nav_search_open", { source: "bottom_nav" });
                   }}
                   className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text dark:text-mdt-text-dark"
                   aria-label="Open search"
@@ -288,15 +297,16 @@ export function SiteNav({ user }: { user?: User }) {
                     <button
                       key={tag.tag}
                       type="button"
-                      className="rounded-md border border-mdt-border px-2 py-1 hover:text-mdt-text dark:border-mdt-border-dark"
-                      onClick={() => {
-                        setQuery(tag.tag);
-                        setTimeout(() => inputRef.current?.focus(), 10);
-                      }}
-                    >
-                      #{tag.tag}
-                    </button>
-                  ))}
+                    className="rounded-md border border-mdt-border px-2 py-1 hover:text-mdt-text dark:border-mdt-border-dark"
+                    onClick={() => {
+                      setQuery(tag.tag);
+                      setTimeout(() => inputRef.current?.focus(), 10);
+                      track("nav_search_suggestion_click", { tag: tag.tag, source: "quick_tags" });
+                    }}
+                  >
+                    #{tag.tag}
+                  </button>
+                ))}
                 </div>
                 <Button type="submit" size="sm">
                   Search
@@ -318,6 +328,7 @@ export function SiteNav({ user }: { user?: User }) {
                           onClick={() => {
                             setQuery(term);
                             setTimeout(() => inputRef.current?.focus(), 10);
+                            track("nav_search_suggestion_click", { term, source: "recent" });
                           }}
                         >
                           {term}
