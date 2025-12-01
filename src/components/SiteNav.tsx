@@ -27,6 +27,7 @@ export function SiteNav({ user }: { user?: User }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const ctaHref = pathname === "/" ? "#templates" : "/templates";
 
   function onSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -97,7 +98,7 @@ export function SiteNav({ user }: { user?: User }) {
                     active
                       ? "bg-mdt-bg/80 text-mdt-text shadow-sm dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
                       : "hover:text-mdt-text dark:hover:text-white"
-                  }`}
+                  } focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500`}
                   aria-current={active ? "page" : undefined}
                 >
                   {link.label}
@@ -141,7 +142,7 @@ export function SiteNav({ user }: { user?: User }) {
                   <Link href="/api/auth/signin?callbackUrl=/">Sign in</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/templates">Use a template</Link>
+                  <Link href={ctaHref}>Use a template</Link>
                 </Button>
                 <button
                   type="button"

@@ -137,7 +137,7 @@ export default async function Home() {
             </div>
 
             <div className="mt-12 space-y-8">
-              <div className="space-y-3">
+              <div className="space-y-3" id="templates">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-caption text-mdt-muted">Featured</p>
