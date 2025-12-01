@@ -2,15 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens: semantic color roles with light/dark support */
+:root {
+  --mdt-color-primary: #0057d9;
+  --mdt-color-primary-strong: #0047b3;
+  --mdt-color-accent: #ffcc00;
+  --mdt-color-danger: #ef4444;
+  --mdt-color-success: #16a34a;
+  --mdt-color-warning: #f59e0b;
+  --mdt-color-info: #2563eb;
+
+  --mdt-color-bg: #ffffff;
+  --mdt-color-surface: #ffffff;
+  --mdt-color-surface-subtle: #f9fafb;
+  --mdt-color-border: #e5e7eb;
+  --mdt-color-text: #0f172a;
+  --mdt-color-text-muted: #6b7280;
+  --mdt-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --mdt-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.dark {
+  --mdt-color-primary: #7fb1ff;
+  --mdt-color-primary-strong: #a9c8ff;
+  --mdt-color-accent: #ffd666;
+  --mdt-color-danger: #f87171;
+  --mdt-color-success: #4ade80;
+  --mdt-color-warning: #fcd34d;
+  --mdt-color-info: #60a5fa;
+
+  --mdt-color-bg: #0b1220;
+  --mdt-color-surface: #0f172a;
+  --mdt-color-surface-subtle: #111827;
+  --mdt-color-border: #1f2a3d;
+  --mdt-color-text: #e5e7eb;
+  --mdt-color-text-muted: #9ca3af;
+  --mdt-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.24);
+  --mdt-shadow-md: 0 8px 20px rgba(0, 0, 0, 0.34);
+}
+
 @layer base {
   html,
   body {
-    @apply bg-mdt-bg text-mdt-text;
+    background-color: var(--mdt-color-bg);
+    color: var(--mdt-color-text);
   }
 
   .dark html,
   .dark body {
-    @apply bg-mdt-bg-dark text-mdt-text-dark;
+    background-color: var(--mdt-color-bg);
+    color: var(--mdt-color-text);
   }
 
   :focus-visible {
