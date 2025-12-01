@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const host = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com";
+import { envPublic } from "@/config/env.public";
+const key = envPublic.NEXT_PUBLIC_POSTHOG_KEY;
+const host = envPublic.NEXT_PUBLIC_POSTHOG_HOST;
 
 export function PosthogProvider({ children }: { children: React.ReactNode }) {
   const initialized = useRef(false);
