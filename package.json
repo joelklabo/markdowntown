@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:e2e": "E2E_BASE_URL=https://markdown.town vitest run __tests__/e2e/SectionFlow.test.ts",
     "test:coverage": "vitest run --coverage",
-    "format:styles": "prettier src/app/globals.css --write"
+    "format:styles": "prettier src/app/globals.css --write",
+    "docs:openapi": "node scripts/validate-openapi.js"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
