@@ -77,6 +77,7 @@ describe("auth callbacks", () => {
           name: "Me",
           image: undefined,
           username: undefined,
+          emailVerified: null,
         },
         expires: "",
       },
