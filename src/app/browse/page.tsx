@@ -68,12 +68,18 @@ export default async function BrowsePage({
   if (typeParam) baseParams.set("type", typeParam);
   if (query) baseParams.set("q", query);
 
-  const hrefWith = (overrides: { sort?: string; type?: string; tag?: string; clearTags?: boolean }) => {
+  const hrefWith = (overrides: { sort?: string; type?: string; tag?: string; clearTags?: boolean; removeTag?: string }) => {
     const params = new URLSearchParams(baseParams);
     if (overrides.sort) params.set("sort", overrides.sort);
     if (overrides.type) params.set("type", overrides.type);
     if (overrides.clearTags) params.delete("tag");
     if (overrides.tag) params.append("tag", overrides.tag);
+    if (overrides.removeTag) {
+      const toRemove = overrides.removeTag;
+      const remaining = params.getAll("tag").filter((t) => t !== toRemove);
+      params.delete("tag");
+      remaining.forEach((t) => params.append("tag", t));
+    }
     const search = params.toString();
     return `/browse${search ? `?${search}` : ""}`;
   };
@@ -93,6 +99,16 @@ export default async function BrowsePage({
         item.description.toLowerCase().includes(query.toLowerCase())
       )
     : cards;
+
+  const buildSearchFormHidden = () => (
+    <>
+      {activeTags.map((tag) => (
+        <input key={`tag-${tag}`} type="hidden" name="tag" value={tag} />
+      ))}
+      {sortParam && <input type="hidden" name="sort" value={sortParam} />}
+      {typeParam && <input type="hidden" name="type" value={typeParam} />}
+    </>
+  );
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
@@ -114,6 +130,49 @@ export default async function BrowsePage({
           </Button>
         </div>
       </div>
+
+      <Card className="flex flex-col gap-3 border border-mdt-border bg-white p-4 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+        <form className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4" action="/browse" method="get">
+          <div className="relative flex-1">
+            <input
+              type="search"
+              name="q"
+              defaultValue={query ?? ""}
+              placeholder="Search snippets, templates…"
+              className="w-full rounded-md border border-mdt-border bg-white px-3 py-2 text-sm text-mdt-text shadow-inner outline-none transition focus:border-indigo-400 focus:ring focus:ring-indigo-100 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:border-indigo-300"
+              aria-label="Search library"
+            />
+            {buildSearchFormHidden()}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "Trending", key: "trending" },
+              { label: "New", key: "new" },
+              { label: "Most copied", key: "copied" },
+              { label: "Top rated", key: "top" },
+            ].map((option) => {
+              const active = (sortParam ?? "new") === option.key;
+              return (
+                <Button
+                  key={option.key}
+                  type="submit"
+                  name="sort"
+                  value={option.key}
+                  variant={active ? "primary" : "ghost"}
+                  size="sm"
+                >
+                  {option.label}
+                </Button>
+              );
+            })}
+            <div className="hidden md:flex">
+              <Button type="submit" variant="secondary" size="sm">
+                Apply
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-[260px_1fr]">
         <Card className="space-y-4">
@@ -173,7 +232,16 @@ export default async function BrowsePage({
           {activeTags.length > 0 && (
             <div className="sm:col-span-2 lg:col-span-3 flex flex-wrap gap-2" aria-label="Active tag filters">
               {activeTags.map((tag) => (
-                <Pill key={tag} tone="blue">#{tag}</Pill>
+                <Pill key={tag} tone="blue">
+                  <span>#{tag}</span>
+                  <Link
+                    href={hrefWith({ removeTag: tag })}
+                    className="ml-1 text-[11px] underline"
+                    aria-label={`Remove tag ${tag}`}
+                  >
+                    ×
+                  </Link>
+                </Pill>
               ))}
               <Link href={hrefWith({ clearTags: true })} className="text-sm text-indigo-600 underline">
                 Clear filters
