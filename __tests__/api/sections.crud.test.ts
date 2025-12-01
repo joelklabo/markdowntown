@@ -17,7 +17,7 @@ type WhereUser = { userId?: string };
 type WhereId = { id: string; userId?: string };
 
 const prismaMock = {
-  section: {
+  snippet: {
     count: vi.fn(async ({ where }: { where?: WhereUser }) =>
       store.filter((s) => !where?.userId || s.userId === where.userId).length
     ),
@@ -70,7 +70,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 describe("sections API CRUD", () => {
   beforeEach(() => {
     store.length = 0;
-    Object.values(prismaMock.section).forEach((fn) => {
+    Object.values(prismaMock.snippet).forEach((fn) => {
       const maybe = fn as { mockClear?: () => void };
       maybe.mockClear?.();
     });

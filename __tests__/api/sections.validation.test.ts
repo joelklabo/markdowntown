@@ -9,7 +9,7 @@ const createMock = vi.fn();
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    section: {
+    snippet: {
       count: countMock,
       create: createMock,
     },
