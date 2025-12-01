@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   AZURE_RESOURCE_GROUP: satoshis-stg-west-rg
   AZURE_CONTAINERAPP_ENV: satoshis-env-stg-west
