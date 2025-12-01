@@ -45,3 +45,10 @@ Epic: markdowntown-7z8
 - Backfill slugs and set existing rows to `private` by default.
 - Feature flag `public_library`: keep current public API narrowed to `userId=null` until backfill completes.
 
+## Implementation checklist
+- [ ] Wire Prisma models/migrations (Snippet visibility/tags/slug, Template, Document) per migrations docs.
+- [ ] Add App Router handlers for list/detail across Snippet/Template/Document with cursor pagination and filters.
+- [ ] Apply cache headers + `Vary: Cookie` only when responses differ for authed overlays.
+- [ ] Return sanitized rendered HTML plus raw markdown; block private/unlisted by default.
+- [ ] Tag-based revalidation on create/update/delete and engagement writes.
+- [ ] E2E/regression tests: list filters/sorts, detail access control (public vs private), cache header assertions.
