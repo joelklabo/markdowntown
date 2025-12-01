@@ -8,6 +8,7 @@ import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { listTopTags } from "@/lib/publicTags";
+import { BrowseSearch } from "@/components/browse/BrowseSearch";
 
 export const metadata: Metadata = {
   title: "Browse library | MarkdownTown",
@@ -100,15 +101,7 @@ export default async function BrowsePage({
       )
     : cards;
 
-  const buildSearchFormHidden = () => (
-    <>
-      {activeTags.map((tag) => (
-        <input key={`tag-${tag}`} type="hidden" name="tag" value={tag} />
-      ))}
-      {sortParam && <input type="hidden" name="sort" value={sortParam} />}
-      {typeParam && <input type="hidden" name="type" value={typeParam} />}
-    </>
-  );
+  const baseQueryString = baseParams.toString();
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
@@ -133,17 +126,7 @@ export default async function BrowsePage({
 
       <Card className="flex flex-col gap-3 border border-mdt-border bg-white p-4 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
         <form className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4" action="/browse" method="get">
-          <div className="relative flex-1">
-            <input
-              type="search"
-              name="q"
-              defaultValue={query ?? ""}
-              placeholder="Search snippets, templates…"
-              className="w-full rounded-md border border-mdt-border bg-white px-3 py-2 text-sm text-mdt-text shadow-inner outline-none transition focus:border-indigo-400 focus:ring focus:ring-indigo-100 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:border-indigo-300"
-              aria-label="Search library"
-            />
-            {buildSearchFormHidden()}
-          </div>
+          <BrowseSearch initialQuery={query ?? ""} baseQueryString={baseQueryString} />
           <div className="flex flex-wrap gap-2">
             {[
               { label: "Trending", key: "trending" },
