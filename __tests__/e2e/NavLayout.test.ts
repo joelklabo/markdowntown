@@ -46,4 +46,31 @@ describe("Navigation and browse layout integrity", () => {
 
     await context.close();
   });
+
+  maybe("mobile nav stays visible, cards stay readable, no horizontal scroll", { timeout: 45000 }, async () => {
+    const context = await browser.newContext({ baseURL, viewport: { width: 375, height: 667 } });
+    const page = await context.newPage();
+
+    await page.goto("/browse", { waitUntil: "domcontentloaded" });
+
+    const scrollWidth = await page.evaluate(() => document.scrollingElement?.scrollWidth ?? 0);
+    expect(scrollWidth).toBeLessThanOrEqual(380);
+
+    const bottomNav = page.getByRole("navigation", { name: /primary/i });
+    await bottomNav.waitFor({ state: "visible" });
+
+    const firstCard = page.locator("main .card").first();
+    await firstCard.waitFor({ state: "visible" });
+    const cardBox = await firstCard.boundingBox();
+    expect(cardBox?.width).toBeGreaterThan(220);
+
+    // Search modal opens and closes
+    await page.getByLabel(/search/i).first().click();
+    const dialog = page.getByRole("dialog", { name: /search/i });
+    await dialog.waitFor({ state: "visible" });
+    await page.getByRole("button", { name: /close search|esc/i }).click();
+    await dialog.waitFor({ state: "hidden" });
+
+    await context.close();
+  });
 });
