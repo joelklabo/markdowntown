@@ -37,7 +37,7 @@ type BrowseSearchParams = { tag?: string | string[]; tags?: string | string[]; s
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined } | Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }) {
   const resolved = (await searchParams) ?? {};
   const params = resolved as BrowseSearchParams;
