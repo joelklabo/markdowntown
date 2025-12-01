@@ -5,7 +5,7 @@
 export function track(event: string, properties?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
-    const ph = (window as unknown as { posthog?: { capture: typeof import("posthog-js").capture } }).posthog;
+    const ph = (window as unknown as { posthog?: { capture: (e: string, p?: Record<string, unknown>) => void } }).posthog;
     ph?.capture?.(event, properties);
   } catch {
     // swallow analytics errors to avoid UI impact

@@ -58,7 +58,7 @@ export default async function TemplateDetail({
         description: template.description ?? "",
         body: template.body ?? "",
         tags: template.tags,
-        stats: template.stats,
+        stats: { views: template.stats.views, copies: template.stats.copies, votes: template.stats.uses ?? 0 },
         badge: (template as { badge?: string }).badge,
       }
     : fallback

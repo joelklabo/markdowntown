@@ -56,6 +56,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
     sample ||
     (section && {
       id: section.id,
+      slug: section.slug ?? section.id,
       title: section.title,
       description: section.content.slice(0, 240) || "Markdown snippet",
       tags: normalizeTags(section.tags, { strict: false }).tags,
