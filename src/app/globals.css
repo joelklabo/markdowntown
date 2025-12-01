@@ -84,7 +84,7 @@
     @apply bg-[#EFF6FF];
   }
   .dark .btn-secondary {
-    @apply bg-mdt-bg-soft-dark text-mdt-text-dark border-mdt-border-dark;
+    @apply bg-mdt-bg-soft text-mdt-text border-mdt-border;
   }
   .dark .btn-secondary:hover {
     @apply bg-[#1f2e4a];
@@ -98,7 +98,7 @@
     @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
   }
   .dark .card {
-    @apply bg-mdt-bg-soft-dark border-mdt-border-dark shadow-none text-mdt-text-dark;
+    @apply bg-mdt-bg-soft border-mdt-border shadow-none text-mdt-text;
   }
   .dark .card:hover {
     @apply border-[#2d3b55] shadow-mdt-sm;
@@ -127,25 +127,25 @@
     @apply bg-[rgba(148,163,184,0.18)] text-[#334155];
   }
   .dark .pill {
-    @apply text-mdt-text-dark;
+    @apply text-mdt-text;
   }
   .dark .pill-primary {
-    @apply bg-[rgba(0,87,217,0.18)] text-mdt-text-dark;
+    @apply bg-[rgba(0,87,217,0.18)] text-mdt-text;
   }
   .dark .pill-yellow {
-    @apply bg-[rgba(255,204,0,0.18)] text-mdt-text-dark;
+    @apply bg-[rgba(255,204,0,0.18)] text-mdt-text;
   }
   .dark .pill-blue {
-    @apply bg-[rgba(0,87,217,0.28)] text-mdt-text-dark;
+    @apply bg-[rgba(0,87,217,0.28)] text-mdt-text;
   }
   .dark .pill-red {
-    @apply bg-[rgba(239,68,68,0.18)] text-mdt-text-dark;
+    @apply bg-[rgba(239,68,68,0.18)] text-mdt-text;
   }
   .dark .pill-green {
-    @apply bg-[rgba(22,163,74,0.2)] text-mdt-text-dark;
+    @apply bg-[rgba(22,163,74,0.2)] text-mdt-text;
   }
   .dark .pill-gray {
-    @apply bg-[rgba(148,163,184,0.25)] text-mdt-text-dark;
+    @apply bg-[rgba(148,163,184,0.25)] text-mdt-text;
   }
 
   .skip-link {
