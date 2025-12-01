@@ -90,7 +90,9 @@ describe("auth callbacks", () => {
         emailVerified: null,
       },
       token: {},
-    } satisfies Parameters<NonNullable<typeof sessionFn>>[0]);
+      trigger: "signIn",
+      newSession: true,
+    } as Parameters<NonNullable<typeof sessionFn>>[0]);
 
     expect(result?.user?.id).toBe("user-1");
     expect(result?.user?.username).toBe("mdtuser");
@@ -113,15 +115,21 @@ describe("auth callbacks", () => {
         emailVerified: null,
       },
       profile: {
-        id: 42,
         login: "mdtuser",
         avatar_url: "https://avatar",
         name: "Full Name",
-      } satisfies Partial<import("next-auth/providers/github").GithubProfile>,
-      account: null,
+        id: 42,
+      } as import("next-auth/providers/github").GithubProfile,
+      account: {
+        provider: "github",
+        type: "oauth",
+        providerAccountId: "42",
+        access_token: "token",
+        token_type: "bearer",
+      },
       isNewUser: true,
       credentials: {},
-    });
+    } as Parameters<NonNullable<typeof authOptions.events?.signIn>>[0]);
 
     expect(prismaUpdate).toHaveBeenCalledWith({
       where: { id: "user-1" },
