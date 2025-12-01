@@ -112,14 +112,6 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     anchor?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function nextStep() {
-    goStep(stepIndex + 1);
-  }
-
-  function prevStep() {
-    goStep(stepIndex - 1);
-  }
-
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 pb-24 pt-6 space-y-6">
       <div className="sticky top-16 z-10 rounded-xl border border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm backdrop-blur-md dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95">
