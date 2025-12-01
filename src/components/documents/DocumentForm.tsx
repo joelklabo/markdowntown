@@ -34,14 +34,15 @@ export function DocumentForm({ initial }: Props) {
     async function loadSnippets() {
       setLoadingSnippets(true);
       try {
-        const res = await fetch("/api/public/items?type=snippet&limit=30");
-        if (!res.ok) throw new Error(`Failed to load snippets (${res.status})`);
-        const data = (await res.json()) as { items?: Array<{ id: string; title: string; description?: string }> };
+        // Prefer the signed-in user's sections so they can re-use their own snippets
+        const res = await fetch("/api/sections");
+        if (!res.ok) throw new Error(`Failed to load sections (${res.status})`);
+        const data = (await res.json()) as Array<{ id: string; title: string; content: string }>;
         const mapped =
-          data.items?.map((item) => ({
+          data?.map((item) => ({
             id: item.id,
-            title: item.title,
-            preview: (item.description ?? "").slice(0, 140),
+            title: item.title || "Untitled section",
+            preview: (item.content ?? "").trim(),
           })) ?? [];
         setSnippets(mapped);
         if (mapped[0]) setSelectedSnippet(mapped[0].id);
@@ -58,6 +59,30 @@ export function DocumentForm({ initial }: Props) {
     const snip = snippets.find((s) => s.id === selectedSnippet);
     if (!snip) return;
     setContent((prev) => `${prev.trim()}\n\n## ${snip.title}\n\n${snip.preview}`.trim());
+  }
+
+  async function copyContent() {
+    if (!content.trim()) return;
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch (err) {
+      console.warn("copy failed", err);
+    }
+  }
+
+  function downloadContent() {
+    if (!content.trim()) return;
+    try {
+      const blob = new Blob([content], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title || "agents"}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn("download failed", err);
+    }
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -149,7 +174,7 @@ export function DocumentForm({ initial }: Props) {
           </Button>
         </div>
 
-        <div className="rounded-md border border-mdt-border bg-white p-3 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark">
+        <div className="rounded-md border border-mdt-border bg-white p-3 shadow-sm space-y-3 dark:border-mdt-border-dark dark:bg-mdt-bg-dark">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Insert snippet</span>
             <select
@@ -170,11 +195,20 @@ export function DocumentForm({ initial }: Props) {
               size="sm"
               disabled={loadingSnippets || snippets.length === 0}
               onClick={insertSelectedSnippet}
+              aria-label="Insert selected snippet into document"
             >
               Insert into document
             </Button>
             {loadingSnippets && <span className="text-xs text-mdt-muted">Loading snippets…</span>}
             {snippetError && <span className="text-xs text-red-600">{snippetError}</span>}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="secondary" size="sm" onClick={copyContent} disabled={!content.trim()} aria-label="Copy document markdown">
+              Copy markdown
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={downloadContent} disabled={!content.trim()} aria-label="Download document markdown">
+              Download .md
+            </Button>
           </div>
         </div>
       </Card>
