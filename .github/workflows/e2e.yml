@@ -32,10 +32,10 @@ jobs:
           DATABASE_URL: "file:./e2e.db"
         run: pnpm prisma generate
 
-      - name: Migrate (SQLite)
+      - name: Sync schema (SQLite)
         env:
           DATABASE_URL: "file:./e2e.db"
-        run: pnpm prisma migrate deploy
+        run: pnpm prisma db push
 
       - name: Build
         env:
