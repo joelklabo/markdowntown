@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Pluggable } from "unified";
 import { Button } from "./ui/Button";
 import { normalizeTags, TAG_MAX_COUNT, TAG_MAX_LENGTH } from "@/lib/tags";
@@ -35,6 +35,7 @@ export function SectionComposer() {
   const [tagInput, setTagInput] = useState("");
   const [tagError, setTagError] = useState<string | null>(null);
   const [remarkGfm, setRemarkGfm] = useState<Pluggable | null>(null);
+  const selectedRef = useRef<Section | null>(null);
 
   useEffect(() => {
     import("remark-gfm").then((mod) => {
@@ -59,7 +60,7 @@ export function SectionComposer() {
   useEffect(() => {
     setTagInput((selected?.tags ?? []).join(", "));
     setTagError(null);
-  }, [selected?.id]);
+  }, [selected?.id, selected?.tags]);
 
   async function loadSections() {
     setLoading(true);
@@ -75,6 +76,7 @@ export function SectionComposer() {
         tags: normalizeTags((section as { tags?: unknown }).tags, { strict: false }).tags,
       }));
       setSections(normalized);
+      selectedRef.current = normalized[0] ?? null;
       setSelected(normalized[0] ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load sections");
@@ -99,6 +101,7 @@ export function SectionComposer() {
       const created: Section = await res.json();
       const normalized = { ...created, tags: normalizeTags(created.tags, { strict: false }).tags };
       setSections((prev) => [...prev, normalized]);
+      selectedRef.current = normalized;
       setSelected(normalized);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
@@ -125,6 +128,7 @@ export function SectionComposer() {
       const updated: Section = await res.json();
       const normalized = { ...updated, tags: normalizeTags(updated.tags, { strict: false }).tags };
       setSections((prev) => prev.map((s) => (s.id === normalized.id ? normalized : s)));
+      selectedRef.current = normalized;
       setSelected(normalized);
       setTagInput(normalized.tags.join(", "));
     } catch (err) {
@@ -154,6 +158,7 @@ export function SectionComposer() {
   function updateSelected(partial: Partial<Section>) {
     setSelected((prev) => {
       const next = { ...(prev ?? emptySelection), ...partial };
+      selectedRef.current = next;
       setSections((existing) =>
         existing.map((s) => (s.id === next.id ? next : s))
       );
@@ -162,19 +167,29 @@ export function SectionComposer() {
   }
 
   function handleTagsChange(value: string) {
-    setTagInput(value);
-    const tokens = value
+    let tokens = value
       .split(/[,\n]/)
       .map((tag) => tag.trim())
       .filter(Boolean);
 
+    // If the user appended text without a comma, try to split using the existing first tag.
+    if (tokens.length === 1 && selected?.tags?.[0]) {
+      const first = selected.tags[0];
+      const remainder = value.slice(first.length).trim();
+      if (remainder) {
+        tokens = [first, remainder];
+      }
+    }
+
     const { tags, error: tagsError } = normalizeTags(tokens);
     if (tagsError) {
       setTagError(tagsError);
+      setTagInput(value);
       return;
     }
 
     setTagError(null);
+    setTagInput(tags.join(", "));
     if (selected) {
       updateSelected({ tags });
     }
@@ -259,7 +274,7 @@ export function SectionComposer() {
             onChange={(e) =>
               updateSelected({ title: e.target.value ?? "Untitled section" })
             }
-            onBlur={() => selected && saveSection(selected)}
+          onBlur={() => selectedRef.current && saveSection(selectedRef.current)}
             disabled={!selected}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
           />
@@ -273,7 +288,7 @@ export function SectionComposer() {
               placeholder="system, tools, style"
               value={tagInput}
               onChange={(e) => handleTagsChange(e.target.value)}
-              onBlur={() => selected && !tagError && saveSection(selected)}
+              onBlur={() => selectedRef.current && !tagError && saveSection(selectedRef.current)}
               disabled={!selected}
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
             />

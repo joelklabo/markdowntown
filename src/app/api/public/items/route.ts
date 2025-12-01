@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listPublicItems } from "@/lib/publicItems";
+import { listPublicItems, type ListPublicItemsInput } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
 
 export const revalidate = 30;
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const limit = Number(url.searchParams.get("limit") ?? "30");
   const sort = (url.searchParams.get("sort") ?? "recent") as "recent" | "views" | "copies";
   const typeParam = url.searchParams.get("type");
-  const type = (typeParam ?? "all") as Parameters<typeof listPublicItems>[0]["type"];
+  const type = (typeParam ?? "all") as ListPublicItemsInput["type"];
   const q = url.searchParams.get("q");
   const tagsParam = url.searchParams.getAll("tag");
   const tagsCsv = url.searchParams.get("tags");

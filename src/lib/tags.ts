@@ -19,7 +19,8 @@ export function normalizeTag(raw: string): NormalizeResult {
     return { ok: false, error: "Tags can only include letters, numbers, spaces, underscores, or hyphens" };
   }
 
-  const kebab = trimmed
+  const withSpaces = trimmed.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+  const kebab = withSpaces
     .toLowerCase()
     .replace(/[_\s]+/g, "-")
     .replace(/-+/g, "-")
