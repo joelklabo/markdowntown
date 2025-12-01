@@ -34,3 +34,11 @@ POST /api/documents (auth)
 - Export/download handler (blob download).
 - Analytics events: add_to_builder, builder_export, save_document.
 
+## Implementation checklist (issue markdowntown-7z8.20)
+- [ ] Add POST `/api/builder/render` per contract; sanitize rendered markdown and apply template placeholders/overrides.
+- [ ] Add POST `/api/documents` (auth) to persist Document + DocumentSnippets; reuse validation from template/doc migrations.
+- [ ] Wire cache invalidation: `revalidateTag('document:<slug>')` and list tags after save.
+- [ ] Client builder store: template selection, snippet list, overrides, preview state; debounce render calls.
+- [ ] Export actions: copy/download for anon; save for authed with inline sign-in prompt + retry.
+- [ ] Warnings: surface private/unlisted snippets and block/confirm export accordingly.
+- [ ] Analytics/events: log add_to_builder, builder_export, template_use (if template chosen), and document_save.
