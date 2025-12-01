@@ -37,9 +37,10 @@ type BrowseSearchParams = { tag?: string | string[]; tags?: string | string[]; s
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[]>;
+  searchParams?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>;
 }) {
-  const params = (searchParams as BrowseSearchParams) ?? {};
+  const resolved = await searchParams;
+  const params = (resolved as BrowseSearchParams) ?? {};
   const activeTags = normalizeSearchTags(params);
   const sortParam = params.sort;
   const sort =
