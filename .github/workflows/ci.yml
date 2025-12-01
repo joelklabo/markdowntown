@@ -50,13 +50,3 @@ jobs:
 
       - name: Coverage
         run: pnpm test:coverage
-
-      - name: Upload coverage to Codecov
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: true
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
