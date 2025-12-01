@@ -14,7 +14,8 @@
     "lint:md": "node scripts/lint-markdown.js \"**/*.md\" \"!node_modules/**\" \"!.next/**\" \"!coverage/**\" \"!dist/**\"",
     "format:styles": "prettier src/app/globals.css --write",
     "docs:openapi": "node scripts/validate-openapi.js",
-    "analyze": "ANALYZE=true pnpm exec next build --webpack"
+    "analyze": "ANALYZE=true pnpm exec next build --webpack",
+    "prepare": "husky"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
@@ -45,7 +46,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
     "globby": "^16.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
+    "lint-staged": "^16.2.7",
     "markdownlint": "^0.39.0",
     "markdownlint-cli2": "^0.19.1",
     "playwright": "^1.57.0",
@@ -60,5 +63,13 @@
     "typescript": "^5",
     "unified": "^11.0.5",
     "vitest": "^4.0.14"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "pnpm exec eslint --fix --max-warnings=0"
+    ],
+    "*.md": [
+      "pnpm lint:md"
+    ]
   }
 }
