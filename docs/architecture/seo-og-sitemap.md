@@ -14,6 +14,9 @@ Epic: markdowntown-7z8
   - og:image: generated OG card with title + type + tags.
   - canonical: `https://markdown.town/{type}/{slug}`
   - robots: `index, follow` only if visibility=PUBLIC; otherwise `noindex, nofollow`.
+- Add JSON-LD:
+  - BreadcrumbList for detail pages.
+  - ItemList for feed pages (landing/browse/templates/tags) with top items.
 
 ## OG image generation
 - Implement `/api/og/{type}/{slug}` route using @vercel/og or satori to render card: title, type badge, tags, copies/votes.
@@ -39,4 +42,3 @@ Epic: markdowntown-7z8
 
 ## Analytics
 - Track share clicks, copy link events, and inbound referrers from organic search once live.
-
