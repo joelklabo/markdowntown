@@ -6,8 +6,9 @@ import { Pill } from "@/components/ui/Pill";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const item = sampleItems.find((i) => i.id === params.id && i.type === "file");
+export function generateMetadata({ params }: { params: { id: string } | Promise<{ id: string }> }): Metadata {
+  const id = (params as { id: string }).id;
+  const item = sampleItems.find((i) => i.id === id && i.type === "file");
   if (!item) return { title: "agents.md not found" };
   return {
     title: `${item.title} | MarkdownTown`,
@@ -19,8 +20,9 @@ export function generateStaticParams() {
   return sampleItems.filter((i) => i.type === "file").map((item) => ({ id: item.id }));
 }
 
-export default function FileDetail({ params }: { params: { id: string } }) {
-  const item = sampleItems.find((i) => i.id === params.id && i.type === "file");
+export default async function FileDetail({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+  const resolved = await params;
+  const item = sampleItems.find((i) => i.id === resolved.id && i.type === "file");
   if (!item) return notFound();
 
   return (
