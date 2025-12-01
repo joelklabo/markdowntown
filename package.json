@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:e2e": "E2E_BASE_URL=https://markdown.town vitest run __tests__/e2e/SectionFlow.test.ts",
     "test:coverage": "vitest run --coverage",
+    "lint:md": "node scripts/lint-markdown.js --config markdownlint.config.cjs",
     "format:styles": "prettier src/app/globals.css --write",
     "docs:openapi": "node scripts/validate-openapi.js",
     "analyze": "ANALYZE=true pnpm exec next build --webpack"
@@ -43,7 +44,9 @@
     "baseline-browser-mapping": "^2.8.32",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
+    "globby": "^16.0.0",
     "jsdom": "^25.0.1",
+    "markdownlint": "^0.39.0",
     "markdownlint-cli2": "^0.19.1",
     "playwright": "^1.57.0",
     "postcss": "^8.4.41",
