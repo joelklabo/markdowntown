@@ -43,7 +43,6 @@ const nextConfig: NextConfig = {
 
 export default withSentryConfig(analyzer(nextConfig), {
   silent: true,
-  release: process.env.VERCEL_GIT_COMMIT_SHA,
   disableLogger: true,
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
