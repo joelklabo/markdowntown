@@ -56,11 +56,22 @@ export function SiteNav({ user }: { user?: User }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    if (showMobileSearch) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [showMobileSearch]);
+
   const bottomNavItems = [
-    { href: "/", label: "Home", icon: "🏠" },
-    { href: "/browse", label: "Browse", icon: "🔎" },
-    { href: "/templates", label: "Templates", icon: "📄" },
-    { href: "/builder", label: "Builder", icon: "🛠️" },
+    { href: "/", label: "Home", icon: "🏠", type: "link" as const },
+    { href: "/browse", label: "Browse", icon: "🔎", type: "link" as const },
+    { href: "/templates", label: "Templates", icon: "📄", type: "link" as const },
+    { href: "/builder", label: "Builder", icon: "🛠️", type: "link" as const },
+    { label: "Search", icon: "⌘K", type: "search" as const },
   ];
 
   return (
@@ -178,23 +189,46 @@ export function SiteNav({ user }: { user?: User }) {
       </header>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-white/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark dark:text-mdt-muted-dark">
+      <nav
+        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-white/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark dark:text-mdt-muted-dark"
+        role="navigation"
+        aria-label="Primary"
+      >
         {bottomNavItems.map((item) => {
-          const active = isActive(item.href);
+          const active = item.type === "link" ? isActive(item.href ?? "") : false;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center gap-1 rounded-md px-2 py-1 ${
-                active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
-              }`}
-              aria-current={active ? "page" : undefined}
-            >
-              <span className="text-lg" aria-hidden>
-                {item.icon}
-              </span>
-              <span>{item.label}</span>
-            </Link>
+            <div key={item.label} className="flex-1">
+              {item.type === "link" ? (
+                <Link
+                  href={item.href!}
+                  className={`group flex h-14 flex-col items-center justify-center gap-1 rounded-md px-2 ${
+                    active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
+                  }`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <span className="text-lg leading-none" aria-hidden>
+                    {item.icon}
+                  </span>
+                  <span className="text-[12px] leading-tight">{item.label}</span>
+                  {active && <span className="mt-1 h-1 w-8 rounded-full bg-mdt-blue" aria-hidden />}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMobileSearch(true);
+                    setTimeout(() => inputRef.current?.focus(), 10);
+                  }}
+                  className="flex h-14 w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text dark:text-mdt-text-dark"
+                  aria-label="Open search"
+                >
+                  <span className="text-xs font-mono" aria-hidden>
+                    {item.icon}
+                  </span>
+                  <span className="text-[12px] leading-tight">{item.label}</span>
+                </button>
+              )}
+            </div>
           );
         })}
       </nav>
