@@ -117,6 +117,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             {templates.map((tpl) => (
               <button
                 key={tpl.id}
+                data-testid="builder-template"
                 onClick={() => setSelectedTemplate(tpl.id)}
                 className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   selectedTemplate === tpl.id
@@ -145,6 +146,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               return (
                 <div key={snip.id} className="flex items-start gap-2">
                   <button
+                    data-testid="builder-snippet"
                     onClick={() => toggleSnippet(snip.id)}
                     className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                       active
