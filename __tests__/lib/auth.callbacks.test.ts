@@ -36,10 +36,10 @@ describe("auth callbacks", () => {
 
     const allowed = await authOptions.callbacks?.signIn?.({
       user: { id: "u1" },
-      account: null,
-      profile: null,
-      email: null,
-      credentials: null,
+      account: undefined,
+      profile: undefined,
+      email: undefined,
+      credentials: undefined,
     });
 
     expect(allowed).toBe(false);
@@ -53,10 +53,10 @@ describe("auth callbacks", () => {
 
     const allowed = await authOptions.callbacks?.signIn?.({
       user: { id: "u1" },
-      account: null,
-      profile: null,
-      email: null,
-      credentials: null,
+      account: undefined,
+      profile: undefined,
+      email: undefined,
+      credentials: undefined,
     });
 
     expect(allowed).toBe(true);
@@ -108,6 +108,7 @@ describe("auth callbacks", () => {
         email: "me@example.com",
         name: "Full Name",
         image: "https://img",
+        emailVerified: null,
       },
       profile: {
         id: 42,
@@ -122,13 +123,13 @@ describe("auth callbacks", () => {
 
     expect(prismaUpdate).toHaveBeenCalledWith({
       where: { id: "user-1" },
-      data: expect.objectContaining({
-        githubId: "42",
-        username: "mdtuser",
-        avatarUrl: "https://avatar",
-        name: "Full Name",
-        image: "https://avatar",
-      }),
+        data: expect.objectContaining({
+          githubId: "42",
+          username: "mdtuser",
+          avatarUrl: "https://avatar",
+          name: "Full Name",
+          image: "https://avatar",
+        }),
     });
   });
 });
