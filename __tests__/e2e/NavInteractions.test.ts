@@ -25,7 +25,7 @@ describe("Navigation and interaction smoke", () => {
 
     // Desktop nav link
     await page.getByRole("link", { name: /browse/i }).click();
-    await expect(page).toHaveURL(/\/browse/);
+    expect(page.url()).toMatch(/\/browse/);
 
     // Search input submits to browse
     await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -33,7 +33,7 @@ describe("Navigation and interaction smoke", () => {
     await searchInput.click();
     await searchInput.fill("tools");
     await searchInput.press("Enter");
-    await expect(page).toHaveURL(/browse\?q=tools/);
+    expect(page.url()).toMatch(/browse\?q=tools/);
 
     // Bottom nav search opens modal
     const searchButton = page.getByRole("button", { name: /search/i }).nth(-1);
@@ -48,7 +48,8 @@ describe("Navigation and interaction smoke", () => {
     await firstSnippet.click();
     await page.getByRole("button", { name: /Move down/i }).first().click();
     await page.getByRole("button", { name: /Move up/i }).first().click();
-    await expect(page.locator("main")).toContainText(snippetTitle);
+    const previewText = await page.locator("main").innerText();
+    expect(previewText).toContain(snippetTitle);
 
     await context.close();
   }, 45000);
