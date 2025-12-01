@@ -35,8 +35,8 @@ describe("auth callbacks", () => {
     });
 
     const allowed = await authOptions.callbacks?.signIn?.({
-      user: { id: "u1" },
-      account: undefined,
+      user: { id: "u1", emailVerified: null },
+      account: null,
       profile: undefined,
       email: undefined,
       credentials: undefined,
@@ -52,8 +52,8 @@ describe("auth callbacks", () => {
     });
 
     const allowed = await authOptions.callbacks?.signIn?.({
-      user: { id: "u1" },
-      account: undefined,
+      user: { id: "u1", emailVerified: null },
+      account: null,
       profile: undefined,
       email: undefined,
       credentials: undefined,
@@ -86,6 +86,7 @@ describe("auth callbacks", () => {
         email: "me@example.com",
         name: "Full Name",
         image: "https://img",
+        emailVerified: null,
       },
       token: {},
     });
