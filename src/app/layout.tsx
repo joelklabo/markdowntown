@@ -5,6 +5,7 @@ import { PosthogProvider } from "@/providers/PosthogProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { getSession } from "@/lib/auth";
 import { SiteNav } from "@/components/SiteNav";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -72,6 +73,7 @@ export default async function RootLayout({
           <PosthogProvider>
             <SiteNav user={user} />
             <main id="main-content">{children}</main>
+            <Footer />
           </PosthogProvider>
         </ThemeProvider>
       </body>
