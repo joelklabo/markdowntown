@@ -5,7 +5,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-const skipDb = process.env.SKIP_DB === "1" || process.env.NODE_ENV === "production";
+const skipDb = process.env.SKIP_DB === "1";
 export const hasDatabaseEnv = !skipDb && Boolean(process.env.DATABASE_URL);
 
 // Ensure Prisma always sees a valid Postgres URL (file: isn't allowed with the postgres provider).
