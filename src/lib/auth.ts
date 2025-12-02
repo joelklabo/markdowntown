@@ -9,7 +9,7 @@ const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, NEXTAUTH_SECRET } = process.env;
 const githubConfigured = Boolean(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET);
 const githubClientId = GITHUB_CLIENT_ID ?? "missing-client-id";
 const githubClientSecret = GITHUB_CLIENT_SECRET ?? "missing-client-secret";
-const demoLoginEnabled = process.env.NODE_ENV !== "production" && process.env.ENABLE_DEMO_LOGIN !== "false";
+const demoLoginEnabled = process.env.NODE_ENV !== "production";
 const demoPassword = process.env.DEMO_LOGIN_PASSWORD ?? "demo-login";
 const useDatabaseAdapter = hasDatabaseEnv && githubConfigured;
 const sessionStrategy: NextAuthOptions["session"]["strategy"] = useDatabaseAdapter ? "database" : "jwt";
