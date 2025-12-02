@@ -2,7 +2,6 @@ import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
 import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -130,30 +129,29 @@ export default async function BrowsePage({
   const baseQueryString = baseParams.toString();
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <p className="text-caption text-mdt-muted">Library</p>
-          <h1 className="text-display">Browse snippets, templates, and agents.md files</h1>
-          <p className="text-body text-mdt-muted max-w-2xl">
-            Copy anything without signing in. Use filters and tags to find the right building blocks, then
-            add them to the builder or download directly.
-          </p>
+    <main id="main-content" className="mx-auto max-w-6xl px-6 py-10 space-y-8">
+      <section className="flex flex-col gap-4 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 shadow-mdt-md">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <p className="text-caption text-mdt-muted">Explore</p>
+            <h1 className="text-display font-display">Browse snippets, templates, and agents.md files</h1>
+            <p className="text-body text-mdt-muted max-w-2xl">
+              Copy anything without signing in. Use filters and tags to find the right building blocks, then add them to the builder or download directly.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" asChild>
+              <Link href="/templates">Templates</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/builder">Open builder</Link>
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" asChild>
-            <Link href="/templates">Templates</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/builder">Open builder</Link>
-          </Button>
-        </div>
-      </div>
 
-      <Card className="flex flex-col gap-3 border border-mdt-border bg-white p-4 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-        <form className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4" action="/browse" method="get">
+        <form className="grid gap-3 md:grid-cols-[1.2fr_auto] md:items-center" action="/browse" method="get">
           <BrowseSearch initialQuery={query ?? ""} baseQueryString={baseQueryString} />
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             {[
               { label: "Trending", key: "trending" },
               { label: "New", key: "new" },
@@ -174,17 +172,12 @@ export default async function BrowsePage({
                 </Button>
               );
             })}
-            <div className="hidden md:flex">
-              <Button type="submit" variant="secondary" size="sm">
-                Apply
-              </Button>
-            </div>
           </div>
         </form>
-      </Card>
+      </section>
 
-      <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-        <Card className="hidden space-y-4 md:block">
+      <section className="grid gap-4 md:grid-cols-[280px_1fr]">
+        <Card className="hidden space-y-4 bg-mdt-surface shadow-mdt-sm md:block">
           <BrowseFilterPills
             sortOptions={sortOptions}
             typeOptions={typeOptions}
@@ -195,11 +188,11 @@ export default async function BrowsePage({
         </Card>
 
         <div className="md:hidden">
-          <details className="rounded-lg border border-mdt-border bg-white p-3 shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-            <summary className="cursor-pointer text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">
+          <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-3 shadow-mdt-sm">
+            <summary className="cursor-pointer text-sm font-semibold text-mdt-text">
               Filters & tags
             </summary>
-            <div className="mt-3 space-y-4">
+            <div className="mt-3 space-y-3">
               <BrowseFilterPills
                 sortOptions={sortOptions}
                 typeOptions={typeOptions}
@@ -211,29 +204,14 @@ export default async function BrowsePage({
           </details>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {activeTags.length > 0 && (
-            <div className="sm:col-span-2 lg:col-span-3 flex flex-wrap gap-2" aria-label="Active tag filters">
-              {activeTags.map((tag) => (
-                <Pill key={tag} tone="blue">
-                  <span>#{tag}</span>
-                  <Link
-                    href={hrefWith({ removeTag: tag })}
-                    className="ml-1 text-[11px] underline"
-                    aria-label={`Remove tag ${tag}`}
-                  >
-                    ×
-                  </Link>
-                </Pill>
-              ))}
-              <Link href={hrefWith({ clearTags: true })} className="text-sm text-indigo-600 underline">
-                Clear filters
-              </Link>
-            </div>
-          )}
-          <BrowseResults initialItems={filtered} query={query} sortParam={sortParam} typeParam={typeParam} activeTags={activeTags} />
-        </div>
-      </div>
+        <BrowseResults
+          initialItems={filtered}
+          query={query}
+          sortParam={sortParam}
+          typeParam={typeParam}
+          activeTags={activeTags}
+        />
+      </section>
     </main>
   );
 }

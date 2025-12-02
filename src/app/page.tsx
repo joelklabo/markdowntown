@@ -64,24 +64,26 @@ export default async function Home() {
     .map((i) => ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem)));
 
   return (
-    <div className="min-h-screen bg-mdt-bg-soft text-mdt-text dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
+    <div className="min-h-screen bg-mdt-bg text-mdt-text">
       {!user && (
-        <div className="border-b border-mdt-border bg-white dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-          <section className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-12 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center md:py-16">
-            <div className="flex-1 space-y-4">
-              <Pill>New · agents.md made reusable</Pill>
-              <h1 className="text-display text-mdt-text">Build one source of truth for your agents.md.</h1>
-              <p className="text-body text-mdt-muted max-w-xl">
-                Browse ready-to-use snippets and templates, assemble an agents.md in minutes, then copy or download—all without signing in. Log in only when you want to save, vote, or comment.
-              </p>
+        <div className="border-b border-mdt-border bg-mdt-surface/90 backdrop-blur">
+          <section className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center">
+            <div className="flex-1 space-y-5">
+              <Pill>Focus / Flow · new look</Pill>
+              <div className="space-y-2">
+                <h1 className="text-display font-display text-mdt-text">Build one source of truth for your agents.md</h1>
+                <p className="text-body text-mdt-muted max-w-xl">
+                  Compose faster with ready snippets and templates, live preview, and keyboard-first navigation. Copy without logging in; sign in only to save and vote.
+                </p>
+              </div>
               <form action="/browse" className="flex flex-col gap-3 md:flex-row md:items-center">
                 <input
                   name="q"
-                  className="w-full rounded-lg border border-mdt-border px-3 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
+                  className="w-full rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-3 text-sm shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   placeholder="Search snippets, templates, agents.md…"
                   aria-label="Search snippets and templates"
                 />
-                <Button type="submit">Search library</Button>
+                <Button type="submit">Search</Button>
                 <Button variant="secondary" asChild>
                   <Link href="#template-spotlight">Use a template</Link>
                 </Button>
@@ -92,47 +94,69 @@ export default async function Home() {
                 <Pill>Live preview</Pill>
                 <Pill tone="green">Export to agents.md</Pill>
               </div>
+              <div className="flex flex-wrap gap-3 text-sm text-mdt-muted">
+                <span className="rounded-mdt-pill bg-mdt-surface-strong px-3 py-2 shadow-mdt-sm">⌘K command palette</span>
+                <span className="rounded-mdt-pill bg-mdt-surface-strong px-3 py-2 shadow-mdt-sm">Keyboard jump numbers</span>
+                <span className="rounded-mdt-pill bg-mdt-surface-strong px-3 py-2 shadow-mdt-sm">SPA perf hints</span>
+              </div>
             </div>
 
-            <div className="mt-6 flex-1 md:mt-0">
-              <Card className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Pill tone="yellow">Section</Pill>
-                  <span className="text-body-sm text-mdt-muted">system / style / tools</span>
+            <div className="relative mt-4 flex-1 md:mt-0">
+              <Card className="space-y-4 bg-gradient-to-br from-[rgba(54,214,255,0.08)] via-[rgba(124,243,195,0.05)] to-[rgba(30,168,231,0.02)] border-mdt-border shadow-mdt-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Pill tone="yellow">Section</Pill>
+                    <span className="text-body-sm text-mdt-muted">system / style / tools</span>
+                  </div>
+                  <Button size="sm" variant="secondary" asChild>
+                    <Link href="/builder">Open builder</Link>
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-2 w-24 rounded-md bg-mdt-yellow" />
-                  <div className="h-2 w-40 rounded-md bg-[rgba(0,87,217,0.15)]" />
-                  <div className="h-2 w-32 rounded-md bg-[rgba(0,87,217,0.08)]" />
+                <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-4 shadow-mdt-sm">
+                  <div className="space-y-2">
+                    <div className="h-2 w-28 rounded-md bg-[rgba(54,214,255,0.25)]" />
+                    <div className="h-2 w-52 rounded-md bg-[rgba(90,161,255,0.18)]" />
+                    <div className="h-2 w-40 rounded-md bg-[rgba(30,168,231,0.14)]" />
+                  </div>
+                  <div className="mt-4 space-y-2 text-xs text-mdt-muted">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-primary)]" />
+                      Live preview ready
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-accent)]" />
+                      Cache intent: cacheable
+                    </div>
+                  </div>
                 </div>
               </Card>
             </div>
           </section>
 
-          <section className="mx-auto max-w-6xl px-4 pb-14 space-y-12">
+          <section className="mx-auto max-w-6xl px-6 pb-14 space-y-10">
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="h-full space-y-3">
+              <Card className="h-full space-y-3 bg-mdt-surface">
                 <div className="flex items-center gap-2">
-                  <div className="h-9 w-9 rounded-mdt-lg bg-[rgba(0,87,217,0.08)]" />
-                  <span className="text-h3">Compose fast</span>
+                  <div className="h-10 w-10 rounded-mdt-md bg-[rgba(54,214,255,0.12)]" />
+                  <span className="text-h3 font-display">Compose fast</span>
                 </div>
                 <p className="text-body-sm text-mdt-muted">
                   Capture markdown sections once and drop them into any agent or toolchain. Live preview keeps output honest.
                 </p>
               </Card>
-              <Card className="h-full space-y-3">
+              <Card className="h-full space-y-3 bg-mdt-surface">
                 <div className="flex items-center gap-2">
-                  <div className="h-9 w-9 rounded-mdt-lg bg-[rgba(255,204,0,0.18)]" />
-                  <span className="text-h3">Stay organized</span>
+                  <div className="h-10 w-10 rounded-mdt-md bg-[rgba(124,243,195,0.14)]" />
+                  <span className="text-h3 font-display">Stay organized</span>
                 </div>
                 <p className="text-body-sm text-mdt-muted">
                   Lists, ordering, and tags keep your system prompts, tools, and style blocks tidy.
                 </p>
               </Card>
-              <Card className="h-full space-y-3">
+              <Card className="h-full space-y-3 bg-mdt-surface">
                 <div className="flex items-center gap-2">
-                  <div className="h-9 w-9 rounded-mdt-lg bg-[rgba(255,51,51,0.14)]" />
-                  <span className="text-h3">Own your data</span>
+                  <div className="h-10 w-10 rounded-mdt-md bg-[rgba(255,107,107,0.12)]" />
+                  <span className="text-h3 font-display">Own your data</span>
                 </div>
                 <p className="text-body-sm text-mdt-muted">
                   Auth via GitHub when you want to save; otherwise stay anonymous and keep exporting freely.
@@ -140,16 +164,16 @@ export default async function Home() {
               </Card>
             </div>
 
-            <div className="grid gap-6 rounded-mdt-lg border border-mdt-border bg-white p-6 shadow-mdt-sm md:grid-cols-3 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <div className="grid gap-6 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 shadow-mdt-md md:grid-cols-3">
               <div className="md:col-span-2 space-y-2">
-                <h3 className="text-h2">How it works</h3>
+                <h3 className="text-h2 font-display">How it works</h3>
                 <ol className="list-decimal space-y-2 pl-4 text-body text-mdt-muted">
                   <li>Browse public snippets and templates—copy or download without signing in.</li>
                   <li>Open the builder to pick a template, add snippets, reorder, and preview agents.md.</li>
                   <li>Copy or download the final file; sign in if you want to save, vote, or comment.</li>
                 </ol>
               </div>
-              <div className="flex flex-col gap-3 rounded-mdt-md bg-mdt-bg p-4">
+              <div className="flex flex-col gap-3 rounded-mdt-md bg-mdt-surface-strong p-4 shadow-mdt-sm">
                 <span className="text-body font-semibold">Ready to start?</span>
                 <Button asChild>
                   <Link href="/builder">Open builder</Link>
@@ -303,15 +327,14 @@ export default async function Home() {
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8">
+      <div className="mx-auto max-w-6xl px-6 pb-16 pt-10 space-y-10">
         {user ? (
           <SectionComposerLazy />
         ) : (
-          <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm space-y-4 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-            <h2 className="text-h2 font-semibold text-mdt-text">Start building now</h2>
+          <div className="mx-auto max-w-3xl rounded-mdt-lg border border-mdt-border bg-mdt-surface p-10 text-center shadow-mdt-md space-y-4">
+            <h2 className="text-h2 font-display text-mdt-text">Start building now</h2>
             <p className="mt-3 text-body text-mdt-muted">
-              Assemble an agents.md with public snippets and templates, then copy or download. Sign in
-              later to save and keep favorites in sync across projects.
+              Assemble an agents.md with public snippets and templates, then copy or download. Sign in later to save and keep favorites in sync across projects.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Button asChild>
