@@ -1,13 +1,10 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { getSession } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
 import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
-import { listTopTags } from "@/lib/publicTags";
-import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 
 const SectionComposerLazy = dynamic(
   () => import("@/components/SectionComposer").then((m) => m.SectionComposer),
@@ -21,47 +18,18 @@ const SectionComposerLazy = dynamic(
 );
 
 export default async function Home() {
-  const session = await getSession();
-  const user = session?.user;
-  const liveTags = await listTopTags(18, 30);
-  const tags = liveTags.length ? liveTags : sampleTags;
-  const liveItems = await listPublicItems({ limit: 12, sort: "copies" });
-  const mostCopiedFiles = await listPublicItems({ limit: 3, sort: "copies", type: "file" });
-  const newThisWeek = await listPublicItems({ limit: 6, sort: "recent" });
-  const templateSpotlight = await listPublicItems({ limit: 6, sort: "copies", type: "template" });
-
-  const normalizeItem = (item: PublicItem): SampleItem => ({
-    id: item.id,
-    slug: item.slug ?? undefined,
-    title: item.title,
-    description: item.description || "Markdown snippet",
-    tags: item.tags,
-    stats: item.stats,
-    type: item.type,
-  });
-
-  const items: SampleItem[] = (liveItems.length ? liveItems : sampleItems).map((i) =>
-    ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem))
-  );
+  const user = null;
+  const tags = sampleTags;
+  const items: SampleItem[] = sampleItems;
 
   const trending = items
     .slice()
     .sort((a, b) => b.stats.copies - a.stats.copies || b.stats.views - a.stats.views)
     .slice(0, 6);
 
-  const copiedFiles: SampleItem[] = (mostCopiedFiles.length ? mostCopiedFiles : sampleItems)
-    .filter((i) => ("type" in i ? (i as PublicItem).type === "file" : (i as SampleItem).type === "file"))
-    .slice(0, 3)
-    .map((i) => ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem)));
-
-  const recentItems: SampleItem[] = (newThisWeek.length ? newThisWeek : sampleItems)
-    .slice(0, 6)
-    .map((i) => ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem)));
-
-  const spotlightTemplates: SampleItem[] = (templateSpotlight.length ? templateSpotlight : sampleItems)
-    .filter((i) => ("type" in i ? (i as PublicItem).type === "template" : (i as SampleItem).type === "template"))
-    .slice(0, 6)
-    .map((i) => ("type" in i && "stats" in i ? normalizeItem(i as PublicItem) : (i as SampleItem)));
+  const copiedFiles: SampleItem[] = sampleItems.filter((i) => i.type === "file").slice(0, 3);
+  const recentItems: SampleItem[] = sampleItems.slice(0, 6);
+  const spotlightTemplates: SampleItem[] = sampleItems.filter((i) => i.type === "template").slice(0, 6);
 
   return (
     <div className="min-h-screen bg-mdt-bg text-mdt-text">
