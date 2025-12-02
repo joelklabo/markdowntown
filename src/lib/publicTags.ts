@@ -10,7 +10,7 @@ const isTestEnv = process.env.NODE_ENV === "test";
 
 async function queryTags(limit: number, windowDays?: number | null): Promise<PublicTag[]> {
   const whereWindow = windowDays
-    ? Prisma.sql`AND "updatedAt" > NOW() - make_interval(days => ${windowDays})`
+    ? Prisma.sql`AND "updatedAt" > NOW() - (${windowDays}::int * INTERVAL '1 day')`
     : Prisma.empty;
 
   let results: { tag: string; count: bigint }[] = [];
