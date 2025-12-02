@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPublicTemplate } from "@/lib/publicTemplates";
+import { cacheHeaders } from "@/config/cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -9,5 +10,5 @@ export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const template = await getPublicTemplate(id);
   if (!template) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(template);
+  return NextResponse.json(template, { headers: cacheHeaders("detail") });
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPublicTemplate } from "@/lib/publicTemplates";
+import { cacheHeaders } from "@/config/cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -18,5 +19,5 @@ export async function POST(request: Request, context: RouteContext) {
   const values = (body?.values ?? {}) as Record<string, string>;
   const rendered = renderBody(template.body, values);
 
-  return NextResponse.json({ rendered });
+  return NextResponse.json({ rendered }, { headers: cacheHeaders("detail") });
 }

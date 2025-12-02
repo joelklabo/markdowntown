@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { listPublicItems, type ListPublicItemsInput } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
+import { cacheHeaders } from "@/config/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -24,5 +25,5 @@ export async function GET(request: Request) {
     tags,
   });
 
-  return NextResponse.json(items);
+  return NextResponse.json(items, { headers: cacheHeaders("browse") });
 }
