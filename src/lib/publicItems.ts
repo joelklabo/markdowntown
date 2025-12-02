@@ -2,6 +2,7 @@ import { normalizeTags } from "./tags";
 import { unstable_cache } from "next/cache";
 import { cacheTags, type PublicListType } from "./cacheTags";
 import { getServices } from "@/services";
+import { sampleItems } from "./sampleContent";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -69,67 +70,92 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
 
   const rows: PublicItem[] = [];
 
-  if (wantSnippets) {
-    const snippets = await sectionsRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
-    rows.push(
-      ...snippets.map((s) =>
-        toItem(s, {
-          id: s.id,
-          slug: s.slug,
-          title: s.title,
-          description: s.content.slice(0, 240),
-          tags: s.tags,
-          stats: {
-            views: (s as { views?: number }).views ?? 0,
-            copies: (s as { copies?: number }).copies ?? 0,
-            votes: 0,
-          },
-          type: "snippet",
-        })
-      )
-    );
-  }
+  try {
+    if (wantSnippets) {
+      const snippets = await sectionsRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
+      rows.push(
+        ...snippets.map((s) =>
+          toItem(s, {
+            id: s.id,
+            slug: s.slug,
+            title: s.title,
+            description: s.content.slice(0, 240),
+            tags: s.tags,
+            stats: {
+              views: (s as { views?: number }).views ?? 0,
+              copies: (s as { copies?: number }).copies ?? 0,
+              votes: 0,
+            },
+            type: "snippet",
+          })
+        )
+      );
+    }
 
-  if (wantTemplates) {
-    const templates = await templatesRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
-    rows.push(
-      ...templates.map((t) =>
-        toItem(t, {
-          id: t.id,
-          slug: t.slug,
-          title: t.title,
-          description: t.description ?? "",
-          tags: t.tags,
-          stats: {
-            views: t.views,
-            copies: t.copies,
-            votes: t.uses ?? 0,
-          },
-          type: "template",
-        })
-      )
-    );
-  }
+    if (wantTemplates) {
+      const templates = await templatesRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
+      rows.push(
+        ...templates.map((t) =>
+          toItem(t, {
+            id: t.id,
+            slug: t.slug,
+            title: t.title,
+            description: t.description ?? "",
+            tags: t.tags,
+            stats: {
+              views: t.views,
+              copies: t.copies,
+              votes: t.uses ?? 0,
+            },
+            type: "template",
+          })
+        )
+      );
+    }
 
-  if (wantFiles) {
-    const documents = await documentsRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
-    rows.push(
-      ...documents.map((d) =>
-        toItem(d, {
-          id: d.id,
-          slug: d.slug,
-          title: d.title,
-          description: d.description ?? d.renderedContent ?? "",
-          tags: d.tags,
-          stats: {
-            views: d.views,
-            copies: d.copies,
-            votes: 0,
-          },
-          type: "file",
-        })
-      )
-    );
+    if (wantFiles) {
+      const documents = await documentsRepo.listPublic({
+        tags: normalizedTags,
+        search,
+        limit: Math.min(limit * 2, 60),
+      });
+      rows.push(
+        ...documents.map((d) =>
+          toItem(d, {
+            id: d.id,
+            slug: d.slug,
+            title: d.title,
+            description: d.description ?? d.renderedContent ?? "",
+            tags: d.tags,
+            stats: {
+              views: d.views,
+              copies: d.copies,
+              votes: 0,
+            },
+            type: "file",
+          })
+        )
+      );
+    }
+  } catch (err) {
+    console.warn("publicItems: falling back to sample content", err);
+    return sampleItems
+      .filter((item) => type === "all" || item.type === type)
+      .slice(0, limit)
+      .map((item, idx) => ({
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        description: item.description,
+        tags: normalizeInputTags(item.tags),
+        stats: {
+          views: item.stats.views,
+          copies: item.stats.copies,
+          votes: item.stats.votes,
+        },
+        type: item.type,
+        createdAt: new Date(Date.now() - idx * 60_000),
+      }));
   }
 
   const sorted = rows.sort((a, b) => {
