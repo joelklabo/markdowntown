@@ -76,5 +76,12 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const getSession = () => getServerSession(authOptions);
+export const getSession = async () => {
+  try {
+    return await getServerSession(authOptions);
+  } catch (err) {
+    console.warn("getSession: returning null due to auth error", err);
+    return null;
+  }
+};
 export const auth = getSession;

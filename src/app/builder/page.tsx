@@ -5,6 +5,9 @@ import { sampleItems } from "@/lib/sampleContent";
 import { normalizeTags } from "@/lib/tags";
 import { auth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export const metadata: Metadata = {
   title: "Builder | MarkdownTown",
   description: "Assemble snippets and templates into a single agents.md and export without signing in.",
@@ -33,22 +36,31 @@ export default async function BuilderPage() {
   const session = await auth();
   const userId = session?.user?.id ?? null;
 
-  const [userTemplates, userSnippets] = await Promise.all([
-    userId
-      ? prisma.template.findMany({
+  type TemplateRow = { id: string; title: string; description: string | null; body: string; tags: string[] };
+  type SnippetRow = { id: string; title: string; content: string; tags: string[] };
+  let userTemplates: TemplateRow[] = [];
+  let userSnippets: SnippetRow[] = [];
+
+  if (userId) {
+    try {
+      [userTemplates, userSnippets] = await Promise.all([
+        prisma.template.findMany({
           where: { userId },
           select: { id: true, title: true, description: true, body: true, tags: true },
           orderBy: { updatedAt: "desc" },
-        })
-      : Promise.resolve([]),
-    userId
-      ? prisma.snippet.findMany({
+        }),
+        prisma.snippet.findMany({
           where: { userId },
           select: { id: true, title: true, content: true, tags: true },
           orderBy: { updatedAt: "desc" },
-        })
-      : Promise.resolve([]),
-  ]);
+        }),
+      ]);
+    } catch (err) {
+      console.warn("builder: falling back to samples", err);
+      userTemplates = [];
+      userSnippets = [];
+    }
+  }
 
   const fallbackTemplates = sampleItems.filter((i) => i.type === "template").map((t) => ({
     id: t.id,

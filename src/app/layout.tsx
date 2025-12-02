@@ -9,6 +9,9 @@ import { Footer } from "@/components/Footer";
 import { PerfVitalsToggle } from "@/components/PerfVitalsToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
