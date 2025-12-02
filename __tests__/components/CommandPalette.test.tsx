@@ -7,13 +7,6 @@ vi.mock("next/navigation", () => ({
 
 describe("CommandPalette", () => {
   it("renders without crashing", () => {
-    class ResizeObserverMock {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    }
-    // @ts-expect-error jsdom missing ResizeObserver
-    global.ResizeObserver = ResizeObserverMock;
     render(<CommandPalette />);
   });
 });

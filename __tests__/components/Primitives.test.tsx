@@ -26,13 +26,6 @@ function DrawerHarness() {
 }
 
 describe("UI primitives", () => {
-  class ResizeObserverMock {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  // @ts-expect-error jsdom global override
-  global.ResizeObserver = ResizeObserverMock;
 
   it("renders Input and TextArea", () => {
     render(
