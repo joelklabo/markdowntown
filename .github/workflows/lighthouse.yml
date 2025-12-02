@@ -35,19 +35,36 @@ jobs:
           run_install: false
       - name: Validate OpenAPI
         run: pnpm install --frozen-lockfile && pnpm docs:openapi
+      - name: Write Lighthouse config
+        run: |
+          cat > lighthouserc.json <<'EOF'
+          {
+            "ci": {
+              "collect": {
+                "url": ["${{ matrix.url }}"],
+                "numberOfRuns": 1,
+                "budgetPath": "./lighthouse-budget.json",
+                "settings": {
+                  "formFactor": "${{ matrix.formFactor }}",
+                  "screenEmulation": {
+                    "mobile": ${{ matrix.formFactor == 'mobile' }},
+                    "disabled": false
+                  },
+                  "extraHeaders": { "x-ci": "lighthouse" }
+                }
+              },
+              "upload": {
+                "target": "temporary-public-storage"
+              }
+            }
+          }
+          EOF
       - name: Run Lighthouse against production
         uses: treosh/lighthouse-ci-action@v10
         with:
-          urls: |
-            ${{ matrix.url }}
-          budgetPath: ./lighthouse-budget.json
+          configPath: ./lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
-          runs: 1
-          configPath: ''
-          extraHeaders: '{"x-ci":"lighthouse"}'
-          settings: >
-            {"formFactor":"${{ matrix.formFactor }}","screenEmulation":{"mobile":${{ matrix.formFactor == 'mobile' }},"disabled":false}}
       - name: Compute metrics row
         id: metrics
         run: |
