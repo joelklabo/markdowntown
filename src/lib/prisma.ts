@@ -5,7 +5,10 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-process.env.DATABASE_URL = process.env.DATABASE_URL ?? "file:./dev.db";
+// Ensure Prisma always sees a valid Postgres URL (file: isn't allowed with the postgres provider).
+// For local/dev fallback we point at localhost Postgres; queries will still be caught elsewhere if it isn't running.
+process.env.DATABASE_URL =
+  process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/markdowntown";
 
 export const prisma =
   globalForPrisma.prisma ??
