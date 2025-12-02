@@ -2,40 +2,43 @@ import { NextResponse } from "next/server";
 import { listPublicItems, type ListPublicItemsInput } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
 import { cacheHeaders, hasSessionCookie } from "@/config/cache";
+import { withAPM } from "@/lib/observability";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const start = performance.now();
-  const url = new URL(request.url);
-  const limit = Number(url.searchParams.get("limit") ?? "30");
-  const sort = (url.searchParams.get("sort") ?? "recent") as "recent" | "views" | "copies";
-  const typeParam = url.searchParams.get("type");
-  const type = (typeParam ?? "all") as ListPublicItemsInput["type"];
-  const q = url.searchParams.get("q");
-  const tagsParam = url.searchParams.getAll("tag");
-  const tagsCsv = url.searchParams.get("tags");
-  const tagsRaw = tagsCsv ? tagsCsv.split(",") : tagsParam;
-  const tags = normalizeTags(tagsRaw, { strict: false }).tags;
+  return withAPM(request, async () => {
+    const start = performance.now();
+    const url = new URL(request.url);
+    const limit = Number(url.searchParams.get("limit") ?? "30");
+    const sort = (url.searchParams.get("sort") ?? "recent") as "recent" | "views" | "copies";
+    const typeParam = url.searchParams.get("type");
+    const type = (typeParam ?? "all") as ListPublicItemsInput["type"];
+    const q = url.searchParams.get("q");
+    const tagsParam = url.searchParams.getAll("tag");
+    const tagsCsv = url.searchParams.get("tags");
+    const tagsRaw = tagsCsv ? tagsCsv.split(",") : tagsParam;
+    const tags = normalizeTags(tagsRaw, { strict: false }).tags;
 
-  const items = await listPublicItems({
-    limit: Number.isNaN(limit) ? 30 : Math.min(Math.max(limit, 1), 200),
-    sort,
-    type,
-    search: q,
-    tags,
+    const items = await listPublicItems({
+      limit: Number.isNaN(limit) ? 30 : Math.min(Math.max(limit, 1), 200),
+      sort,
+      type,
+      search: q,
+      tags,
+    });
+
+    const cookie = request.headers.get("cookie");
+    const cacheIntent = hasSessionCookie(cookie) ? "bypass" : "cacheable";
+    const headers = new Headers(cacheHeaders("browse", cookie));
+    const serverTiming = [
+      `app;dur=${(performance.now() - start).toFixed(1)}`,
+      `cache;desc=${cacheIntent}`,
+    ].join(", ");
+    headers.set("Server-Timing", serverTiming);
+    headers.set("x-cache-profile", "browse");
+    headers.set("x-cache-intent", cacheIntent);
+
+    return NextResponse.json(items, { headers });
   });
-
-  const cookie = request.headers.get("cookie");
-  const cacheIntent = hasSessionCookie(cookie) ? "bypass" : "cacheable";
-  const headers = new Headers(cacheHeaders("browse", cookie));
-  const serverTiming = [
-    `app;dur=${(performance.now() - start).toFixed(1)}`,
-    `cache;desc=${cacheIntent}`,
-  ].join(", ");
-  headers.set("Server-Timing", serverTiming);
-  headers.set("x-cache-profile", "browse");
-  headers.set("x-cache-intent", cacheIntent);
-
-  return NextResponse.json(items, { headers });
 }
