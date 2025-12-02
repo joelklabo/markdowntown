@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { listPublicItems, type PublicItemType } from "@/lib/publicItems";
-import { cacheHeaders } from "@/config/cache";
+import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 
 function parseType(input: string | null): PublicItemType | "all" {
   if (input === "snippet" || input === "template" || input === "file") return input;
@@ -32,9 +32,15 @@ export async function GET(request: Request) {
       search: q,
     });
 
-    const headers = new Headers(cacheHeaders("browse", request.headers.get("cookie")));
-    headers.set("Server-Timing", `app;dur=${(performance.now() - start).toFixed(1)}`);
+    const cookie = request.headers.get("cookie");
+    const cacheIntent = hasSessionCookie(cookie) ? "bypass" : "cacheable";
+    const headers = new Headers(cacheHeaders("browse", cookie));
+    headers.set(
+      "Server-Timing",
+      [`app;dur=${(performance.now() - start).toFixed(1)}`, `cache;desc=${cacheIntent}`].join(", ")
+    );
     headers.set("x-cache-profile", "browse");
+    headers.set("x-cache-intent", cacheIntent);
 
     return NextResponse.json({ items }, { headers });
   } catch (err) {

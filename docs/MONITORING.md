@@ -26,3 +26,4 @@
 1) Create Sentry issue alert as above.
 2) In Azure Monitor, create metric alerts for CPU/Memory and a Log Analytics alert for 5xx.
 3) Optionally set uptime monitor hitting `/api/health` every 1-5 minutes.
+4) Performance: see `docs/perf-report.md` for RUM dashboards, SLOs, and Lighthouse automation (PR comments + artifacts).

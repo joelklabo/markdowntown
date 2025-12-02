@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPublicTemplate } from "@/lib/publicTemplates";
-import { cacheHeaders } from "@/config/cache";
+import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -20,9 +20,15 @@ export async function POST(request: Request, context: RouteContext) {
   const values = (body?.values ?? {}) as Record<string, string>;
   const rendered = renderBody(template.body, values);
 
-  const headers = new Headers(cacheHeaders("detail", request.headers.get("cookie")));
-  headers.set("Server-Timing", `app;dur=${(performance.now() - start).toFixed(1)}`);
+  const cookie = request.headers.get("cookie");
+  const cacheIntent = hasSessionCookie(cookie) ? "bypass" : "cacheable";
+  const headers = new Headers(cacheHeaders("detail", cookie));
+  headers.set(
+    "Server-Timing",
+    [`app;dur=${(performance.now() - start).toFixed(1)}`, `cache;desc=${cacheIntent}`].join(", ")
+  );
   headers.set("x-cache-profile", "detail");
+  headers.set("x-cache-intent", cacheIntent);
 
   return NextResponse.json({ rendered }, { headers });
 }

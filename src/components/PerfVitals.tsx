@@ -57,7 +57,7 @@ export function PerfVitals() {
 
     const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
     if (navEntry) {
-      const serverTiming = navEntry.serverTiming?.[0];
+      const cacheHint = navEntry.serverTiming?.find((t) => t.name === "cache")?.description ?? null;
       emit("perf_navigation", {
         ...context,
         ttfb: Math.round(navEntry.responseStart),
@@ -66,7 +66,7 @@ export function PerfVitals() {
         transferSize: navEntry.transferSize,
         encodedBodySize: navEntry.encodedBodySize,
         decodedBodySize: navEntry.decodedBodySize,
-        cache: serverTiming?.description ?? null,
+        cache: cacheHint,
       });
     }
 
@@ -78,7 +78,7 @@ export function PerfVitals() {
       onINP((metric) => emit("web_vital_inp", { ...context, value: Math.round(metric.value) }));
       onTTFB((metric) => {
         const entry = metric?.entries?.[0] as PerformanceNavigationTiming | undefined;
-        const cache = entry?.serverTiming?.[0]?.description ?? null;
+        const cache = entry?.serverTiming?.find?.((t) => t.name === "cache")?.description ?? null;
         emit("web_vital_ttfb", { ...context, value: Math.round(metric.value), cache });
       });
     });
@@ -100,13 +100,14 @@ export function PerfVitals() {
         const res = entry as PerformanceResourceTiming;
         if (res.initiatorType === "fetch" || res.initiatorType === "xmlhttprequest") {
           apiSamples += 1;
+          const cacheHint = res.serverTiming?.find?.((t) => t.name === "cache")?.description ?? null;
           emit("perf_api", {
             ...context,
             name: res.name,
             duration: Math.round(res.duration),
             ttfb: Math.round(res.responseStart - res.startTime),
             transferSize: res.transferSize,
-            cache: res.serverTiming?.[0]?.description ?? null,
+            cache: cacheHint,
           });
         }
       });

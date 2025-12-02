@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { listPublicItems, type ListPublicItemsInput } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
-import { cacheHeaders } from "@/config/cache";
+import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +26,16 @@ export async function GET(request: Request) {
     tags,
   });
 
-  const headers = new Headers(cacheHeaders("browse", request.headers.get("cookie")));
-  headers.set("Server-Timing", `app;dur=${(performance.now() - start).toFixed(1)}`);
+  const cookie = request.headers.get("cookie");
+  const cacheIntent = hasSessionCookie(cookie) ? "bypass" : "cacheable";
+  const headers = new Headers(cacheHeaders("browse", cookie));
+  const serverTiming = [
+    `app;dur=${(performance.now() - start).toFixed(1)}`,
+    `cache;desc=${cacheIntent}`,
+  ].join(", ");
+  headers.set("Server-Timing", serverTiming);
   headers.set("x-cache-profile", "browse");
+  headers.set("x-cache-intent", cacheIntent);
 
   return NextResponse.json(items, { headers });
 }

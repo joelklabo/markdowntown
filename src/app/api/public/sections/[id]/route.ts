@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPublicSection } from "@/lib/publicSections";
-import { cacheHeaders } from "@/config/cache";
+import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -13,8 +13,14 @@ export async function GET(request: Request, context: RouteContext) {
   if (!section) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  const headers = new Headers(cacheHeaders("detail", request.headers.get("cookie")));
-  headers.set("Server-Timing", `app;dur=${(performance.now() - start).toFixed(1)}`);
+  const cookie = request.headers.get("cookie");
+  const cacheIntent = hasSessionCookie(cookie) ? "bypass" : "cacheable";
+  const headers = new Headers(cacheHeaders("detail", cookie));
+  headers.set(
+    "Server-Timing",
+    [`app;dur=${(performance.now() - start).toFixed(1)}`, `cache;desc=${cacheIntent}`].join(", ")
+  );
   headers.set("x-cache-profile", "detail");
+  headers.set("x-cache-intent", cacheIntent);
   return NextResponse.json(section, { headers });
 }

@@ -10,7 +10,7 @@ export const cacheProfiles: Record<string, CacheProfile> = {
   og: { sMaxAge: 3600, staleWhileRevalidate: 3600 },
 };
 
-function hasSessionCookie(cookieHeader?: string | null) {
+export function hasSessionCookie(cookieHeader?: string | null) {
   if (!cookieHeader) return false;
   return /next-auth\.session-token|__Secure-next-auth\.session-token|next-auth\.callback-url/.test(cookieHeader);
 }
