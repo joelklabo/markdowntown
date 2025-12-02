@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { renderTemplateBody } from "@/lib/renderTemplate";
 
 export type TemplateField = {
   name: string;
@@ -18,10 +19,6 @@ type Props = {
   body: string;
   fields: TemplateField[];
 };
-
-export function renderTemplateBody(template: string, values: Record<string, string>) {
-  return template.replace(/{{\s*([\w.-]+)\s*}}/g, (_, key) => values[key] ?? "");
-}
 
 export function TemplateFormPreview({ title, body, fields }: Props) {
   const initial = useMemo(
