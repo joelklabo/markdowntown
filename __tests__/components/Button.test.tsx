@@ -18,7 +18,9 @@ vi.mock("next/link", () => {
 describe("Button", () => {
   it("applies variant classes", () => {
     const { getByText } = render(<Button>Primary</Button>);
-    expect(getByText("Primary").className).toContain("bg-mdt-blue");
+    const className = getByText("Primary").className;
+    expect(className).toContain("bg-[color:var(--mdt-color-primary)]");
+    expect(className).toContain("shadow-mdt-glow");
   });
 
   it("supports asChild", () => {
