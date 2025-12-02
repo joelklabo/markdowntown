@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
 import { sampleItems } from "@/lib/sampleContent";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { FileActions } from "@/components/file/FileActions";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -25,6 +24,20 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const item = sampleItems.find((i) => i.id === id && i.type === "file");
   if (!item) return notFound();
+
+  const renderedContent = [
+    `# ${item.title}`,
+    "",
+    item.description,
+    "",
+    "## Components",
+    "- System prompt",
+    "- Style guide",
+    "- Tools instructions",
+    "- Testing checklist",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
@@ -47,13 +60,13 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
             <Pill key={tag} tone="gray">#{tag}</Pill>
           ))}
         </div>
-        <div className="flex gap-2">
-          <Button size="sm">Copy</Button>
-          <Button variant="secondary" size="sm">Download</Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/builder?clone=${item.id}`}>Clone to builder</Link>
-          </Button>
-        </div>
+        <FileActions
+          id={item.id}
+          slug={item.slug ?? item.id}
+          title={item.title}
+          content={renderedContent}
+          builderHref={`/builder?clone=${item.id}`}
+        />
         <div className="text-xs text-mdt-muted flex gap-3">
           <span>{item.stats.views.toLocaleString()} views</span>
           <span>{item.stats.copies.toLocaleString()} copies</span>

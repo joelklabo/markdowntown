@@ -7,11 +7,12 @@ export const metadata: Metadata = {
   description: "Documentation and guides for MarkdownTown, agents.md workflows, and agents plugins.",
 };
 
+const repoBase = "https://github.com/joelklabo/markdowntown/blob/main";
 const docsLinks = [
-  { label: "AGENTS.md", href: "https://github.com/steveyegge/markdowntown/blob/main/AGENTS.md" },
-  { label: "README", href: "https://github.com/steveyegge/markdowntown/blob/main/README.md" },
-  { label: "Developer onboarding", href: "https://github.com/steveyegge/markdowntown/blob/main/docs/DEV_ONBOARDING.md" },
-  { label: "Beads CLI", href: "https://github.com/steveyegge/markdowntown/blob/main/docs/BEADS.md" },
+  { label: "AGENTS.md", href: `${repoBase}/AGENTS.md` },
+  { label: "README", href: `${repoBase}/README.md` },
+  { label: "Developer onboarding", href: `${repoBase}/docs/DEV_ONBOARDING.md` },
+  { label: "Beads CLI", href: `${repoBase}/docs/BEADS.md` },
 ];
 
 export default function DocsPage() {
