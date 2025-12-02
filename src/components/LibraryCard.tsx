@@ -25,7 +25,14 @@ type Handlers = {
   copied?: boolean;
 };
 
-export function LibraryCard({ item, copied, onCopySnippet, onUseTemplate, onAddToBuilder, onDownloadFile }: { item: SampleItem } & Handlers) {
+export function LibraryCard({
+  item,
+  copied,
+  onCopySnippet,
+  onUseTemplate,
+  onAddToBuilder,
+  onDownloadFile,
+}: { item: SampleItem } & Handlers) {
   const badge = badgeLabel(item.badge);
   const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : "agents.md";
   const slug = item.slug ?? item.id;
@@ -94,23 +101,25 @@ export function LibraryCard({ item, copied, onCopySnippet, onUseTemplate, onAddT
   };
 
   return (
-    <Card className="flex h-full flex-col justify-between">
+    <Card className="flex h-full flex-col justify-between border border-mdt-border bg-mdt-surface shadow-mdt-md transition hover:-translate-y-[1px] hover:shadow-mdt-glow">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Pill tone="blue">{typeLabel}</Pill>
           {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
         </div>
         <div className="space-y-1">
-          <h3 className="text-h3 leading-tight text-mdt-text dark:text-mdt-text-dark">{item.title}</h3>
-          <p className="text-body-sm text-mdt-muted dark:text-mdt-muted-dark">{item.description}</p>
+          <h3 className="text-h3 font-display leading-tight text-mdt-text">{item.title}</h3>
+          <p className="text-body-sm text-mdt-muted line-clamp-3">{item.description}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {item.tags.map((tag) => (
-            <Pill key={tag} tone="gray">#{tag}</Pill>
+            <Pill key={tag} tone="gray">
+              #{tag}
+            </Pill>
           ))}
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between text-xs text-mdt-muted dark:text-mdt-muted-dark">
+      <div className="mt-4 flex items-center justify-between text-xs text-mdt-muted">
         <div className="flex gap-3">
           <span>📄 {item.stats.views.toLocaleString()} views</span>
           <span>📋 {item.stats.copies.toLocaleString()} copies</span>
