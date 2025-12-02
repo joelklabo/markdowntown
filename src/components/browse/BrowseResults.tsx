@@ -62,6 +62,35 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
     window.location.href = `/builder?add=${item.slug ?? item.id}`;
   }
 
+  function handleDragStart(item: SampleItem) {
+    const data = {
+      id: item.id,
+      slug: item.slug ?? item.id,
+      type: item.type,
+      title: item.title,
+      content: item.description ?? "",
+    };
+    const payload = JSON.stringify(data);
+    // modern browsers
+    if (typeof window !== "undefined") {
+      window.addEventListener(
+        "dragstart",
+        (e) => {
+          try {
+            e.dataTransfer?.setData("application/json", payload);
+          } catch {
+            /* noop */
+          }
+        },
+        { once: true }
+      );
+    }
+  }
+
+  function handleDragEnd() {
+    /* no-op placeholder for future visual feedback */
+  }
+
   function handleUseTemplate(item: SampleItem) {
     track("browse_card_use_template", { id: item.id });
     window.location.href = `/templates/${item.slug ?? item.id}`;
@@ -83,6 +112,9 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
           onAddToBuilder={item.type !== "file" ? handleBuilder : undefined}
           onUseTemplate={item.type === "template" ? handleUseTemplate : undefined}
           onDownloadFile={item.type === "file" ? handleDownload : undefined}
+          draggable
+          onDragStart={() => handleDragStart(item)}
+          onDragEnd={handleDragEnd}
         />
       ))}
       <div className="sm:col-span-2 lg:col-span-3 flex justify-center">

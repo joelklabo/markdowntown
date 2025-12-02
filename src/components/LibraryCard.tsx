@@ -32,7 +32,8 @@ export function LibraryCard({
   onUseTemplate,
   onAddToBuilder,
   onDownloadFile,
-}: { item: SampleItem } & Handlers) {
+  ...rest
+}: { item: SampleItem } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
   const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : "agents.md";
   const slug = item.slug ?? item.id;
@@ -101,7 +102,10 @@ export function LibraryCard({
   };
 
   return (
-    <Card className="flex h-full flex-col justify-between border border-mdt-border bg-mdt-surface shadow-mdt-md transition hover:-translate-y-[1px] hover:shadow-mdt-glow">
+    <Card
+      className="flex h-full flex-col justify-between border border-mdt-border bg-mdt-surface shadow-mdt-md transition hover:-translate-y-[1px] hover:shadow-mdt-glow"
+      {...rest}
+    >
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Pill tone="blue">{typeLabel}</Pill>
