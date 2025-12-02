@@ -13,6 +13,13 @@ concurrency:
 jobs:
   lhci:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        url:
+          - https://markdown.town/
+          - https://markdown.town/browse
+          - https://markdown.town/builder
+        form-factor: [mobile, desktop]
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node
@@ -30,9 +37,11 @@ jobs:
         uses: treosh/lighthouse-ci-action@v10
         with:
           urls: |
-            https://markdown.town/
+            ${{ matrix.url }}
           budgetPath: ./lighthouse-budget.json
-          uploadArtifacts: false
+          uploadArtifacts: true
           temporaryPublicStorage: true
           runs: 1
           configPath: ''
+          extraHeaders: '{"x-ci":"lighthouse"}'
+          settings: '{"formFactor":"${{ matrix.form-factor }}","screenEmulation":{"mobile":${{ matrix.form-factor == 'mobile' }},"disabled":false}}'
