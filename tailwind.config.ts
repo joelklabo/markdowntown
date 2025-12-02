@@ -20,6 +20,7 @@ const config: Config = {
           info: "var(--mdt-color-info)",
           surface: "var(--mdt-color-surface)",
           "surface-subtle": "var(--mdt-color-surface-subtle)",
+          "surface-strong": "var(--mdt-color-surface-strong)",
           border: "var(--mdt-color-border)",
           text: "var(--mdt-color-text)",
           muted: "var(--mdt-color-text-muted)",
@@ -32,10 +33,10 @@ const config: Config = {
         },
       },
       borderRadius: {
-        "mdt-sm": "6px",
-        "mdt-md": "10px",
-        "mdt-lg": "16px",
-        "mdt-pill": "999px",
+        "mdt-sm": "var(--radius-sm)",
+        "mdt-md": "var(--radius-md)",
+        "mdt-lg": "var(--radius-lg)",
+        "mdt-pill": "var(--radius-pill)",
       },
       boxShadow: {
         "mdt-sm": "var(--mdt-shadow-sm)",
@@ -52,7 +53,9 @@ const config: Config = {
         "mdt-emphasized": "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "SFMono-Regular", "Menlo", "monospace"],
       },
       fontSize: {
         display: ["2.25rem", { lineHeight: "1.2", fontWeight: "600" }],

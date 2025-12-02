@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { PosthogProviderLazy } from "@/providers/PosthogProviderLazy";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -12,6 +12,18 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+});
+
+const display = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -65,7 +77,7 @@ export default async function RootLayout({
   const user = session?.user ?? null;
 
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={[inter.variable, display.variable, mono.variable].join(" ")}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

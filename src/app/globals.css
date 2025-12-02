@@ -4,41 +4,56 @@
 
 /* Design tokens: semantic color roles with light/dark support */
 :root {
-  --mdt-color-primary: #0057d9;
-  --mdt-color-primary-strong: #0047b3;
-  --mdt-color-accent: #ffcc00;
-  --mdt-color-danger: #ef4444;
-  --mdt-color-success: #16a34a;
-  --mdt-color-warning: #f59e0b;
-  --mdt-color-info: #2563eb;
+  --mdt-color-primary: #1ea8e7;
+  --mdt-color-primary-strong: #1086ba;
+  --mdt-color-accent: #1fc598;
+  --mdt-color-danger: #e24055;
+  --mdt-color-success: #28c48c;
+  --mdt-color-warning: #d7a100;
+  --mdt-color-info: #2f7bec;
 
-  --mdt-color-bg: #ffffff;
+  --mdt-color-bg: #f6f8fb;
   --mdt-color-surface: #ffffff;
-  --mdt-color-surface-subtle: #f9fafb;
-  --mdt-color-border: #e5e7eb;
+  --mdt-color-surface-subtle: #edf1f7;
+  --mdt-color-surface-strong: #e5eaf2;
+  --mdt-color-border: #d8deeb;
   --mdt-color-text: #0f172a;
-  --mdt-color-text-muted: #6b7280;
-  --mdt-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
-  --mdt-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.12);
+  --mdt-color-text-muted: #5b6476;
+  --mdt-shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --mdt-shadow-md: 0 16px 44px rgba(15, 23, 42, 0.12);
+  --mdt-shadow-glow: 0 0 0 1px rgba(30, 168, 231, 0.16), 0 16px 48px rgba(15, 23, 42, 0.18);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
 }
 
 .dark {
-  --mdt-color-primary: #7fb1ff;
-  --mdt-color-primary-strong: #a9c8ff;
-  --mdt-color-accent: #ffd666;
-  --mdt-color-danger: #f87171;
-  --mdt-color-success: #4ade80;
-  --mdt-color-warning: #fcd34d;
-  --mdt-color-info: #60a5fa;
+  /* Core palette — Option A (Focus / Flow) */
+  --mdt-color-primary: #36d6ff;
+  --mdt-color-primary-strong: #7ae4ff;
+  --mdt-color-accent: #7cf3c3;
+  --mdt-color-danger: #ff6b6b;
+  --mdt-color-success: #48e1a8;
+  --mdt-color-warning: #f2c94c;
+  --mdt-color-info: #5aa1ff;
 
-  --mdt-color-bg: #0b1220;
-  --mdt-color-surface: #0f172a;
-  --mdt-color-surface-subtle: #111827;
-  --mdt-color-border: #1f2a3d;
-  --mdt-color-text: #e5e7eb;
-  --mdt-color-text-muted: #9ca3af;
-  --mdt-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.24);
-  --mdt-shadow-md: 0 8px 20px rgba(0, 0, 0, 0.34);
+  --mdt-color-bg: #0e0f12;
+  --mdt-color-surface: #12141a;
+  --mdt-color-surface-subtle: #161922;
+  --mdt-color-surface-strong: #1b1f2b;
+  --mdt-color-border: #232936;
+  --mdt-color-text: #e8ecf5;
+  --mdt-color-text-muted: #9aa3b5;
+  --mdt-shadow-sm: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --mdt-shadow-md: 0 16px 44px rgba(0, 0, 0, 0.45);
+  --mdt-shadow-glow: 0 0 0 1px rgba(54, 214, 255, 0.22), 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
 }
 
 @layer base {
@@ -46,6 +61,7 @@
   body {
     background-color: var(--mdt-color-bg);
     color: var(--mdt-color-text);
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   }
 
   .dark html,
@@ -55,8 +71,8 @@
   }
 
   :focus-visible {
-    outline: 2px solid #0057d9;
-    outline-offset: 2px;
+    outline: 2px solid var(--mdt-color-primary);
+    outline-offset: 3px;
   }
 }
 
@@ -71,37 +87,31 @@
     @apply bg-mdt-blue text-white shadow-mdt-btn;
   }
   .btn-primary:hover {
-    @apply bg-[#0047B3] shadow-mdt-btn-hover -translate-y-[1px];
+    @apply bg-[color:var(--mdt-color-primary-strong)] shadow-mdt-btn-hover -translate-y-[1px];
   }
   .btn-primary:active {
     @apply translate-y-0 shadow-mdt-sm;
   }
 
   .btn-secondary {
-    @apply bg-white text-mdt-blue border-mdt-blue;
+    @apply bg-mdt-surface text-mdt-text border-mdt-border;
   }
   .btn-secondary:hover {
-    @apply bg-[#EFF6FF];
+    @apply bg-mdt-surface-subtle;
   }
   .dark .btn-secondary {
-    @apply bg-mdt-bg-soft text-mdt-text border-mdt-border;
+    @apply bg-mdt-surface text-mdt-text border-mdt-border;
   }
   .dark .btn-secondary:hover {
-    @apply bg-[#1f2e4a];
+    @apply bg-mdt-surface-subtle;
   }
 
   .card {
-    @apply bg-white rounded-mdt-md border border-mdt-border
+    @apply bg-mdt-surface rounded-mdt-md border border-mdt-border
       shadow-mdt-sm p-4 transition duration-mdt-base ease-mdt-emphasized;
   }
   .card:hover {
-    @apply shadow-mdt-md border-[#bfd4ff] -translate-y-[1px];
-  }
-  .dark .card {
-    @apply bg-mdt-bg-soft border-mdt-border shadow-none text-mdt-text;
-  }
-  .dark .card:hover {
-    @apply border-[#2d3b55] shadow-mdt-sm;
+    @apply shadow-mdt-md border-[color:var(--mdt-color-surface-strong)] -translate-y-[1px];
   }
 
   .pill {
@@ -109,40 +119,40 @@
     text-caption font-medium;
   }
   .pill-primary {
-    @apply bg-[rgba(0,87,217,0.08)] text-mdt-blue;
+    @apply bg-[rgba(54,214,255,0.14)] text-[color:var(--mdt-color-primary)];
   }
   .pill-yellow {
-    @apply bg-[rgba(255,204,0,0.12)] text-[#92400E];
+    @apply bg-[rgba(124,243,195,0.12)] text-[color:var(--mdt-color-text)];
   }
   .pill-blue {
-    @apply bg-[rgba(0,87,217,0.1)] text-mdt-blue;
+    @apply bg-[rgba(90,161,255,0.14)] text-[color:var(--mdt-color-info)];
   }
   .pill-red {
-    @apply bg-[rgba(239,68,68,0.12)] text-[#B91C1C];
+    @apply bg-[rgba(255,107,107,0.12)] text-[color:var(--mdt-color-danger)];
   }
   .pill-green {
-    @apply bg-[rgba(22,163,74,0.12)] text-[#166534];
+    @apply bg-[rgba(72,225,168,0.12)] text-[color:var(--mdt-color-success)];
   }
   .pill-gray {
-    @apply bg-[rgba(148,163,184,0.18)] text-[#334155];
+    @apply bg-[rgba(154,163,181,0.18)] text-[color:var(--mdt-color-text)];
   }
   .dark .pill {
     @apply text-mdt-text;
   }
   .dark .pill-primary {
-    @apply bg-[rgba(0,87,217,0.18)] text-mdt-text;
+    @apply bg-[rgba(54,214,255,0.2)] text-mdt-text;
   }
   .dark .pill-yellow {
-    @apply bg-[rgba(255,204,0,0.18)] text-mdt-text;
+    @apply bg-[rgba(124,243,195,0.2)] text-mdt-text;
   }
   .dark .pill-blue {
-    @apply bg-[rgba(0,87,217,0.28)] text-mdt-text;
+    @apply bg-[rgba(90,161,255,0.24)] text-mdt-text;
   }
   .dark .pill-red {
-    @apply bg-[rgba(239,68,68,0.18)] text-mdt-text;
+    @apply bg-[rgba(255,107,107,0.22)] text-mdt-text;
   }
   .dark .pill-green {
-    @apply bg-[rgba(22,163,74,0.2)] text-mdt-text;
+    @apply bg-[rgba(72,225,168,0.22)] text-mdt-text;
   }
   .dark .pill-gray {
     @apply bg-[rgba(148,163,184,0.25)] text-mdt-text;
