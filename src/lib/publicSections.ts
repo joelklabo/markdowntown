@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
-import { sectionsRepo } from "@/services/sections";
 import { cacheTags } from "./cacheTags";
+import { getServices } from "@/services";
 
 export type PublicSection = {
   id: string;
@@ -15,6 +15,7 @@ export type PublicSection = {
 const isTestEnv = process.env.NODE_ENV === "test";
 
 export async function listPublicSections(limit = 24): Promise<PublicSection[]> {
+  const { sections: sectionsRepo } = getServices();
   if (isTestEnv) return sectionsRepo.listPublic({ limit });
   const cached = unstable_cache(
     (nextLimit: number) => sectionsRepo.listPublic({ limit: nextLimit }),
@@ -25,6 +26,7 @@ export async function listPublicSections(limit = 24): Promise<PublicSection[]> {
 }
 
 export async function getPublicSection(idOrSlug: string): Promise<PublicSection | null> {
+  const { sections: sectionsRepo } = getServices();
   if (isTestEnv) return sectionsRepo.findByIdOrSlug(idOrSlug);
   const detailCache = unstable_cache(
     () => sectionsRepo.findByIdOrSlug(idOrSlug),

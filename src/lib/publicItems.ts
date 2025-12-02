@@ -1,9 +1,7 @@
 import { normalizeTags } from "./tags";
-import { sectionsRepo } from "@/services/sections";
-import { templatesRepo } from "@/services/templates";
-import { documentsRepo } from "@/services/documents";
 import { unstable_cache } from "next/cache";
 import { cacheTags, type PublicListType } from "./cacheTags";
+import { getServices } from "@/services";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -67,6 +65,7 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
   const wantSnippets = type === "all" || type === "snippet";
   const wantTemplates = type === "all" || type === "template";
   const wantFiles = type === "all" || type === "file";
+  const { sections: sectionsRepo, templates: templatesRepo, documents: documentsRepo } = getServices();
 
   const rows: PublicItem[] = [];
 

@@ -59,4 +59,8 @@ class PrismaDocumentsRepo implements DocumentsRepo {
   }
 }
 
-export const documentsRepo: DocumentsRepo = new PrismaDocumentsRepo();
+export function createPrismaDocumentsRepo(): DocumentsRepo {
+  return new PrismaDocumentsRepo();
+}
+
+export const documentsRepo: DocumentsRepo = createPrismaDocumentsRepo();

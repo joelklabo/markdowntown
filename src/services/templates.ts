@@ -21,6 +21,7 @@ export interface TemplatesRepo {
     limit?: number;
   }): Promise<TemplateRecord[]>;
   findPublicBySlug(slug: string): Promise<TemplateRecord | null>;
+  findPublicByIdOrSlug(idOrSlug: string): Promise<TemplateRecord | null>;
 }
 
 class PrismaTemplatesRepo implements TemplatesRepo {
@@ -59,6 +60,17 @@ class PrismaTemplatesRepo implements TemplatesRepo {
     });
     return row ? { ...row, tags: normalizeTags(row.tags, { strict: false }).tags } : null;
   }
+
+  async findPublicByIdOrSlug(idOrSlug: string) {
+    const row = await prisma.template.findFirst({
+      where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }], visibility: "PUBLIC" },
+    });
+    return row ? { ...row, tags: normalizeTags(row.tags, { strict: false }).tags } : null;
+  }
 }
 
-export const templatesRepo: TemplatesRepo = new PrismaTemplatesRepo();
+export function createPrismaTemplatesRepo(): TemplatesRepo {
+  return new PrismaTemplatesRepo();
+}
+
+export const templatesRepo: TemplatesRepo = createPrismaTemplatesRepo();
