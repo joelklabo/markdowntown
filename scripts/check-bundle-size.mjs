@@ -7,8 +7,31 @@ import fs from "fs";
 import path from "path";
 
 const chunksDir = path.join(process.cwd(), ".next", "static", "chunks");
-const budget = Number(process.env.BUNDLE_BUDGET_BYTES || 950_000); // ~0.95 MB
+const budget = Number(process.env.BUNDLE_BUDGET_BYTES || 900_000); // ~0.9 MB
 const ignoredPrefixes = ["framework-", "main-", "polyfills-", "webpack-"];
+const reactLoadablePath = path.join(process.cwd(), ".next", "react-loadable-manifest.json");
+
+const optionalModules = [
+  { pattern: "posthog", enabled: Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY) },
+  { pattern: "web-vitals", enabled: process.env.NEXT_PUBLIC_ENABLE_RUM === "true" },
+];
+
+const optionalFiles = new Set();
+if (fs.existsSync(reactLoadablePath)) {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(reactLoadablePath, "utf8"));
+    for (const [label, entry] of Object.entries(manifest)) {
+      for (const opt of optionalModules) {
+        if (opt.enabled) continue;
+        if (label.includes(opt.pattern)) {
+          entry.files?.forEach((f) => optionalFiles.add(path.join("static", "chunks", path.basename(f))));
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Unable to parse react-loadable-manifest.json for optional chunk filtering", err);
+  }
+}
 
 function collectFiles(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -33,6 +56,10 @@ let largest = { file: "", size: 0 };
 for (const file of files) {
   const name = path.basename(file);
   if (ignoredPrefixes.some((prefix) => name.startsWith(prefix))) {
+    continue;
+  }
+  const rel = path.join("static", "chunks", name);
+  if (optionalFiles.has(rel)) {
     continue;
   }
   const size = fs.statSync(file).size;
