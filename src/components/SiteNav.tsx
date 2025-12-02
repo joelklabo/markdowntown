@@ -133,7 +133,7 @@ export function SiteNav({ user }: { user?: User }) {
         <div className="mx-auto grid max-w-6xl grid-cols-[auto,1fr,auto] items-center gap-2 px-4 py-3 md:grid-cols-[auto,auto,1fr] md:gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2" aria-label="MarkdownTown home">
-              <BrandLogo />
+              <BrandLogo asLink={false} />
             </Link>
             <button
               type="button"

@@ -4,11 +4,12 @@ import Link from "next/link";
 type BrandLogoProps = {
   showWordmark?: boolean;
   size?: number;
+  asLink?: boolean;
 };
 
-export function BrandLogo({ showWordmark = true, size = 40 }: BrandLogoProps) {
-  return (
-    <Link href="/" className="inline-flex items-center gap-2">
+export function BrandLogo({ showWordmark = true, size = 40, asLink = true }: BrandLogoProps) {
+  const content = (
+    <>
       <Image
         src="/markdown-town-icon.svg"
         alt="MarkdownTown logo"
@@ -21,6 +22,16 @@ export function BrandLogo({ showWordmark = true, size = 40 }: BrandLogoProps) {
           MarkdownTown
         </span>
       )}
+    </>
+  );
+
+  if (!asLink) {
+    return <span className="inline-flex items-center gap-2">{content}</span>;
+  }
+
+  return (
+    <Link href="/" className="inline-flex items-center gap-2">
+      {content}
     </Link>
   );
 }
