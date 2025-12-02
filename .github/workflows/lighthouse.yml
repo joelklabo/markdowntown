@@ -59,14 +59,29 @@ jobs:
             }
           }
           EOF
+      - name: Check availability
+        id: availability
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" "${{ matrix.url }}")
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" -ge 400 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping Lighthouse for ${{ matrix.url }} (status $status)"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Run Lighthouse against production
+        if: steps.availability.outputs.skip != 'true'
+        id: lhci
         uses: treosh/lighthouse-ci-action@v10
+        continue-on-error: true
         with:
           configPath: ./lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
       - name: Compute metrics row
         id: metrics
+        if: steps.lhci.outcome == 'success'
         run: |
           slug="$(echo "${{ matrix.url }}" | sed 's|https\?://||; s|/|_|g; s|[^A-Za-z0-9_]|_|g')"
           echo "slug=$slug" >> "$GITHUB_OUTPUT"
@@ -106,12 +121,13 @@ jobs:
           NODE
       - name: Upload metrics artifact
         uses: actions/upload-artifact@v4
+        if: steps.lhci.outcome == 'success'
         with:
           name: lh-metrics-${{ steps.metrics.outputs.slug }}-${{ matrix.formFactor }}
           path: lh-metrics.csv
           retention-days: 30
       - name: Upload summary markdown
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && steps.lhci.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: lh-summary-${{ steps.metrics.outputs.slug }}-${{ matrix.formFactor }}
@@ -127,6 +143,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: lh-artifacts
+          if-no-artifact-found: ignore
       - name: Build PR comment
         id: comment
         run: |
