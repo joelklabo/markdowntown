@@ -8,6 +8,7 @@ vi.mock("@/lib/prisma", () => ({
       update: prismaUpdate,
     },
   },
+  hasDatabaseEnv: true,
 }));
 
 function loadAuthWithEnv(env: Partial<NodeJS.ProcessEnv>) {
