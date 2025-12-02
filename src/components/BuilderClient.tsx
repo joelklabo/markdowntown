@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Card } from "./ui/Card";
@@ -68,6 +69,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
   }, [lines]);
 
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [draggingOutline, setDraggingOutline] = useState(false);
 
   useEffect(() => {
     // reset collapse when content changes; defer to avoid synchronous state update warning
@@ -131,6 +133,20 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
       if (target < 0 || target >= next.length) return prev;
       [next[idx], next[target]] = [next[target], next[idx]];
       return next;
+    });
+  }
+
+  function handleOutlineDragEnd(result: DropResult) {
+    setDraggingOutline(false);
+    if (!result.destination) return;
+    const from = result.source.index;
+    const to = result.destination.index;
+    if (from === to) return;
+    setSelectedSnippets((prev) => {
+      const items = [...prev];
+      const [moved] = items.splice(from, 1);
+      items.splice(to, 0, moved);
+      return items;
     });
   }
 
@@ -396,47 +412,70 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           {outline.length === 0 ? (
             <p className="text-sm text-mdt-muted">Headings will appear here once you add a template/snippet.</p>
           ) : (
-            <div role="tree" className="space-y-1">
-              {outline.map((node) => {
-                const isCollapsed = collapsed.has(node.id);
-                return (
-                  <button
-                    key={node.id}
-                    role="treeitem"
-                    aria-level={node.level}
-                    aria-expanded={!isCollapsed}
-                    aria-selected="false"
-                    onClick={() => {
-                      jumpTo(node.id);
-                    }}
-                    onDoubleClick={() => toggleCollapse(node.id)}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm transition",
-                      "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
-                    )}
-                    style={{ paddingLeft: `${(node.level - 1) * 12 + 8}px` }}
+            <DragDropContext
+              onDragStart={() => setDraggingOutline(true)}
+              onDragEnd={handleOutlineDragEnd}
+            >
+              <Droppable droppableId="outline">
+                {(provided) => (
+                  <div
+                    role="tree"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="space-y-1"
                   >
-                    <span className="flex items-center gap-2">
-                      <span
-                        aria-hidden
-                        className={cn(
-                          "inline-flex h-5 w-5 items-center justify-center rounded-md border border-mdt-border text-[11px]",
-                          isCollapsed ? "bg-mdt-surface-subtle" : "bg-mdt-surface-strong"
-                        )}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleCollapse(node.id);
-                        }}
-                      >
-                        {isCollapsed ? "+" : "–"}
-                      </span>
-                      <span className="font-medium text-mdt-text">{node.title}</span>
-                    </span>
-                    <span className="text-caption text-mdt-muted">#{node.line + 1}</span>
-                  </button>
-                );
-              })}
-            </div>
+                    {outline.map((node, idx) => {
+                      const isCollapsed = collapsed.has(node.id);
+                      return (
+                        <Draggable draggableId={node.id} index={idx} key={node.id} isDragDisabled={node.level === 1}>
+                          {(drag) => (
+                            <button
+                              key={node.id}
+                              role="treeitem"
+                              aria-level={node.level}
+                              aria-expanded={!isCollapsed}
+                              aria-selected="false"
+                              ref={drag.innerRef}
+                              {...drag.draggableProps}
+                              {...drag.dragHandleProps}
+                              onClick={() => {
+                                jumpTo(node.id);
+                              }}
+                              onDoubleClick={() => toggleCollapse(node.id)}
+                              className={cn(
+                                "flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm transition",
+                                "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
+                                draggingOutline && node.level === 1 ? "opacity-80" : ""
+                              )}
+                              style={{ paddingLeft: `${(node.level - 1) * 12 + 8}px` }}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span
+                                  aria-hidden
+                                  className={cn(
+                                    "inline-flex h-5 w-5 items-center justify-center rounded-md border border-mdt-border text-[11px]",
+                                    isCollapsed ? "bg-mdt-surface-subtle" : "bg-mdt-surface-strong"
+                                  )}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleCollapse(node.id);
+                                  }}
+                                >
+                                  {isCollapsed ? "+" : "–"}
+                                </span>
+                                <span className="font-medium text-mdt-text">{node.title}</span>
+                              </span>
+                              <span className="text-caption text-mdt-muted">#{node.line + 1}</span>
+                            </button>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           )}
         </Card>
       </div>
