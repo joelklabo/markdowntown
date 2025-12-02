@@ -117,6 +117,8 @@ describe("SectionComposer", () => {
   it("normalizes tag input and saves on blur", async () => {
     render(<SectionComposer />);
     const tagField = await screen.findByLabelText(/tags/i);
+    await screen.findByText("Hello");
+    await waitFor(() => expect(tagField).not.toBeDisabled());
 
     await userEvent.type(tagField, ", System Prompt");
     await act(async () => {
