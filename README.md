@@ -64,3 +64,4 @@ docker run -p 3000:3000 \
 - Architecture overview: `docs/architecture/architecture.md`
 - Caching/ISR plan: `docs/architecture/caching-isr-plan.md`
 - Runbooks: `docs/runbooks/perf.md`, `docs/runbooks/deploy-rollback.md`, `docs/runbooks/env-setup.md`
+- Security posture: `docs/security.md`
