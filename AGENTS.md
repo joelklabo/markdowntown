@@ -1,15 +1,16 @@
 # YOUR JOB:
 
-1. Ask `bd ready` what to do.
-2. Before starting, set yourself on the issue (`bd update <id> --status in_progress`).
-3. Work on it.
-4. Check your work, run tests.
-5. Mark it as 'done'.
-6. If you stop before done, reset to `open` (`bd update <id> --status open`) to avoid stale in-progress.
-7. Create new issues/epics for any necessary work or improvements found.
-8. Commit.
-9. Push.
-10. GO BACK TO 1!
+1. Clear stale work: run `bd reset-stale --hours 4` to reopen any in_progress older than 4 hours.
+2. Ask `bd ready` what to do.
+3. Before starting, set yourself on the issue (`bd update <id> --status in_progress`).
+4. Work on it.
+5. Check your work, run tests.
+6. Mark it as 'done'.
+7. If you stop before done, reset to `open` (`bd update <id> --status open`) to avoid stale in-progress.
+8. Create new issues/epics for any necessary work or improvements found.
+9. Commit.
+10. Push.
+11. GO BACK TO 1!
 
 # IMPORTANT:
 
