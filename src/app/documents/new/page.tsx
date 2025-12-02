@@ -5,7 +5,7 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 export default async function NewDocumentPage() {
   const session = await auth();
-  if (!session?.user?.id) redirect("/api/auth/signin?callbackUrl=/documents/new");
+  if (!session?.user?.id) redirect("/signin?callbackUrl=/documents/new");
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">

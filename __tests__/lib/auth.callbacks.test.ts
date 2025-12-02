@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import type { Account } from "next-auth";
 
 const prismaUpdate = vi.fn();
 
@@ -29,7 +30,7 @@ describe("auth callbacks", () => {
     vi.resetModules();
   });
 
-  it("rejects sign-in when GitHub OAuth is not configured", async () => {
+  it("blocks GitHub sign-in when OAuth is not configured", async () => {
     const { authOptions } = await loadAuthWithEnv({
       GITHUB_CLIENT_ID: "",
       GITHUB_CLIENT_SECRET: "",
@@ -37,13 +38,13 @@ describe("auth callbacks", () => {
 
     const allowed = await authOptions.callbacks?.signIn?.({
       user: { id: "u1", emailVerified: null },
-      account: null,
+      account: { provider: "github", type: "oauth", providerAccountId: "1" } as Account,
       profile: undefined,
       email: undefined,
       credentials: undefined,
     });
 
-    expect(allowed).toBe(false);
+    expect(allowed).not.toBe(true);
   });
 
   it("allows sign-in when GitHub OAuth is configured", async () => {

@@ -2,12 +2,21 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { DemoLoginButton } from "@/components/auth/DemoLoginButton";
 
 export const metadata = {
   title: "Sign in · MarkdownTown",
 };
 
-export default function SignInPage() {
+const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET);
+const demoLoginEnabled = process.env.NODE_ENV !== "production" && process.env.ENABLE_DEMO_LOGIN !== "false";
+const demoPassword = process.env.DEMO_LOGIN_PASSWORD ?? "demo-login";
+
+export default async function SignInPage({ searchParams }: { searchParams?: Promise<{ callbackUrl?: string; error?: string }> }) {
+  const params = (await searchParams) ?? {};
+  const callbackUrl = params.callbackUrl || "/";
+  const error = params.error;
+
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text">
       <header className="border-b border-mdt-border bg-white">
@@ -28,13 +37,25 @@ export default function SignInPage() {
             revoke access in GitHub settings.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href="/api/auth/signin/github?callbackUrl=/">Continue with GitHub</Link>
+            <Button asChild disabled={!githubConfigured}>
+              <Link href={`/api/auth/signin/github?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
+                {githubConfigured ? "Continue with GitHub" : "GitHub not configured"}
+              </Link>
             </Button>
             <Button variant="secondary" asChild>
               <Link href="/">Cancel</Link>
             </Button>
           </div>
+          {!githubConfigured && (
+            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-mdt-md px-3 py-2">
+              GitHub OAuth is not configured in this environment. Add GITHUB_CLIENT_ID/SECRET or use the demo login below.
+            </p>
+          )}
+          {error && (
+            <p className="text-sm text-red-600">
+              Sign-in failed: {error.replaceAll("_", " ")}
+            </p>
+          )}
         </div>
 
         <div className="flex-1 w-full max-w-xl">
@@ -53,9 +74,22 @@ export default function SignInPage() {
             <div className="rounded-mdt-lg bg-mdt-bg-soft p-3 text-body-sm text-mdt-muted">
               By continuing, you agree to keep your credentials safe and abide by our acceptable use.
             </div>
-            <Button asChild className="w-full">
-              <Link href="/api/auth/signin/github?callbackUrl=/">Sign in with GitHub</Link>
+            <Button asChild className="w-full" disabled={!githubConfigured}>
+              <Link href={`/api/auth/signin/github?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
+                {githubConfigured ? "Sign in with GitHub" : "GitHub not configured"}
+              </Link>
             </Button>
+            {demoLoginEnabled && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-mdt-muted">
+                  <span>Demo login (local dev)</span>
+                  <span className="font-mono bg-mdt-surface-subtle px-2 py-1 rounded-md border border-mdt-border">
+                    {demoPassword}
+                  </span>
+                </div>
+                <DemoLoginButton password={demoPassword} callbackUrl={callbackUrl} />
+              </div>
+            )}
           </Card>
         </div>
       </main>

@@ -9,7 +9,7 @@ import { normalizeTags } from "@/lib/tags";
 
 export default async function DocumentsPage() {
   const session = await auth();
-  if (!session?.user?.id) redirect("/api/auth/signin?callbackUrl=/documents");
+  if (!session?.user?.id) redirect("/signin?callbackUrl=/documents");
 
   const docs = await prisma.document.findMany({
     where: { userId: session.user.id },

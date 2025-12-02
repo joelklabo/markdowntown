@@ -9,7 +9,7 @@ type Params = { id: string };
 
 export default async function EditDocumentPage({ params }: { params: Promise<Params> }) {
   const session = await auth();
-  if (!session?.user?.id) redirect("/api/auth/signin?callbackUrl=/documents");
+  if (!session?.user?.id) redirect("/signin?callbackUrl=/documents");
   const { id } = await params;
   const doc = await prisma.document.findFirst({
     where: { id, userId: session.user.id },

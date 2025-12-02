@@ -207,7 +207,10 @@ export function SiteNav({ user }: { user?: User }) {
             ) : (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="hidden md:inline-flex whitespace-nowrap" asChild>
-                  <Link href="/api/auth/signin?callbackUrl=/" onClick={() => track("nav_click", { href: "signin", placement: "desktop" })}>
+                  <Link
+                    href={`/signin?callbackUrl=${encodeURIComponent(pathname || "/")}`}
+                    onClick={() => track("nav_click", { href: "signin", placement: "desktop" })}
+                  >
                     Sign in
                   </Link>
                 </Button>

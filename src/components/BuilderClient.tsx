@@ -158,7 +158,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
 
   async function saveDocument() {
     if (requireAuth) {
-      window.location.href = "/api/auth/signin?callbackUrl=/builder";
+      window.location.href = "/signin?callbackUrl=/builder";
       return;
     }
     const title = prompt("Name this agents.md", "My agents.md");
@@ -254,7 +254,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             <Link href="/browse">Browse library</Link>
           </Button>
           <Button asChild>
-            <Link href={requireAuth ? "/api/auth/signin?callbackUrl=/builder" : "/documents"}>Your documents</Link>
+            <Link href={requireAuth ? "/signin?callbackUrl=/builder" : "/documents"}>Your documents</Link>
           </Button>
         </div>
       </div>

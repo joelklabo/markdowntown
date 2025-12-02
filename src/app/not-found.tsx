@@ -35,7 +35,7 @@ export default function NotFound() {
               <Link href="/">Go home</Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link href="/api/auth/signin?callbackUrl=/">Sign in</Link>
+              <Link href="/signin?callbackUrl=/">Sign in</Link>
             </Button>
           </div>
         </Card>

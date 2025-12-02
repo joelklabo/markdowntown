@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import GithubProvider, { type GithubProfile } from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { hasDatabaseEnv, prisma } from "./prisma";
 
@@ -8,6 +9,33 @@ const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, NEXTAUTH_SECRET } = process.env;
 const githubConfigured = Boolean(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET);
 const githubClientId = GITHUB_CLIENT_ID ?? "missing-client-id";
 const githubClientSecret = GITHUB_CLIENT_SECRET ?? "missing-client-secret";
+const demoLoginEnabled = process.env.NODE_ENV !== "production" && process.env.ENABLE_DEMO_LOGIN !== "false";
+const demoPassword = process.env.DEMO_LOGIN_PASSWORD ?? "demo-login";
+const useDatabaseAdapter = hasDatabaseEnv && githubConfigured;
+const sessionStrategy: NextAuthOptions["session"]["strategy"] = useDatabaseAdapter ? "database" : "jwt";
+
+async function getOrCreateDemoUser() {
+  if (!useDatabaseAdapter) {
+    return {
+      id: "demo-user",
+      name: "Demo User",
+      email: "demo@markdown.town",
+      username: "demo",
+      image: null,
+    };
+  }
+  return prisma.user.upsert({
+    where: { email: "demo@markdown.town" },
+    update: { username: "demo" },
+    create: {
+      id: "demo-user",
+      email: "demo@markdown.town",
+      name: "Demo User",
+      username: "demo",
+      image: null,
+    },
+  });
+}
 
 const baseProviders = [
   GithubProvider({
@@ -26,63 +54,94 @@ const baseProviders = [
   }),
 ];
 
+const providers = demoLoginEnabled
+  ? [
+      ...baseProviders,
+      CredentialsProvider({
+        id: "demo",
+        name: "Demo login",
+        credentials: {
+          password: { label: "Password", type: "password" },
+        },
+        async authorize(credentials) {
+          if (!demoLoginEnabled) return null;
+          const provided = credentials?.password ?? "";
+          if (provided !== demoPassword) return null;
+          const user = await getOrCreateDemoUser();
+          return {
+            id: user.id,
+            name: user.name ?? "Demo User",
+            email: user.email ?? "demo@markdown.town",
+            image: user.image ?? null,
+            username: user.username ?? "demo",
+          };
+        },
+      }),
+    ]
+  : baseProviders;
+
 export const authOptions: NextAuthOptions = hasDatabaseEnv
   ? {
-      adapter: PrismaAdapter(prisma),
-      providers: baseProviders,
+      adapter: useDatabaseAdapter ? PrismaAdapter(prisma) : undefined,
+      providers,
       pages: { signIn: "/signin" },
-      session: { strategy: "database" },
+      session: { strategy: sessionStrategy },
       secret: NEXTAUTH_SECRET ?? "development-secret",
       callbacks: {
-        async signIn() {
-          if (!githubConfigured) {
+        async signIn({ account }) {
+          if (account?.provider === "github" && !githubConfigured) {
             console.warn("GitHub OAuth is not configured. Set GITHUB_CLIENT_ID/SECRET to enable it.");
-            return false;
+            return "/signin?error=github_not_configured";
           }
           return true;
         },
-        async session({ session, user }) {
+        async session({ session, user, token }) {
           if (session.user) {
-            session.user.id = user.id;
+            session.user.id = user?.id ?? (token.sub as string | undefined) ?? session.user.id;
             session.user.username =
-              user.username ?? user.name ?? user.email ?? session.user.email ?? "";
-            session.user.image = user.image ?? user.avatarUrl ?? session.user.image;
+              user?.username ?? user?.name ?? user?.email ?? session.user.email ?? "";
+            session.user.image = (user as { avatarUrl?: string })?.avatarUrl ?? user?.image ?? session.user.image;
           }
           return session;
         },
       },
-      events: {
-        // Ensure GitHub metadata is persisted on first login.
-        async signIn({ user, profile }) {
-          if (!profile) return;
-          const ghProfile = profile as GithubProfile | undefined;
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              githubId: ghProfile?.id?.toString(),
-              username:
-                user.username ??
-                ghProfile?.login ??
-                ghProfile?.name ??
-                user.email ??
-                user.name,
-              avatarUrl: ghProfile?.avatar_url ?? user.image ?? undefined,
-              name: ghProfile?.name ?? user.name,
-              image: ghProfile?.avatar_url ?? user.image ?? undefined,
+      events: useDatabaseAdapter
+        ? {
+            // Ensure GitHub metadata is persisted on first login.
+            async signIn({ user, profile }) {
+              if (!profile) return;
+              const ghProfile = profile as GithubProfile | undefined;
+              await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                  githubId: ghProfile?.id?.toString(),
+                  username:
+                    user.username ??
+                    ghProfile?.login ??
+                    ghProfile?.name ??
+                    user.email ??
+                    user.name,
+                  avatarUrl: ghProfile?.avatar_url ?? user.image ?? undefined,
+                  name: ghProfile?.name ?? user.name,
+                  image: ghProfile?.avatar_url ?? user.image ?? undefined,
+                },
+              });
             },
-          });
-        },
-      },
+          }
+        : undefined,
     }
   : {
-      providers: baseProviders,
+      providers,
       session: { strategy: "jwt" },
       secret: NEXTAUTH_SECRET ?? "development-secret",
       pages: { signIn: "/signin" },
       callbacks: {
-        async signIn() {
-          // Without DB we cannot persist sessions; block sign-in in this mode.
-          return false;
+        async signIn({ account }) {
+          if (account?.provider === "github" && !githubConfigured) {
+            console.warn("GitHub OAuth is not configured. Set GITHUB_CLIENT_ID/SECRET to enable it.");
+            return "/signin?error=github_not_configured";
+          }
+          return true;
         },
       },
     };

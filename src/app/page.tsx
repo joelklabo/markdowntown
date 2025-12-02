@@ -283,8 +283,8 @@ export default async function Home() {
                 </ul>
                 <div className="flex gap-2">
                   <Button asChild>
-                    <Link href="/api/auth/signin?callbackUrl=/">Sign in with GitHub</Link>
-                  </Button>
+                  <Link href="/signin?callbackUrl=/">Sign in</Link>
+                </Button>
                   <Button variant="secondary" asChild>
                     <Link href="/browse">Keep browsing</Link>
                   </Button>
