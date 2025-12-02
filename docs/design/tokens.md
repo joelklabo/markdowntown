@@ -22,3 +22,9 @@ Dark palette is the default; `.dark` applies it, while the root (no class) holds
 
 ## Preview
 A quick audit view lives at `/tokens`, showing colors, shadows, and radii pulled directly from CSS variables.
+
+## Usage checklist
+- Use semantic Tailwind tokens (`bg-mdt-surface`, `text-mdt-text`, `border-mdt-border`, `shadow-mdt-md`) instead of hex values.
+- Prefer `font-display` for headings, `font-sans` for body, `font-mono` for code/meta.
+- Keep motion subtle: 120–180ms ease (`ease-mdt-emphasized`), small lifts (`hover:-translate-y-[1px]`), and glow shadow for focus/primary buttons.
+- Dark is the default theme (`.dark` on html); root contains light palette for future toggle.
