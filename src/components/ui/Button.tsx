@@ -3,30 +3,30 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/cn";
 import React from "react";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium transition duration-mdt-fast ease-mdt-emphasized border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-mdt-blue",
-  {
-    variants: {
-      variant: {
-        primary:
-          "bg-mdt-blue text-white shadow-mdt-btn hover:bg-[#0047B3] hover:shadow-mdt-btn-hover active:shadow-mdt-sm",
-        secondary:
-          "bg-white text-mdt-blue border-mdt-blue hover:bg-[#EFF6FF]",
-        ghost:
-          "bg-transparent text-mdt-blue hover:bg-[rgba(0,87,217,0.06)]",
-      },
-      size: {
-        md: "h-9",
-        lg: "h-10 px-5",
-        sm: "h-8 px-3 text-[0.85rem]",
-      },
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium transition duration-mdt-fast ease-mdt-emphasized border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]";
+
+const buttonVariants = cva(base, {
+  variants: {
+    variant: {
+      primary:
+        "bg-[color:var(--mdt-color-primary)] text-[#0a0c12] border-transparent shadow-mdt-glow hover:bg-[color:var(--mdt-color-primary-strong)] active:shadow-mdt-sm",
+      secondary:
+        "bg-[color:var(--mdt-color-surface)] text-[color:var(--mdt-color-text)] border-[color:var(--mdt-color-border)] hover:bg-[color:var(--mdt-color-surface-subtle)]",
+      ghost:
+        "bg-transparent text-[color:var(--mdt-color-text)] border-transparent hover:bg-[color:var(--mdt-color-surface-subtle)]",
     },
-    defaultVariants: {
-      variant: "primary",
-      size: "md",
+    size: {
+      md: "h-10",
+      lg: "h-11 px-5 text-[1rem]",
+      sm: "h-9 px-3 text-[0.88rem]",
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "primary",
+    size: "md",
+  },
+});
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
