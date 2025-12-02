@@ -12,7 +12,7 @@ describe("CommandPalette", () => {
       unobserve() {}
       disconnect() {}
     }
-    // @ts-expect-error override
+    // @ts-expect-error jsdom missing ResizeObserver
     global.ResizeObserver = ResizeObserverMock;
     render(<CommandPalette />);
   });
