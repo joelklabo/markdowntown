@@ -2,7 +2,7 @@
 
 **Date:** 2025-12-02  
 **Status:** Research Complete  
-**Author:** Copilot Agent
+**Author:** Research Team
 
 ---
 
@@ -461,9 +461,9 @@ async function syncGistMetadata(userId: string) {
 
 Use a convention in the gist description:
 ```
-[markdowntown:snippet] My Helpful Snippet
-[markdowntown:template] Code Review Template
-[markdowntown:document] Python Agent v2
+#markdowntown-snippet My Helpful Snippet
+#markdowntown-template Code Review Template
+#markdowntown-document Python Agent v2
 ```
 
 ---
@@ -506,8 +506,7 @@ Only if:
 3. [GitHub API Rate Limits](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)
 4. [gist-database NPM Package](https://github.com/TimMikeladze/gist-database)
 5. [Using GitHub as a Headless CMS](https://www.highlight.io/blog/using-github-as-a-headless-cms)
-6. [Gists as a Content Management System](https://gist.github.com/0f3da3d92b024a6d87617dcfc8fcdc49)
-7. [NextAuth.js GitHub Provider](https://next-auth.js.org/providers/github)
+6. [NextAuth.js GitHub Provider](https://next-auth.js.org/providers/github)
 
 ---
 
