@@ -44,9 +44,11 @@ async function crawlPage(pagePath: string): Promise<CrawlResult[]> {
     const controls = [...(await page.$$("a[href]")), ...(await page.$$("button"))].slice(0, MAX);
     for (const el of controls) {
       const tag = await el.evaluate((n) => n.tagName.toLowerCase());
-      const label = await el.evaluate(
-        (n) => n.innerText.trim() || n.getAttribute("aria-label") || ""
-      );
+        const label = await el.evaluate((n) => {
+          const text = (n as HTMLElement).innerText ?? (n as SVGElement).textContent ?? "";
+          const trimmed = text.trim();
+          return trimmed || n.getAttribute("aria-label") || "";
+        });
       const href = tag === "a" ? await el.getAttribute("href") : null;
       if (href && href.startsWith("http") && !href.startsWith(base)) continue;
       try {
