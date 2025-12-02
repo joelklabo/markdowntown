@@ -1,5 +1,7 @@
-import { Prisma, prisma } from "./prisma";
 import { normalizeTags } from "./tags";
+import { sectionsRepo } from "@/services/sections";
+import { templatesRepo } from "@/services/templates";
+import { documentsRepo } from "@/services/documents";
 
 export type PublicItemType = "snippet" | "template" | "file";
 
@@ -56,157 +58,82 @@ function toItem<T extends { createdAt: Date }>(
 }
 
 export async function listPublicItems(input: ListPublicItemsInput = {}): Promise<PublicItem[]> {
-  try {
-    const {
-      limit = 30,
-      tags = [],
-      type = "all",
-      sort = "recent",
-      search = null,
-    } = input;
+  const { limit = 30, tags = [], type = "all", sort = "recent", search = null } = input;
+  const normalizedTags = normalizeInputTags(tags);
+  const wantSnippets = type === "all" || type === "snippet";
+  const wantTemplates = type === "all" || type === "template";
+  const wantFiles = type === "all" || type === "file";
 
-    const normalizedTags = normalizeInputTags(tags);
+  const rows: PublicItem[] = [];
 
-    const snippetWhere: Prisma.SnippetWhereInput = { visibility: "PUBLIC" };
-    const templateWhere: Prisma.TemplateWhereInput = { visibility: "PUBLIC" };
-    const documentWhere: Prisma.DocumentWhereInput = { visibility: "PUBLIC" };
-
-    if (normalizedTags.length) {
-      snippetWhere.tags = { hasEvery: normalizedTags };
-      templateWhere.tags = { hasEvery: normalizedTags };
-      documentWhere.tags = { hasEvery: normalizedTags };
-    }
-
-    if (search) {
-      snippetWhere.title = { contains: search, mode: "insensitive" };
-      templateWhere.title = { contains: search, mode: "insensitive" };
-      documentWhere.title = { contains: search, mode: "insensitive" };
-    }
-
-    const wantSnippets = type === "all" || type === "snippet";
-    const wantTemplates = type === "all" || type === "template";
-    const wantFiles = type === "all" || type === "file";
-
-    const rows: PublicItem[] = [];
-
-    if (wantSnippets) {
-      const snippets = await prisma.snippet.findMany({
-        where: snippetWhere,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          content: true,
-          tags: true,
-          views: true,
-          copies: true,
-          votesUp: true,
-          votesDown: true,
-          createdAt: true,
-        },
-        take: Math.min(limit * 2, 60),
-      });
-
-      rows.push(
-        ...snippets.map((s) =>
-          toItem(s, {
-            id: s.id,
-            slug: s.slug,
-            title: s.title,
-            description: s.content.slice(0, 240),
-            tags: s.tags,
-            stats: {
-              views: s.views,
-              copies: s.copies,
-              votes: (s.votesUp ?? 0) - (s.votesDown ?? 0),
-            },
-            type: "snippet",
-          })
-        )
-      );
-    }
-
-    if (wantTemplates) {
-      const templates = await prisma.template.findMany({
-        where: templateWhere,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          description: true,
-          tags: true,
-          views: true,
-          copies: true,
-          uses: true,
-          createdAt: true,
-        },
-        take: Math.min(limit * 2, 60),
-      });
-
-      rows.push(
-        ...templates.map((t) =>
-          toItem(t, {
-            id: t.id,
-            slug: t.slug,
-            title: t.title,
-            description: t.description ?? "",
-            tags: t.tags,
-            stats: {
-              views: t.views,
-              copies: t.copies,
-              votes: t.uses ?? 0,
-            },
-            type: "template",
-          })
-        )
-      );
-    }
-
-    if (wantFiles) {
-      const documents = await prisma.document.findMany({
-        where: documentWhere,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          description: true,
-          renderedContent: true,
-          tags: true,
-          views: true,
-          copies: true,
-          createdAt: true,
-        },
-        take: Math.min(limit * 2, 60),
-      });
-
-      rows.push(
-        ...documents.map((d) =>
-          toItem(d, {
-            id: d.id,
-            slug: d.slug,
-            title: d.title,
-            description: d.description ?? d.renderedContent ?? "",
-            tags: d.tags,
-            stats: {
-              views: d.views,
-              copies: d.copies,
-              votes: 0,
-            },
-            type: "file",
-          })
-        )
-      );
-    }
-
-    const sorted = rows.sort((a, b) => {
-      if (sort === "views") return b.stats.views - a.stats.views || b.createdAt.getTime() - a.createdAt.getTime();
-      if (sort === "copies") return b.stats.copies - a.stats.copies || b.createdAt.getTime() - a.createdAt.getTime();
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-
-    return sorted.slice(0, limit);
-  } catch (err) {
-    console.warn("publicItems: falling back to empty list", err);
-    return [];
+  if (wantSnippets) {
+    const snippets = await sectionsRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
+    rows.push(
+      ...snippets.map((s) =>
+        toItem(s, {
+          id: s.id,
+          slug: s.slug,
+          title: s.title,
+          description: s.content.slice(0, 240),
+          tags: s.tags,
+          stats: {
+            views: (s as { views?: number }).views ?? 0,
+            copies: (s as { copies?: number }).copies ?? 0,
+            votes: 0,
+          },
+          type: "snippet",
+        })
+      )
+    );
   }
+
+  if (wantTemplates) {
+    const templates = await templatesRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
+    rows.push(
+      ...templates.map((t) =>
+        toItem(t, {
+          id: t.id,
+          slug: t.slug,
+          title: t.title,
+          description: t.description ?? "",
+          tags: t.tags,
+          stats: {
+            views: t.views,
+            copies: t.copies,
+            votes: t.uses ?? 0,
+          },
+          type: "template",
+        })
+      )
+    );
+  }
+
+  if (wantFiles) {
+    const documents = await documentsRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
+    rows.push(
+      ...documents.map((d) =>
+        toItem(d, {
+          id: d.id,
+          slug: d.slug,
+          title: d.title,
+          description: d.description ?? d.renderedContent ?? "",
+          tags: d.tags,
+          stats: {
+            views: d.views,
+            copies: d.copies,
+            votes: 0,
+          },
+          type: "file",
+        })
+      )
+    );
+  }
+
+  const sorted = rows.sort((a, b) => {
+    if (sort === "views") return b.stats.views - a.stats.views || b.createdAt.getTime() - a.createdAt.getTime();
+    if (sort === "copies") return b.stats.copies - a.stats.copies || b.createdAt.getTime() - a.createdAt.getTime();
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
+
+  return sorted.slice(0, limit);
 }
