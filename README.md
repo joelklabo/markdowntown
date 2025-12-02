@@ -29,6 +29,7 @@ Open http://localhost:3000 and sign in with GitHub to access the composer.
 - `pnpm type-check` – TypeScript without emit
 - `pnpm test` – Vitest (jsdom + node envs)
 - `pnpm build` – production build
+- Tooling workspace: `pnpm -C tools lint|type-check|unit|e2e|lighthouse|bundle`
 
 ## Docker
 ```bash
