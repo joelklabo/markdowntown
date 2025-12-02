@@ -61,3 +61,6 @@ docker run -p 3000:3000 \
 - Monitoring/analytics: set `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, and optional `NEXT_PUBLIC_POSTHOG_HOST`.
 - Beads CLI quick reference: `docs/BEADS.md`
 - E2E workflow (conditional): set secrets `GITHUB_CLIENT_ID_TEST`, `GITHUB_CLIENT_SECRET_TEST`, `GITHUB_TEST_USER`, `GITHUB_TEST_PASS` to enable GitHub OAuth Playwright runs on CI
+- Architecture overview: `docs/architecture/architecture.md`
+- Caching/ISR plan: `docs/architecture/caching-isr-plan.md`
+- Runbooks: `docs/runbooks/perf.md`, `docs/runbooks/deploy-rollback.md`, `docs/runbooks/env-setup.md`
