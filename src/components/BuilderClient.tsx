@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { Pill } from "./ui/Pill";
+import { cn } from "@/lib/cn";
 
 type Template = { id: string; title: string; description?: string; body: string; tags: string[] };
 type Snippet = { id: string; title: string; content: string; tags: string[] };
@@ -50,6 +51,72 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     });
     return parts.join("\n\n");
   }, [selectedTemplate, selectedSnippets, templates, snippets]);
+
+  // Outline parsing
+  type OutlineNode = { id: string; title: string; level: number; line: number };
+  const lines = useMemo(() => rendered.split("\n"), [rendered]);
+  const outline: OutlineNode[] = useMemo(() => {
+    const nodes: OutlineNode[] = [];
+    lines.forEach((line, idx) => {
+      const match = /^(#{1,6})\s+(.*)/.exec(line.trim());
+      if (!match) return;
+      const level = match[1].length;
+      const title = match[2].trim();
+      nodes.push({ id: `${idx}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, title, level, line: idx });
+    });
+    return nodes;
+  }, [lines]);
+
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    // reset collapse when content changes; defer to avoid synchronous state update warning
+    const id = requestAnimationFrame(() => setCollapsed(new Set()));
+    return () => cancelAnimationFrame(id);
+  }, [rendered]);
+
+  const lineOwner = useMemo(() => {
+    const owner: (OutlineNode | null)[] = new Array(lines.length).fill(null);
+    let current: OutlineNode | null = null;
+    let nextIndex = 0;
+    const sorted = [...outline].sort((a, b) => a.line - b.line);
+    for (let i = 0; i < lines.length; i++) {
+      if (nextIndex < sorted.length && sorted[nextIndex].line === i) {
+        current = sorted[nextIndex];
+        nextIndex += 1;
+      }
+      owner[i] = current;
+    }
+    return owner;
+  }, [lines.length, outline]);
+
+  const visibleLines = useMemo(() => {
+    return lines.filter((_, idx) => {
+      const owner = lineOwner[idx];
+      if (!owner) return true;
+      if (owner.line === idx) return true;
+      return !collapsed.has(owner.id);
+    });
+  }, [lines, lineOwner, collapsed]);
+
+  const previewRef = useRef<HTMLDivElement | null>(null);
+
+  function toggleCollapse(id: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function jumpTo(id: string) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.focus?.();
+    }
+  }
 
   function toggleSnippet(id: string) {
     setSelectedSnippets((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -175,7 +242,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[320px_320px_1fr]">
+      <div className="grid gap-4 xl:grid-cols-[300px_300px_1fr_260px] lg:grid-cols-[300px_300px_1fr]">
         <Card className="space-y-3" data-step-anchor="template">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Templates</h3>
@@ -279,9 +346,98 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             </div>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="rounded-lg border border-mdt-border bg-white p-4 font-mono text-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark min-h-[300px] whitespace-pre-wrap">
-            {rendered || "Select a template and add snippets to see your agents.md."}
+          <div
+            ref={previewRef}
+            className="rounded-lg border border-mdt-border bg-mdt-surface p-4 font-mono text-sm min-h-[300px] space-y-2"
+          >
+            {visibleLines.length === 0 && <p className="text-mdt-muted">Select a template and add snippets to see your agents.md.</p>}
+            {lines.map((line, idx) => {
+              const owner = lineOwner[idx];
+              const hidden = owner && owner.line !== idx && collapsed.has(owner.id);
+              if (hidden) return null;
+              const match = /^(#{1,6})\s+(.*)/.exec(line.trim());
+              if (match) {
+                const level = match[1].length;
+                const title = match[2];
+                const id = outline.find((n) => n.line === idx)?.id ?? `h-${idx}`;
+                return (
+                  <div
+                    key={id}
+                    id={id}
+                    tabIndex={-1}
+                    className="font-semibold text-mdt-text"
+                    style={{ marginLeft: `${(level - 1) * 8}px` }}
+                  >
+                    {match[1]} {title}
+                  </div>
+                );
+              }
+              return (
+                <p key={`line-${idx}`} className="text-mdt-text-muted leading-6">
+                  {line || "\u00a0"}
+                </p>
+              );
+            })}
           </div>
+        </Card>
+
+        <Card className="space-y-3" data-step-anchor="outline">
+          <div className="flex items-center justify-between">
+            <h3 className="text-h3">Outline</h3>
+            <div className="flex gap-2">
+              <Button size="sm" variant="secondary" onClick={() => setCollapsed(new Set())}>
+                Expand all
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setCollapsed(new Set(outline.map((o) => o.id)))}>
+                Collapse all
+              </Button>
+            </div>
+          </div>
+          {outline.length === 0 ? (
+            <p className="text-sm text-mdt-muted">Headings will appear here once you add a template/snippet.</p>
+          ) : (
+            <div role="tree" className="space-y-1">
+              {outline.map((node) => {
+                const isCollapsed = collapsed.has(node.id);
+                return (
+                  <button
+                    key={node.id}
+                    role="treeitem"
+                    aria-level={node.level}
+                    aria-expanded={!isCollapsed}
+                    aria-selected="false"
+                    onClick={() => {
+                      jumpTo(node.id);
+                    }}
+                    onDoubleClick={() => toggleCollapse(node.id)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm transition",
+                      "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
+                    )}
+                    style={{ paddingLeft: `${(node.level - 1) * 12 + 8}px` }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "inline-flex h-5 w-5 items-center justify-center rounded-md border border-mdt-border text-[11px]",
+                          isCollapsed ? "bg-mdt-surface-subtle" : "bg-mdt-surface-strong"
+                        )}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleCollapse(node.id);
+                        }}
+                      >
+                        {isCollapsed ? "+" : "–"}
+                      </span>
+                      <span className="font-medium text-mdt-text">{node.title}</span>
+                    </span>
+                    <span className="text-caption text-mdt-muted">#{node.line + 1}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </Card>
       </div>
     </main>
