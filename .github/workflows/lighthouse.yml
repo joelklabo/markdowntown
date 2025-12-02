@@ -21,7 +21,7 @@ jobs:
           - https://markdown.town/
           - https://markdown.town/browse
           - https://markdown.town/builder
-        form-factor: [mobile, desktop]
+        formFactor: [mobile, desktop]
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node
@@ -46,7 +46,8 @@ jobs:
           runs: 1
           configPath: ''
           extraHeaders: '{"x-ci":"lighthouse"}'
-          settings: '{"formFactor":"${{ matrix.form-factor }}","screenEmulation":{"mobile":${{ matrix.form-factor == 'mobile' }},"disabled":false}}'
+          settings: >
+            {"formFactor":"${{ matrix.formFactor }}","screenEmulation":{"mobile":${{ matrix.formFactor == 'mobile' }},"disabled":false}}
       - name: Compute metrics row
         id: metrics
         run: |
@@ -66,7 +67,7 @@ jobs:
           const row = [
             new Date().toISOString(),
             "${{ matrix.url }}",
-            "${{ matrix.form-factor }}",
+            "${{ matrix.formFactor }}",
             perf.toFixed(2),
             lcp,
             tti,
@@ -76,7 +77,7 @@ jobs:
           const header = "timestamp,url,form_factor,performance,lcp_ms,tti_ms,ttfb_ms,cls";
           fs.writeFileSync('lh-metrics.csv', `${header}\n${row}\n`);
           const body = [
-            `**Lighthouse (${entry.requestedUrl}, ${{ matrix.form-factor }})**`,
+            `**Lighthouse (${entry.requestedUrl}, ${{ matrix.formFactor }})**`,
             `- Perf score: ${(perf * 100).toFixed(0)}`,
             `- LCP: ${lcp} ms`,
             `- TTI: ${tti} ms`,
@@ -89,14 +90,14 @@ jobs:
       - name: Upload metrics artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lh-metrics-${{ steps.metrics.outputs.slug }}-${{ matrix.form-factor }}
+          name: lh-metrics-${{ steps.metrics.outputs.slug }}-${{ matrix.formFactor }}
           path: lh-metrics.csv
           retention-days: 30
       - name: Upload summary markdown
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
         with:
-          name: lh-summary-${{ steps.metrics.outputs.slug }}-${{ matrix.form-factor }}
+          name: lh-summary-${{ steps.metrics.outputs.slug }}-${{ matrix.formFactor }}
           path: lh-summary.md
           retention-days: 30
 
