@@ -69,6 +69,11 @@ jobs:
             --image $IMAGE \
             --set-env-vars SKIP_DB=1
 
+      - name: Smoke test prod /
+        run: |
+          curl -I --fail https://markdown.town
+          curl -I --fail https://markdown.town/api/public/items
+
       - name: Kick migrate job (optional)
         if: false  # enable when ready
         run: |
