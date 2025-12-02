@@ -6,6 +6,7 @@ vi.mock("@/lib/prisma", () => ({
     template: { findMany: vi.fn() },
     document: { findMany: vi.fn() },
   },
+  hasDatabaseEnv: true,
 }));
 
 import { prisma } from "@/lib/prisma";

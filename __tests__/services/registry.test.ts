@@ -1,4 +1,8 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
+vi.mock("@/lib/prisma", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/prisma")>("@/lib/prisma");
+  return { ...actual, hasDatabaseEnv: true };
+});
 import { getServices, setServices, resetServices, createServices } from "@/services";
 import { listPublicItems } from "@/lib/publicItems";
 import { getPublicSection, listPublicSections } from "@/lib/publicSections";
