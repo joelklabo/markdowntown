@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
-import { prisma } from "./prisma";
+import { hasDatabaseEnv, prisma } from "./prisma";
 import { normalizeTags } from "./tags";
 import { cacheTags } from "./cacheTags";
 
@@ -9,6 +9,7 @@ export type PublicTag = { tag: string; count: number };
 const isTestEnv = process.env.NODE_ENV === "test";
 
 async function queryTags(limit: number, windowDays?: number | null): Promise<PublicTag[]> {
+  if (!hasDatabaseEnv) return [];
   const whereWindow = windowDays
     ? Prisma.sql`AND "updatedAt" > NOW() - (${windowDays}::int * INTERVAL '1 day')`
     : Prisma.empty;

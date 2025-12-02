@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import { cacheTags, type PublicListType } from "./cacheTags";
 import { getServices } from "@/services";
 import { sampleItems } from "./sampleContent";
+import { hasDatabaseEnv } from "./prisma";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -69,6 +70,26 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
   const { sections: sectionsRepo, templates: templatesRepo, documents: documentsRepo } = getServices();
 
   const rows: PublicItem[] = [];
+
+  if (!hasDatabaseEnv) {
+    return sampleItems
+      .filter((item) => type === "all" || item.type === type)
+      .slice(0, limit)
+      .map((item, idx) => ({
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        description: item.description,
+        tags: normalizeInputTags(item.tags),
+        stats: {
+          views: item.stats.views,
+          copies: item.stats.copies,
+          votes: item.stats.votes,
+        },
+        type: item.type,
+        createdAt: new Date(Date.now() - idx * 60_000),
+      }));
+  }
 
   try {
     if (wantSnippets) {

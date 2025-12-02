@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { hasDatabaseEnv, prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 
 export type TemplateRecord = {
@@ -30,6 +30,7 @@ export interface TemplatesRepo {
 
 class PrismaTemplatesRepo implements TemplatesRepo {
   async listPublic(input: { tags?: string[]; search?: string | null; limit?: number }) {
+    if (!hasDatabaseEnv) return [];
     const { tags = [], search = null, limit = 60 } = input;
     const where: NonNullable<Parameters<typeof prisma.template.findMany>[0]>["where"] = {
       visibility: "PUBLIC",

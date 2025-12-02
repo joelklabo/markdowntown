@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { hasDatabaseEnv, prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 
 export type SectionRecord = {
@@ -24,6 +24,7 @@ export interface SectionsRepo {
 
 class PrismaSectionsRepo implements SectionsRepo {
   async listPublic(input: { tags?: string[]; search?: string | null; limit?: number } = {}): Promise<SectionRecord[]> {
+    if (!hasDatabaseEnv) return [];
     const { tags = [], search = null, limit = 60 } = input;
     const where: NonNullable<Parameters<typeof prisma.snippet.findMany>[0]>["where"] = {
       visibility: "PUBLIC",

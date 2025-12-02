@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { hasDatabaseEnv, prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 
 export type DocumentRecord = {
@@ -25,6 +25,7 @@ export interface DocumentsRepo {
 
 class PrismaDocumentsRepo implements DocumentsRepo {
   async listPublic(input: { tags?: string[]; search?: string | null; limit?: number }) {
+    if (!hasDatabaseEnv) return [];
     const { tags = [], search = null, limit = 60 } = input;
     const where: NonNullable<Parameters<typeof prisma.document.findMany>[0]>["where"] = { visibility: "PUBLIC" };
     if (tags.length) where.tags = { hasEvery: tags };
