@@ -26,7 +26,7 @@ export interface DocumentsRepo {
 class PrismaDocumentsRepo implements DocumentsRepo {
   async listPublic(input: { tags?: string[]; search?: string | null; limit?: number }) {
     const { tags = [], search = null, limit = 60 } = input;
-    const where: Parameters<typeof prisma.document.findMany>[0]["where"] = { visibility: "PUBLIC" };
+    const where: NonNullable<Parameters<typeof prisma.document.findMany>[0]>["where"] = { visibility: "PUBLIC" };
     if (tags.length) where.tags = { hasEvery: tags };
     if (search) where.title = { contains: search, mode: "insensitive" };
     const rows = await prisma.document.findMany({

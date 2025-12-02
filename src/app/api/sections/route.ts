@@ -6,6 +6,8 @@ import { validateSectionPayload } from "@/lib/validation";
 import { normalizeTags } from "@/lib/tags";
 import { getSectionsCached } from "@/lib/cache";
 import { logAbuseSignal } from "@/lib/reports";
+import { safeRevalidateTag } from "@/lib/revalidate";
+import { cacheTags } from "@/lib/cacheTags";
 
 const CREATE_WINDOW = 60_000;
 const CREATE_MAX = 10;
@@ -79,6 +81,12 @@ export async function POST(request: Request) {
       tags,
     },
   });
+
+  safeRevalidateTag(cacheTags.list("all"));
+  safeRevalidateTag(cacheTags.list("snippet"));
+  safeRevalidateTag(cacheTags.tags);
+  safeRevalidateTag(cacheTags.detail("snippet", section.slug ?? section.id));
+  safeRevalidateTag(cacheTags.landing);
 
   return NextResponse.json(section, { status: 201 });
 }

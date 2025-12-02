@@ -5,6 +5,8 @@ import { rateLimit } from "@/lib/rateLimiter";
 import { MAX_CONTENT_LENGTH, MAX_TITLE_LENGTH } from "@/lib/validation";
 import { getSectionsCached } from "@/lib/cache";
 import { normalizeTags } from "@/lib/tags";
+import { safeRevalidateTag } from "@/lib/revalidate";
+import { cacheTags } from "@/lib/cacheTags";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -94,6 +96,11 @@ export async function PUT(request: Request, context: RouteContext) {
 
   // warm cache
   void getSectionsCached(session.user.id);
+  safeRevalidateTag(cacheTags.list("all"));
+  safeRevalidateTag(cacheTags.list("snippet"));
+  safeRevalidateTag(cacheTags.tags);
+  safeRevalidateTag(cacheTags.detail("snippet", updated.slug ?? updated.id));
+  safeRevalidateTag(cacheTags.landing);
 
   return NextResponse.json(updated);
 }
@@ -117,5 +124,10 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   await prisma.snippet.delete({ where: { id } });
   void getSectionsCached(session.user.id);
+  safeRevalidateTag(cacheTags.list("all"));
+  safeRevalidateTag(cacheTags.list("snippet"));
+  safeRevalidateTag(cacheTags.tags);
+  safeRevalidateTag(cacheTags.detail("snippet", section.slug ?? section.id));
+  safeRevalidateTag(cacheTags.landing);
   return NextResponse.json({ ok: true });
 }

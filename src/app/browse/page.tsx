@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   description: "Discover reusable snippets, templates, and agents.md files to assemble your next agents.md.",
 };
 
+export const revalidate = 60;
+
 function toCard(item: PublicItem): SampleItem {
   return {
     id: item.id,

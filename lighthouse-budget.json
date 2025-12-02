@@ -9,6 +9,41 @@
     "timings": [
       { "metric": "interactive", "budget": 5600 },
       { "metric": "first-contentful-paint", "budget": 2000 },
+      { "metric": "largest-contentful-paint", "budget": 3500 },
+      { "metric": "server-response-time", "budget": 1200 },
+      { "metric": "total-blocking-time", "budget": 300 },
+      { "metric": "cumulative-layout-shift", "budget": 0.15 }
+    ]
+  },
+  {
+    "path": "/browse",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 800 },
+      { "resourceType": "total", "budget": 2000 },
+      { "resourceType": "third-party", "budget": 500 }
+    ],
+    "timings": [
+      { "metric": "interactive", "budget": 6500 },
+      { "metric": "first-contentful-paint", "budget": 2500 },
+      { "metric": "largest-contentful-paint", "budget": 4000 },
+      { "metric": "server-response-time", "budget": 1200 },
+      { "metric": "total-blocking-time", "budget": 350 },
+      { "metric": "cumulative-layout-shift", "budget": 0.15 }
+    ]
+  },
+  {
+    "path": "/builder",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 900 },
+      { "resourceType": "total", "budget": 2200 },
+      { "resourceType": "third-party", "budget": 550 }
+    ],
+    "timings": [
+      { "metric": "interactive", "budget": 7000 },
+      { "metric": "first-contentful-paint", "budget": 2800 },
+      { "metric": "largest-contentful-paint", "budget": 4200 },
+      { "metric": "server-response-time", "budget": 1200 },
+      { "metric": "total-blocking-time", "budget": 400 },
       { "metric": "cumulative-layout-shift", "budget": 0.15 }
     ]
   }

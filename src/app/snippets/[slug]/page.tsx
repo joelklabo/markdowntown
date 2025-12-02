@@ -15,6 +15,8 @@ type SnippetParams = { slug: string };
 
 const findSnippetBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "snippet");
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: { params: Promise<SnippetParams> }): Promise<Metadata> {
   const { slug } = await params;
   const sample = findSnippetBySlug(slug);
@@ -33,8 +35,6 @@ export async function generateMetadata({ params }: { params: Promise<SnippetPara
   }
   return { title: "Snippet not found" };
 }
-
-export const dynamic = "force-dynamic";
 
 function toSampleCard(item: PublicItem | { id: string; slug?: string | null; title: string; description: string; tags: string[]; stats: { views: number; copies: number; votes: number }; type: "snippet" | "template" | "file" }) {
   return {

@@ -15,6 +15,8 @@ type TemplateParams = { slug: string };
 
 const findTemplateBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "template");
 
+export const revalidate = 300;
+
 type TemplateView = {
   id: string;
   slug?: string;
@@ -25,8 +27,6 @@ type TemplateView = {
   stats: { views: number; copies: number; votes: number };
   badge?: string;
 };
-
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

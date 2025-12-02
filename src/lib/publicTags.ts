@@ -1,8 +1,12 @@
 import { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 import { normalizeTags } from "./tags";
+import { cacheTags } from "./cacheTags";
 
 export type PublicTag = { tag: string; count: number };
+
+const isTestEnv = process.env.NODE_ENV === "test";
 
 async function queryTags(limit: number, windowDays?: number | null): Promise<PublicTag[]> {
   const whereWindow = windowDays
@@ -46,10 +50,22 @@ async function queryTags(limit: number, windowDays?: number | null): Promise<Pub
 }
 
 export async function listTopTags(limit = 50, windowDays?: number | null) {
-  return queryTags(limit, windowDays);
+  if (isTestEnv) return queryTags(limit, windowDays);
+  const cached = unstable_cache(
+    (l: number, window: number | null | undefined) => queryTags(l, window),
+    ["public-tags"],
+    { revalidate: 300, tags: [cacheTags.tags, cacheTags.landing] }
+  );
+  return cached(limit, windowDays);
 }
 
 export async function listSpotlightTags(limit = 20) {
   // Spotlight favors recent activity (7d)
-  return queryTags(limit, 7);
+  if (isTestEnv) return queryTags(limit, 7);
+  const cached = unstable_cache(
+    (l: number) => queryTags(l, 7),
+    ["public-tags-spotlight"],
+    { revalidate: 300, tags: [cacheTags.tags, cacheTags.landing] }
+  );
+  return cached(limit);
 }

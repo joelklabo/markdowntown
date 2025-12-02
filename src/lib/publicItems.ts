@@ -2,6 +2,10 @@ import { normalizeTags } from "./tags";
 import { sectionsRepo } from "@/services/sections";
 import { templatesRepo } from "@/services/templates";
 import { documentsRepo } from "@/services/documents";
+import { unstable_cache } from "next/cache";
+import { cacheTags, type PublicListType } from "./cacheTags";
+
+const isTestEnv = process.env.NODE_ENV === "test";
 
 export type PublicItemType = "snippet" | "template" | "file";
 
@@ -57,7 +61,7 @@ function toItem<T extends { createdAt: Date }>(
   };
 }
 
-export async function listPublicItems(input: ListPublicItemsInput = {}): Promise<PublicItem[]> {
+async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<PublicItem[]> {
   const { limit = 30, tags = [], type = "all", sort = "recent", search = null } = input;
   const normalizedTags = normalizeInputTags(tags);
   const wantSnippets = type === "all" || type === "snippet";
@@ -136,4 +140,27 @@ export async function listPublicItems(input: ListPublicItemsInput = {}): Promise
   });
 
   return sorted.slice(0, limit);
+}
+
+const listCache = new Map<PublicListType, ReturnType<typeof unstable_cache>>();
+
+function getListCache(type: PublicListType) {
+  if (!listCache.has(type)) {
+    listCache.set(
+      type,
+      unstable_cache(
+        async (input: ListPublicItemsInput = {}) => listPublicItemsRaw({ ...input, type }),
+        ["public-items", type],
+        { revalidate: 60, tags: [cacheTags.list("all"), cacheTags.list(type), cacheTags.landing] }
+      )
+    );
+  }
+  return listCache.get(type)!;
+}
+
+export async function listPublicItems(input: ListPublicItemsInput = {}): Promise<PublicItem[]> {
+  const type = (input.type ?? "all") as PublicListType;
+  if (isTestEnv) return listPublicItemsRaw({ ...input, type });
+  const cached = getListCache(type);
+  return cached(input);
 }

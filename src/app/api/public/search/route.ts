@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { listPublicItems, type PublicItemType } from "@/lib/publicItems";
+import { cacheHeaders } from "@/config/cache";
 
 function parseType(input: string | null): PublicItemType | "all" {
   if (input === "snippet" || input === "template" || input === "file") return input;
@@ -14,6 +15,7 @@ function parseSort(input: string | null): "recent" | "views" | "copies" {
 }
 
 export async function GET(request: Request) {
+  const start = performance.now();
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
   const tags = url.searchParams.getAll("tag");
@@ -30,7 +32,11 @@ export async function GET(request: Request) {
       search: q,
     });
 
-    return NextResponse.json({ items });
+    const headers = new Headers(cacheHeaders("browse", request.headers.get("cookie")));
+    headers.set("Server-Timing", `app;dur=${(performance.now() - start).toFixed(1)}`);
+    headers.set("x-cache-profile", "browse");
+
+    return NextResponse.json({ items }, { headers });
   } catch (err) {
     console.error("public search failed", err);
     return NextResponse.json({ items: [] }, { status: 500 });

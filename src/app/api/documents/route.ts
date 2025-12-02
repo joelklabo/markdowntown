@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { normalizeTags } from "@/lib/tags";
+import { safeRevalidateTag } from "@/lib/revalidate";
+import { cacheTags } from "@/lib/cacheTags";
 
 export async function GET() {
   const session = await auth();
@@ -45,6 +47,12 @@ export async function POST(request: Request) {
       slug,
     },
   });
+
+  safeRevalidateTag(cacheTags.list("all"));
+  safeRevalidateTag(cacheTags.list("file"));
+  safeRevalidateTag(cacheTags.tags);
+  safeRevalidateTag(cacheTags.detail("file", doc.slug));
+  safeRevalidateTag(cacheTags.landing);
 
   return NextResponse.json(doc, { status: 201 });
 }

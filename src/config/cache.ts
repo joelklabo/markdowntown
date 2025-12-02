@@ -10,9 +10,22 @@ export const cacheProfiles: Record<string, CacheProfile> = {
   og: { sMaxAge: 3600, staleWhileRevalidate: 3600 },
 };
 
-export function cacheHeaders(profile: keyof typeof cacheProfiles) {
+function hasSessionCookie(cookieHeader?: string | null) {
+  if (!cookieHeader) return false;
+  return /next-auth\.session-token|__Secure-next-auth\.session-token|next-auth\.callback-url/.test(cookieHeader);
+}
+
+export function cacheHeaders(profile: keyof typeof cacheProfiles, cookieHeader?: string | null) {
+  if (hasSessionCookie(cookieHeader)) {
+    return {
+      "Cache-Control": "private, no-store",
+      Vary: "Cookie",
+    } as const;
+  }
   const cfg = cacheProfiles[profile];
   return {
     "Cache-Control": `public, s-maxage=${cfg.sMaxAge}, stale-while-revalidate=${cfg.staleWhileRevalidate}`,
+    "CDN-Cache-Control": `public, s-maxage=${cfg.sMaxAge}, stale-while-revalidate=${cfg.staleWhileRevalidate}`,
+    Vary: "Cookie",
   } as const;
 }

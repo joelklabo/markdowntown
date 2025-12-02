@@ -14,17 +14,29 @@ export type SectionRecord = {
 };
 
 export interface SectionsRepo {
-  listPublic(limit?: number): Promise<SectionRecord[]>;
+  listPublic(input?: {
+    tags?: string[];
+    search?: string | null;
+    limit?: number;
+  }): Promise<SectionRecord[]>;
   findByIdOrSlug(idOrSlug: string): Promise<SectionRecord | null>;
 }
 
 class PrismaSectionsRepo implements SectionsRepo {
-  async listPublic(limit = 24): Promise<SectionRecord[]> {
+  async listPublic(input: { tags?: string[]; search?: string | null; limit?: number } = {}): Promise<SectionRecord[]> {
+    const { tags = [], search = null, limit = 60 } = input;
+    const where: NonNullable<Parameters<typeof prisma.snippet.findMany>[0]>["where"] = {
+      visibility: "PUBLIC",
+    };
+    if (tags.length) where.tags = { hasEvery: tags };
+    if (search) where.title = { contains: search, mode: "insensitive" };
+
     const rows = await prisma.snippet.findMany({
-      where: { visibility: "PUBLIC" },
+      where,
       orderBy: { updatedAt: "desc" },
       take: limit,
     });
+
     return rows.map((r) => ({ ...r, tags: normalizeTags(r.tags, { strict: false }).tags }));
   }
 

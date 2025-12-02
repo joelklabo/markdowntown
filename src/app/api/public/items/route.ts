@@ -6,6 +6,7 @@ import { cacheHeaders } from "@/config/cache";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  const start = performance.now();
   const url = new URL(request.url);
   const limit = Number(url.searchParams.get("limit") ?? "30");
   const sort = (url.searchParams.get("sort") ?? "recent") as "recent" | "views" | "copies";
@@ -25,5 +26,9 @@ export async function GET(request: Request) {
     tags,
   });
 
-  return NextResponse.json(items, { headers: cacheHeaders("browse") });
+  const headers = new Headers(cacheHeaders("browse", request.headers.get("cookie")));
+  headers.set("Server-Timing", `app;dur=${(performance.now() - start).toFixed(1)}`);
+  headers.set("x-cache-profile", "browse");
+
+  return NextResponse.json(items, { headers });
 }

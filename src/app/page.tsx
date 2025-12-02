@@ -1,6 +1,6 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { getSession } from "@/lib/auth";
-import { SectionComposer } from "@/components/SectionComposer";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
@@ -8,6 +8,18 @@ import { LibraryCard } from "@/components/LibraryCard";
 import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
 import { listTopTags } from "@/lib/publicTags";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
+
+const SectionComposerLazy = dynamic(
+  () => import("@/components/SectionComposer").then((m) => m.SectionComposer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-2xl border border-mdt-border bg-white p-6 text-sm text-mdt-muted shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+        Loading composer…
+      </div>
+    ),
+  }
+);
 
 export default async function Home() {
   const session = await getSession();
@@ -294,7 +306,7 @@ export default async function Home() {
 
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8">
         {user ? (
-          <SectionComposer />
+          <SectionComposerLazy />
         ) : (
           <div className="mx-auto max-w-2xl rounded-mdt-lg border border-dashed border-mdt-border bg-white p-10 text-center shadow-mdt-sm space-y-4 dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
             <h2 className="text-h2 font-semibold text-mdt-text">Start building now</h2>
