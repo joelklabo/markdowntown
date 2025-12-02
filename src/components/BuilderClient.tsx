@@ -8,6 +8,7 @@ import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { Pill } from "./ui/Pill";
 import { cn } from "@/lib/cn";
+import { BuilderStatus } from "./BuilderStatus";
 
 type Template = { id: string; title: string; description?: string; body: string; tags: string[] };
 type Snippet = { id: string; title: string; content: string; tags: string[] };
@@ -196,7 +197,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
   }
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 pb-24 pt-6 space-y-6">
+    <main id="main-content" className="mx-auto max-w-6xl px-4 pb-32 pt-6 space-y-6">
       <div className="sticky top-16 z-10 rounded-xl border border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm backdrop-blur-md dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
@@ -479,6 +480,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           )}
         </Card>
       </div>
+      <BuilderStatus />
     </main>
   );
 }
