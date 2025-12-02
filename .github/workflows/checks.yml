@@ -54,6 +54,11 @@ jobs:
           GITHUB_CLIENT_SECRET: "ci-placeholder"
         run: pnpm build
 
+      - name: Bundle size budget
+        env:
+          BUNDLE_BUDGET_BYTES: 900000
+        run: pnpm bundle:check
+
       - name: Coverage
         run: pnpm test:coverage
 
