@@ -16,12 +16,18 @@ export function DrawerOverlay(props: React.ComponentPropsWithoutRef<typeof Dialo
   );
 }
 
-export function DrawerContent({ className, children, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
+export function DrawerContent({
+  className,
+  children,
+  "aria-describedby": ariaDescribedBy,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
       <DrawerOverlay />
       <DialogPrimitive.Content
         {...props}
+        aria-describedby={ariaDescribedBy ?? undefined}
         className={cn(
           "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-mdt-border bg-mdt-surface shadow-[var(--mdt-shadow-md)]",
           "data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right",
