@@ -15,17 +15,18 @@ export function hasSessionCookie(cookieHeader?: string | null) {
   return /next-auth\.session-token|__Secure-next-auth\.session-token|next-auth\.callback-url/.test(cookieHeader);
 }
 
-export function cacheHeaders(profile: keyof typeof cacheProfiles, cookieHeader?: string | null) {
+export function cacheHeaders(profile: keyof typeof cacheProfiles, cookieHeader?: string | null): Record<string, string> {
   if (hasSessionCookie(cookieHeader)) {
     return {
       "Cache-Control": "private, no-store",
       Vary: "Cookie",
-    } as const;
+    };
   }
   const cfg = cacheProfiles[profile];
+  const cdnValue = `public, s-maxage=${cfg.sMaxAge}, stale-while-revalidate=${cfg.staleWhileRevalidate}`;
   return {
-    "Cache-Control": `public, s-maxage=${cfg.sMaxAge}, stale-while-revalidate=${cfg.staleWhileRevalidate}`,
-    "CDN-Cache-Control": `public, s-maxage=${cfg.sMaxAge}, stale-while-revalidate=${cfg.staleWhileRevalidate}`,
+    "Cache-Control": cdnValue,
+    "CDN-Cache-Control": cdnValue,
     Vary: "Cookie",
-  } as const;
+  };
 }

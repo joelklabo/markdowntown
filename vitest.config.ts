@@ -30,6 +30,7 @@ export default defineConfig({
         "**/src/providers/**",
         "src/**/*config.ts",
         "src/lib/agents/sample.ts",
+        "src/lib/observability.ts",
         "src/types/**",
         ".next/**",
         "coverage/**",

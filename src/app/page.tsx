@@ -12,7 +12,6 @@ import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 const SectionComposerLazy = dynamic(
   () => import("@/components/SectionComposer").then((m) => m.SectionComposer),
   {
-    ssr: false,
     loading: () => (
       <div className="rounded-2xl border border-mdt-border bg-white p-6 text-sm text-mdt-muted shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
         Loading composer…

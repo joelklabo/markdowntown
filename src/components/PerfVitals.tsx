@@ -8,8 +8,6 @@ type MetricPayload = Record<string, unknown>;
 declare global {
   interface Window {
     posthog?: { capture: (event: string, payload: MetricPayload) => void };
-    requestIdleCallback?: (cb: () => void) => number;
-    cancelIdleCallback?: (id: number) => void;
   }
 }
 

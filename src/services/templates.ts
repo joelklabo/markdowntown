@@ -6,11 +6,15 @@ export type TemplateRecord = {
   slug: string;
   title: string;
   description: string | null;
+  body: string;
+  fields: unknown;
   tags: string[];
   views: number;
   copies: number;
-  uses: number | null;
+  downloads: number;
+  uses: number;
   createdAt: Date;
+  updatedAt: Date;
   visibility: "PUBLIC" | "UNLISTED" | "PRIVATE";
 };
 
@@ -39,11 +43,15 @@ class PrismaTemplatesRepo implements TemplatesRepo {
         slug: true,
         title: true,
         description: true,
+        body: true,
+        fields: true,
         tags: true,
         views: true,
         copies: true,
+        downloads: true,
         uses: true,
         createdAt: true,
+        updatedAt: true,
         visibility: true,
       },
       take: limit,

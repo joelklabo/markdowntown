@@ -15,7 +15,7 @@
     "format:styles": "prettier src/app/globals.css --write",
     "docs:openapi": "node scripts/validate-openapi.js",
     "analyze": "ANALYZE=true pnpm exec next build --webpack",
-    "bundle:check": "node scripts/check-bundle-size.cjs",
+    "bundle:check": "node scripts/check-bundle-size.mjs",
     "prepare": "husky"
   },
   "dependencies": {
