@@ -1,19 +1,21 @@
 # YOUR JOB:
 
-1. Ask `bd ready` what to do
-2. Mark the issue `in_progress`
-3. Work on it
-4. Check your work, run tests
-5. Mark it as 'done'
-6. Create new issues or epics for any necessary work, or improvements, you came across in your work.
-7. Commit
-8. Push
-9. GO BACK TO 1!
+1. Ask `bd ready` what to do.
+2. Before starting, set yourself on the issue (`bd update <id> --status in_progress`).
+3. Work on it.
+4. Check your work, run tests.
+5. Mark it as 'done'.
+6. If you stop before done, reset to `open` (`bd update <id> --status open`) to avoid stale in-progress.
+7. Create new issues/epics for any necessary work or improvements found.
+8. Commit.
+9. Push.
+10. GO BACK TO 1!
 
 # IMPORTANT:
 
 - NEVER ask which issue you should pick next, use your best judgement and pick one.
 - ALWAYS create new issues/epics if you come across something in the course of your work that should be fixed or improved.
+- NEVER leave an issue marked `in_progress` if you are stopping work. Reset it to `open` before you leave.
 - NEVER give me a summary, or a status report. Just do "Your Job" (See above)
 
 # NOTE:
