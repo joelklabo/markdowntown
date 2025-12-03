@@ -45,7 +45,8 @@ async function crawlPage(pagePath) {
   const errors = [];
   page.on("pageerror", (err) => errors.push(err.message));
   try {
-    await page.goto(url, { waitUntil: "networkidle", timeout: PER_PAGE_TIMEOUT });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: PER_PAGE_TIMEOUT });
+    await page.waitForTimeout(500); // allow post-DCL hydration
     const raw = [...(await page.$$("a[href]")), ...(await page.$$("button"))];
     const controls = [];
     for (const el of raw) {
