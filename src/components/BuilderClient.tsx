@@ -9,6 +9,7 @@ import { Button } from "./ui/Button";
 import { Pill } from "./ui/Pill";
 import { cn } from "@/lib/cn";
 import { BuilderStatus } from "./BuilderStatus";
+import { useBuilderStore } from "@/hooks/useBuilderStore";
 
 type Template = { id: string; title: string; description?: string; body: string; tags: string[] };
 type Snippet = { id: string; title: string; content: string; tags: string[] };
@@ -27,32 +28,28 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(
+  const initialTemplate =
     preselectedTemplate && templates.some((t) => t.id === preselectedTemplate)
       ? preselectedTemplate
-      : templates[0]?.id ?? null
-  );
-  const [selectedSnippets, setSelectedSnippets] = useState<string[]>(() => {
-    const valid = preselectedSnippets.filter((id) => snippets.some((s) => s.id === id));
-    return valid.length ? valid : [];
-  });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+      : templates[0]?.id ?? null;
+  const initialSnippetIds = preselectedSnippets.filter((id) => snippets.some((s) => s.id === id));
 
-  const rendered = useMemo(() => {
-    const parts: string[] = [];
-    const template = templates.find((t) => t.id === selectedTemplate);
-    if (template) {
-      parts.push(`# ${template.title}\n\n${template.body || template.description || ""}`.trim());
-    }
-    selectedSnippets.forEach((id) => {
-      const snip = snippets.find((s) => s.id === id);
-      if (snip) {
-        parts.push(`## ${snip.title}\n\n${snip.content}`.trim());
-      }
-    });
-    return parts.join("\n\n");
-  }, [selectedTemplate, selectedSnippets, templates, snippets]);
+  const {
+    selectedTemplate,
+    setSelectedTemplate,
+    selectedSnippets,
+    toggleSnippet,
+    moveSnippet,
+    overrides,
+    setOverride,
+    rendered,
+    loading: previewLoading,
+    error,
+    hasPrivateContent,
+  } = useBuilderStore({ initialTemplateId: initialTemplate, initialSnippetIds });
+
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Outline parsing
   type OutlineNode = { id: string; title: string; level: number; line: number };
@@ -164,7 +161,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     const title = prompt("Name this agents.md", "My agents.md");
     if (!title) return;
     setSaving(true);
-    setError(null);
+    setSaveError(null);
     const res = await fetch("/api/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -178,7 +175,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Save failed");
+      setSaveError(data.error ?? "Save failed");
       setSaving(false);
       return;
     }
@@ -297,53 +294,65 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             {snippets.map((snip) => {
               const active = selectedSnippets.includes(snip.id);
               return (
-                <div key={snip.id} className="flex items-start gap-2">
-                  <button
-                    data-testid="builder-snippet"
-                    onClick={() => toggleSnippet(snip.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        moveSnippet(snip.id, -1);
-                      }
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        moveSnippet(snip.id, 1);
-                      }
-                    }}
-                    className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-                      active
-                        ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
-                        : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">{snip.title}</span>
-                      <Pill tone="gray">{snip.tags[0]}</Pill>
-                    </div>
-                    <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark line-clamp-2">{snip.content}</p>
-                  </button>
+                <div key={snip.id} className="flex flex-col gap-2 rounded-md border border-transparent p-1">
+                  <div className="flex items-start gap-2">
+                    <button
+                      data-testid="builder-snippet"
+                      onClick={() => toggleSnippet(snip.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          moveSnippet(snip.id, -1);
+                        }
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          moveSnippet(snip.id, 1);
+                        }
+                      }}
+                      className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                        active
+                          ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
+                          : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">{snip.title}</span>
+                        <Pill tone="gray">{snip.tags[0]}</Pill>
+                      </div>
+                      <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark line-clamp-2">{snip.content}</p>
+                    </button>
+                    {active && (
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveSnippet(snip.id, -1)}
+                          aria-label="Move up"
+                          disabled={selectedSnippets.indexOf(snip.id) === 0}
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveSnippet(snip.id, 1)}
+                          aria-label="Move down"
+                          disabled={selectedSnippets.indexOf(snip.id) === selectedSnippets.length - 1}
+                        >
+                          ↓
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                   {active && (
-                    <div className="flex flex-col gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => moveSnippet(snip.id, -1)}
-                        aria-label="Move up"
-                        disabled={selectedSnippets.indexOf(snip.id) === 0}
-                      >
-                        ↑
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => moveSnippet(snip.id, 1)}
-                        aria-label="Move down"
-                        disabled={selectedSnippets.indexOf(snip.id) === selectedSnippets.length - 1}
-                      >
-                        ↓
-                      </Button>
-                    </div>
+                    <textarea
+                      value={overrides[snip.id] ?? ""}
+                      onChange={(e) => setOverride(snip.id, e.target.value)}
+                      placeholder="Override this snippet (optional)"
+                      className="w-full rounded-md border border-mdt-border px-2 py-2 text-xs font-mono text-mdt-text shadow-sm focus:border-mdt-info focus:outline-none focus-visible:ring-1 focus-visible:ring-mdt-info dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+                      rows={2}
+                      aria-label={`Override content for ${snip.title}`}
+                    />
                   )}
                 </div>
               );
@@ -352,18 +361,25 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
         </Card>
 
         <Card className="flex flex-col gap-3" data-step-anchor="preview">
-          <div className="flex items-center justify-between">
-            <h3 className="text-h3">Preview</h3>
-            <div className="flex gap-2">
-              <Button variant="secondary" size="sm" onClick={copyMarkdown} disabled={!rendered}>
-                Copy
-              </Button>
-              <Button size="sm" onClick={saveDocument} disabled={!rendered || saving}>
-                {saving ? "Saving…" : "Save"}
-              </Button>
-            </div>
+        <div className="flex items-center justify-between">
+          <h3 className="text-h3">Preview</h3>
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" onClick={copyMarkdown} disabled={!rendered}>
+              Copy
+            </Button>
+            <Button size="sm" onClick={saveDocument} disabled={!rendered || saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+        </div>
+        {error && <p className="text-sm text-red-600">Preview error: {error}</p>}
+        {saveError && <p className="text-sm text-red-600">Save error: {saveError}</p>}
+        {hasPrivateContent && (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1">
+            Private snippets detected — export is fine but sharing may leak private content.
+          </p>
+        )}
+        {previewLoading && <p className="text-xs text-mdt-muted">Refreshing preview…</p>}
           <div
             ref={previewRef}
             className="rounded-lg border border-mdt-border bg-mdt-surface p-4 font-mono text-sm min-h-[300px] space-y-2"
