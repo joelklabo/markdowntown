@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 import React from "react";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium transition duration-mdt-fast ease-mdt-emphasized border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]";
+  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium transition duration-mdt-fast ease-mdt-emphasized border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] disabled:opacity-60 disabled:cursor-not-allowed";
 
 const buttonVariants = cva(base, {
   variants: {
