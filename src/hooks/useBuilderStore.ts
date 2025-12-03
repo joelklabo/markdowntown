@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { track } from "@/lib/analytics";
 
 type BuilderStoreArgs = {
   initialTemplateId: string | null;
@@ -42,9 +43,19 @@ export function useBuilderStore({ initialTemplateId, initialSnippetIds }: Builde
         setRendered(typeof data.rendered === "string" ? data.rendered : "");
         setHasPrivateContent(Boolean(data.hasPrivateContent));
         setError(null);
+        track("builder_preview_success", {
+          templateId: selectedTemplate,
+          snippetCount: selectedSnippets.length,
+          hasPrivateContent: Boolean(data.hasPrivateContent),
+        });
       } catch (err) {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : "Preview failed");
+        track("builder_preview_error", {
+          templateId: selectedTemplate,
+          snippetCount: selectedSnippets.length,
+          message: err instanceof Error ? err.message : "unknown",
+        });
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -59,6 +70,11 @@ export function useBuilderStore({ initialTemplateId, initialSnippetIds }: Builde
   const toggleSnippet = useCallback((id: string) => {
     setSelectedSnippets((prev) => {
       const next = prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id];
+      track(prev.includes(id) ? "builder_snippet_removed" : "builder_snippet_added", {
+        snippetId: id,
+        position: next.indexOf(id),
+        total: next.length,
+      });
       setOverrides((curr) => {
         if (next.includes(id)) return curr;
         const copy = { ...curr };
@@ -77,12 +93,25 @@ export function useBuilderStore({ initialTemplateId, initialSnippetIds }: Builde
       if (target < 0 || target >= prev.length) return prev;
       const next = [...prev];
       [next[idx], next[target]] = [next[target], next[idx]];
+       track("builder_snippet_reordered", { snippetId: id, from: idx, to: target });
       return next;
     });
   }, []);
 
   const setOverride = useCallback((id: string, value: string) => {
     setOverrides((prev) => ({ ...prev, [id]: value }));
+    track("builder_override_changed", { snippetId: id, hasValue: Boolean(value.trim()) });
+  }, []);
+
+  const reorderSnippets = useCallback((from: number, to: number) => {
+    setSelectedSnippets((prev) => {
+      if (from < 0 || to < 0 || from >= prev.length || to >= prev.length || from === to) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      track("builder_snippet_reordered", { snippetId: moved, from, to });
+      return next;
+    });
   }, []);
 
   return {
@@ -91,6 +120,7 @@ export function useBuilderStore({ initialTemplateId, initialSnippetIds }: Builde
     selectedSnippets,
     toggleSnippet,
     moveSnippet,
+    reorderSnippets,
     overrides,
     setOverride,
     rendered,

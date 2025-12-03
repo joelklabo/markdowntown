@@ -10,6 +10,7 @@ import { Pill } from "./ui/Pill";
 import { cn } from "@/lib/cn";
 import { BuilderStatus } from "./BuilderStatus";
 import { useBuilderStore } from "@/hooks/useBuilderStore";
+import { track } from "@/lib/analytics";
 
 type Template = { id: string; title: string; description?: string; body: string; tags: string[] };
 type Snippet = { id: string; title: string; content: string; tags: string[] };
@@ -40,6 +41,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     selectedSnippets,
     toggleSnippet,
     moveSnippet,
+    reorderSnippets,
     overrides,
     setOverride,
     rendered,
@@ -110,6 +112,16 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     });
   }
 
+  useEffect(() => {
+    track("builder_load", {
+      templateId: selectedTemplate,
+      snippetCount: selectedSnippets.length,
+      preselected: Boolean(preselectedTemplate || preselectedSnippets.length),
+    });
+    // fire once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function jumpTo(id: string) {
     const el = document.getElementById(id);
     if (el) {
@@ -118,39 +130,19 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     }
   }
 
-  function toggleSnippet(id: string) {
-    setSelectedSnippets((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  }
-
-  function moveSnippet(id: string, dir: -1 | 1) {
-    setSelectedSnippets((prev) => {
-      const idx = prev.indexOf(id);
-      if (idx === -1) return prev;
-      const next = [...prev];
-      const target = idx + dir;
-      if (target < 0 || target >= next.length) return prev;
-      [next[idx], next[target]] = [next[target], next[idx]];
-      return next;
-    });
-  }
-
   function handleOutlineDragEnd(result: DropResult) {
     setDraggingOutline(false);
     if (!result.destination) return;
     const from = result.source.index;
     const to = result.destination.index;
     if (from === to) return;
-    setSelectedSnippets((prev) => {
-      const items = [...prev];
-      const [moved] = items.splice(from, 1);
-      items.splice(to, 0, moved);
-      return items;
-    });
+    reorderSnippets(from, to);
   }
 
   async function copyMarkdown() {
     if (!rendered) return;
     await navigator.clipboard.writeText(rendered);
+    track("builder_copy", { templateId: selectedTemplate, snippetCount: selectedSnippets.length });
   }
 
   function downloadMarkdown() {
@@ -162,6 +154,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     a.download = `${(selectedTemplate && templates.find((t) => t.id === selectedTemplate)?.title) || "agents"}.md`;
     a.click();
     URL.revokeObjectURL(url);
+    track("builder_download", { templateId: selectedTemplate, snippetCount: selectedSnippets.length });
   }
 
   async function saveDocument() {
@@ -188,10 +181,20 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
       const data = await res.json().catch(() => ({}));
       setSaveError(data.error ?? "Save failed");
       setSaving(false);
+      track("builder_save_failed", {
+        status: res.status,
+        templateId: selectedTemplate,
+        snippetCount: selectedSnippets.length,
+      });
       return;
     }
     const doc = await res.json();
     setSaving(false);
+    track("builder_save_success", {
+      documentId: doc.id,
+      templateId: selectedTemplate,
+      snippetCount: selectedSnippets.length,
+    });
     window.location.href = `/documents/${doc.id}`;
   }
 
