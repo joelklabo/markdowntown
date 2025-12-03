@@ -69,9 +69,11 @@ export async function POST(req: Request) {
 
   const rendered = parts.join("\n\n");
 
+  const isRestricted = (item: { visibility: Visibility }) =>
+    item.visibility === Visibility.PRIVATE || item.visibility === Visibility.UNLISTED;
+
   const hasPrivateContent = Boolean(
-    (template && template.visibility === Visibility.PRIVATE && template.userId === userId) ||
-      orderedSnippets.some((s) => s.visibility === Visibility.PRIVATE && s.userId === userId)
+    (template && isRestricted(template)) || orderedSnippets.some((s) => isRestricted(s))
   );
 
   const missingSnippetIds = snippetIds.filter((id) => !snippets.find((s) => s.id === id));

@@ -398,7 +398,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
         {saveError && <p className="text-sm text-red-600">Save error: {saveError}</p>}
         {hasPrivateContent && (
           <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1">
-            Private snippets detected — export is fine but sharing may leak private content.
+            Private or unlisted snippets detected — export is fine but sharing may leak non-public content.
           </p>
         )}
         {previewLoading && <p className="text-xs text-mdt-muted">Refreshing preview…</p>}
