@@ -127,6 +127,28 @@
   --space-12: 48px;
 }
 
+/* Data viz palette */
+:root {
+  --mdt-data-1: hsl(198 85% 52%);
+  --mdt-data-2: hsl(258 82% 66%);
+  --mdt-data-3: hsl(157 57% 46%);
+  --mdt-data-4: hsl(38 92% 50%);
+  --mdt-data-5: hsl(349 74% 52%);
+  --mdt-data-6: hsl(210 90% 55%);
+  --mdt-data-7: hsl(280 60% 58%);
+  --mdt-data-8: hsl(120 55% 42%);
+}
+.dark {
+  --mdt-data-1: hsl(198 86% 62%);
+  --mdt-data-2: hsl(258 85% 72%);
+  --mdt-data-3: hsl(157 58% 56%);
+  --mdt-data-4: hsl(38 95% 60%);
+  --mdt-data-5: hsl(349 76% 62%);
+  --mdt-data-6: hsl(210 92% 70%);
+  --mdt-data-7: hsl(280 70% 65%);
+  --mdt-data-8: hsl(120 60% 52%);
+}
+
 @layer base {
   html,
   body {
