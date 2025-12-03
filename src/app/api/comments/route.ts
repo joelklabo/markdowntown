@@ -4,6 +4,7 @@ import { requireSession } from "@/lib/requireSession";
 import { verifyCaptcha } from "@/lib/captcha";
 import { rateLimit } from "@/lib/rateLimiter";
 import { logAbuseSignal } from "@/lib/reports";
+import { sanitizeMarkdown } from "@/lib/sanitizeMarkdown";
 
 const MAX_COMMENT_LENGTH = 800;
 
@@ -53,11 +54,13 @@ export async function POST(req: Request) {
   });
   if (!snippet) return NextResponse.json({ error: "Target not found" }, { status: 404 });
 
+  const sanitized = sanitizeMarkdown(content);
+
   const created = await prisma.comment.create({
     data: {
       targetId,
       targetType,
-      body: content,
+      body: sanitized,
       userId: session.user.id,
     },
   });
