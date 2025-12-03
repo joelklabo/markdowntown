@@ -5,5 +5,13 @@ export function Card({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("card", className)} {...props} />;
+  return (
+    <div
+      className={cn(
+        "card transition duration-mdt-base ease-mdt-emphasized hover:-translate-y-[1px] hover:shadow-mdt-md",
+        className
+      )}
+      {...props}
+    />
+  );
 }
