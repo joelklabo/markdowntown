@@ -53,6 +53,9 @@
   --mdt-motion-slow: 260ms;
   --mdt-motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
   --mdt-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mdt-motion-distance-short: 6px;
+  --mdt-motion-distance-mid: 16px;
+  --mdt-motion-distance-far: 32px;
 
   /* Spacing tokens (4/8 base) */
   --space-1: 4px;
@@ -109,6 +112,9 @@
   --mdt-motion-slow: 260ms;
   --mdt-motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
   --mdt-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mdt-motion-distance-short: 6px;
+  --mdt-motion-distance-mid: 16px;
+  --mdt-motion-distance-far: 32px;
 
   --space-1: 4px;
   --space-2: 8px;
