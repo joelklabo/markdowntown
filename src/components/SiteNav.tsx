@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "./BrandLogo";
 import { Button } from "./ui/Button";
 import { ThemeToggle } from "./ThemeToggle";
+import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
 import { sampleTags } from "@/lib/sampleContent";
 import { track } from "@/lib/analytics";
 
@@ -32,6 +33,13 @@ export function SiteNav({ user }: { user?: User }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const ctaHref = pathname === "/" ? "#templates" : "/templates";
 
+  function openCommandPalette(origin: string) {
+    track("command_palette_entry_click", { origin });
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_OPEN_EVENT, { detail: { origin } }));
+    }
+  }
+
   function persistRecent(term: string) {
     const trimmed = term.trim();
     if (!trimmed) return;
@@ -46,24 +54,38 @@ export function SiteNav({ user }: { user?: User }) {
     });
   }
 
+  function buildBrowseHref(overrides?: Record<string, string | undefined>) {
+    const params = new URLSearchParams();
+    const q = query.trim();
+    if (q) params.set("q", q);
+    Object.entries(overrides ?? {}).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+    });
+    const search = params.toString();
+    return search ? `/browse?${search}` : "/browse";
+  }
+
+  function applyQuickFilter(overrides: Record<string, string>, source: string) {
+    const destination = buildBrowseHref(overrides);
+    const q = query.trim();
+    persistRecent(q);
+    track("nav_search_quick_filter", { source, q: q || undefined, ...overrides });
+    router.push(destination);
+    setShowMobileSearch(false);
+    setShowOverflowSheet(false);
+  }
+
   function onSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = query.trim();
     persistRecent(q);
     track("nav_search_submit", { q });
-    router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
+    router.push(buildBrowseHref());
     setShowMobileSearch(false);
   }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const isMac = /mac/i.test(navigator.userAgent);
-      const cmdK = (isMac && e.metaKey && e.key.toLowerCase() === "k") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "k");
-      if (cmdK) {
-        e.preventDefault();
-        setShowMobileSearch(true);
-        inputRef.current?.focus();
-      }
       if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
         e.preventDefault();
         setShowMobileSearch(true);
@@ -120,16 +142,24 @@ export function SiteNav({ user }: { user?: User }) {
     { label: "Search", icon: "⌘K", type: "search" as const },
   ];
 
+  const quickFilters = [
+    { label: "Trending", params: { sort: "trending" } },
+    { label: "Snippets", params: { type: "snippet" } },
+    { label: "Templates", params: { type: "template" } },
+    { label: "agents.md", params: { type: "file" } },
+  ];
+
   const overflowLinks = [
     { href: "/docs", label: "Docs" },
-    { href: "https://github.com/joelklabo/markdowntown/blob/main/CHANGELOG.md", label: "Changelog", external: true },
+    { href: "/changelog", label: "Changelog" },
     { href: "/privacy", label: "Privacy" },
+    { href: "/terms", label: "Terms" },
     { href: "https://github.com/joelklabo/markdowntown", label: "GitHub", external: true },
   ];
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-mdt-border bg-mdt-surface/90 backdrop-blur-md shadow-mdt-sm">
+      <header className="sticky top-0 z-30 border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]/90 backdrop-blur-lg shadow-mdt-md">
         <div className="mx-auto grid max-w-6xl grid-cols-[auto,1fr,auto] items-center gap-2 px-4 py-3 md:grid-cols-[auto,auto,1fr] md:gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2" aria-label="MarkdownTown home">
@@ -140,6 +170,7 @@ export function SiteNav({ user }: { user?: User }) {
               className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm transition hover:text-mdt-text md:hidden"
               onClick={() => {
                 setShowMobileSearch(true);
+                track("nav_search_open", { source: "mobile_top" });
                 setTimeout(() => inputRef.current?.focus(), 10);
               }}
               aria-label="Search"
@@ -189,6 +220,15 @@ export function SiteNav({ user }: { user?: User }) {
                 Search
               </Button>
             </form>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="hidden whitespace-nowrap md:inline-flex"
+              onClick={() => openCommandPalette("desktop_nav_button")}
+            >
+              Command <span className="text-[11px] text-mdt-muted">⌘K</span>
+            </Button>
             <div className="hidden md:block">
               <ThemeToggle />
             </div>
@@ -329,6 +369,36 @@ export function SiteNav({ user }: { user?: User }) {
               </div>
             </form>
 
+            <div className="mt-3 space-y-2">
+              <p className="text-xs font-semibold text-mdt-muted">Quick filters</p>
+              <div className="flex flex-wrap gap-2">
+                {quickFilters.map((filter) => (
+                  <Button
+                    key={filter.label}
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="rounded-mdt-pill"
+                    onClick={() => applyQuickFilter(filter.params, "mobile_search_filter")}
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-mdt-pill"
+                  onClick={() => {
+                    setShowMobileSearch(false);
+                    openCommandPalette("mobile_search_sheet");
+                  }}
+                >
+                  Command palette
+                </Button>
+              </div>
+            </div>
+
             {(recentSearches.length > 0 || sampleTags.length > 0) && (
               <div className="mt-3 space-y-2">
                 {recentSearches.length > 0 && (
@@ -376,6 +446,32 @@ export function SiteNav({ user }: { user?: User }) {
               >
                 Close
               </button>
+            </div>
+            <div className="mb-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setShowOverflowSheet(false);
+                  openCommandPalette("mobile_overflow");
+                }}
+              >
+                Command palette
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowOverflowSheet(false);
+                  setShowMobileSearch(true);
+                  setTimeout(() => inputRef.current?.focus(), 10);
+                  track("nav_search_open", { source: "overflow" });
+                }}
+              >
+                Search
+              </Button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {overflowLinks.map((link) => (

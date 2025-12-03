@@ -8,6 +8,8 @@ import { cn } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { useTheme } from "@/providers/ThemeProvider";
 
+export const COMMAND_PALETTE_OPEN_EVENT = "mdt:command-palette-open";
+
 type CommandItem = {
   label: string;
   hint?: string;
@@ -25,6 +27,19 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
+
+  useEffect(() => {
+    function handleOpen(event: Event) {
+      const detail = (event as CustomEvent<{ origin?: string }>).detail;
+      setOpen(true);
+      setHighlight(0);
+      setQuery("");
+      track("command_palette_open", { origin: detail?.origin ?? "entry_point" });
+    }
+
+    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpen as EventListener);
+    return () => window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpen as EventListener);
+  }, []);
 
   const commands = useMemo(() => {
     const baseCommands: CommandItem[] = [
@@ -50,7 +65,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         e.preventDefault();
         setOpen(true);
         setHighlight(0);
-        track("command_palette_open");
+        track("command_palette_open", { origin: "keyboard" });
         return;
       }
       if (!open) return;
