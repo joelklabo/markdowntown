@@ -26,6 +26,17 @@ const OUT = process.env.CRAWL_OUT || "/tmp/crawl.jsonl";
 const PER_PAGE_TIMEOUT = Number(process.env.CRAWL_PAGE_TIMEOUT || 60000);
 const MIN_VISIBLE = Number(process.env.CRAWL_MIN_VISIBLE || 1);
 
+async function isClickable(el, page) {
+  const box = await el.boundingBox();
+  if (!box || box.width < MIN_VISIBLE || box.height < MIN_VISIBLE) return false;
+  const visible = await el.isVisible();
+  if (!visible) return false;
+  const vp = page.viewportSize() || { width: 1280, height: 720 };
+  const inViewport = box.x + box.width > 0 && box.y + box.height > 0 && box.x < vp.width && box.y < vp.height;
+  if (!inViewport) return false;
+  return true;
+}
+
 async function crawlPage(pagePath) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -35,12 +46,12 @@ async function crawlPage(pagePath) {
   page.on("pageerror", (err) => errors.push(err.message));
   try {
     await page.goto(url, { waitUntil: "networkidle", timeout: PER_PAGE_TIMEOUT });
-    const controls = [...(await page.$$("a[href]")), ...(await page.$$("button"))]
-      .filter(async (el) => {
-        const box = await el.boundingBox();
-        return box && box.width >= MIN_VISIBLE && box.height >= MIN_VISIBLE;
-      })
-      .slice(0, MAX);
+    const raw = [...(await page.$$("a[href]")), ...(await page.$$("button"))];
+    const controls = [];
+    for (const el of raw) {
+      if (controls.length >= MAX) break;
+      if (await isClickable(el, page)) controls.push(el);
+    }
     for (const el of controls) {
       const tag = await el.evaluate((n) => n.tagName.toLowerCase());
       const label = await el.evaluate((n) => {
@@ -60,11 +71,19 @@ async function crawlPage(pagePath) {
           await page.waitForTimeout(WAIT);
         }
       } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (
+          message.includes("not attached to the DOM") ||
+          message.includes("not visible") ||
+          message.includes("outside of the viewport")
+        ) {
+          continue;
+        }
         results.push({
           page: pagePath,
           control: `${tag}:${label}`,
           href,
-          error: err instanceof Error ? err.message : String(err),
+          error: message,
         });
         if (page.url() !== url) {
           await page.goto(url, { waitUntil: "networkidle", timeout: 10000 }).catch(() => {});
