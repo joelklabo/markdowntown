@@ -153,6 +153,17 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     await navigator.clipboard.writeText(rendered);
   }
 
+  function downloadMarkdown() {
+    if (!rendered) return;
+    const blob = new Blob([rendered], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(selectedTemplate && templates.find((t) => t.id === selectedTemplate)?.title) || "agents"}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function saveDocument() {
     if (requireAuth) {
       window.location.href = "/signin?callbackUrl=/builder";
@@ -367,11 +378,22 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             <Button variant="secondary" size="sm" onClick={copyMarkdown} disabled={!rendered}>
               Copy
             </Button>
+            <Button variant="secondary" size="sm" onClick={downloadMarkdown} disabled={!rendered}>
+              Download
+            </Button>
             <Button size="sm" onClick={saveDocument} disabled={!rendered || saving}>
               {saving ? "Saving…" : "Save"}
             </Button>
           </div>
         </div>
+        {requireAuth && (
+          <div className="flex items-center gap-2 text-xs text-mdt-muted">
+            <span>Sign in to save this document</span>
+            <Button variant="ghost" size="xs" asChild>
+              <Link href="/signin?callbackUrl=/builder">Sign in</Link>
+            </Button>
+          </div>
+        )}
         {error && <p className="text-sm text-red-600">Preview error: {error}</p>}
         {saveError && <p className="text-sm text-red-600">Save error: {saveError}</p>}
         {hasPrivateContent && (
