@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { listPublicItems, type PublicItemType } from "@/lib/publicItems";
 import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 import { withAPM } from "@/lib/observability";
+import { rateLimit } from "@/lib/rateLimiter";
 
 function parseType(input: string | null): PublicItemType | "all" {
   if (input === "snippet" || input === "template" || input === "file") return input;
@@ -17,6 +18,10 @@ function parseSort(input: string | null): "recent" | "views" | "copies" {
 
 export async function GET(request: Request) {
   return withAPM(request, async () => {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!rateLimit(`public-search:${ip}`)) {
+      return NextResponse.json({ items: [], error: "Rate limit exceeded" }, { status: 429 });
+    }
     const start = performance.now();
     const url = new URL(request.url);
     const q = url.searchParams.get("q");

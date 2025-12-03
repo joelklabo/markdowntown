@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { listPublicSections } from "@/lib/publicSections";
 import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 import { withAPM } from "@/lib/observability";
+import { rateLimit } from "@/lib/rateLimiter";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   return withAPM(request, async () => {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!rateLimit(`public-sections:${ip}`)) {
+      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    }
     const start = performance.now();
     const sections = await listPublicSections(50);
     const cookie = request.headers.get("cookie");

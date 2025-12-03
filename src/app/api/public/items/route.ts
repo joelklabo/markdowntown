@@ -3,11 +3,16 @@ import { listPublicItems, type ListPublicItemsInput } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
 import { cacheHeaders, hasSessionCookie } from "@/config/cache";
 import { withAPM } from "@/lib/observability";
+import { rateLimit } from "@/lib/rateLimiter";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   return withAPM(request, async () => {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!rateLimit(`public-items:${ip}`)) {
+      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    }
     const start = performance.now();
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get("limit") ?? "30");
