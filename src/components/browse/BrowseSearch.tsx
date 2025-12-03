@@ -43,6 +43,7 @@ export function BrowseSearch({ initialQuery, baseQueryString, debounceMs = 250 }
       <input
         type="search"
         name="q"
+        id="browse-search-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Search snippets, templates…"

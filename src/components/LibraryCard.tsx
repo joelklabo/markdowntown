@@ -22,6 +22,7 @@ type Handlers = {
   onUseTemplate?: (item: SampleItem) => void;
   onAddToBuilder?: (item: SampleItem) => void;
   onDownloadFile?: (item: SampleItem) => void;
+  onPreview?: (item: SampleItem) => void;
   copied?: boolean;
 };
 
@@ -32,6 +33,7 @@ export function LibraryCard({
   onUseTemplate,
   onAddToBuilder,
   onDownloadFile,
+  onPreview,
   ...rest
 }: { item: SampleItem } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
@@ -130,6 +132,11 @@ export function LibraryCard({
           <span>👍 {item.stats.votes.toLocaleString()} votes</span>
         </div>
         <div className="flex gap-2">
+          {onPreview && (
+            <Button variant="ghost" size="sm" onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
+              Preview
+            </Button>
+          )}
           {renderPrimary()}
           {renderSecondary()}
         </div>
