@@ -24,6 +24,7 @@ const MAX = Number(process.env.CRAWL_MAX || 150);
 const TIMEOUT = Number(process.env.CRAWL_TIMEOUT || 3000);
 const OUT = process.env.CRAWL_OUT || "/tmp/crawl.jsonl";
 const PER_PAGE_TIMEOUT = Number(process.env.CRAWL_PAGE_TIMEOUT || 60000);
+const MIN_VISIBLE = Number(process.env.CRAWL_MIN_VISIBLE || 1);
 
 async function crawlPage(pagePath) {
   const browser = await chromium.launch({ headless: true });
@@ -34,7 +35,12 @@ async function crawlPage(pagePath) {
   page.on("pageerror", (err) => errors.push(err.message));
   try {
     await page.goto(url, { waitUntil: "networkidle", timeout: PER_PAGE_TIMEOUT });
-    const controls = [...(await page.$$("a[href]")), ...(await page.$$("button"))].slice(0, MAX);
+    const controls = [...(await page.$$("a[href]")), ...(await page.$$("button"))]
+      .filter(async (el) => {
+        const box = await el.boundingBox();
+        return box && box.width >= MIN_VISIBLE && box.height >= MIN_VISIBLE;
+      })
+      .slice(0, MAX);
     for (const el of controls) {
       const tag = await el.evaluate((n) => n.tagName.toLowerCase());
       const label = await el.evaluate((n) => {
