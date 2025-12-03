@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import { BuilderStatus } from "./BuilderStatus";
 import { useBuilderStore } from "@/hooks/useBuilderStore";
 import { track } from "@/lib/analytics";
+import { OnboardingChecklist } from "./onboarding/OnboardingChecklist";
 
 type Template = { id: string; title: string; description?: string; body: string; tags: string[] };
 type Snippet = { id: string; title: string; content: string; tags: string[] };
@@ -277,6 +278,16 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 pb-32 pt-6 space-y-6">
+      <OnboardingChecklist
+        onLoadSample={() => {
+          const sample = templates[0];
+          const sampleSnips = snippets.slice(0, 3);
+          if (sample) setSelectedTemplate(sample.id);
+          sampleSnips.forEach((s) => toggleSnippet(s.id));
+          showToast("Loaded sample project", "success");
+          track("onboarding_sample_load", { templateId: sample?.id, snippetCount: sampleSnips.length });
+        }}
+      />
       {toast && (
         <div
           role="status"
