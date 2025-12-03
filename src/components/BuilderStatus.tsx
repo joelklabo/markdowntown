@@ -8,7 +8,9 @@ type PerfSample = {
   cache: string | null;
 };
 
-export function BuilderStatus() {
+type SaveState = "idle" | "dirty" | "saving" | "saved";
+
+export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState }) {
   const [perf, setPerf] = useState<PerfSample>({ nav: null, cache: null });
   const [bundleOk, setBundleOk] = useState(true);
 
@@ -25,8 +27,15 @@ export function BuilderStatus() {
     });
   }, []);
 
+  const saveLabel = (() => {
+    if (saveState === "saving") return "Saving…";
+    if (saveState === "dirty") return "Unsaved changes";
+    if (saveState === "saved") return "Saved";
+    return "Idle";
+  })();
+
   return (
-    <div className="sticky bottom-0 z-20 mt-6 flex items-center justify-between rounded-mdt-md border border-mdt-border bg-mdt-surface px-4 py-2 text-sm text-mdt-muted shadow-mdt-sm">
+    <div className="sticky bottom-0 z-20 mt-6 flex items-center justify-between gap-4 rounded-mdt-md border border-mdt-border bg-mdt-surface px-4 py-2 text-sm text-mdt-muted shadow-mdt-sm">
       <div className="flex items-center gap-3">
         <Dot ok={bundleOk} />
         <span>{bundleOk ? "Bundle within budget" : "Bundle size warning"}</span>
@@ -38,8 +47,13 @@ export function BuilderStatus() {
           <Dot ok={perf.cache !== "bypass"} />
           Cache {perf.cache ?? "n/a"}
         </span>
+        <Divider />
+        <span className="flex items-center gap-1">
+          <Dot ok={saveState !== "dirty"} />
+          {saveLabel}
+        </span>
       </div>
-      <span className="text-caption text-mdt-muted">live perf · cache intent · bundle</span>
+      <span className="text-caption text-mdt-muted">live perf · cache intent · save state</span>
     </div>
   );
 }

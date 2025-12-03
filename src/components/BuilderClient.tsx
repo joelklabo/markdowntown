@@ -52,6 +52,18 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "dirty" | "saving" | "saved">("idle");
+  const [toast, setToast] = useState<{ message: string; tone?: "info" | "success" | "error" } | null>(null);
+  const toastTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const prefersReducedMotion =
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+  function showToast(message: string, tone: "info" | "success" | "error" = "info") {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ message, tone });
+    toastTimer.current = setTimeout(() => setToast(null), 2400);
+  }
 
   // Outline parsing
   type OutlineNode = { id: string; title: string; level: number; line: number };
@@ -76,6 +88,54 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     const id = requestAnimationFrame(() => setCollapsed(new Set()));
     return () => cancelAnimationFrame(id);
   }, [rendered]);
+
+  // autosave to localStorage
+  useEffect(() => {
+    if (!selectedTemplate && selectedSnippets.length === 0 && Object.keys(overrides).length === 0) return;
+    setSaveState("dirty");
+    const timer = setTimeout(() => {
+      try {
+        const payload = {
+          selectedTemplate,
+          selectedSnippets,
+          overrides,
+          rendered,
+          ts: Date.now(),
+        };
+        localStorage.setItem("mdt_builder_autosave", JSON.stringify(payload));
+        setSaveState("saved");
+      } catch {
+        /* ignore */
+      }
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [selectedTemplate, selectedSnippets, overrides, rendered]);
+
+  // hydrate from autosave
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("mdt_builder_autosave");
+      if (!stored) return;
+      const parsed = JSON.parse(stored) as {
+        selectedTemplate?: string | null;
+        selectedSnippets?: string[];
+        overrides?: Record<string, string>;
+        ts?: number;
+      };
+      if (parsed.selectedTemplate) setSelectedTemplate(parsed.selectedTemplate);
+      if (parsed.selectedSnippets) {
+        parsed.selectedSnippets.forEach((id) => toggleSnippet(id));
+      }
+      if (parsed.overrides) {
+        Object.entries(parsed.overrides).forEach(([id, value]) => setOverride(id, value));
+      }
+      setSaveState("saved");
+      showToast("Restored builder draft", "success");
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const lineOwner = useMemo(() => {
     const owner: (OutlineNode | null)[] = new Array(lines.length).fill(null);
@@ -125,7 +185,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
   function jumpTo(id: string) {
     const el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
       el.focus?.();
     }
   }
@@ -143,6 +203,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     if (!rendered) return;
     await navigator.clipboard.writeText(rendered);
     track("builder_copy", { templateId: selectedTemplate, snippetCount: selectedSnippets.length });
+    showToast("Copied markdown", "success");
   }
 
   function downloadMarkdown() {
@@ -155,6 +216,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     a.click();
     URL.revokeObjectURL(url);
     track("builder_download", { templateId: selectedTemplate, snippetCount: selectedSnippets.length });
+    showToast("Downloaded agents.md", "success");
   }
 
   async function saveDocument() {
@@ -166,6 +228,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     if (!title) return;
     setSaving(true);
     setSaveError(null);
+    setSaveState("saving");
     const res = await fetch("/api/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -181,6 +244,8 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
       const data = await res.json().catch(() => ({}));
       setSaveError(data.error ?? "Save failed");
       setSaving(false);
+      setSaveState("dirty");
+      showToast("Save failed", "error");
       track("builder_save_failed", {
         status: res.status,
         templateId: selectedTemplate,
@@ -190,11 +255,13 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     }
     const doc = await res.json();
     setSaving(false);
+    setSaveState("saved");
     track("builder_save_success", {
       documentId: doc.id,
       templateId: selectedTemplate,
       snippetCount: selectedSnippets.length,
     });
+    showToast("Saved to documents", "success");
     window.location.href = `/documents/${doc.id}`;
   }
 
@@ -205,11 +272,25 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
     const clamped = Math.max(0, Math.min(next, steps.length - 1));
     setStepIndex(clamped);
     const anchor = document.querySelector(`[data-step-anchor=\"${steps[clamped].toLowerCase()}\"]`) as HTMLElement | null;
-    anchor?.scrollIntoView({ behavior: "smooth", block: "start" });
+    anchor?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
   }
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl px-4 pb-32 pt-6 space-y-6">
+      {toast && (
+        <div
+          role="status"
+          className={`fixed right-4 top-20 z-40 min-w-[220px] rounded-mdt-md border px-3 py-2 text-sm shadow-mdt-lg ${
+            toast.tone === "success"
+              ? "border-green-200 bg-green-50 text-green-800"
+              : toast.tone === "error"
+                ? "border-red-200 bg-red-50 text-red-800"
+                : "border-mdt-border bg-mdt-surface text-mdt-text"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
       <div className="sticky top-16 z-10 rounded-xl border border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm backdrop-blur-md dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
@@ -523,7 +604,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           )}
         </Card>
       </div>
-      <BuilderStatus />
+      <BuilderStatus saveState={saveState} />
     </main>
   );
 }
