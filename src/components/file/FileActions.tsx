@@ -39,6 +39,21 @@ export function FileActions({ id, slug, title, content, builderHref }: Props) {
     }
   }
 
+  async function share() {
+    const url = typeof window !== "undefined" ? window.location.origin + `/files/${slug ?? id}` : `/files/${slug ?? id}`;
+    const shareTitle = `${title} | MarkdownTown`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+      track("file_share", { id, slug, title });
+    } catch (err) {
+      console.warn("file share failed", err);
+    }
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button size="sm" onClick={copy}>
@@ -46,6 +61,9 @@ export function FileActions({ id, slug, title, content, builderHref }: Props) {
       </Button>
       <Button variant="secondary" size="sm" onClick={download}>
         Download
+      </Button>
+      <Button variant="ghost" size="sm" onClick={share} aria-label={`Share ${title}`}>
+        Share
       </Button>
       {builderHref && (
         <Button variant="ghost" size="sm" asChild>

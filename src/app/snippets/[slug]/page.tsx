@@ -10,7 +10,9 @@ import { SnippetTabs } from "@/components/snippet/SnippetTabs";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { SnippetActions } from "@/components/snippet/SnippetActions";
-import { Badge } from "@/components/ui/Badge";
+import { DetailWarning } from "@/components/detail/DetailWarning";
+import { DetailStats } from "@/components/detail/DetailStats";
+import { FeedbackCTA } from "@/components/detail/FeedbackCTA";
 
 type SnippetParams = { slug: string };
 
@@ -68,6 +70,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
   if (!item) return notFound();
 
   const rawContent = `# ${item.title}\n\n${item.description}`;
+  const visibility = (section as { visibility?: string } | null)?.visibility ?? "PUBLIC";
   const relatedPublic = section
     ? await listPublicItems({ limit: 6, tags: section.tags, type: "snippet" })
     : [];
@@ -86,6 +89,8 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
       />
 
       <Card className="space-y-4 p-5">
+        <DetailWarning visibility={visibility} type="snippet" />
+
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -106,11 +111,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
           </div>
           <div className="flex flex-col items-end gap-2">
             <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
-            <div className="flex flex-wrap gap-2 text-xs text-mdt-muted">
-              <Badge tone="info">Views {item.stats.views.toLocaleString()}</Badge>
-              <Badge tone="primary">Copies {item.stats.copies.toLocaleString()}</Badge>
-              <Badge tone="success">Votes {item.stats.votes.toLocaleString()}</Badge>
-            </div>
+            <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
           </div>
         </div>
       </Card>
@@ -143,6 +144,8 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
           ))}
         </div>
       </Card>
+
+      <FeedbackCTA title="snippet" />
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
         <div className="flex items-center justify-between gap-3">

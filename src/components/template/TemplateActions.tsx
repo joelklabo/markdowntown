@@ -43,6 +43,21 @@ export function TemplateActions({ id, slug, title, rendered }: Props) {
     window.location.href = builderHref;
   }
 
+  async function share() {
+    const url = typeof window !== "undefined" ? window.location.origin + detailHref : detailHref;
+    const shareTitle = `${title} | MarkdownTown`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+      track("template_share", { id, slug, title });
+    } catch (err) {
+      console.warn("share failed", err);
+    }
+  }
+
   return (
     <div className="flex gap-2 flex-wrap">
       <Button size="sm" onClick={copy}>
@@ -50,6 +65,9 @@ export function TemplateActions({ id, slug, title, rendered }: Props) {
       </Button>
       <Button variant="secondary" size="sm" onClick={download}>
         Download
+      </Button>
+      <Button variant="ghost" size="sm" onClick={share} aria-label={`Share ${title}`}>
+        Share
       </Button>
       <Button variant="ghost" size="sm" onClick={useBuilder}>
         Use in builder

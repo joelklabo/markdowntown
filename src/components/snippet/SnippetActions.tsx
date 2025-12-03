@@ -24,6 +24,21 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
     }
   }
 
+  async function share() {
+    const url = typeof window !== "undefined" ? window.location.origin + href : href;
+    const titleText = `${title} | MarkdownTown`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: titleText, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+      track("snippet_share", { id, slug, title });
+    } catch (err) {
+      console.warn("share failed", err);
+    }
+  }
+
   function toBuilder() {
     track("snippet_add_builder", { id, slug, title });
     window.location.href = builderHref;
@@ -64,6 +79,9 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
       </Button>
       <Button variant="secondary" size="sm" onClick={download}>
         Download
+      </Button>
+      <Button variant="ghost" size="sm" onClick={share} aria-label={`Share link to ${title}`}>
+        Share
       </Button>
       <Button variant="ghost" size="sm" onClick={toBuilder} aria-label={`Add ${title} to builder`}>
         Add to builder

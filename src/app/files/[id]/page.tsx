@@ -5,6 +5,10 @@ import { Pill } from "@/components/ui/Pill";
 import type { Metadata } from "next";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { FileActions } from "@/components/file/FileActions";
+import { DetailTabs } from "@/components/detail/DetailTabs";
+import { DetailStats } from "@/components/detail/DetailStats";
+import { DetailWarning } from "@/components/detail/DetailWarning";
+import { FeedbackCTA } from "@/components/detail/FeedbackCTA";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -39,6 +43,8 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
     .filter(Boolean)
     .join("\n");
 
+  const visibility: "PUBLIC" | "PRIVATE" | "UNLISTED" = "PUBLIC";
+
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
       <Breadcrumb
@@ -48,7 +54,9 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
           { label: item.title },
         ]}
       />
-      <div className="space-y-2">
+      <div className="space-y-3">
+        <DetailWarning visibility={visibility} type="file" />
+
         <div className="flex items-center gap-2">
           <Pill tone="blue">agents.md</Pill>
           {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
@@ -67,19 +75,10 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
           content={renderedContent}
           builderHref={`/builder?clone=${item.id}`}
         />
-        <div className="text-xs text-mdt-muted flex gap-3">
-          <span>{item.stats.views.toLocaleString()} views</span>
-          <span>{item.stats.copies.toLocaleString()} copies</span>
-          <span>{item.stats.votes.toLocaleString()} votes</span>
-        </div>
+        <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
       </div>
 
-      <Card className="space-y-3">
-        <h3 className="text-h3">Rendered agents.md</h3>
-        <div className="rounded-lg border border-mdt-border bg-white p-4 text-sm leading-6 dark:border-mdt-border-dark dark:bg-mdt-bg-dark min-h-[240px]">
-          (Sample content placeholder. Full agents.md rendering will appear here.)
-        </div>
-      </Card>
+      <DetailTabs title={item.title} rendered={renderedContent} raw={renderedContent} copyLabel="Copy" />
 
       <Card className="space-y-3">
         <h3 className="text-h3">Components</h3>
@@ -90,6 +89,8 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
           <li>Testing checklist</li>
         </ul>
       </Card>
+
+      <FeedbackCTA title="agents.md file" />
     </main>
   );
 }

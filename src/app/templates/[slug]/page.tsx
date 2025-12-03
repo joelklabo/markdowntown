@@ -11,6 +11,10 @@ import { getPublicTemplate, type PublicTemplate } from "@/lib/publicTemplates";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { normalizeTags } from "@/lib/tags";
 import { TemplateActions } from "@/components/template/TemplateActions";
+import { DetailTabs } from "@/components/detail/DetailTabs";
+import { DetailStats } from "@/components/detail/DetailStats";
+import { DetailWarning } from "@/components/detail/DetailWarning";
+import { FeedbackCTA } from "@/components/detail/FeedbackCTA";
 
 type TemplateParams = { slug: string };
 
@@ -27,6 +31,7 @@ type TemplateView = {
   tags: string[];
   stats: { views: number; copies: number; votes: number };
   badge?: string;
+  visibility?: "PUBLIC" | "UNLISTED" | "PRIVATE";
 };
 
 export async function generateMetadata({
@@ -61,6 +66,7 @@ export default async function TemplateDetail({
         tags: template.tags,
         stats: { views: template.stats.views, copies: template.stats.copies, votes: template.stats.uses ?? 0 },
         badge: (template as { badge?: string }).badge,
+        visibility: (template as { visibility?: TemplateView["visibility"] }).visibility ?? "PUBLIC",
       }
     : fallback
       ? {
@@ -72,6 +78,7 @@ export default async function TemplateDetail({
           tags: fallback.tags,
           stats: { views: fallback.stats.views, copies: fallback.stats.copies, votes: fallback.stats.votes },
           badge: fallback.badge,
+          visibility: "PUBLIC",
         }
       : null;
 
@@ -103,6 +110,7 @@ export default async function TemplateDetail({
 
   const initialValues = Object.fromEntries(fields.map((f) => [f.name, f.placeholder ?? (f.required ? "" : "")]));
   const initialRendered = renderTemplateBody(body, initialValues);
+  const visibility = data.visibility ?? "PUBLIC";
 
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
@@ -115,6 +123,8 @@ export default async function TemplateDetail({
       />
 
       <Card className="space-y-3 p-5 sticky top-16 z-10">
+        <DetailWarning visibility={visibility} type="template" />
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -129,18 +139,16 @@ export default async function TemplateDetail({
               ))}
             </div>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 w-full md:w-auto">
             <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
-            <div className="flex gap-3 text-xs text-mdt-muted">
-              <span aria-label="Views">📄 {stats.views.toLocaleString()}</span>
-              <span aria-label="Copies">📋 {stats.copies.toLocaleString()}</span>
-              <span aria-label="Votes">👍 {stats.votes.toLocaleString()}</span>
-            </div>
+            <DetailStats views={stats.views} copies={stats.copies} votes={stats.votes} />
           </div>
         </div>
       </Card>
 
       <TemplateFormPreview title={data.title} body={body} fields={fields} />
+
+      <DetailTabs title={data.title} rendered={initialRendered} raw={body} copyLabel="Copy" />
 
       <Card className="space-y-3">
         <h4 className="text-h4">Related templates</h4>
@@ -150,6 +158,8 @@ export default async function TemplateDetail({
           ))}
         </div>
       </Card>
+
+      <FeedbackCTA title="template" />
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
         <div className="flex items-center justify-between gap-3">
