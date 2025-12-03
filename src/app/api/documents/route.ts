@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/requireSession";
 import { normalizeTags } from "@/lib/tags";
 import { safeRevalidateTag } from "@/lib/revalidate";
 import { cacheTags } from "@/lib/cacheTags";
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
   const docs = await prisma.document.findMany({
     where: { userId: session.user.id },
     orderBy: { updatedAt: "desc" },
@@ -23,10 +21,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
   const body = await request.json().catch(() => ({}));
   const title = (body.title ?? "").toString().trim();
   if (!title) return NextResponse.json({ error: "Title required" }, { status: 400 });

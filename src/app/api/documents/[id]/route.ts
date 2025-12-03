@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/requireSession";
 import { normalizeTags } from "@/lib/tags";
 import { safeRevalidateTag } from "@/lib/revalidate";
 import { cacheTags } from "@/lib/cacheTags";
@@ -13,8 +13,8 @@ async function requireOwner(id: string, userId: string) {
 }
 
 export async function GET(_req: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, response } = await requireSession();
+  if (!session) return response;
   const { id } = await context.params;
   const doc = await requireOwner(id, session.user.id);
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -22,8 +22,8 @@ export async function GET(_req: Request, context: RouteContext) {
 }
 
 export async function PUT(req: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, response } = await requireSession();
+  if (!session) return response;
   const { id } = await context.params;
   const existing = await requireOwner(id, session.user.id);
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -50,8 +50,8 @@ export async function PUT(req: Request, context: RouteContext) {
 }
 
 export async function DELETE(_req: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, response } = await requireSession();
+  if (!session) return response;
   const { id } = await context.params;
   const existing = await requireOwner(id, session.user.id);
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });

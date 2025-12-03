@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/requireSession";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { validateSectionPayload } from "@/lib/validation";
@@ -26,10 +26,8 @@ function throttleCreate(key: string) {
 }
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
 
   const sections = await getSectionsCached(session.user.id);
 
@@ -37,10 +35,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
 
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   if (!rateLimit(`post:${ip}`)) {

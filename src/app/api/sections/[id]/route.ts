@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/requireSession";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rateLimiter";
 import { MAX_CONTENT_LENGTH, MAX_TITLE_LENGTH } from "@/lib/validation";
@@ -18,10 +18,8 @@ async function authorizeSection(context: RouteContext, userId: string) {
 }
 
 export async function GET(_request: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
 
   const section = await authorizeSection(context, session.user.id);
   if (!section) {
@@ -32,10 +30,8 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PUT(request: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
 
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   if (!rateLimit(`put:${ip}`)) {
@@ -106,10 +102,8 @@ export async function PUT(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { session, response } = await requireSession();
+  if (!session) return response;
 
   const ip = (await _request)?.headers?.get("x-forwarded-for") ?? "unknown";
   if (!rateLimit(`del:${ip}`)) {
