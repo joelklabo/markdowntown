@@ -204,6 +204,17 @@ export default async function BrowsePage({
           </details>
         </div>
 
+        <div className="flex items-center justify-between flex-wrap gap-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-2 text-sm text-mdt-muted shadow-mdt-sm">
+          <span>
+            {filtered.length} result{filtered.length === 1 ? "" : "s"}
+            {query ? ` for “${query}”` : ""} {activeTags.length ? ` · tags: ${activeTags.join(", ")}` : ""}
+          </span>
+          <span className="flex gap-2">
+            <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
+            <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
+          </span>
+        </div>
+
         <BrowseResults
           initialItems={filtered}
           query={query}

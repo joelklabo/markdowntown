@@ -101,6 +101,15 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
     window.location.href = `/files/${item.slug ?? item.id}`;
   }
 
+  if (!items.length) {
+    return (
+      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 text-center shadow-mdt-sm text-mdt-muted">
+        <p className="text-body">No results yet.</p>
+        <p className="text-body-sm mt-1">Try clearing filters, using fewer tags, or checking “All” types.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
       {items.map((item) => (
