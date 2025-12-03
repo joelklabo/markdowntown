@@ -6,7 +6,20 @@ const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+const cspDirectives = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "connect-src 'self' https://app.posthog.com https://*.sentry.io https://sentry.io",
+  "img-src 'self' data: blob: https://avatars.githubusercontent.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'",
+];
+
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: cspDirectives.join("; ") },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
