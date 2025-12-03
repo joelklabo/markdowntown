@@ -1,44 +1,32 @@
-# MarkdownTown Design System (MVP)
+# MarkdownTown Design System (2025)
 
 ## Tokens
-Defined in `tailwind.config.ts` under `theme.extend`:
-- Colors: `mdt.blue`, `mdt.red`, `mdt.yellow`, bg/bg-soft, border, text, muted, success, danger.
-- Radius: `mdt-sm` 6px, `mdt-md` 10px, `mdt-lg` 16px, `mdt-pill` 999px.
-- Shadows: `mdt-sm`, `mdt-md`, `mdt-btn`, `mdt-btn-hover`.
-- Typography sizes: `display`, `h1`, `h2`, `h3`, `body`, `body-sm`, `caption`.
-- Font: `font-sans` uses CSS var `--font-inter` (set in layout).
+- **Color roles (light/dark via CSS vars):** primary / primary-strong / primary-soft, accent / accent-soft, success, warning, danger, info, bg, surface, surface-subtle, surface-strong, surface-raised, overlay, border, border-strong, ring, text, text-muted, text-subtle, text-on-strong. See `src/app/globals.css`.
+- **Radii:** `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-pill`.
+- **Shadows:** `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-focus`, `mdt-btn`, `mdt-btn-hover`.
+- **Motion:** `duration-mdt-fast|base|slow`, easing `ease-mdt-standard|mdt-emphasized` (CSS vars).
+- **Spacing scale:** `mdt-1,2,3,4,5,6,8,10,12` (4/8 base) for padding/gap/space utilities.
+- **Typography:** sizes `display`, `h1`, `h2`, `h3`, `body`, `body-sm`, `caption`; font families `sans`, `display`, `mono` powered by CSS vars.
+
+## Theming
+- Dark mode uses the `dark` class on `html` (handled by `ThemeProvider` in `src/providers/ThemeProvider.tsx`).
+- All palette values live in CSS variables; Tailwind colors reference the vars so component code never hard-codes hex.
+- Focus outline and box shadows use the ring token for consistent emphasis.
 
 ## Globals
-`src/app/globals.css`:
-- Applies base bg/text via Tailwind `@layer base`.
-- Component utilities:
-  - `.btn`, `.btn-primary`, `.btn-secondary`
-  - `.card`
-  - `.pill`, `.pill-primary`, `.pill-yellow`
-- Markdown preview styles for rendered content.
-
-## Font
-`src/app/layout.tsx` loads Inter (swap) with CSS var `--font-inter`; body uses `font-sans`.
+- Base bg/text + focus ring in `src/app/globals.css`.
+- Utility classes: `.btn`, `.btn-primary`, `.btn-secondary`, `.card`, `.pill` variants, `.skip-link`.
+- Markdown preview styles consume surface/text tokens for light/dark parity.
 
 ## Primitives
-- `BrandLogo`: icon + optional wordmark, size prop.
-- `Button`: variant (`primary` | `secondary` | `ghost`), size (`sm` | `md` | `lg`), `asChild` support.
-- `Card`: simple wrapper (`className` passthrough).
-- `Pill`: tone (`primary` | `yellow`).
-- Helper: `cn` in `src/lib/cn.ts`.
-
-## Assets
-- `public/markdown-town-icon.svg` (brand icon).
-
-## Usage example
-See `src/app/page.tsx` for header/hero built with tokens + primitives. Import components from `@/components/...`.
+- `BrandLogo`, `Button` (primary/secondary/ghost, sm/md/lg, `asChild`), `Card`, `Pill`; helper `cn` in `src/lib/cn.ts`.
 
 ## Conventions
-- Prefer Tailwind tokens (mdt-*) over hex literals.
-- Use `asChild` on Button when wrapping Links to keep semantics.
-- Keep new shared components under `src/components/ui/`.
+- Prefer semantic Tailwind tokens (`bg-mdt-surface`, `text-mdt-text`, `shadow-mdt-md`) over literal values.
+- No raw hex colors: enforced by `pnpm lint:hex` (script checks src/docs/scripts for hex literals).
+- Keep shared UI under `src/components/ui/`; keep tokens in `tailwind.config.ts` and `globals.css`.
 
-## Roadmap ideas
-- Add dark mode token set.
-- Add text style utilities (e.g., `text-mdt-h1`).
-- Add form controls (inputs, selects) and alert banners.
+## References
+- Tailwind tokens: `tailwind.config.ts`
+- Theme + toggle: `src/providers/ThemeProvider.tsx`, `src/components/ThemeToggle.tsx`
+- Token source of truth: `src/app/globals.css`

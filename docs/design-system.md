@@ -1,6 +1,6 @@
 # MarkdownTown Design System
 
-Last updated: Dec 1, 2025
+Last updated: Dec 3, 2025
 
 ## Principles
 - **Semantic first:** use intent-based tokens (e.g., `mdt-surface`, `mdt-text-muted`, `mdt-primary`) instead of hard-coded hex values. Enables theming and accessibility tweaks without refactoring components.
@@ -13,34 +13,25 @@ Last updated: Dec 1, 2025
 ### Colors (semantic)
 Defined as CSS variables in `src/app/globals.css`, exposed in Tailwind as `mdt-*`.
 
-| Token | Light | Dark | Use |
-| --- | --- | --- | --- |
-| `mdt-primary` | `#0057D9` | `#7FB1FF` | Brand accents, primary actions |
-| `mdt-primary-strong` | `#0047B3` | `#A9C8FF` | Hover/pressed states |
-| `mdt-accent` | `#FFCC00` | `#FFD666` | Highlights, badges |
-| `mdt-success` | `#16A34A` | `#4ADE80` | Success |
-| `mdt-warning` | `#F59E0B` | `#FCD34D` | Warnings |
-| `mdt-danger` | `#EF4444` | `#F87171` | Errors/destructive |
-| `mdt-info` | `#2563EB` | `#60A5FA` | Informational |
-| `mdt-surface` | `#FFFFFF` | `#0F172A` | Cards, panels |
-| `mdt-surface-subtle` | `#F9FAFB` | `#111827` | Soft backgrounds |
-| `mdt-border` | `#E5E7EB` | `#1F2A3D` | Dividers, outlines |
-| `mdt-text` | `#0F172A` | `#E5E7EB` | Primary text |
-| `mdt-text-muted` | `#6B7280` | `#9CA3AF` | Secondary text |
+- Brand: `mdt-primary`, `mdt-primary-strong`, `mdt-primary-soft`, `mdt-accent`, `mdt-accent-soft`
+- Status: `mdt-success`, `mdt-warning`, `mdt-danger`, `mdt-info`
+- Surfaces: `mdt-bg`, `mdt-surface`, `mdt-surface-subtle`, `mdt-surface-strong`, `mdt-surface-raised`, `mdt-overlay`
+- Lines: `mdt-border`, `mdt-border-strong`, `mdt-ring`
+- Text: `mdt-text`, `mdt-text-muted`, `mdt-text-subtle`, `mdt-text-on-strong`
 
-Legacy aliases remain (`mdt-blue`, `mdt-bg`, etc.) and map to the semantic tokens.
+Legacy aliases (`mdt-blue`, `mdt-bg`, etc.) still map to the semantic set for backward compatibility.
 
 ### Typography
 - Font: Inter (variable) as `font-sans`.
 - Scale (Tailwind keys): `display` 36px, `h1` 30px, `h2` 24px, `h3` 20px, `body` 16px, `body-sm` 14px, `caption` 12px.
 
 ### Spacing & Radius
-- Spacing: default Tailwind 4px base; prefer multiples of 4. Common steps: 4, 8, 12, 16, 24, 32.
-- Radius: `mdt-sm` 6px, `mdt-md` 10px, `mdt-lg` 16px, `mdt-pill` 999px.
+- Spacing: semantic steps `mdt-1,2,3,4,5,6,8,10,12` (4/8 base) available for padding/gaps.
+- Radius: `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-pill`.
 
 ### Elevation & Motion
-- Shadows: `mdt-sm` (tokenized), `mdt-md` (tokenized), button shadows for hover/press.
-- Motion: timing functions `ease-mdt-emphasized`, durations `mdt-fast` 120ms, `mdt-base` 180ms, `mdt-slow` 260ms.
+- Shadows: `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-focus`, plus button shadows.
+- Motion: timings `mdt-fast|base|slow`; easings `ease-mdt-standard`, `ease-mdt-emphasized` (all via CSS vars).
 
 ## Usage in Tailwind
 - Backgrounds: `bg-mdt-surface`, `bg-mdt-surface-subtle`.

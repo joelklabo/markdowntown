@@ -196,7 +196,7 @@ export function SectionComposer() {
   }
 
   const panelClass =
-    "composer-panel rounded-2xl border border-mdt-border bg-white shadow-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-[#bfd4ff] focus-within:shadow-mdt-md dark:bg-mdt-bg-soft-dark dark:border-mdt-border-dark dark:hover:shadow-mdt-sm";
+    "composer-panel rounded-2xl border border-mdt-border bg-mdt-surface shadow-mdt-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-mdt-primary-strong focus-within:shadow-mdt-md dark:bg-mdt-surface-subtle dark:border-mdt-border dark:hover:shadow-mdt-sm";
 
   return (
     <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
@@ -231,8 +231,8 @@ export function SectionComposer() {
                 aria-current={selected?.id === section.id}
                 className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-mdt-fast ease-mdt-emphasized focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark ${
                   selected?.id === section.id
-                    ? "bg-indigo-50 text-indigo-700 focus-visible:ring-indigo-500 dark:bg-[#1d2f4d] dark:text-mdt-text-dark"
-                    : "hover:bg-zinc-50 dark:hover:bg-[#1c273a]"
+                    ? "bg-mdt-primary-soft text-mdt-text focus-visible:ring-mdt-ring dark:bg-mdt-surface-strong dark:text-mdt-text"
+                    : "hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-strong"
                 }`}
               >
                 <span className="truncate text-sm font-medium">{section.title}</span>

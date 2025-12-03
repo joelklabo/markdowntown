@@ -38,12 +38,12 @@ export function SnippetTabs({ title, rendered, raw }: Props) {
       </div>
 
       {tab === "rendered" ? (
-        <div className="rounded-lg border border-mdt-border bg-white p-4 text-sm leading-6 dark:border-mdt-border-dark dark:bg-mdt-bg-dark">
-          <h3 className="text-h4 mb-2 text-mdt-text dark:text-mdt-text-dark">{title}</h3>
-          <p className="text-mdt-text dark:text-mdt-text-dark">{rendered}</p>
+        <div className="rounded-lg border border-mdt-border bg-mdt-surface p-4 text-sm leading-6">
+          <h3 className="text-h4 mb-2 text-mdt-text">{title}</h3>
+          <p className="text-mdt-text">{rendered}</p>
         </div>
       ) : (
-        <pre className="rounded-lg border border-mdt-border bg-[#0f172a]/5 p-4 font-mono text-xs whitespace-pre-wrap dark:border-mdt-border-dark dark:bg-[#0f172a] text-mdt-text-dark">
+        <pre className="rounded-lg border border-mdt-border bg-mdt-surface-subtle p-4 font-mono text-xs whitespace-pre-wrap text-mdt-text">
 {raw}
         </pre>
       )}

@@ -4,56 +4,121 @@
 
 /* Design tokens: semantic color roles with light/dark support */
 :root {
-  --mdt-color-primary: #1ea8e7;
-  --mdt-color-primary-strong: #1086ba;
-  --mdt-color-accent: #1fc598;
-  --mdt-color-danger: #e24055;
-  --mdt-color-success: #28c48c;
-  --mdt-color-warning: #d7a100;
-  --mdt-color-info: #2f7bec;
+  /* Brand + accents */
+  --mdt-color-primary: hsl(198 85% 52%);
+  --mdt-color-primary-strong: hsl(198 87% 42%);
+  --mdt-color-primary-soft: hsl(198 86% 93%);
+  --mdt-color-accent: hsl(258 82% 66%);
+  --mdt-color-accent-soft: hsl(258 82% 93%);
+  --mdt-color-success: hsl(157 57% 46%);
+  --mdt-color-warning: hsl(38 92% 50%);
+  --mdt-color-danger: hsl(349 74% 52%);
+  --mdt-color-info: hsl(210 90% 55%);
 
-  --mdt-color-bg: #f6f8fb;
-  --mdt-color-surface: #ffffff;
-  --mdt-color-surface-subtle: #edf1f7;
-  --mdt-color-surface-strong: #e5eaf2;
-  --mdt-color-border: #d8deeb;
-  --mdt-color-text: #0f172a;
-  --mdt-color-text-muted: #5b6476;
-  --mdt-shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.08);
-  --mdt-shadow-md: 0 16px 44px rgba(15, 23, 42, 0.12);
-  --mdt-shadow-glow: 0 0 0 1px rgba(30, 168, 231, 0.16), 0 16px 48px rgba(15, 23, 42, 0.18);
+  /* Surfaces */
+  --mdt-color-bg: hsl(220 30% 97%);
+  --mdt-color-surface: hsl(220 25% 99%);
+  --mdt-color-surface-subtle: hsl(220 24% 96%);
+  --mdt-color-surface-strong: hsl(220 18% 90%);
+  --mdt-color-surface-raised: hsl(220 22% 98%);
+  --mdt-color-overlay: hsl(220 30% 10% / 0.45);
 
+  /* Lines + rings */
+  --mdt-color-border: hsl(220 18% 86%);
+  --mdt-color-border-strong: hsl(220 16% 78%);
+  --mdt-color-ring: hsl(198 85% 52% / 0.55);
+
+  /* Text */
+  --mdt-color-text: hsl(222 47% 11%);
+  --mdt-color-text-muted: hsl(222 24% 42%);
+  --mdt-color-text-subtle: hsl(222 16% 55%);
+  --mdt-color-text-on-strong: hsl(0 0% 100%);
+
+  /* Shadows */
+  --mdt-shadow-sm: 0 10px 30px hsl(222 47% 11% / 0.08);
+  --mdt-shadow-md: 0 18px 40px hsl(222 47% 11% / 0.12);
+  --mdt-shadow-lg: 0 26px 60px hsl(222 47% 11% / 0.16);
+  --mdt-shadow-glow: 0 0 0 1px hsl(198 85% 52% / 0.16), 0 16px 48px hsl(222 47% 11% / 0.18);
+  --mdt-shadow-focus: 0 0 0 3px var(--mdt-color-ring);
+
+  /* Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+
+  /* Motion */
+  --mdt-motion-fast: 120ms;
+  --mdt-motion-base: 180ms;
+  --mdt-motion-slow: 260ms;
+  --mdt-motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --mdt-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Spacing tokens (4/8 base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
 }
 
 .dark {
-  /* Core palette — Option A (Focus / Flow) */
-  --mdt-color-primary: #36d6ff;
-  --mdt-color-primary-strong: #7ae4ff;
-  --mdt-color-accent: #7cf3c3;
-  --mdt-color-danger: #ff6b6b;
-  --mdt-color-success: #48e1a8;
-  --mdt-color-warning: #f2c94c;
-  --mdt-color-info: #5aa1ff;
+  --mdt-color-primary: hsl(198 86% 62%);
+  --mdt-color-primary-strong: hsl(198 88% 72%);
+  --mdt-color-primary-soft: hsl(198 80% 22% / 0.7);
+  --mdt-color-accent: hsl(258 85% 72%);
+  --mdt-color-accent-soft: hsl(258 84% 28% / 0.55);
+  --mdt-color-success: hsl(157 58% 56%);
+  --mdt-color-warning: hsl(38 95% 60%);
+  --mdt-color-danger: hsl(349 76% 62%);
+  --mdt-color-info: hsl(210 92% 70%);
 
-  --mdt-color-bg: #0e0f12;
-  --mdt-color-surface: #12141a;
-  --mdt-color-surface-subtle: #161922;
-  --mdt-color-surface-strong: #1b1f2b;
-  --mdt-color-border: #232936;
-  --mdt-color-text: #e8ecf5;
-  --mdt-color-text-muted: #9aa3b5;
-  --mdt-shadow-sm: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --mdt-shadow-md: 0 16px 44px rgba(0, 0, 0, 0.45);
-  --mdt-shadow-glow: 0 0 0 1px rgba(54, 214, 255, 0.22), 0 16px 48px rgba(0, 0, 0, 0.5);
+  --mdt-color-bg: hsl(220 18% 6%);
+  --mdt-color-surface: hsl(220 18% 10%);
+  --mdt-color-surface-subtle: hsl(220 16% 14%);
+  --mdt-color-surface-strong: hsl(220 16% 18%);
+  --mdt-color-surface-raised: hsl(220 16% 22%);
+  --mdt-color-overlay: hsl(220 32% 4% / 0.7);
+
+  --mdt-color-border: hsl(220 16% 28%);
+  --mdt-color-border-strong: hsl(220 18% 38%);
+  --mdt-color-ring: hsl(198 88% 65% / 0.45);
+
+  --mdt-color-text: hsl(220 33% 92%);
+  --mdt-color-text-muted: hsl(220 15% 74%);
+  --mdt-color-text-subtle: hsl(220 12% 64%);
+  --mdt-color-text-on-strong: hsl(220 16% 12%);
+
+  --mdt-shadow-sm: 0 10px 30px hsl(220 33% 4% / 0.35);
+  --mdt-shadow-md: 0 18px 40px hsl(220 33% 3% / 0.45);
+  --mdt-shadow-lg: 0 26px 60px hsl(220 33% 3% / 0.6);
+  --mdt-shadow-glow: 0 0 0 1px hsl(198 88% 65% / 0.22), 0 16px 48px hsl(220 33% 3% / 0.5);
+  --mdt-shadow-focus: 0 0 0 3px var(--mdt-color-ring);
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+
+  --mdt-motion-fast: 120ms;
+  --mdt-motion-base: 180ms;
+  --mdt-motion-slow: 260ms;
+  --mdt-motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --mdt-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
 }
 
 @layer base {
@@ -71,7 +136,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--mdt-color-primary);
+    outline: 2px solid var(--mdt-color-ring);
     outline-offset: 3px;
   }
 }
@@ -169,9 +234,7 @@
 .markdown-preview {
   font-size: 0.95rem;
   line-height: 1.6;
-}
-.dark .markdown-preview {
-  color: #e5e7eb;
+  color: var(--mdt-color-text);
 }
 
 .markdown-preview h1,
@@ -188,25 +251,26 @@
 
 .markdown-preview code {
   padding: 0.1rem 0.35rem;
-  background: #f6f8fa;
+  background: var(--mdt-color-surface-subtle);
   border-radius: 0.25rem;
   font-size: 0.9rem;
+  color: var(--mdt-color-text);
 }
 .dark .markdown-preview code {
-  background: #111827;
-  color: #e5e7eb;
+  background: var(--mdt-color-surface-strong);
+  color: var(--mdt-color-text);
 }
 
 .markdown-preview pre {
-  background: #0b1021;
-  color: #e5e7eb;
+  background: var(--mdt-color-surface-strong);
+  color: var(--mdt-color-text);
   padding: 0.75rem;
   border-radius: 0.5rem;
   overflow-x: auto;
   font-size: 0.9rem;
 }
 .dark .markdown-preview pre {
-  background: #0f172a;
+  background: var(--mdt-color-surface-subtle);
 }
 
 @media (max-width: 768px) {

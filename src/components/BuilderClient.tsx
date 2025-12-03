@@ -273,8 +273,8 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                 onClick={() => setSelectedTemplate(tpl.id)}
                 className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   selectedTemplate === tpl.id
-                    ? "border-indigo-400 bg-indigo-50 dark:bg-[#1d2f4d]"
-                    : "border-transparent hover:bg-mdt-bg dark:hover:bg-[#111827]"
+                    ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
+                    : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -312,8 +312,8 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                     }}
                     className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                       active
-                        ? "border-indigo-400 bg-indigo-50 dark:bg-[#1d2f4d]"
-                        : "border-transparent hover:bg-mdt-bg dark:hover:bg-[#111827]"
+                        ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
+                        : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
                     }`}
                   >
                     <div className="flex items-center justify-between">
