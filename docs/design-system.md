@@ -41,10 +41,20 @@ Legacy aliases (`mdt-blue`, `mdt-bg`, etc.) still map to the semantic set for ba
 - Cards: `bg-mdt-surface shadow-mdt-sm border border-mdt-border`.
 - Dark mode: toggle `.dark` on `html` or `body`; tokens swap via CSS variables.
 
+## Components (primitives)
+- **Button / IconButton:** variants `primary|secondary|ghost`; sizes `sm|md|lg`; focus ring uses `mdt-ring`. IconButton adds `shape=rounded|pill`.
+- **Input / TextArea / Select:** border + surface tokens, ring on focus, placeholder uses muted text.
+- **Checkbox / Radio:** accent color bound to `mdt-primary`, rounded shapes, label-friendly.
+- **Badge / Pill / Tag:** badges for status; pills for filters; tag supports removable chip via `onRemove`.
+- **Tabs:** pill list with active/inactive styles, tokenized ring.
+- **Breadcrumb / Card / Tooltip / Drawer:** surfaces, borders, overlay token for Drawer.
+- **Avatar:** image or initials fallback; sizes `sm|md|lg`.
+- **Pagination:** previous/next and page buttons styled with surface/primary-soft tokens.
+
 ## File map
 - Tokens: `src/app/globals.css` (`:root` and `.dark` CSS variables).
 - Tailwind bridge: `tailwind.config.ts` (`mdt` colors, radius, shadows, motion).
-- Components: `src/components/**/*` and `src/components/ui/*` already consume `mdt-*` classes.
+- Components: `src/components/**/*` and `src/components/ui/*` use `mdt-*` tokens; new primitives live in `src/components/ui/`.
 
 ## Future improvements
 - Add a “neutral” gray ramp for data viz.

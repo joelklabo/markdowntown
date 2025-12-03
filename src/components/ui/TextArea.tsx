@@ -13,7 +13,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(fun
       rows={rows}
       className={cn(
         "w-full rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2 text-mdt-text shadow-mdt-sm transition duration-mdt-fast ease-mdt-emphasized",
-        "placeholder:text-mdt-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
+        "placeholder:text-mdt-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
         "disabled:cursor-not-allowed disabled:opacity-60",
         className
       )}

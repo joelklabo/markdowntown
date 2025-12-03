@@ -9,7 +9,7 @@ export function DrawerOverlay(props: React.ComponentPropsWithoutRef<typeof Dialo
     <DialogPrimitive.Overlay
       {...props}
       className={cn(
-        "fixed inset-0 z-40 bg-black/55 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out",
+        "fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out",
         props.className
       )}
     />
@@ -54,7 +54,7 @@ export const DrawerClose = DialogPrimitive.Close;
 
 export function DrawerCloseButton() {
   return (
-    <DrawerClose className="rounded-mdt-md p-2 text-mdt-muted transition hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]">
+    <DrawerClose className="rounded-mdt-md p-2 text-mdt-muted transition hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]">
       <span aria-hidden className="text-sm font-semibold leading-none">
         ×
       </span>
