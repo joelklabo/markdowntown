@@ -1,6 +1,6 @@
 # YOUR JOB:
 
-1. Clear stale work: run `bd reset-stale --hours 4` to reopen any in_progress older than 4 hours.
+1. Clear stale work: run `bd reset-stale --hours 4` to reopen any in_progress older than 30 minutes.
 2. Ask `bd ready` what to do.
 3. Before starting, set yourself on the issue (`bd update <id> --status in_progress`).
 4. Work on it.
