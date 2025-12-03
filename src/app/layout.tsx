@@ -8,6 +8,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { Footer } from "@/components/Footer";
 import { PerfVitalsToggle } from "@/components/PerfVitalsToggle";
 import { CommandPalette } from "@/components/CommandPalette";
+import { WhatNewBanner } from "@/components/WhatNewBanner";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -94,6 +95,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <PosthogProviderLazy>
             <SiteNav user={user} />
+            <WhatNewBanner />
             <CommandPalette />
             <PerfVitalsToggle />
             <main id="main-content">{children}</main>

@@ -5,7 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- TBD
+- Redesign 2025: dual-theme token system, rebuilt primitives, Storybook playground.
+- Landing overhaul with guided “build in 60s” path and calmer hero.
+- Browse faceted filters, quality strip, empty state, and inline metrics.
+- Snippet/Template detail quality signals + updated actions.
+- Builder 3-pane polish: status strip, autosave feedback, tokenized focus.
+- Motion presets + reduced-motion guardrails.
+- Data viz mini-kit (sparkline, mini bars, donut) and content design system.
+- Visual regression baselines for / and /browse; a11y/perf budgets documented.
+- Onboarding/playful plan (checklist, sample loader, celebratory states).
 
 ## [0.1.0] - 2025-11-30
 ### Added
