@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "@radix-ui/rea
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/cn";
 import { track } from "@/lib/analytics";
+import { useTheme } from "@/providers/ThemeProvider";
 
 type CommandItem = {
   label: string;
@@ -20,6 +21,7 @@ type PaletteProps = {
 
 export function CommandPalette({ suggestions = [] }: PaletteProps) {
   const router = useRouter();
+  const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
@@ -31,12 +33,14 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
       { label: "Open builder", action: () => router.push("/builder"), group: "Go to", hint: "⌘Shift+B" },
       { label: "View templates", action: () => router.push("/templates"), group: "Templates" },
       { label: "Docs", action: () => router.push("/docs"), group: "Go to" },
+      { label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode", action: toggle, group: "Actions", hint: "⌘L" },
+      { label: "Open search", action: () => router.push("/browse"), group: "Actions", hint: "/" },
     ];
     const q = query.trim().toLowerCase();
     const merged = [...suggestions, ...baseCommands];
     if (!q) return merged;
     return merged.filter((cmd) => cmd.label.toLowerCase().includes(q));
-  }, [query, suggestions, router]);
+  }, [query, suggestions, router, theme, toggle]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -46,6 +50,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         e.preventDefault();
         setOpen(true);
         setHighlight(0);
+        track("command_palette_open");
         return;
       }
       if (!open) return;
@@ -83,9 +88,9 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogOverlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+      <DialogOverlay className="fixed inset-0 z-50 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm" />
       <DialogContent
-        className="fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-4 shadow-mdt-md"
+        className="fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg"
         aria-label="Command palette"
       >
         <DialogTitle className="sr-only">Command palette</DialogTitle>
@@ -120,7 +125,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
                     className={cn(
                       "flex w-full items-center justify-between px-3 py-2 text-left text-sm transition",
                       active
-                        ? "bg-[color:var(--mdt-color-surface-strong)] text-mdt-text"
+                        ? "bg-[color:var(--mdt-color-surface-strong)] text-mdt-text shadow-mdt-sm"
                         : "text-mdt-text hover:bg-[color:var(--mdt-color-surface-subtle)]"
                     )}
                   >
