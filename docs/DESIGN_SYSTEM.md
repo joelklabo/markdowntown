@@ -20,6 +20,8 @@
 
 ## Primitives
 - `BrandLogo`, `Button` (primary/secondary/ghost, sm/md/lg, `asChild`), `Card`, `Pill`; helper `cn` in `src/lib/cn.ts`.
+- Detail kit: `DetailTabs` (rendered/raw toggle + copy), `DetailStats` (views/copies/votes strip), `DetailWarning` (private/unlisted banner), `FeedbackCTA` (feedback prompt).
+- Status: `BuilderStatus` shows perf/cache/save state for builder.
 
 ## Conventions
 - Prefer semantic Tailwind tokens (`bg-mdt-surface`, `text-mdt-text`, `shadow-mdt-md`) over literal values.
