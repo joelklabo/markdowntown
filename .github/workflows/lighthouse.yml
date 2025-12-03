@@ -70,6 +70,11 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
+      - name: Compute slug
+        id: slug
+        run: |
+          slug="$(echo "${{ matrix.url }}" | sed 's|https\?://||; s|/|_|g; s|[^A-Za-z0-9_]|_|g')"
+          echo "slug=$slug" >> "$GITHUB_OUTPUT"
       - name: Run Lighthouse against production
         if: steps.availability.outputs.skip != 'true'
         id: lhci
@@ -79,12 +84,12 @@ jobs:
           configPath: ./lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
+          artifactName: lhci-${{ steps.slug.outputs.slug }}-${{ matrix.formFactor }}
       - name: Compute metrics row
         id: metrics
         if: steps.lhci.outcome == 'success'
         run: |
-          slug="$(echo "${{ matrix.url }}" | sed 's|https\?://||; s|/|_|g; s|[^A-Za-z0-9_]|_|g')"
-          echo "slug=$slug" >> "$GITHUB_OUTPUT"
+          echo "slug=${{ steps.slug.outputs.slug }}" >> "$GITHUB_OUTPUT"
           node <<'NODE'
           const fs = require('fs');
           const manifest = JSON.parse(fs.readFileSync('.lighthouseci/manifest.json', 'utf8'));
@@ -123,14 +128,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: steps.lhci.outcome == 'success'
         with:
-          name: lh-metrics-${{ steps.metrics.outputs.slug }}-${{ matrix.formFactor }}
+          name: lh-metrics-${{ steps.slug.outputs.slug }}-${{ matrix.formFactor }}
           path: lh-metrics.csv
           retention-days: 30
       - name: Upload summary markdown
         if: ${{ github.event_name == 'pull_request' && steps.lhci.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
-          name: lh-summary-${{ steps.metrics.outputs.slug }}-${{ matrix.formFactor }}
+          name: lh-summary-${{ steps.slug.outputs.slug }}-${{ matrix.formFactor }}
           path: lh-summary.md
           retention-days: 30
 

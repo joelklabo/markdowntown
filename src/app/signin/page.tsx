@@ -3,16 +3,21 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { DemoLoginButton } from "@/components/auth/DemoLoginButton";
+import { GithubLoginButton } from "@/components/auth/GithubLoginButton";
 
 export const metadata = {
   title: "Sign in · MarkdownTown",
 };
 
 const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET);
-const demoLoginEnabled = process.env.NODE_ENV !== "production" && process.env.ENABLE_DEMO_LOGIN !== "false";
+const demoLoginEnabled = process.env.DEMO_LOGIN_DISABLED !== "true";
 const demoPassword = process.env.DEMO_LOGIN_PASSWORD ?? "demo-login";
 
-export default async function SignInPage({ searchParams }: { searchParams?: Promise<{ callbackUrl?: string; error?: string }> }) {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ callbackUrl?: string; error?: string }>;
+}) {
   const params = (await searchParams) ?? {};
   const callbackUrl = params.callbackUrl || "/";
   const error = params.error;
@@ -37,11 +42,9 @@ export default async function SignInPage({ searchParams }: { searchParams?: Prom
             revoke access in GitHub settings.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild disabled={!githubConfigured}>
-              <Link href={`/api/auth/signin/github?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
-                {githubConfigured ? "Continue with GitHub" : "GitHub not configured"}
-              </Link>
-            </Button>
+            <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured}>
+              {githubConfigured ? "Continue with GitHub" : "GitHub not configured"}
+            </GithubLoginButton>
             <Button variant="secondary" asChild>
               <Link href="/">Cancel</Link>
             </Button>
@@ -74,11 +77,9 @@ export default async function SignInPage({ searchParams }: { searchParams?: Prom
             <div className="rounded-mdt-lg bg-mdt-bg-soft p-3 text-body-sm text-mdt-muted">
               By continuing, you agree to keep your credentials safe and abide by our acceptable use.
             </div>
-            <Button asChild className="w-full" disabled={!githubConfigured}>
-              <Link href={`/api/auth/signin/github?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
-                {githubConfigured ? "Sign in with GitHub" : "GitHub not configured"}
-              </Link>
-            </Button>
+            <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured} className="w-full">
+              {githubConfigured ? "Sign in with GitHub" : "GitHub not configured"}
+            </GithubLoginButton>
             {demoLoginEnabled && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-mdt-muted">

@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import type { NextAuthOptions } from "next-auth";
+import type { LoggerInstance, NextAuthOptions } from "next-auth";
 import GithubProvider, { type GithubProfile } from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -9,10 +9,25 @@ const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, NEXTAUTH_SECRET } = process.env;
 const githubConfigured = Boolean(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET);
 const githubClientId = GITHUB_CLIENT_ID ?? "missing-client-id";
 const githubClientSecret = GITHUB_CLIENT_SECRET ?? "missing-client-secret";
-const demoLoginEnabled = process.env.NODE_ENV !== "production";
+// Keep demo login available in all environments unless explicitly disabled by env.
+const demoLoginEnabled = process.env.DEMO_LOGIN_DISABLED !== "true";
 const demoPassword = process.env.DEMO_LOGIN_PASSWORD ?? "demo-login";
 const useDatabaseAdapter = hasDatabaseEnv && githubConfigured;
 const sessionStrategy: "jwt" | "database" = useDatabaseAdapter ? "database" : "jwt";
+const authLogger: Partial<LoggerInstance> | undefined =
+  process.env.NEXTAUTH_DEBUG === "true"
+    ? {
+        error(code, metadata) {
+          console.error("[next-auth]", code, metadata);
+        },
+        warn(code) {
+          console.warn("[next-auth]", code);
+        },
+        debug(code, metadata) {
+          console.debug("[next-auth]", code, metadata);
+        },
+      }
+    : undefined;
 
 async function getOrCreateDemoUser() {
   if (!useDatabaseAdapter) {
@@ -87,6 +102,8 @@ export const authOptions: NextAuthOptions = hasDatabaseEnv
       pages: { signIn: "/signin" },
       session: { strategy: sessionStrategy },
       secret: NEXTAUTH_SECRET ?? "development-secret",
+      debug: process.env.NEXTAUTH_DEBUG === "true",
+      logger: authLogger,
       callbacks: {
         async signIn({ account }) {
           if (account?.provider === "github" && !githubConfigured) {
@@ -135,6 +152,8 @@ export const authOptions: NextAuthOptions = hasDatabaseEnv
       session: { strategy: "jwt" },
       secret: NEXTAUTH_SECRET ?? "development-secret",
       pages: { signIn: "/signin" },
+      debug: process.env.NEXTAUTH_DEBUG === "true",
+      logger: authLogger,
       callbacks: {
         async signIn({ account }) {
           if (account?.provider === "github" && !githubConfigured) {

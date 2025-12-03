@@ -19,12 +19,13 @@ const pageList =
     "/templates/agents-template-basic",
     "/files/agents-file-langs",
   ];
-const WAIT = Number(process.env.CRAWL_WAIT_MS || 250);
+const WAIT = Number(process.env.CRAWL_WAIT_MS || 600);
 const MAX = Number(process.env.CRAWL_MAX || 150);
-const TIMEOUT = Number(process.env.CRAWL_TIMEOUT || 3000);
+const TIMEOUT = Number(process.env.CRAWL_TIMEOUT || 8000);
 const OUT = process.env.CRAWL_OUT || "/tmp/crawl.jsonl";
-const PER_PAGE_TIMEOUT = Number(process.env.CRAWL_PAGE_TIMEOUT || 60000);
+const PER_PAGE_TIMEOUT = Number(process.env.CRAWL_PAGE_TIMEOUT || 90000);
 const MIN_VISIBLE = Number(process.env.CRAWL_MIN_VISIBLE || 1);
+const LOG_ALL = process.env.CRAWL_LOG_ALL === "true";
 
 async function isClickable(el, page) {
   const box = await el.boundingBox();
@@ -70,6 +71,14 @@ async function crawlPage(pagePath) {
             .goBack({ waitUntil: "networkidle", timeout: Math.max(5000, PER_PAGE_TIMEOUT / 2) })
             .catch(() => {});
           await page.waitForTimeout(WAIT);
+        }
+        if (LOG_ALL) {
+          results.push({
+            page: pagePath,
+            control: `${tag}:${label}`,
+            href,
+            error: null,
+          });
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
