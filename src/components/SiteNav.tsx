@@ -129,7 +129,7 @@ export function SiteNav({ user }: { user?: User }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-mdt-border bg-white/90 backdrop-blur-md shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/90">
+      <header className="sticky top-0 z-30 border-b border-mdt-border bg-mdt-surface/90 backdrop-blur-md shadow-mdt-sm">
         <div className="mx-auto grid max-w-6xl grid-cols-[auto,1fr,auto] items-center gap-2 px-4 py-3 md:grid-cols-[auto,auto,1fr] md:gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2" aria-label="MarkdownTown home">
@@ -137,7 +137,7 @@ export function SiteNav({ user }: { user?: User }) {
             </Link>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border text-mdt-muted shadow-sm md:hidden dark:border-mdt-border-dark dark:text-mdt-muted-dark"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm transition hover:text-mdt-text md:hidden"
               onClick={() => {
                 setShowMobileSearch(true);
                 setTimeout(() => inputRef.current?.focus(), 10);
@@ -151,18 +151,18 @@ export function SiteNav({ user }: { user?: User }) {
             </button>
           </div>
 
-          <nav className="hidden items-center justify-center gap-3 text-sm font-medium text-mdt-muted md:flex dark:text-mdt-muted-dark" aria-label="Primary">
+          <nav className="hidden items-center justify-center gap-3 text-sm font-medium text-mdt-muted md:flex" aria-label="Primary">
             {links.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`rounded-md px-3 py-2 transition-colors ${
+                  className={`rounded-md px-3 py-2 transition ${
                     active
-                      ? "bg-mdt-bg/80 text-mdt-text shadow-sm dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
-                      : "hover:text-mdt-text dark:hover:text-white"
-                  } focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500`}
+                      ? "bg-mdt-surface-subtle text-mdt-text shadow-mdt-sm"
+                      : "hover:text-mdt-text"
+                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]`}
                   onClick={() => track("nav_click", { href: link.href, placement: "desktop" })}
                   aria-current={active ? "page" : undefined}
                 >
@@ -175,10 +175,10 @@ export function SiteNav({ user }: { user?: User }) {
           <div className="flex items-center justify-end gap-2 flex-nowrap">
             <form
               onSubmit={onSearch}
-              className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-2 rounded-md border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm md:flex dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark"
+              className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm md:flex"
             >
               <input
-                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
+                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
                 placeholder="Search snippets, templates…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -193,11 +193,13 @@ export function SiteNav({ user }: { user?: User }) {
               <ThemeToggle />
             </div>
             {user ? (
-              <div className="flex items-center gap-2 rounded-mdt-pill bg-mdt-bg px-3 py-1 text-sm font-medium text-mdt-muted dark:bg-mdt-bg-soft-dark dark:text-mdt-text-dark">
+              <div className="flex items-center gap-2 rounded-mdt-pill bg-mdt-surface-subtle px-3 py-1 text-sm font-medium text-mdt-muted">
                 {user.image && (
                   <Image src={user.image} alt={user.name ?? "avatar"} width={28} height={28} className="rounded-full" />
                 )}
-                <span className="hidden sm:inline whitespace-nowrap">{user.username ?? user.name ?? user.email ?? "Signed in"}</span>
+                <span className="hidden sm:inline whitespace-nowrap text-mdt-text">
+                  {user.username ?? user.name ?? user.email ?? "Signed in"}
+                </span>
                 <form action="/api/auth/signout" method="post">
                   <Button variant="ghost" size="sm" type="submit">
                     Sign out
@@ -223,7 +225,7 @@ export function SiteNav({ user }: { user?: User }) {
             )}
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border text-mdt-muted shadow-sm md:hidden dark:border-mdt-border-dark dark:text-mdt-muted-dark"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm transition hover:text-mdt-text md:hidden"
               aria-label="Open menu"
               onClick={() => setShowOverflowSheet(true)}
             >
@@ -235,7 +237,7 @@ export function SiteNav({ user }: { user?: User }) {
 
       {/* Mobile bottom nav */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-white/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95 dark:text-mdt-muted-dark"
+        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-mdt-surface/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
         role="navigation"
         aria-label="Primary"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 10px)" }}
@@ -248,8 +250,8 @@ export function SiteNav({ user }: { user?: User }) {
                 <Link
                   href={item.href!}
                   className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-md px-2 transition ${
-                    active ? "text-mdt-text dark:text-mdt-text-dark" : "hover:text-mdt-text dark:hover:text-white"
-                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark`}
+                    active ? "text-mdt-text" : "hover:text-mdt-text"
+                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]`}
                   onClick={() => track("nav_click", { href: item.href, placement: "bottom" })}
                   aria-current={active ? "page" : undefined}
                 >
@@ -257,7 +259,7 @@ export function SiteNav({ user }: { user?: User }) {
                     {item.icon}
                   </span>
                   <span className="text-[12px] leading-tight">{item.label}</span>
-                  {active && <span className="mt-1 h-1 w-8 rounded-full bg-mdt-blue" aria-hidden />}
+                  {active && <span className="mt-1 h-1 w-8 rounded-full bg-mdt-primary" aria-hidden />}
                 </Link>
               ) : (
                 <button
@@ -267,7 +269,7 @@ export function SiteNav({ user }: { user?: User }) {
                     setTimeout(() => inputRef.current?.focus(), 10);
                     track("nav_search_open", { source: "bottom_nav" });
                   }}
-                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text transition hover:text-mdt-text dark:text-mdt-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark"
+                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text transition hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   aria-label="Open search"
                 >
                   <span className="text-xs font-mono" aria-hidden>
@@ -283,43 +285,43 @@ export function SiteNav({ user }: { user?: User }) {
 
       {/* Mobile search modal */}
       {showMobileSearch && (
-        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden" role="dialog" aria-modal="true">
-          <div className="absolute inset-x-3 top-16 rounded-2xl border border-mdt-border bg-white p-4 shadow-mdt-lg dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm md:hidden" role="dialog" aria-modal="true">
+          <div className="absolute inset-x-3 top-16 rounded-2xl border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Search</p>
+              <p className="text-sm font-semibold text-mdt-text">Search</p>
               <button
                 onClick={() => setShowMobileSearch(false)}
-                className="text-sm text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-white"
+                className="text-sm text-mdt-muted hover:text-mdt-text"
                 aria-label="Close search"
               >
                 Esc
               </button>
             </div>
-            <form onSubmit={onSearch} className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-white px-3 py-2 text-sm shadow-sm dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+            <form onSubmit={onSearch} className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm">
               <input
                 ref={inputRef}
-                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted dark:text-mdt-text-dark dark:placeholder:text-mdt-muted-dark"
+                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
                 placeholder="Search snippets, templates…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search"
               />
               <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-2 text-[11px] text-mdt-muted dark:text-mdt-muted-dark">
+                <div className="flex flex-wrap gap-2 text-[11px] text-mdt-muted">
                   {sampleTags.slice(0, 6).map((tag) => (
                     <button
                       key={tag.tag}
                       type="button"
-                    className="rounded-md border border-mdt-border px-2 py-1 hover:text-mdt-text dark:border-mdt-border-dark"
-                    onClick={() => {
-                      setQuery(tag.tag);
-                      setTimeout(() => inputRef.current?.focus(), 10);
-                      track("nav_search_suggestion_click", { tag: tag.tag, source: "quick_tags" });
-                    }}
-                  >
-                    #{tag.tag}
-                  </button>
-                ))}
+                      className="rounded-md border border-mdt-border px-2 py-1 hover:text-mdt-text"
+                      onClick={() => {
+                        setQuery(tag.tag);
+                        setTimeout(() => inputRef.current?.focus(), 10);
+                        track("nav_search_suggestion_click", { tag: tag.tag, source: "quick_tags" });
+                      }}
+                    >
+                      #{tag.tag}
+                    </button>
+                  ))}
                 </div>
                 <Button type="submit" size="sm">
                   Search
@@ -331,13 +333,13 @@ export function SiteNav({ user }: { user?: User }) {
               <div className="mt-3 space-y-2">
                 {recentSearches.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-mdt-muted dark:text-mdt-muted-dark">Recent</p>
+                    <p className="text-xs font-semibold text-mdt-muted">Recent</p>
                     <div className="mt-1 flex flex-wrap gap-2">
                       {recentSearches.map((term) => (
                         <button
                           key={term}
                           type="button"
-                          className="rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text hover:bg-mdt-bg dark:border-mdt-border-dark dark:text-mdt-text-dark dark:hover:bg-mdt-bg-dark"
+                          className="rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text hover:bg-mdt-surface-subtle"
                           onClick={() => {
                             setQuery(term);
                             setTimeout(() => inputRef.current?.focus(), 10);
@@ -357,19 +359,19 @@ export function SiteNav({ user }: { user?: User }) {
       )}
 
       {showOverflowSheet && (
-        <div className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm md:hidden" role="dialog" aria-modal="true" aria-label="More">
+        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm md:hidden" role="dialog" aria-modal="true" aria-label="More">
           <button
             type="button"
             className="absolute inset-0"
             aria-label="Close menu overlay"
             onClick={() => setShowOverflowSheet(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border border-mdt-border bg-white p-4 shadow-mdt-lg dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
+          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg">
             <div className="mb-3 flex items-center justify-between">
-              <div className="h-1.5 w-12 rounded-full bg-mdt-border dark:bg-mdt-border-dark" aria-hidden />
+              <div className="h-1.5 w-12 rounded-full bg-mdt-border" aria-hidden />
               <button
                 type="button"
-                className="text-sm text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-white"
+                className="text-sm text-mdt-muted hover:text-mdt-text"
                 onClick={() => setShowOverflowSheet(false)}
               >
                 Close
@@ -382,7 +384,7 @@ export function SiteNav({ user }: { user?: User }) {
                   href={link.href}
                   target={link.external ? "_blank" : undefined}
                   rel={link.external ? "noreferrer" : undefined}
-                  className="rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-bg dark:border-mdt-border-dark dark:text-mdt-text-dark dark:hover:bg-mdt-bg-dark"
+                  className="rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-surface-subtle"
                   onClick={() => {
                     setShowOverflowSheet(false);
                     track("nav_click", { href: link.href, placement: "overflow" });
