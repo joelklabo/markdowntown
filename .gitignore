@@ -25,6 +25,9 @@
 *.pem
 *.db
 *.db-journal
+# crawler outputs
+/crawl-output*.jsonl
+/crawl-*.jsonl
 
 # debug
 npm-debug.log*
