@@ -30,3 +30,10 @@
 
 # INVALID STOP REASONS:
 - "just reporting progress", "task looks hard", "I've used a lot of tokens", "status update".
+
+# BD issue planning tips
+- Turn each outcome into an epic and break it into tasks that can be finished in under 2 days; write acceptance criteria on creation (`bd create --acceptance`).
+- Use explicit dependencies so blocked work is visible (`bd dep add --blocks child parent`) and prefer a single blocking chain per stream.
+- Keep statuses honest: move work to `blocked` only when a concrete dependency exists; `bd ready` should list all unblocked work.
+- Attach design links or artifacts in comments; add area/discipline labels and priority (P0-P4) when creating issues.
+- When you have a plan document, bulk create tasks from markdown with `bd create -f plan.md` and set the epic via `--parent <epic-id>` so they inherit context.
