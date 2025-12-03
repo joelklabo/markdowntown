@@ -56,6 +56,10 @@ Legacy aliases (`mdt-blue`, `mdt-bg`, etc.) still map to the semantic set for ba
 - Tailwind bridge: `tailwind.config.ts` (`mdt` colors, radius, shadows, motion).
 - Components: `src/components/**/*` and `src/components/ui/*` use `mdt-*` tokens; new primitives live in `src/components/ui/`.
 
+## Storybook playground
+- Run `pnpm storybook` for the live token + primitives gallery (light/dark toggle in the toolbar).
+- Stories live in `src/stories/*`; global config in `.storybook/`.
+
 ## Future improvements
 - Add a “neutral” gray ramp for data viz.
 - Introduce semantic spacing aliases (`space-2`, `space-3`) in components docs.
