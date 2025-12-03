@@ -34,66 +34,62 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-mdt-bg text-mdt-text">
       {!user && (
-        <div className="border-b border-mdt-border bg-mdt-surface/90 backdrop-blur">
-          <section className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center">
-            <div className="flex-1 space-y-5">
-              <Pill>Focus / Flow · new look</Pill>
-              <div className="space-y-2">
-                <h1 className="text-display font-display text-mdt-text">Build one source of truth for your agents.md</h1>
+        <div className="border-b border-mdt-border bg-mdt-surface/92 backdrop-blur">
+          <section className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-14 md:grid md:grid-cols-[1.05fr_0.95fr] md:items-center">
+            <div className="flex-1 space-y-6">
+              <Pill tone="blue">Public by default</Pill>
+              <div className="space-y-3">
+                <h1 className="text-display font-display text-mdt-text">
+                  Calm, capable workflows for your agents.md
+                </h1>
                 <p className="text-body text-mdt-muted max-w-xl">
-                  Compose faster with ready snippets and templates, live preview, and keyboard-first navigation. Copy without logging in; sign in only to save and vote.
+                  Copy any snippet or template without signing in. When you are ready, assemble in the builder, preview, and export with confidence.
                 </p>
               </div>
               <form action="/browse" className="flex flex-col gap-3 md:flex-row md:items-center">
                 <input
                   name="q"
-                  className="w-full rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-3 text-sm shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
+                  className="w-full rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-3 text-sm shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   placeholder="Search snippets, templates, agents.md…"
                   aria-label="Search snippets and templates"
                 />
                 <Button type="submit">Search</Button>
                 <Button variant="secondary" asChild>
-                  <Link href="#template-spotlight">Use a template</Link>
+                  <Link href="#build-in-60s">Build in 60s</Link>
                 </Button>
               </form>
-              <div className="flex flex-wrap gap-2">
-                <Pill>Copy without login</Pill>
-                <Pill tone="yellow">Templates with placeholders</Pill>
-                <Pill>Live preview</Pill>
-                <Pill tone="green">Export to agents.md</Pill>
-              </div>
-              <div className="flex flex-wrap gap-3 text-sm text-mdt-muted">
-                <span className="rounded-mdt-pill bg-mdt-surface-strong px-3 py-2 shadow-mdt-sm">⌘K command palette</span>
-                <span className="rounded-mdt-pill bg-mdt-surface-strong px-3 py-2 shadow-mdt-sm">Keyboard jump numbers</span>
-                <span className="rounded-mdt-pill bg-mdt-surface-strong px-3 py-2 shadow-mdt-sm">SPA perf hints</span>
+              <div className="flex flex-wrap gap-2 text-sm text-mdt-muted">
+                <span className="rounded-mdt-pill bg-mdt-surface-subtle px-3 py-2 shadow-mdt-sm">Copy without login</span>
+                <span className="rounded-mdt-pill bg-mdt-surface-subtle px-3 py-2 shadow-mdt-sm">Keyboard-first</span>
+                <span className="rounded-mdt-pill bg-mdt-surface-subtle px-3 py-2 shadow-mdt-sm">Live preview</span>
               </div>
             </div>
 
             <div className="relative mt-4 flex-1 md:mt-0">
-              <Card className="space-y-4 bg-gradient-to-br from-[rgba(54,214,255,0.08)] via-[rgba(124,243,195,0.05)] to-[rgba(30,168,231,0.02)] border-mdt-border shadow-mdt-md">
+              <Card className="space-y-4 border-mdt-border bg-gradient-to-br from-[rgba(54,214,255,0.10)] via-[rgba(124,243,195,0.08)] to-[rgba(30,168,231,0.04)] shadow-mdt-md">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Pill tone="yellow">Section</Pill>
-                    <span className="text-body-sm text-mdt-muted">system / style / tools</span>
+                  <div className="space-y-1">
+                    <p className="text-caption text-mdt-muted">Preview</p>
+                    <span className="text-h3 font-display text-mdt-text">agents.md builder</span>
                   </div>
                   <Button size="sm" variant="secondary" asChild>
                     <Link href="/builder">Open builder</Link>
                   </Button>
                 </div>
-                <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-4 shadow-mdt-sm">
+                <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-4 shadow-mdt-sm space-y-3">
                   <div className="space-y-2">
-                    <div className="h-2 w-28 rounded-md bg-[rgba(54,214,255,0.25)]" />
-                    <div className="h-2 w-52 rounded-md bg-[rgba(90,161,255,0.18)]" />
-                    <div className="h-2 w-40 rounded-md bg-[rgba(30,168,231,0.14)]" />
+                    <div className="h-2 w-28 rounded-md bg-[rgba(54,214,255,0.28)]" />
+                    <div className="h-2 w-52 rounded-md bg-[rgba(124,243,195,0.24)]" />
+                    <div className="h-2 w-40 rounded-md bg-[rgba(30,168,231,0.18)]" />
                   </div>
-                  <div className="mt-4 space-y-2 text-xs text-mdt-muted">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-primary)]" />
-                      Live preview ready
+                  <div className="grid grid-cols-2 gap-2 text-xs text-mdt-muted">
+                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2">
+                      <p className="font-semibold text-mdt-text">Cache intent</p>
+                      <p className="text-[12px] text-mdt-muted">cacheable · edge</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-accent)]" />
-                      Cache intent: cacheable
+                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2">
+                      <p className="font-semibold text-mdt-text">Status</p>
+                      <p className="text-[12px] text-mdt-muted">live preview ready</p>
                     </div>
                   </div>
                 </div>
@@ -103,52 +99,48 @@ export default async function Home() {
 
           <section className="mx-auto max-w-6xl px-6 pb-14 space-y-10">
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="h-full space-y-3 bg-mdt-surface">
-                <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-mdt-md bg-[rgba(54,214,255,0.12)]" />
-                  <span className="text-h3 font-display">Compose fast</span>
-                </div>
-                <p className="text-body-sm text-mdt-muted">
-                  Capture markdown sections once and drop them into any agent or toolchain. Live preview keeps output honest.
-                </p>
-              </Card>
-              <Card className="h-full space-y-3 bg-mdt-surface">
-                <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-mdt-md bg-[rgba(124,243,195,0.14)]" />
-                  <span className="text-h3 font-display">Stay organized</span>
-                </div>
-                <p className="text-body-sm text-mdt-muted">
-                  Lists, ordering, and tags keep your system prompts, tools, and style blocks tidy.
-                </p>
-              </Card>
-              <Card className="h-full space-y-3 bg-mdt-surface">
-                <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-mdt-md bg-[rgba(255,107,107,0.12)]" />
-                  <span className="text-h3 font-display">Own your data</span>
-                </div>
-                <p className="text-body-sm text-mdt-muted">
-                  Auth via GitHub when you want to save; otherwise stay anonymous and keep exporting freely.
-                </p>
-              </Card>
+              {[
+                { title: "Compose fast", desc: "Drop in battle-tested snippets and templates; preview instantly." },
+                { title: "Stay organized", desc: "Tags, ordering, and search keep your library tidy." },
+                { title: "Own your data", desc: "Copy/export anonymously; sign in only to save and vote." },
+              ].map((item) => (
+                <Card key={item.title} className="h-full space-y-3 bg-mdt-surface">
+                  <span className="text-h3 font-display">{item.title}</span>
+                  <p className="text-body-sm text-mdt-muted">{item.desc}</p>
+                </Card>
+              ))}
             </div>
 
-            <div className="grid gap-6 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 shadow-mdt-md md:grid-cols-3">
-              <div className="md:col-span-2 space-y-2">
-                <h3 className="text-h2 font-display">How it works</h3>
+            <div id="build-in-60s" className="grid gap-6 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 shadow-mdt-md md:grid-cols-[1.4fr_1fr]">
+              <div className="space-y-3">
+                <p className="text-caption text-mdt-muted">Build in 60 seconds</p>
+                <h3 className="text-h2 font-display">Try the guided path</h3>
                 <ol className="list-decimal space-y-2 pl-4 text-body text-mdt-muted">
-                  <li>Browse public snippets and templates—copy or download without signing in.</li>
-                  <li>Open the builder to pick a template, add snippets, reorder, and preview agents.md.</li>
-                  <li>Copy or download the final file; sign in if you want to save, vote, or comment.</li>
+                  <li>Pick a template (or start blank).</li>
+                  <li>Add snippets from the library, reorder, and preview.</li>
+                  <li>Copy or download agents.md; save if you want to keep history.</li>
                 </ol>
+                <div className="flex gap-2">
+                  <Button asChild>
+                    <Link href="/builder">Start guided build</Link>
+                  </Button>
+                  <Button variant="secondary" asChild>
+                    <Link href="/browse">Browse library</Link>
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col gap-3 rounded-mdt-md bg-mdt-surface-strong p-4 shadow-mdt-sm">
-                <span className="text-body font-semibold">Ready to start?</span>
-                <Button asChild>
-                  <Link href="/builder">Open builder</Link>
-                </Button>
-                <Button variant="secondary" asChild>
-                  <Link href="/browse">Browse library</Link>
-                </Button>
+              <div className="rounded-mdt-md border border-dashed border-mdt-border bg-mdt-surface-subtle p-4 shadow-mdt-sm space-y-3">
+                <p className="text-caption text-mdt-muted">Proof</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Live preview", "Keyboard-first", "Copy without login", "Light/Dark"].map((label) => (
+                    <span key={label} className="rounded-mdt-pill bg-mdt-surface px-3 py-2 text-sm text-mdt-text shadow-mdt-sm">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+                <div className="text-sm text-mdt-muted">
+                  Top templates updated weekly · Analytics-free for public copies · Export ready for GitHub README or CLI tools.
+                </div>
               </div>
             </div>
 
