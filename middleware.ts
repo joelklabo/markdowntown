@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
@@ -11,9 +12,15 @@ function isBypassed(pathname: string) {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const traceId = req.headers.get("x-trace-id") ?? randomUUID();
+
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-trace-id", traceId);
 
   if (isBypassed(pathname) || SAFE_METHODS.has(req.method)) {
-    return NextResponse.next();
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.headers.set("x-trace-id", traceId);
+    return res;
   }
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -26,12 +33,15 @@ export async function middleware(req: NextRequest) {
         headers: {
           "Cache-Control": "private, no-store",
           Vary: "Cookie",
+          "x-trace-id": traceId,
         },
       }
     );
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set("x-trace-id", traceId);
+  return res;
 }
 
 export const config = {

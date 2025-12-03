@@ -6,6 +6,7 @@ export type AbuseSignal = {
   userId?: string | null;
   reason: string;
   at?: Date;
+  traceId?: string;
 };
 
 function getPaths() {

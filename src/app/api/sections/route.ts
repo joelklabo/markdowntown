@@ -39,12 +39,13 @@ export async function POST(request: Request) {
   if (!session) return response;
 
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const traceId = request.headers.get("x-trace-id") ?? undefined;
   if (!rateLimit(`post:${ip}`)) {
-    logAbuseSignal({ ip, userId: session.user.id, reason: "rate-limit-post" });
+    logAbuseSignal({ ip, userId: session.user.id, reason: "rate-limit-post", traceId });
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
   if (!throttleCreate(session.user.id)) {
-    logAbuseSignal({ ip, userId: session.user.id, reason: "throttle-post" });
+    logAbuseSignal({ ip, userId: session.user.id, reason: "throttle-post", traceId });
     return NextResponse.json({ error: "Too many new sections, please wait a minute." }, { status: 429 });
   }
 
