@@ -37,3 +37,6 @@
 - Keep statuses honest: move work to `blocked` only when a concrete dependency exists; `bd ready` should list all unblocked work.
 - Attach design links or artifacts in comments; add area/discipline labels and priority (P0-P4) when creating issues.
 - When you have a plan document, bulk create tasks from markdown with `bd create -f plan.md` and set the epic via `--parent <epic-id>` so they inherit context.
+- Normalize priorities: P0 = prod down, P1 = sprint goal, P2 = nice-to-have, P3/4 = backlog. Put only 1–3 issues in-progress.
+- For design/system work: create epics per surface (nav/landing/browse/detail/builder) and shared tracks (tokens, motion, content, QA). Link shared tracks as blockers of surface work.
+- Include definition of done in acceptance: visual parity (light/dark), a11y pass, tests/baselines updated, docs updated, no hex lint failures.
