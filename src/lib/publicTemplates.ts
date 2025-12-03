@@ -92,7 +92,6 @@ export async function getPublicTemplate(idOrSlug: string): Promise<PublicTemplat
           createdAt: now,
         };
       }
-      if (!template) return null;
       return null;
     },
     ["public-template", idOrSlug],

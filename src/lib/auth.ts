@@ -12,7 +12,7 @@ const githubClientSecret = GITHUB_CLIENT_SECRET ?? "missing-client-secret";
 const demoLoginEnabled = process.env.NODE_ENV !== "production";
 const demoPassword = process.env.DEMO_LOGIN_PASSWORD ?? "demo-login";
 const useDatabaseAdapter = hasDatabaseEnv && githubConfigured;
-const sessionStrategy: NextAuthOptions["session"]["strategy"] = useDatabaseAdapter ? "database" : "jwt";
+const sessionStrategy: "jwt" | "database" = useDatabaseAdapter ? "database" : "jwt";
 
 async function getOrCreateDemoUser() {
   if (!useDatabaseAdapter) {
