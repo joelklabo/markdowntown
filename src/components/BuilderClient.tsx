@@ -172,6 +172,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
         title,
         description: `Built from ${selectedSnippets.length} snippets`,
         renderedContent: rendered,
+        snippetIds: selectedSnippets,
         tags: ["agents", "builder"],
       }),
     });
