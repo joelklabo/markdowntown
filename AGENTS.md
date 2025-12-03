@@ -40,3 +40,11 @@
 - Normalize priorities: P0 = prod down, P1 = sprint goal, P2 = nice-to-have, P3/4 = backlog. Put only 1–3 issues in-progress.
 - For design/system work: create epics per surface (nav/landing/browse/detail/builder) and shared tracks (tokens, motion, content, QA). Link shared tracks as blockers of surface work.
 - Include definition of done in acceptance: visual parity (light/dark), a11y pass, tests/baselines updated, docs updated, no hex lint failures.
+
+# BD issue planning quick reference
+- Capture acceptance and priority on creation (`bd create --acceptance --priority Px`); add labels for area/discipline.
+- Break plans into epics per surface/track; size child tasks to <2 days; add explicit deps (`bd dep add --blocks child parent`) so `bd ready` stays accurate.
+- Keep only concrete blockers in `blocked`; otherwise use `open`/`in_progress`. Run `bd stale` to clear old in-progress work.
+- Bulk import from plan docs with `bd create -f plan.md --parent <epic>` to keep context linked.
+- Normalize priorities: P0 prod-down, P1 sprint goal, P2 nice-to-have; keep 1–3 concurrent `in_progress`.
+- Add links (designs/PRDs) as comments; prefer single blocking chain per stream.
