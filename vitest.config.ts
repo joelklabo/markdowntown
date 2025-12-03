@@ -4,6 +4,8 @@ import path from "node:path";
 export default defineConfig({
   test: {
     environment: "jsdom",
+    include: ["__tests__/**/*.test.{ts,tsx}"],
+    exclude: ["__tests__/visual/**", "__tests__/e2e/**", "**/node_modules/**", "**/.pnpm/**"],
     // @ts-expect-error upstream typing lag; supported in Vitest runtime
     environmentMatchGlobs: [
       ["**/__tests__/api/**", "node"],

@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
 import { CommandPalette } from "@/components/CommandPalette";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -7,6 +8,10 @@ vi.mock("next/navigation", () => ({
 
 describe("CommandPalette", () => {
   it("renders without crashing", () => {
-    render(<CommandPalette />);
+    render(
+      <ThemeProvider>
+        <CommandPalette />
+      </ThemeProvider>
+    );
   });
 });

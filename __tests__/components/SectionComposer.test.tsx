@@ -105,8 +105,8 @@ describe("SectionComposer", () => {
 
   it("adds a new section when Add is clicked", async () => {
     render(<SectionComposer />);
-    const addButton = await screen.findByRole("button", { name: /add/i });
-    await userEvent.click(addButton);
+    const addButtons = await screen.findAllByRole("button", { name: /add/i });
+    await userEvent.click(addButtons[0]);
 
     await waitFor(() => {
       const calls = (fetch as unknown as Mock).mock.calls as [string, RequestInit | undefined][];

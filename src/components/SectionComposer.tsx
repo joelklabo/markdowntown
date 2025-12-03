@@ -36,6 +36,7 @@ export function SectionComposer() {
   const [tagInput, setTagInput] = useState("");
   const [tagError, setTagError] = useState<string | null>(null);
   const [remarkGfm, setRemarkGfm] = useState<Pluggable | null>(null);
+  const [rehypeSanitize, setRehypeSanitize] = useState<Pluggable | null>(null);
   const selectedRef = useRef<Section | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
 
@@ -45,6 +46,9 @@ export function SectionComposer() {
         (mod as { default?: Pluggable }).default ?? (mod as unknown as Pluggable);
       setRemarkGfm(plugin);
     });
+    import("rehype-sanitize")
+      .then((mod) => setRehypeSanitize((mod as { default?: Pluggable }).default ?? (mod as unknown as Pluggable)))
+      .catch(() => setRehypeSanitize(null));
   }, []);
 
   const combinedMarkdown = useMemo(() => {
@@ -346,7 +350,10 @@ const panelClass =
           </div>
           <div className="markdown-preview px-4 py-4 max-h-[70vh] overflow-y-auto">
             {combinedMarkdown ? (
-              <ReactMarkdown remarkPlugins={remarkGfm ? [remarkGfm] : undefined}>
+              <ReactMarkdown
+                remarkPlugins={remarkGfm ? [remarkGfm] : undefined}
+                rehypePlugins={rehypeSanitize ? [rehypeSanitize] : undefined}
+              >
                 {combinedMarkdown}
               </ReactMarkdown>
             ) : (
