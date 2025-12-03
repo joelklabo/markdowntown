@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Pluggable } from "unified";
 import { Button } from "./ui/Button";
+import { Badge } from "./ui/Badge";
 import { normalizeTags, TAG_MAX_COUNT, TAG_MAX_LENGTH } from "@/lib/tags";
 
 const ReactMarkdown = dynamic(() => import("react-markdown"), {
@@ -36,6 +37,7 @@ export function SectionComposer() {
   const [tagError, setTagError] = useState<string | null>(null);
   const [remarkGfm, setRemarkGfm] = useState<Pluggable | null>(null);
   const selectedRef = useRef<Section | null>(null);
+  const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
 
   useEffect(() => {
     import("remark-gfm").then((mod) => {
@@ -113,6 +115,7 @@ export function SectionComposer() {
   async function saveSection(next: Section) {
     if (!next.id) return;
     setSaving(true);
+    setStatus("saving");
     setError(null);
     try {
       const res = await fetch(`/api/sections/${next.id}`, {
@@ -131,8 +134,11 @@ export function SectionComposer() {
       selectedRef.current = normalized;
       setSelected(normalized);
       setTagInput(normalized.tags.join(", "));
+      setStatus("saved");
+      setTimeout(() => setStatus("idle"), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
+      setStatus("idle");
     } finally {
       setSaving(false);
     }
@@ -195,147 +201,158 @@ export function SectionComposer() {
     }
   }
 
-  const panelClass =
-    "composer-panel rounded-2xl border border-mdt-border bg-mdt-surface shadow-mdt-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-mdt-primary-strong focus-within:shadow-mdt-md dark:bg-mdt-surface-subtle dark:border-mdt-border dark:hover:shadow-mdt-sm";
+const panelClass =
+  "composer-panel rounded-2xl border border-mdt-border bg-mdt-surface shadow-mdt-sm transition duration-mdt-base ease-mdt-emphasized hover:shadow-mdt-md focus-within:border-mdt-primary-strong focus-within:shadow-mdt-md";
 
   return (
-    <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
-      <div className={panelClass} aria-live="polite" aria-busy={isLoading}>
-        <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3 dark:border-mdt-border-dark">
-          <h2 className="text-sm font-semibold text-zinc-800 dark:text-mdt-text-dark">Sections</h2>
-          <Button
-            onClick={createSection}
-            disabled={saving}
-            size="sm"
-            aria-label="Add a new section"
-          >
-            Add
-          </Button>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface px-4 py-3 shadow-mdt-sm">
+        <div className="flex items-center gap-2 text-sm text-mdt-muted">
+          <Badge tone={status === "saving" ? "info" : status === "saved" ? "success" : "neutral"}>
+            {status === "saving" ? "Saving…" : status === "saved" ? "Saved" : "Idle"}
+          </Badge>
+          <Badge tone="info">Outline · Editor · Preview</Badge>
+          <Badge tone="primary">Cmd/Ctrl+S saves</Badge>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto px-2 py-2" role="list">
-          {isLoading && (
-            <p className="px-2 py-2 text-sm text-zinc-500" role="status">
-              Loading...
-            </p>
-          )}
-          {!isLoading && sections.length === 0 && (
-            <p className="px-2 py-2 text-sm text-zinc-500">
-              No sections yet. Create your first one.
-            </p>
-          )}
-          {sections.map((section, idx) => (
-            <div role="listitem" key={section.id}>
-              <button
-                onClick={() => setSelected(section)}
-                style={{ transitionDelay: `${idx * 15}ms` }}
-                aria-current={selected?.id === section.id}
-                className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-mdt-fast ease-mdt-emphasized focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-mdt-bg-dark ${
-                  selected?.id === section.id
-                    ? "bg-mdt-primary-soft text-mdt-text focus-visible:ring-mdt-ring dark:bg-mdt-surface-strong dark:text-mdt-text"
-                    : "hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-strong"
-                }`}
-              >
-                <span className="truncate text-sm font-medium">{section.title}</span>
-                <span className="text-[11px] text-zinc-500" aria-label={`Order ${section.order}`}>
-                  #{section.order}
-                </span>
-              </button>
-            </div>
-          ))}
+        <div className="flex gap-2">
+          <Button variant="secondary" size="sm" onClick={loadSections} disabled={isLoading || saving}>
+            Refresh
+          </Button>
+          <Button size="sm" onClick={createSection} disabled={saving} aria-label="Add a new section">
+            New section
+          </Button>
         </div>
       </div>
 
-      <div className={panelClass} aria-busy={saving}>
-        <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3 dark:border-mdt-border-dark">
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-zinc-800 dark:text-mdt-text-dark">Editor</span>
-            <span className="text-xs text-zinc-500 dark:text-mdt-muted-dark">
-              Live Markdown saves back to your Section
-            </span>
-          </div>
-          {selected && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => deleteSection(selected.id)}
-              disabled={saving}
-              aria-label={`Delete section ${selected.title || selected.id}`}
-              className="text-red-600 hover:text-red-500 dark:text-red-400"
-            >
-              Delete
+      <div className="composer-grid grid grid-cols-1 gap-6 lg:grid-cols-[320px_1.1fr_1.1fr]">
+        <div className={panelClass} aria-live="polite" aria-busy={isLoading}>
+          <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3">
+            <h2 className="text-sm font-semibold text-mdt-text">Outline</h2>
+            <Button onClick={createSection} disabled={saving} size="sm" aria-label="Add a new section">
+              Add
             </Button>
-          )}
+          </div>
+          <div className="max-h-[70vh] overflow-y-auto px-2 py-2" role="list">
+            {isLoading && (
+              <p className="px-2 py-2 text-sm text-mdt-muted" role="status">
+                Loading...
+              </p>
+            )}
+            {!isLoading && sections.length === 0 && (
+              <p className="px-2 py-2 text-sm text-mdt-muted">No sections yet. Create your first one.</p>
+            )}
+            {sections.map((section, idx) => (
+              <div role="listitem" key={section.id}>
+                <button
+                  onClick={() => setSelected(section)}
+                  style={{ transitionDelay: `${idx * 15}ms` }}
+                  aria-current={selected?.id === section.id}
+                  className={`group mb-2 flex w-full items-start justify-between rounded-xl px-3 py-2 text-left transition duration-mdt-fast ease-mdt-emphasized focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] ${
+                    selected?.id === section.id
+                      ? "bg-mdt-primary-soft text-mdt-text"
+                      : "hover:bg-mdt-surface-subtle"
+                  }`}
+                >
+                  <span className="truncate text-sm font-medium">{section.title || "Untitled"}</span>
+                  <span className="text-[11px] text-mdt-muted" aria-label={`Order ${section.order}`}>
+                    #{section.order}
+                  </span>
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-3 px-4 py-4">
-          <input
-            type="text"
-            placeholder="Section title"
-            value={selected?.title ?? ""}
-            onChange={(e) =>
-              updateSelected({ title: e.target.value ?? "Untitled section" })
-            }
-          onBlur={() => selectedRef.current && saveSection(selectedRef.current)}
-            disabled={!selected}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
-          />
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-zinc-700 dark:text-mdt-text-dark" htmlFor="section-tags">
-              Tags (comma separated)
-            </label>
-            <input
-              id="section-tags"
-              type="text"
-              placeholder="system, tools, style"
-              value={tagInput}
-              onChange={(e) => handleTagsChange(e.target.value)}
-              onBlur={() => selectedRef.current && !tagError && saveSection(selectedRef.current)}
-              disabled={!selected}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
-            />
-            <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-mdt-muted-dark">
-              <span>Lowercase & kebab-case enforced. Max {TAG_MAX_COUNT} tags, {TAG_MAX_LENGTH} chars each.</span>
-              <span>{selected?.tags?.length ?? 0}/{TAG_MAX_COUNT}</span>
+
+        <div className={panelClass} aria-busy={saving}>
+          <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3">
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-mdt-text">Editor</span>
+              <span className="text-xs text-mdt-muted">Live markdown saves to your Section</span>
             </div>
-            {tagError && (
-              <p className="text-xs font-semibold text-red-600" role="alert">
-                {tagError}
+            {selected && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteSection(selected.id)}
+                disabled={saving}
+                aria-label={`Delete section ${selected.title || selected.id}`}
+                className="text-mdt-text"
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-col gap-3 px-4 py-4">
+            <input
+              type="text"
+              placeholder="Section title"
+              value={selected?.title ?? ""}
+              onChange={(e) => updateSelected({ title: e.target.value ?? "Untitled section" })}
+              onBlur={() => selectedRef.current && saveSection(selectedRef.current)}
+              disabled={!selected}
+              className="w-full rounded-lg border border-mdt-border bg-mdt-surface-subtle px-3 py-2 text-sm focus:border-mdt-ring focus:outline-none focus:ring-2 focus:ring-mdt-ring disabled:cursor-not-allowed disabled:bg-mdt-surface"
+            />
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-mdt-text" htmlFor="section-tags">
+                Tags (comma separated)
+              </label>
+              <input
+                id="section-tags"
+                type="text"
+                placeholder="system, tools, style"
+                value={tagInput}
+                onChange={(e) => handleTagsChange(e.target.value)}
+                onBlur={() => selectedRef.current && !tagError && saveSection(selectedRef.current)}
+                disabled={!selected}
+                className="w-full rounded-lg border border-mdt-border bg-mdt-surface-subtle px-3 py-2 text-sm focus:border-mdt-ring focus:outline-none focus:ring-2 focus:ring-mdt-ring disabled:cursor-not-allowed disabled:bg-mdt-surface"
+              />
+              <div className="flex items-center justify-between text-[11px] text-mdt-muted">
+                <span>
+                  Lowercase & kebab-case enforced. Max {TAG_MAX_COUNT} tags, {TAG_MAX_LENGTH} chars each.
+                </span>
+                <span>
+                  {selected?.tags?.length ?? 0}/{TAG_MAX_COUNT}
+                </span>
+              </div>
+              {tagError && (
+                <p className="text-xs font-semibold text-mdt-danger" role="alert">
+                  {tagError}
+                </p>
+              )}
+            </div>
+            <textarea
+              placeholder="Write markdown here..."
+              value={selected?.content ?? ""}
+              onChange={(e) => updateSelected({ content: e.target.value })}
+              onBlur={() => selected && saveSection(selected)}
+              disabled={!selected}
+              rows={18}
+              className="w-full rounded-lg border border-mdt-border bg-mdt-surface-subtle px-3 py-2 text-sm font-mono focus:border-mdt-ring focus:outline-none focus:ring-2 focus:ring-mdt-ring disabled:cursor-not-allowed disabled:bg-mdt-surface"
+            />
+            {error && (
+              <p className="text-sm font-medium text-mdt-danger" role="alert">
+                {error}
               </p>
             )}
           </div>
-          <textarea
-            placeholder="Write markdown here..."
-            value={selected?.content ?? ""}
-            onChange={(e) => updateSelected({ content: e.target.value })}
-            onBlur={() => selected && saveSection(selected)}
-            disabled={!selected}
-            rows={18}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:ring-indigo-900"
-          />
-          {error && (
-            <p className="text-sm font-medium text-red-600" role="alert">
-              {error}
-            </p>
-          )}
         </div>
-      </div>
 
-      <div className={panelClass}>
-        <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3 dark:border-mdt-border-dark">
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-zinc-800 dark:text-mdt-text-dark">
-              Preview
-            </span>
-            <span className="text-xs text-zinc-500 dark:text-mdt-muted-dark">Rendered Markdown</span>
+        <div className={panelClass}>
+          <div className="flex items-center justify-between border-b border-mdt-border px-4 py-3">
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-mdt-text">Preview</span>
+              <span className="text-xs text-mdt-muted">Rendered Markdown</span>
+            </div>
           </div>
-        </div>
-        <div className="markdown-preview px-4 py-4">
-          {combinedMarkdown ? (
-            <ReactMarkdown remarkPlugins={remarkGfm ? [remarkGfm] : undefined}>
-              {combinedMarkdown}
-            </ReactMarkdown>
-          ) : (
-            <p className="text-sm text-zinc-500">Start typing to see a preview.</p>
-          )}
+          <div className="markdown-preview px-4 py-4 max-h-[70vh] overflow-y-auto">
+            {combinedMarkdown ? (
+              <ReactMarkdown remarkPlugins={remarkGfm ? [remarkGfm] : undefined}>
+                {combinedMarkdown}
+              </ReactMarkdown>
+            ) : (
+              <p className="text-sm text-mdt-muted">Start typing to see a preview.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
