@@ -19,6 +19,7 @@
     "bundle:check": "node scripts/check-bundle-size.mjs",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
+    "test:visual": "npx playwright test --config=playwright-visual.config.ts",
     "prepare": "husky"
   },
   "dependencies": {
