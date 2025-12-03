@@ -174,6 +174,8 @@ export function SiteNav({ user }: { user?: User }) {
                 setTimeout(() => inputRef.current?.focus(), 10);
               }}
               aria-label="Search"
+              aria-expanded={showMobileSearch}
+              aria-keyshortcuts="/"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="7" />
@@ -205,6 +207,7 @@ export function SiteNav({ user }: { user?: User }) {
 
           <div className="flex items-center justify-end gap-2 flex-nowrap">
             <form
+              role="search"
               onSubmit={onSearch}
               className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm md:flex"
             >
@@ -215,6 +218,7 @@ export function SiteNav({ user }: { user?: User }) {
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search"
                 ref={inputRef}
+                aria-keyshortcuts="/"
               />
               <Button type="submit" size="sm">
                 Search
@@ -226,6 +230,7 @@ export function SiteNav({ user }: { user?: User }) {
               size="sm"
               className="hidden whitespace-nowrap md:inline-flex"
               onClick={() => openCommandPalette("desktop_nav_button")}
+              aria-keyshortcuts="Meta+K,Control+K"
             >
               Command <span className="text-[11px] text-mdt-muted">⌘K</span>
             </Button>
@@ -311,6 +316,7 @@ export function SiteNav({ user }: { user?: User }) {
                   }}
                   className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text transition hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   aria-label="Open search"
+                  aria-keyshortcuts="/"
                 >
                   <span className="text-xs font-mono" aria-hidden>
                     {item.icon}
@@ -325,7 +331,7 @@ export function SiteNav({ user }: { user?: User }) {
 
       {/* Mobile search modal */}
       {showMobileSearch && (
-        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm md:hidden" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm md:hidden" role="dialog" aria-modal="true" aria-label="Search">
           <div className="absolute inset-x-3 top-16 rounded-2xl border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-mdt-text">Search</p>
@@ -337,7 +343,11 @@ export function SiteNav({ user }: { user?: User }) {
                 Esc
               </button>
             </div>
-            <form onSubmit={onSearch} className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm">
+            <form
+              role="search"
+              onSubmit={onSearch}
+              className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm"
+            >
               <input
                 ref={inputRef}
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
@@ -345,6 +355,7 @@ export function SiteNav({ user }: { user?: User }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search"
+                aria-keyshortcuts="/"
               />
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap gap-2 text-[11px] text-mdt-muted">
@@ -443,6 +454,7 @@ export function SiteNav({ user }: { user?: User }) {
                 type="button"
                 className="text-sm text-mdt-muted hover:text-mdt-text"
                 onClick={() => setShowOverflowSheet(false)}
+                aria-expanded={showOverflowSheet}
               >
                 Close
               </button>

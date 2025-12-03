@@ -229,6 +229,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                         : "text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-mdt-text-dark"
                   }`}
                   aria-current={active ? "step" : undefined}
+                  aria-pressed={active}
                 >
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs">
                     {idx + 1}

@@ -14,6 +14,13 @@ declare global {
 const SAMPLE_RATE = 0.35;
 const API_SAMPLE_RATE = 0.15;
 
+const perfBudgets: Record<string, { lcp: number; cls: number }> = {
+  "/": { lcp: 2500, cls: 0.1 },
+  "/browse": { lcp: 2500, cls: 0.1 },
+  "/templates": { lcp: 2400, cls: 0.1 },
+  "/builder": { lcp: 2600, cls: 0.1 },
+};
+
 function emit(event: string, data: MetricPayload) {
   if (typeof window === "undefined") return;
   const payload = { event, ...data };
@@ -38,6 +45,11 @@ function deviceContext(path: string) {
     rtt: connection?.rtt,
     saveData: connection?.saveData,
   };
+}
+
+function budgetFor(path: string) {
+  const match = Object.keys(perfBudgets).find((key) => (key === "/" ? path === key : path.startsWith(key)));
+  return match ? perfBudgets[match] : { lcp: 3000, cls: 0.1 };
 }
 
 export function PerfVitals() {
@@ -70,9 +82,18 @@ export function PerfVitals() {
 
     import("web-vitals").then(({ onFCP, onLCP, onCLS, onINP, onTTFB }) => {
       if (cancelled) return;
+      const budget = budgetFor(pathname ?? "/");
       onFCP((metric) => emit("web_vital_fcp", { ...context, value: Math.round(metric.value) }));
-      onLCP((metric) => emit("web_vital_lcp", { ...context, value: Math.round(metric.value) }));
-      onCLS((metric) => emit("web_vital_cls", { ...context, value: Number(metric.value.toFixed(4)) }));
+      onLCP((metric) => {
+        const value = Math.round(metric.value);
+        emit("web_vital_lcp", { ...context, value });
+        if (value > budget.lcp) emit("perf_budget_violation", { ...context, metric: "lcp", value, budget: budget.lcp });
+      });
+      onCLS((metric) => {
+        const value = Number(metric.value.toFixed(4));
+        emit("web_vital_cls", { ...context, value });
+        if (value > budget.cls) emit("perf_budget_violation", { ...context, metric: "cls", value, budget: budget.cls });
+      });
       onINP((metric) => emit("web_vital_inp", { ...context, value: Math.round(metric.value) }));
       onTTFB((metric) => {
         const entry = metric?.entries?.[0] as PerformanceNavigationTiming | undefined;
