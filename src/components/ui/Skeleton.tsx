@@ -13,7 +13,7 @@ export function Skeleton({ className }: SkeletonProps) {
     <div
       role="presentation"
       aria-hidden="true"
-      className={cn("motion-skeleton rounded-mdt-md bg-mdt-surface-strong", className)}
+      className={cn("motion-skeleton rounded-mdt-md bg-mdt-surface-subtle", className)}
     />
   );
 }

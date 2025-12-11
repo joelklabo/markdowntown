@@ -11,7 +11,7 @@ export function Tag({ label, onRemove, className, ...props }: TagProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-3 py-1 text-sm text-mdt-text",
+        "inline-flex items-center gap-mdt-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm text-mdt-text",
         className
       )}
       {...props}
@@ -23,7 +23,7 @@ export function Tag({ label, onRemove, className, ...props }: TagProps) {
           size="sm"
           aria-label={`Remove ${label}`}
           onClick={onRemove}
-          className="h-6 w-6 p-0 text-xs"
+          className="h-6 w-6 p-0 text-caption"
         >
           ×
         </IconButton>

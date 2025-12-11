@@ -17,6 +17,7 @@ describe("Pill", () => {
   it("applies tone class", () => {
     const { getByText } = render(<Pill tone="yellow">Alert</Pill>);
     const el = getByText("Alert");
-    expect(el.className).toContain("pill-yellow");
+    expect(el.className).toContain("bg-mdt-accent-soft");
+    expect(el.className).toContain("text-mdt-accent");
   });
 });

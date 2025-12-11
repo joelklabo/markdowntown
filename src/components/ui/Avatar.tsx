@@ -16,9 +16,9 @@ function initialsFromName(name?: string) {
 
 export function Avatar({ name, src, size = "md", alt, className, ...props }: AvatarProps) {
   const sizeMap: Record<typeof size, string> = {
-    sm: "h-8 w-8 text-xs",
-    md: "h-10 w-10 text-sm",
-    lg: "h-12 w-12 text-base",
+    sm: "h-8 w-8 text-caption",
+    md: "h-10 w-10 text-body-sm",
+    lg: "h-12 w-12 text-body",
   };
   return (
     <div

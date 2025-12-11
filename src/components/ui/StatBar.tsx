@@ -11,8 +11,8 @@ type StatBarProps = {
 export function StatBar({ label, value, max = 100, colorVar = "var(--mdt-data-2)", className }: StatBarProps) {
   const pct = Math.min(Math.max((value / max) * 100, 0), 100);
   return (
-    <div className={cn("space-y-1 rounded-mdt-md border border-mdt-border bg-mdt-surface p-3", className)}>
-      <div className="flex items-center justify-between text-sm text-mdt-muted">
+    <div className={cn("space-y-mdt-1 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-3", className)}>
+      <div className="flex items-center justify-between text-body-sm text-mdt-muted">
         <span>{label}</span>
         <span className="font-semibold text-mdt-text">{value.toLocaleString()}</span>
       </div>

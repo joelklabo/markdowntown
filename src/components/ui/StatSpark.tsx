@@ -25,7 +25,7 @@ export function StatSpark({ values, colorVar = "var(--mdt-data-1)", className, l
     .join(", ");
 
   return (
-    <div className={cn("flex items-center gap-2", className)} aria-label={label ?? "Sparkline"}>
+    <div className={cn("flex items-center gap-mdt-2", className)} aria-label={label ?? "Sparkline"}>
       <div
         className="h-8 w-24 rounded-mdt-md border border-mdt-border bg-gradient-to-b from-mdt-surface to-mdt-surface-subtle"
         style={{
@@ -36,7 +36,7 @@ export function StatSpark({ values, colorVar = "var(--mdt-data-1)", className, l
           WebkitMaskImage: `polygon(${points})`,
         }}
       />
-      {label && <span className="text-xs text-mdt-muted">{label}</span>}
+      {label && <span className="text-caption text-mdt-muted">{label}</span>}
     </div>
   );
 }
