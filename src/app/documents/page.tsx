@@ -6,6 +6,10 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { normalizeTags } from "@/lib/tags";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export default async function DocumentsPage() {
   const session = await auth();
@@ -17,42 +21,46 @@ export default async function DocumentsPage() {
   });
 
   return (
-    <main id="main-content" className="mx-auto max-w-5xl px-4 py-10 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-caption text-mdt-muted">Documents</p>
-          <h1 className="text-display">Your agents.md files</h1>
-        </div>
-        <Button asChild>
-          <Link href="/documents/new">New document</Link>
-        </Button>
-      </div>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Row wrap align="center" justify="between" gap={3}>
+            <Stack gap={1}>
+              <Text size="caption" tone="muted">Documents</Text>
+              <Heading level="display" leading="tight">Your agents.md files</Heading>
+            </Stack>
+            <Button asChild>
+              <Link href="/documents/new">New document</Link>
+            </Button>
+          </Row>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {docs.map((doc) => {
-          const tags = normalizeTags(doc.tags, { strict: false }).tags;
-          return (
-            <Card key={doc.id} className="space-y-2 p-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-h3">{doc.title}</h3>
-                <Button variant="secondary" size="sm" asChild>
-                  <Link href={`/documents/${doc.id}`}>Edit</Link>
-                </Button>
-              </div>
-              <p className="text-sm text-mdt-muted line-clamp-2">{doc.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Pill key={tag} tone="gray">#{tag}</Pill>
-                ))}
-              </div>
-              <p className="text-xs text-mdt-muted">Updated {doc.updatedAt.toDateString()}</p>
-            </Card>
-          );
-        })}
-        {docs.length === 0 && (
-          <Card className="p-6 text-sm text-mdt-muted">No documents yet. Create your first agents.md.</Card>
-        )}
-      </div>
+          <div className="grid gap-mdt-4 sm:grid-cols-2">
+            {docs.map((doc) => {
+              const tags = normalizeTags(doc.tags, { strict: false }).tags;
+              return (
+                <Card key={doc.id} className="space-y-2 p-4">
+                  <Row align="center" justify="between" gap={2}>
+                    <Heading level="h3" as="h3">{doc.title}</Heading>
+                    <Button variant="secondary" size="xs" asChild>
+                      <Link href={`/documents/${doc.id}`}>Edit</Link>
+                    </Button>
+                  </Row>
+                  <Text size="bodySm" tone="muted" className="line-clamp-2">{doc.description}</Text>
+                  <Row wrap gap={2}>
+                    {tags.map((tag) => (
+                      <Pill key={tag} tone="gray">#{tag}</Pill>
+                    ))}
+                  </Row>
+                  <Text size="caption" tone="muted">Updated {doc.updatedAt.toDateString()}</Text>
+                </Card>
+              );
+            })}
+            {docs.length === 0 && (
+              <Card className="p-6 text-sm text-mdt-muted">No documents yet. Create your first agents.md.</Card>
+            )}
+          </div>
+        </Stack>
+      </Container>
     </main>
   );
 }
