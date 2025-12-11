@@ -8,7 +8,7 @@ type Props = {
   callbackUrl: string;
   children: React.ReactNode;
   variant?: "primary" | "secondary" | "ghost";
-  size?: "md" | "lg" | "sm";
+  size?: "xs" | "sm" | "md" | "lg";
   disabled?: boolean;
   className?: string;
 };

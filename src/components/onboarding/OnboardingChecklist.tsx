@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Surface } from "@/components/ui/Surface";
 import { cn } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 
@@ -60,7 +60,7 @@ export function OnboardingChecklist({ onLoadSample }: { onLoadSample: () => void
 
   return (
     <div className="fixed bottom-4 right-4 z-30 w-[300px] max-w-[90vw]">
-      <Card className="space-y-3 border-mdt-border bg-[color:var(--mdt-color-surface)] shadow-mdt-lg">
+      <Surface tone="raised" padding="md" className="space-y-mdt-3 shadow-mdt-lg">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-caption text-mdt-muted">Guided steps</p>
@@ -104,7 +104,7 @@ export function OnboardingChecklist({ onLoadSample }: { onLoadSample: () => void
           </Button>
           {allDone && <span className="text-xs text-mdt-success">Nice! Checklist complete.</span>}
         </div>
-      </Card>
+      </Surface>
     </div>
   );
 }

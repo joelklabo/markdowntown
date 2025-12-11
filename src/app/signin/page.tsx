@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { DemoLoginButton } from "@/components/auth/DemoLoginButton";
 import { GithubLoginButton } from "@/components/auth/GithubLoginButton";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata = {
   title: "Sign in · MarkdownTown",
@@ -25,50 +29,51 @@ export default async function SignInPage({
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text">
       <header className="border-b border-mdt-border bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+        <Container size="md" padding="md" className="flex items-center justify-between py-4">
           <BrandLogo />
           <Button asChild size="sm">
             <Link href="/">Back home</Link>
           </Button>
-        </div>
+        </Container>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-12 md:flex-row md:items-start md:py-16">
-        <div className="flex-1 space-y-3">
-          <p className="text-h3 text-mdt-muted">Sign in</p>
-          <h1 className="text-display">Welcome back to your town</h1>
-          <p className="text-body text-mdt-muted max-w-xl">
+      <main id="main-content" className="py-mdt-12 md:py-mdt-16">
+        <Container size="md" padding="md" className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+        <Stack gap={3} className="flex-1">
+          <Text size="caption" tone="muted">Sign in</Text>
+          <Heading level="display" leading="tight">Welcome back to your town</Heading>
+          <Text tone="muted" className="max-w-xl">
             Use your GitHub account to access your private markdown sections. You can always
             revoke access in GitHub settings.
-          </p>
-          <div className="flex flex-wrap gap-3">
+          </Text>
+          <Row wrap gap={3}>
             <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured}>
               {githubConfigured ? "Continue with GitHub" : "GitHub not configured"}
             </GithubLoginButton>
             <Button variant="secondary" asChild>
               <Link href="/">Cancel</Link>
             </Button>
-          </div>
+          </Row>
           {!githubConfigured && (
-            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-mdt-md px-3 py-2">
+            <div className="rounded-mdt-md border border-[color:var(--mdt-color-warning)]/30 bg-[color:var(--mdt-color-warning)]/10 px-3 py-2 text-body-sm text-[color:var(--mdt-color-warning)]">
               GitHub OAuth is not configured in this environment. Add GITHUB_CLIENT_ID/SECRET or use the demo login below.
-            </p>
+            </div>
           )}
           {error && (
-            <p className="text-sm text-red-600">
+            <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
               Sign-in failed: {error.replaceAll("_", " ")}
-            </p>
+            </Text>
           )}
-        </div>
+        </Stack>
 
         <div className="flex-1 w-full max-w-xl">
-          <Card className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-h3">What you get</p>
-              <p className="text-body text-mdt-muted">
+          <Surface padding="lg" className="space-y-mdt-4">
+            <Stack gap={1}>
+              <Heading level="h3" as="p">What you get</Heading>
+              <Text tone="muted">
                 Private storage for your sections, live preview, and agent-ready exports.
-              </p>
-            </div>
+              </Text>
+            </Stack>
             <ul className="space-y-2 text-body text-mdt-muted list-disc pl-5">
               <li>Secure OAuth via GitHub</li>
               <li>Session-backed API access to sections</li>
@@ -91,8 +96,9 @@ export default async function SignInPage({
                 <DemoLoginButton password={demoPassword} callbackUrl={callbackUrl} />
               </div>
             )}
-          </Card>
+          </Surface>
         </div>
+        </Container>
       </main>
     </div>
   );
