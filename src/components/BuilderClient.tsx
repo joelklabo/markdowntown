@@ -4,9 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { Pill } from "./ui/Pill";
+import { Container } from "./ui/Container";
+import { Stack, Row } from "./ui/Stack";
+import { Surface } from "./ui/Surface";
+import { Heading } from "./ui/Heading";
+import { Text } from "./ui/Text";
+import { TextArea } from "./ui/TextArea";
 import { cn } from "@/lib/cn";
 import { BuilderStatus } from "./BuilderStatus";
 import { useBuilderStore } from "@/hooks/useBuilderStore";
@@ -277,110 +282,118 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
   }
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 pb-32 pt-6 space-y-6">
-      <OnboardingChecklist
-        onLoadSample={() => {
-          const sample = templates[0];
-          const sampleSnips = snippets.slice(0, 3);
-          if (sample) setSelectedTemplate(sample.id);
-          sampleSnips.forEach((s) => toggleSnippet(s.id));
-          showToast("Loaded sample project", "success");
-          track("onboarding_sample_load", { templateId: sample?.id, snippetCount: sampleSnips.length });
-        }}
-      />
-      {toast && (
-        <div
-          role="status"
-          className={`fixed right-4 top-20 z-40 min-w-[220px] rounded-mdt-md border px-3 py-2 text-sm shadow-mdt-lg ${
-            toast.tone === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : toast.tone === "error"
-                ? "border-red-200 bg-red-50 text-red-800"
-                : "border-mdt-border bg-mdt-surface text-mdt-text"
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
-      <div className="sticky top-16 z-10 rounded-xl border border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm backdrop-blur-md dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark/95">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
-            {steps.map((label, idx) => {
-              const active = idx === stepIndex;
-              const done = idx < stepIndex;
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => goStep(idx)}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1 transition ${
-                    active
-                      ? "bg-mdt-blue text-white"
-                      : done
-                        ? "bg-mdt-bg text-mdt-text dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
-                        : "text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-mdt-text-dark"
-                  }`}
-                  aria-current={active ? "step" : undefined}
-                  aria-pressed={active}
-                >
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs">
-                    {idx + 1}
-                  </span>
-                  <span className="hidden sm:inline">{label}</span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-32 rounded-full bg-mdt-bg dark:bg-mdt-bg-dark">
-              <div
-                className="h-2 rounded-full bg-mdt-blue transition-all"
-                style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
-                aria-hidden
-              />
+    <main id="main-content" className="py-mdt-6 pb-32">
+      <Container size="lg" padding="md">
+        <Stack gap={6}>
+          <OnboardingChecklist
+            onLoadSample={() => {
+              const sample = templates[0];
+              const sampleSnips = snippets.slice(0, 3);
+              if (sample) setSelectedTemplate(sample.id);
+              sampleSnips.forEach((s) => toggleSnippet(s.id));
+              showToast("Loaded sample project", "success");
+              track("onboarding_sample_load", { templateId: sample?.id, snippetCount: sampleSnips.length });
+            }}
+          />
+          {toast && (
+            <div
+              role="status"
+              className={cn(
+                "fixed right-4 top-20 z-40 min-w-[220px] rounded-mdt-md border px-3 py-2 text-body-sm shadow-mdt-lg",
+                toast.tone === "success"
+                  ? "border-[color:var(--mdt-color-success)]/30 bg-[color:var(--mdt-color-success)]/10 text-[color:var(--mdt-color-success)]"
+                  : toast.tone === "error"
+                    ? "border-[color:var(--mdt-color-danger)]/30 bg-[color:var(--mdt-color-danger)]/10 text-[color:var(--mdt-color-danger)]"
+                    : "border-mdt-border bg-mdt-surface text-mdt-text"
+              )}
+            >
+              {toast.message}
             </div>
-            <span className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
-              Step {stepIndex + 1} of {steps.length}
-            </span>
-          </div>
-        </div>
-      </div>
+          )}
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <p className="text-caption text-mdt-muted">Builder</p>
-          <h1 className="text-display">Assemble your agents.md</h1>
-          <p className="text-body text-mdt-muted max-w-2xl">
-            Pick a template, add snippets, reorder, then copy, download, or save as a document.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" asChild>
-            <Link href="/browse">Browse library</Link>
-          </Button>
-          <Button asChild>
-            <Link href={requireAuth ? "/signin?callbackUrl=/builder" : "/documents"}>Your documents</Link>
-          </Button>
-        </div>
-      </div>
+          <Surface
+            as="div"
+            padding="sm"
+            className="sticky top-16 z-10 rounded-xl bg-white/95 shadow-mdt-sm backdrop-blur-md dark:bg-mdt-bg-soft-dark/95"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
+                {steps.map((label, idx) => {
+                  const active = idx === stepIndex;
+                  const done = idx < stepIndex;
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => goStep(idx)}
+                      className={`flex items-center gap-2 rounded-md px-2 py-1 transition ${
+                        active
+                          ? "bg-mdt-blue text-white"
+                          : done
+                            ? "bg-mdt-bg text-mdt-text dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+                            : "text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-mdt-text-dark"
+                      }`}
+                      aria-current={active ? "step" : undefined}
+                      aria-pressed={active}
+                    >
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs">
+                        {idx + 1}
+                      </span>
+                      <span className="hidden sm:inline">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-32 rounded-full bg-mdt-bg dark:bg-mdt-bg-dark">
+                  <div
+                    className="h-2 rounded-full bg-mdt-blue transition-all"
+                    style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
+                    aria-hidden
+                  />
+                </div>
+                <span className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
+                  Step {stepIndex + 1} of {steps.length}
+                </span>
+              </div>
+            </div>
+          </Surface>
 
-      <div className="grid gap-4 xl:grid-cols-[300px_300px_1fr_260px] lg:grid-cols-[300px_300px_1fr]">
-        <Card className="space-y-3" data-step-anchor="template">
+          <Row wrap gap={3} justify="between" align="center">
+            <Stack gap={1}>
+              <Text size="caption" tone="muted">Builder</Text>
+              <Heading level="display" leading="tight">Assemble your agents.md</Heading>
+              <Text tone="muted" className="max-w-2xl">
+                Pick a template, add snippets, reorder, then copy, download, or save as a document.
+              </Text>
+            </Stack>
+            <Row gap={2} wrap>
+              <Button variant="secondary" asChild>
+                <Link href="/browse">Browse library</Link>
+              </Button>
+              <Button asChild>
+                <Link href={requireAuth ? "/signin?callbackUrl=/builder" : "/documents"}>Your documents</Link>
+              </Button>
+            </Row>
+          </Row>
+
+          <div className="grid gap-4 xl:grid-cols-[300px_300px_1fr_260px] lg:grid-cols-[300px_300px_1fr]">
+        <Surface padding="md" className="space-y-3" data-step-anchor="template">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Templates</h3>
             <Pill tone="yellow">Pick one</Pill>
           </div>
           <div className="space-y-2 max-h-[60vh] overflow-y-auto">
             {templates.map((tpl) => (
-              <button
-                key={tpl.id}
-                data-testid="builder-template"
-                onClick={() => setSelectedTemplate(tpl.id)}
-                className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
-                  selectedTemplate === tpl.id
-                    ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
-                    : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
-                }`}
+                <button
+                  key={tpl.id}
+                  data-testid="builder-template"
+                  onClick={() => setSelectedTemplate(tpl.id)}
+                  className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                    selectedTemplate === tpl.id
+                      ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
+                      : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">{tpl.title}</span>
@@ -390,9 +403,9 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               </button>
             ))}
           </div>
-        </Card>
+        </Surface>
 
-        <Card className="space-y-3" data-step-anchor="snippets">
+        <Surface padding="md" className="space-y-3" data-step-anchor="snippets">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Snippets</h3>
             <Pill tone="blue">Add</Pill>
@@ -416,7 +429,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                           moveSnippet(snip.id, 1);
                         }
                       }}
-                      className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                      className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
                         active
                           ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
                           : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
@@ -452,11 +465,11 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                     )}
                   </div>
                   {active && (
-                    <textarea
+                    <TextArea
                       value={overrides[snip.id] ?? ""}
                       onChange={(e) => setOverride(snip.id, e.target.value)}
                       placeholder="Override this snippet (optional)"
-                      className="w-full rounded-md border border-mdt-border px-2 py-2 text-xs font-mono text-mdt-text shadow-sm focus:border-mdt-info focus:outline-none focus-visible:ring-1 focus-visible:ring-mdt-info dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+                      className="font-mono text-xs shadow-sm"
                       rows={2}
                       aria-label={`Override content for ${snip.title}`}
                     />
@@ -465,9 +478,9 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               );
             })}
           </div>
-        </Card>
+        </Surface>
 
-        <Card className="flex flex-col gap-3" data-step-anchor="preview">
+        <Surface padding="md" className="flex flex-col gap-3" data-step-anchor="preview">
         <div className="flex items-center justify-between">
           <h3 className="text-h3">Preview</h3>
           <div className="flex gap-2">
@@ -531,9 +544,9 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               );
             })}
           </div>
-        </Card>
+        </Surface>
 
-        <Card className="space-y-3" data-step-anchor="outline">
+        <Surface padding="md" className="space-y-3" data-step-anchor="outline">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Outline</h3>
             <div className="flex gap-2">
@@ -613,9 +626,11 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               </Droppable>
             </DragDropContext>
           )}
-        </Card>
+        </Surface>
       </div>
-      <BuilderStatus saveState={saveState} />
+          <BuilderStatus saveState={saveState} />
+        </Stack>
+      </Container>
     </main>
   );
 }
