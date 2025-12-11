@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import type { Metadata } from "next";
+import { Container } from "@/components/ui/Container";
+import { Stack } from "@/components/ui/Stack";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
   title: "Docs | MarkdownTown",
@@ -17,28 +21,32 @@ const docsLinks = [
 
 export default function DocsPage() {
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <div className="space-y-2">
-        <p className="text-caption text-mdt-muted">Docs</p>
-        <h1 className="text-display">MarkdownTown documentation</h1>
-        <p className="text-body text-mdt-muted">
-          Quick links to the guides already in this repo. More to come as the public library ships.
-        </p>
-      </div>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <Text size="caption" tone="muted">Docs</Text>
+            <Heading level="display" leading="tight">MarkdownTown documentation</Heading>
+            <Text tone="muted">
+              Quick links to the guides already in this repo. More to come as the public library ships.
+            </Text>
+          </Stack>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {docsLinks.map((link) => (
-          <Card key={link.href} className="flex items-center justify-between">
-            <div>
-              <h3 className="text-h3">{link.label}</h3>
-              <p className="text-body-sm text-mdt-muted">View {link.label}</p>
-            </div>
-            <Link href={link.href} className="text-mdt-blue hover:underline">
-              Open
-            </Link>
-          </Card>
-        ))}
-      </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {docsLinks.map((link) => (
+              <Card key={link.href} className="flex items-center justify-between">
+                <div>
+                  <Heading level="h3" as="h3">{link.label}</Heading>
+                  <Text size="bodySm" tone="muted">View {link.label}</Text>
+                </div>
+                <Link href={link.href} className="text-mdt-blue hover:underline">
+                  Open
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </Stack>
+      </Container>
     </main>
   );
 }

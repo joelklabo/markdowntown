@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { Stack } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
   title: "Terms | MarkdownTown",
@@ -9,38 +13,41 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-        <div className="space-y-2">
-          <p className="text-caption text-mdt-muted">Terms</p>
-          <h1 className="text-display">MarkdownTown terms of use</h1>
-          <p className="text-body text-mdt-muted">
-            These lightweight terms cover using the local/demo version of MarkdownTown.
-          </p>
-        </div>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <Text size="caption" tone="muted">Terms</Text>
+            <Heading level="display" leading="tight">MarkdownTown terms of use</Heading>
+            <Text tone="muted">
+              These lightweight terms cover using the local/demo version of MarkdownTown.
+            </Text>
+          </Stack>
 
-        <Card className="space-y-2 p-5">
-          <h2 className="text-h3">Acceptable use</h2>
-          <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
-            <li>Use the app for composing, copying, or testing markdown content.</li>
-            <li>Avoid uploading sensitive or production data in this demo environment.</li>
-            <li>Respect third-party licenses when importing or sharing content.</li>
-          </ul>
-        </Card>
+          <Surface padding="lg" className="space-y-mdt-2">
+            <Heading level="h3" as="h2">Acceptable use</Heading>
+            <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
+              <li>Use the app for composing, copying, or testing markdown content.</li>
+              <li>Avoid uploading sensitive or production data in this demo environment.</li>
+              <li>Respect third-party licenses when importing or sharing content.</li>
+            </ul>
+          </Surface>
 
-        <Card className="space-y-2 p-5">
-          <h2 className="text-h3">Liability & availability</h2>
-          <p className="text-sm text-mdt-muted">
-            This preview is provided &quot;as is&quot; with no uptime guarantees. Content may be cleared during development cycles.
-          </p>
-          <p className="text-sm text-mdt-muted">
-            Report issues or questions on GitHub:
-            {" "}
-            <Link href="https://github.com/joelklabo/markdowntown/issues" className="text-mdt-blue hover:underline" target="_blank" rel="noreferrer">
-              github.com/joelklabo/markdowntown
-            </Link>
-            .
-          </p>
-        </Card>
+          <Surface padding="lg" className="space-y-mdt-2">
+            <Heading level="h3" as="h2">Liability & availability</Heading>
+            <Text size="bodySm" tone="muted">
+              This preview is provided &quot;as is&quot; with no uptime guarantees. Content may be cleared during development cycles.
+            </Text>
+            <Text size="bodySm" tone="muted">
+              Report issues or questions on GitHub{" "}
+              <Link href="https://github.com/joelklabo/markdowntown/issues" className="text-mdt-blue hover:underline" target="_blank" rel="noreferrer">
+                github.com/joelklabo/markdowntown
+              </Link>
+              .
+            </Text>
+          </Surface>
+        </Stack>
+      </Container>
     </main>
   );
 }

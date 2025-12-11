@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { Stack } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
   title: "Privacy | MarkdownTown",
@@ -9,39 +13,43 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <div className="space-y-2">
-        <p className="text-caption text-mdt-muted">Privacy</p>
-        <h1 className="text-display">How we handle your data</h1>
-        <p className="text-body text-mdt-muted">
-          MarkdownTown is running in a local/demo environment. We store minimal data and you can remove it anytime.
-        </p>
-      </div>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <Text size="caption" tone="muted">Privacy</Text>
+            <Heading level="display" leading="tight">How we handle your data</Heading>
+            <Text tone="muted">
+              MarkdownTown is running in a local/demo environment. We store minimal data and you can remove it anytime.
+            </Text>
+          </Stack>
 
-      <Card className="space-y-2 p-5">
-        <h2 className="text-h3">What we collect</h2>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
-          <li>Authentication data only when you sign in via GitHub.</li>
-          <li>Content you choose to save (snippets, templates, or documents).</li>
-          <li>Basic usage telemetry when enabled (anonymized for local dev).</li>
-        </ul>
-      </Card>
+          <Surface padding="lg" className="space-y-mdt-2">
+            <Heading level="h3" as="h2">What we collect</Heading>
+            <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
+              <li>Authentication data only when you sign in via GitHub.</li>
+              <li>Content you choose to save (snippets, templates, or documents).</li>
+              <li>Basic usage telemetry when enabled (anonymized for local dev).</li>
+            </ul>
+          </Surface>
 
-      <Card className="space-y-2 p-5">
-        <h2 className="text-h3">Your choices</h2>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
-          <li>Use the app without signing in to browse and copy content.</li>
-          <li>Delete saved documents from the Documents area when signed in.</li>
-          <li>Opt out of telemetry by leaving analytics env vars unset.</li>
-        </ul>
-        <p className="text-sm text-mdt-muted">
-          Questions? Reach out via the project GitHub issues:
-          {" "}
-          <Link href="https://github.com/joelklabo/markdowntown/issues" className="text-mdt-blue hover:underline" target="_blank" rel="noreferrer">
-            github.com/joelklabo/markdowntown
-          </Link>
-        </p>
-      </Card>
+          <Surface padding="lg" className="space-y-mdt-2">
+            <Heading level="h3" as="h2">Your choices</Heading>
+            <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
+              <li>Use the app without signing in to browse and copy content.</li>
+              <li>Delete saved documents from the Documents area when signed in.</li>
+              <li>Opt out of telemetry by leaving analytics env vars unset.</li>
+            </ul>
+            <Text size="bodySm" tone="muted">
+              Questions? Reach out via the project GitHub issues{" "}
+              <Link href="https://github.com/joelklabo/markdowntown/issues" className="text-mdt-blue hover:underline" target="_blank" rel="noreferrer">
+                github.com/joelklabo/markdowntown
+              </Link>
+              .
+            </Text>
+          </Surface>
+        </Stack>
+      </Container>
     </main>
   );
 }

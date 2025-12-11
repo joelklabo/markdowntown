@@ -1,8 +1,12 @@
 import { promises as fs } from "fs";
 import path from "path";
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
 import type { Metadata } from "next";
+import { Container } from "@/components/ui/Container";
+import { Stack } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
   title: "Changelog | MarkdownTown",
@@ -24,33 +28,37 @@ export default async function ChangelogPage() {
   const excerpt = await loadChangelogExcerpt();
 
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <div className="space-y-2">
-        <p className="text-caption text-mdt-muted">Changelog</p>
-        <h1 className="text-display">What\u2019s new in MarkdownTown</h1>
-        <p className="text-body text-mdt-muted">
-          Recent releases and fixes. View the complete history on GitHub.
-        </p>
-        <Link
-          href="https://github.com/joelklabo/markdowntown/blob/main/CHANGELOG.md"
-          className="text-mdt-blue hover:underline"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open full changelog on GitHub
-        </Link>
-      </div>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Stack gap={2}>
+            <Text size="caption" tone="muted">Changelog</Text>
+            <Heading level="display" leading="tight">What\u2019s new in MarkdownTown</Heading>
+            <Text tone="muted">
+              Recent releases and fixes. View the complete history on GitHub.
+            </Text>
+            <Link
+              href="https://github.com/joelklabo/markdowntown/blob/main/CHANGELOG.md"
+              className="text-mdt-blue hover:underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open full changelog on GitHub
+            </Link>
+          </Stack>
 
-      <Card className="space-y-3 p-5">
-        <h2 className="text-h3">Latest entries</h2>
-        {excerpt ? (
-          <pre className="whitespace-pre-wrap font-mono text-sm text-mdt-text">{excerpt}</pre>
-        ) : (
-          <p className="text-sm text-mdt-muted">
-            Couldn\u2019t load the changelog from the repository. Check the GitHub link above for the latest notes.
-          </p>
-        )}
-      </Card>
+          <Surface padding="lg" className="space-y-mdt-3">
+            <Heading level="h3" as="h2">Latest entries</Heading>
+            {excerpt ? (
+              <pre className="whitespace-pre-wrap font-mono text-sm text-mdt-text">{excerpt}</pre>
+            ) : (
+              <Text size="bodySm" tone="muted">
+                Couldn\u2019t load the changelog from the repository. Check the GitHub link above for the latest notes.
+              </Text>
+            )}
+          </Surface>
+        </Stack>
+      </Container>
     </main>
   );
 }
