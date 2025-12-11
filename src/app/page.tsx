@@ -5,6 +5,12 @@ import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
 import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
+import { Input } from "@/components/ui/Input";
 
 export const metadata: Metadata = {
   title: "MarkdownTown | Compose, remix, and ship agents.md fast",
@@ -73,29 +79,39 @@ export default async function Home() {
       <div className="relative overflow-hidden border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(54,214,255,0.12),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(124,243,195,0.14),transparent_26%),radial-gradient(circle_at_60%_70%,rgba(30,168,231,0.10),transparent_32%)]" aria-hidden />
 
-        <section className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 pb-16 pt-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center">
+        <section className="relative">
+          <Container
+            size="lg"
+            padding="lg"
+            className="flex flex-col gap-12 pb-mdt-16 pt-mdt-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center"
+          >
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-mdt-pill bg-[color:var(--mdt-color-surface-subtle)] px-3 py-1 text-sm font-medium text-mdt-muted shadow-mdt-sm">
               <span className="text-[10px] font-semibold uppercase tracking-wide text-[color:var(--mdt-color-primary)]">Public-first</span>
               <span>Copy without login</span>
             </div>
-            <div className="space-y-3">
-              <h1 className="text-display font-display leading-tight text-mdt-text">Compose, remix, and ship agents.md fast</h1>
-              <p className="text-body text-mdt-muted max-w-2xl">
+            <Stack gap={3}>
+              <Heading level="display" leading="tight">Compose, remix, and ship agents.md fast</Heading>
+              <Text tone="muted" className="max-w-2xl">
                 Copy battle-tested snippets and templates, preview in the builder, and export with confidence. Keyboard-first flows keep you moving; light/dark stay in lockstep.
-              </p>
-            </div>
+              </Text>
+            </Stack>
 
-            <form action="/browse" className="grid gap-3 rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-4 shadow-mdt-md sm:grid-cols-[1fr_auto] sm:items-center">
-              <div className="space-y-2">
-                <label className="text-caption text-mdt-muted" htmlFor="hero-search">
+            <Surface
+              as="form"
+              action="/browse"
+              padding="md"
+              className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center"
+            >
+              <Stack gap={2}>
+                <Text as="label" htmlFor="hero-search" size="caption" tone="muted">
                   Search snippets, templates, agents.md
-                </label>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <input
+                </Text>
+                <Row wrap gap={2} className="items-center">
+                  <Input
                     id="hero-search"
                     name="q"
-                    className="w-full rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] px-3 py-3 text-sm shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
+                    className="bg-mdt-surface-subtle py-mdt-3"
                     placeholder='Try "function calling" or "retrieval"'
                     aria-label="Search snippets and templates"
                   />
@@ -112,43 +128,43 @@ export default async function Home() {
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 sm:justify-end">
+                </Row>
+              </Stack>
+              <Row wrap gap={2} justify="end" className="sm:justify-end">
                 <Button type="submit">Browse library</Button>
                 <Button variant="secondary" asChild>
                   <Link href="#build-in-60s">Build in 60s</Link>
                 </Button>
-              </div>
-            </form>
+              </Row>
+            </Surface>
 
             <div className="grid gap-3 sm:grid-cols-3">
               {proof.map((item) => (
-                <Card key={item.label} className="space-y-1 bg-[color:var(--mdt-color-surface)]">
-                  <p className="text-caption text-mdt-muted">{item.label}</p>
-                  <p className="text-h2 font-display text-mdt-text">{item.value}</p>
-                  <p className="text-sm text-mdt-muted">{item.hint}</p>
-                </Card>
+                <Surface key={item.label} padding="md" className="space-y-1">
+                  <Text size="caption" tone="muted">{item.label}</Text>
+                  <Heading level="h2" as="p">{item.value}</Heading>
+                  <Text size="bodySm" tone="muted">{item.hint}</Text>
+                </Surface>
               ))}
             </div>
           </div>
 
           <div className="relative">
-            <Card className="space-y-5 border-mdt-border bg-[color:var(--mdt-color-surface)] shadow-mdt-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-caption text-mdt-muted">Live builder preview</p>
-                  <h2 className="text-h3 font-display">Structured agents.md</h2>
-                </div>
-                <Button size="sm" variant="secondary" asChild>
+            <Surface tone="raised" padding="lg" className="space-y-mdt-5 shadow-mdt-lg">
+              <Row align="center" justify="between" gap={3}>
+                <Stack gap={1}>
+                  <Text size="caption" tone="muted">Live builder preview</Text>
+                  <Heading level="h3" as="h2">Structured agents.md</Heading>
+                </Stack>
+                <Button size="xs" variant="secondary" asChild>
                   <Link href="/builder">Open builder</Link>
                 </Button>
-              </div>
-              <div className="space-y-3 rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] p-4 shadow-mdt-sm">
-                <div className="flex items-center gap-2 text-sm text-mdt-muted">
+              </Row>
+              <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+                <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
                   <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-success)]" aria-hidden />
                   Live preview ready - autosaves disabled for anon
-                </div>
+                </Row>
                 <div className="grid gap-2 md:grid-cols-2">
                   {[
                     { title: "Cache intent", subtitle: "edge / safe" },
@@ -156,10 +172,10 @@ export default async function Home() {
                     { title: "Sections", subtitle: "7 building blocks" },
                     { title: "Status", subtitle: "ready to export" },
                   ].map((item) => (
-                    <div key={item.title} className="rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface)] px-3 py-2">
-                      <p className="text-sm font-semibold text-mdt-text">{item.title}</p>
-                      <p className="text-xs text-mdt-muted">{item.subtitle}</p>
-                    </div>
+                    <Surface key={item.title} padding="sm">
+                      <Text size="bodySm" weight="semibold">{item.title}</Text>
+                      <Text size="caption" tone="muted">{item.subtitle}</Text>
+                    </Surface>
                   ))}
                 </div>
                 <div className="grid gap-2">
@@ -167,63 +183,65 @@ export default async function Home() {
                   <div className="h-2 w-[82%] rounded-md bg-[rgba(124,243,195,0.18)]" />
                   <div className="h-2 w-[64%] rounded-md bg-[rgba(30,168,231,0.16)]" />
                 </div>
-              </div>
-            </Card>
+              </Surface>
+            </Surface>
           </div>
+          </Container>
         </section>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 pb-16 pt-12 space-y-12">
-        <section className="grid gap-6 rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-6 shadow-mdt-md md:grid-cols-[1.4fr_1fr]" id="build-in-60s">
-          <div className="space-y-3">
-            <p className="text-caption text-mdt-muted">Build in 60 seconds</p>
-            <h3 className="text-h2 font-display">Guided, keyboard-first path</h3>
-            <div className="space-y-4">
-              {buildSteps.map((step, idx) => (
-                <div key={step.title} className="flex gap-3 rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] p-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--mdt-color-primary-soft)] text-sm font-semibold text-[color:var(--mdt-color-primary-strong)]">
-                    {idx + 1}
-                  </span>
-                  <div>
-                    <p className="font-semibold text-mdt-text">{step.title}</p>
-                    <p className="text-sm text-mdt-muted">{step.copy}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/builder">Start guided build</Link>
-              </Button>
-              <Button variant="secondary" asChild>
-                <Link href="/browse">Browse library</Link>
-              </Button>
-            </div>
-          </div>
+      <Container size="lg" padding="lg" className="pb-mdt-16 pt-mdt-12">
+        <Stack gap={12}>
+          <Surface as="section" id="build-in-60s" padding="lg" className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
+            <Stack gap={3}>
+              <Text size="caption" tone="muted">Build in 60 seconds</Text>
+              <Heading level="h2" as="h3">Guided, keyboard-first path</Heading>
+              <Stack gap={4}>
+                {buildSteps.map((step, idx) => (
+                  <Surface key={step.title} tone="subtle" padding="sm" className="flex gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--mdt-color-primary-soft)] text-sm font-semibold text-[color:var(--mdt-color-primary-strong)]">
+                      {idx + 1}
+                    </span>
+                    <div>
+                      <Text weight="semibold">{step.title}</Text>
+                      <Text size="bodySm" tone="muted">{step.copy}</Text>
+                    </div>
+                  </Surface>
+                ))}
+              </Stack>
+              <Row wrap gap={3}>
+                <Button asChild>
+                  <Link href="/builder">Start guided build</Link>
+                </Button>
+                <Button variant="secondary" asChild>
+                  <Link href="/browse">Browse library</Link>
+                </Button>
+              </Row>
+            </Stack>
 
-          <div className="space-y-4 rounded-mdt-md border border-dashed border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] p-4 shadow-mdt-sm">
-            <p className="text-caption text-mdt-muted">Quality signals</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {["Live preview", "Copy without login", "Keyboard shortcuts", "Light & dark"].map((label) => (
-                <div key={label} className="rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface)] px-3 py-2 text-sm text-mdt-text shadow-mdt-sm">
-                  {label}
-                </div>
-              ))}
-            </div>
-            <div className="rounded-mdt-md bg-[color:var(--mdt-color-surface)] p-3 text-sm text-mdt-muted">
-              Use a template jumps to curated rails, and the bottom nav keeps Builder one tap away on mobile.
-            </div>
-          </div>
-        </section>
+            <Surface tone="subtle" padding="md" className="space-y-mdt-4 border-dashed">
+              <Text size="caption" tone="muted">Quality signals</Text>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {["Live preview", "Copy without login", "Keyboard shortcuts", "Light & dark"].map((label) => (
+                  <Surface key={label} padding="sm" className="text-body-sm">
+                    {label}
+                  </Surface>
+                ))}
+              </div>
+              <Surface padding="sm" className="text-body-sm text-mdt-muted">
+                Use a template jumps to curated rails, and the bottom nav keeps Builder one tap away on mobile.
+              </Surface>
+            </Surface>
+          </Surface>
 
-        <section className="grid gap-4 md:grid-cols-2" id="features">
-          {features.map((feature) => (
-            <Card key={feature.title} className="space-y-2 bg-[color:var(--mdt-color-surface)]">
-              <h4 className="text-h3 font-display">{feature.title}</h4>
-              <p className="text-body-sm text-mdt-muted">{feature.desc}</p>
-            </Card>
-          ))}
-        </section>
+          <section className="grid gap-4 md:grid-cols-2" id="features">
+            {features.map((feature) => (
+              <Card key={feature.title} className="space-y-2 bg-[color:var(--mdt-color-surface)]">
+                <Heading level="h3" as="h4">{feature.title}</Heading>
+                <Text size="bodySm" tone="muted">{feature.desc}</Text>
+              </Card>
+            ))}
+          </section>
 
         <section className="grid gap-6 lg:grid-cols-[2fr_1fr]" id="templates">
           <div className="space-y-4">
@@ -380,21 +398,22 @@ export default async function Home() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-10 text-center shadow-mdt-md space-y-4">
-          <h2 className="text-h2 font-display text-mdt-text">Start building now</h2>
-          <p className="mt-3 text-body text-mdt-muted">
+          <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-10 text-center shadow-mdt-md space-y-4">
+          <Heading level="h1" as="h2" align="center">Start building now</Heading>
+          <Text tone="muted" align="center">
             Assemble an agents.md with public snippets and templates, then copy or download. Sign in later to save and keep favorites in sync across projects.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Button asChild>
-              <Link href="/builder">Open builder</Link>
-            </Button>
-            <Button variant="secondary" asChild>
-              <Link href="/browse">Browse library</Link>
-            </Button>
+          </Text>
+          <Row justify="center" gap={3} className="mt-6">
+              <Button asChild>
+                <Link href="/builder">Open builder</Link>
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link href="/browse">Browse library</Link>
+              </Button>
+            </Row>
           </div>
-        </div>
-      </div>
+        </Stack>
+      </Container>
     </div>
   );
 }
