@@ -5,7 +5,7 @@ type Segment = { href?: string; label: string };
 export function Breadcrumb({ segments }: { segments: Segment[] }) {
   return (
     <nav aria-label="Breadcrumb">
-      <ol className="text-sm text-mdt-muted flex flex-wrap items-center gap-2">
+      <ol className="flex flex-wrap items-center gap-mdt-2 text-body-sm text-mdt-muted">
         {segments.map((seg, idx) => {
           const isLast = idx === segments.length - 1;
           return (

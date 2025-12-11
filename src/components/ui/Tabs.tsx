@@ -1,9 +1,13 @@
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { cn } from "@/lib/cn";
+import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const triggerVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-3 py-2 text-sm font-medium transition duration-mdt-fast ease-mdt-emphasized border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
+  cn(
+    "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-mdt-3 py-mdt-2 text-body-sm font-medium border",
+    interactiveBase,
+    focusRing
+  ),
   {
     variants: {
       active: {
@@ -23,7 +27,10 @@ export const TabsRoot = TabsPrimitive.Root;
 export function TabsList({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>) {
   return (
     <TabsPrimitive.List
-      className={cn("inline-flex items-center gap-2 rounded-mdt-pill bg-[color:var(--mdt-color-surface-subtle)] p-1", className)}
+      className={cn(
+        "inline-flex items-center gap-mdt-1 rounded-mdt-pill bg-[color:var(--mdt-color-surface-subtle)] p-mdt-1",
+        className
+      )}
       {...props}
     />
   );
@@ -41,7 +48,7 @@ export function TabsTrigger({ className, active, ...props }: TabsTriggerProps) {
 export function TabsContent({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content
-      className={cn("mt-4 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-4 shadow-mdt-sm", className)}
+      className={cn("mt-mdt-4 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-4 shadow-mdt-sm", className)}
       {...props}
     />
   );

@@ -1,5 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { cn } from "@/lib/cn";
+import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
 export const Drawer = DialogPrimitive.Root;
 export const DrawerTrigger = DialogPrimitive.Trigger;
@@ -29,7 +29,7 @@ export function DrawerContent({
         {...props}
         aria-describedby={ariaDescribedBy ?? undefined}
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-mdt-border bg-mdt-surface shadow-[var(--mdt-shadow-md)]",
+          "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-mdt-border bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
           "data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right",
           className
         )}
@@ -42,7 +42,7 @@ export function DrawerContent({
 
 export function DrawerHeader({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={cn("flex items-start justify-between gap-3 border-b border-mdt-border px-5 py-4", className)}>
+    <div className={cn("flex items-start justify-between gap-mdt-3 border-b border-mdt-border px-mdt-5 py-mdt-4", className)}>
       {children}
     </div>
   );
@@ -54,7 +54,13 @@ export const DrawerClose = DialogPrimitive.Close;
 
 export function DrawerCloseButton() {
   return (
-    <DrawerClose className="rounded-mdt-md p-2 text-mdt-muted transition hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]">
+    <DrawerClose
+      className={cn(
+        "rounded-mdt-md p-mdt-2 text-mdt-muted hover:bg-[color:var(--mdt-color-surface-subtle)]",
+        interactiveBase,
+        focusRing
+      )}
+    >
       <span aria-hidden className="text-sm font-semibold leading-none">
         ×
       </span>

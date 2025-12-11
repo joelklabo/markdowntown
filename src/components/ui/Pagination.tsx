@@ -1,5 +1,5 @@
 import { IconButton } from "./IconButton";
-import { cn } from "@/lib/cn";
+import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import React from "react";
 
 type Props = {
@@ -13,7 +13,7 @@ export function Pagination({ current, total, onPageChange, className }: Props) {
   const pages = Array.from({ length: total }, (_, i) => i + 1);
   if (total <= 1) return null;
   return (
-    <nav className={cn("flex items-center gap-2 text-sm", className)} aria-label="Pagination">
+    <nav className={cn("flex items-center gap-mdt-2 text-body-sm", className)} aria-label="Pagination">
       <IconButton
         variant="secondary"
         size="sm"
@@ -32,10 +32,12 @@ export function Pagination({ current, total, onPageChange, className }: Props) {
               type="button"
               onClick={() => onPageChange(p)}
               className={cn(
-                "min-w-[34px] rounded-mdt-md px-2 py-1 text-sm font-medium transition duration-mdt-fast ease-mdt-emphasized",
+                "min-w-[34px] rounded-mdt-md border px-mdt-2 py-mdt-1 text-caption font-medium",
+                interactiveBase,
+                focusRing,
                 active
                   ? "bg-[color:var(--mdt-color-primary-soft)] text-[color:var(--mdt-color-text)] border border-mdt-border"
-                  : "text-mdt-text-muted hover:bg-[color:var(--mdt-color-surface-subtle)] border border-transparent"
+                  : "text-mdt-text-muted hover:bg-[color:var(--mdt-color-surface-subtle)] border-transparent"
               )}
               aria-current={active ? "page" : undefined}
             >
