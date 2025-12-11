@@ -4,7 +4,7 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import React from "react";
 
 const base = cn(
-  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium border",
+  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-mdt-4 py-mdt-2 text-body-sm font-medium border",
   interactiveBase,
   focusRing
 );
@@ -20,9 +20,10 @@ const buttonVariants = cva(base, {
         "bg-transparent text-[color:var(--mdt-color-text)] border-transparent hover:bg-[color:var(--mdt-color-surface-subtle)]",
     },
     size: {
+      xs: "h-8 px-mdt-2 py-mdt-1 text-caption",
+      sm: "h-9 px-mdt-3",
       md: "h-10",
-      lg: "h-11 px-5 text-[1rem]",
-      sm: "h-9 px-3 text-[0.88rem]",
+      lg: "h-11 px-mdt-5 text-body",
     },
   },
   defaultVariants: {
