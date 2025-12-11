@@ -5,6 +5,12 @@ import { listTopTags } from "@/lib/publicTags";
 import { normalizeTags } from "@/lib/tags";
 import { sampleItems } from "@/lib/sampleContent";
 import { LibraryCard } from "@/components/LibraryCard";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
+import { Surface } from "@/components/ui/Surface";
 
 type TagParams = { tag: string };
 
@@ -39,41 +45,47 @@ export default async function TagDetail({ params }: { params: Promise<TagParams>
   const popularTags = popularTagsRaw.length ? popularTagsRaw.map((t) => t.tag) : [];
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-mdt-muted flex gap-2">
-        <Link href="/" className="hover:underline">Home</Link>
-        <span>/</span>
-        <Link href="/tags" className="hover:underline">Tags</Link>
-        <span>/</span>
-        <span className="text-mdt-text dark:text-mdt-text-dark">#{normalized}</span>
-      </nav>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="lg" padding="md">
+        <Stack gap={8}>
+          <Breadcrumb
+            segments={[
+              { href: "/", label: "Home" },
+              { href: "/tags", label: "Tags" },
+              { label: `#${normalized}` },
+            ]}
+          />
 
-      <div className="space-y-2">
-        <p className="text-caption text-mdt-muted">Tag</p>
-        <h1 className="text-display leading-tight">#{normalized}</h1>
-        <p className="text-body text-mdt-muted max-w-3xl">
-          Snippets, templates, and agents.md files labeled with <strong>#{normalized}</strong>.
-        </p>
-        {popularTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 text-xs text-mdt-muted">
-            <span>Popular:</span>
-            {popularTags.map((t) => (
-              <Link key={t} href={`/tags/${t}`} className="underline">
-                #{t}
-              </Link>
+          <Surface tone="subtle" padding="lg" className="space-y-mdt-2">
+            <Text size="caption" tone="muted">Tag</Text>
+            <Heading level="display" leading="tight">#{normalized}</Heading>
+            <Text tone="muted" className="max-w-3xl">
+              Snippets, templates, and agents.md files labeled with <strong>#{normalized}</strong>.
+            </Text>
+            {popularTags.length > 0 && (
+              <Row wrap gap={2} className="text-xs text-mdt-muted">
+                <Text as="span" size="caption" tone="muted">Popular:</Text>
+                {popularTags.map((t) => (
+                  <Link key={t} href={`/tags/${t}`} className="underline hover:text-mdt-text">
+                    #{t}
+                  </Link>
+                ))}
+              </Row>
+            )}
+          </Surface>
+
+          <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
+            {cards.map((item) => (
+              <LibraryCard key={item.id} item={item} />
             ))}
+            {cards.length === 0 && (
+              <Text className="sm:col-span-2 lg:col-span-3" size="bodySm" tone="muted">
+                No items tagged #{normalized} yet.
+              </Text>
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((item) => (
-          <LibraryCard key={item.id} item={item} />
-        ))}
-        {cards.length === 0 && (
-          <p className="sm:col-span-2 lg:col-span-3 text-sm text-mdt-muted">No items tagged #{normalized} yet.</p>
-        )}
-      </div>
+        </Stack>
+      </Container>
     </main>
   );
 }
