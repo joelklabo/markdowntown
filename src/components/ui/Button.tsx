@@ -1,10 +1,13 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "@radix-ui/react-slot";
-import { cn } from "@/lib/cn";
+import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import React from "react";
 
-const base =
-  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium transition duration-mdt-fast ease-mdt-emphasized border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] disabled:opacity-60 disabled:cursor-not-allowed";
+const base = cn(
+  "inline-flex items-center justify-center gap-2 rounded-mdt-pill px-4 py-2 text-[0.95rem] font-medium border",
+  interactiveBase,
+  focusRing
+);
 
 const buttonVariants = cva(base, {
   variants: {
