@@ -8,11 +8,13 @@ type Props = {
   slug?: string;
   title: string;
   rendered: string;
+  variant?: "inline" | "bar";
 };
 
-export function TemplateActions({ id, slug, title, rendered }: Props) {
+export function TemplateActions({ id, slug, title, rendered, variant = "inline" }: Props) {
   const detailHref = `/templates/${slug ?? id}`;
   const builderHref = `/builder?template=${slug ?? id}`;
+  const actionSize = variant === "bar" ? "sm" : "xs";
 
   async function copy() {
     try {
@@ -60,19 +62,19 @@ export function TemplateActions({ id, slug, title, rendered }: Props) {
 
   return (
     <div className="flex gap-2 flex-wrap">
-      <Button size="sm" onClick={copy}>
+      <Button size={actionSize} onClick={copy}>
         Copy
       </Button>
-      <Button variant="secondary" size="sm" onClick={download}>
+      <Button variant="secondary" size={actionSize} onClick={download}>
         Download
       </Button>
-      <Button variant="ghost" size="sm" onClick={share} aria-label={`Share ${title}`}>
+      <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share ${title}`}>
         Share
       </Button>
-      <Button variant="ghost" size="sm" onClick={useBuilder}>
+      <Button variant="ghost" size={actionSize} onClick={useBuilder}>
         Use in builder
       </Button>
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" size={actionSize} asChild>
         <a href={detailHref}>Open detail</a>
       </Button>
     </div>

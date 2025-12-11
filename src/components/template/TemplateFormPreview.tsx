@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { Input } from "@/components/ui/Input";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 import { renderTemplateBody } from "@/lib/renderTemplate";
 
 export type TemplateField = {
@@ -32,10 +35,10 @@ export function TemplateFormPreview({ title, body, fields }: Props) {
   const preview = useMemo(() => renderTemplateBody(body, values), [body, values]);
 
   return (
-    <Card className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+    <Surface padding="lg" className="grid gap-mdt-5 md:grid-cols-[1.1fr_0.9fr]">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-h3">Fill placeholders</h3>
+          <Heading level="h3" as="h3">Fill placeholders</Heading>
           <Pill tone="gray" className="text-xs">
             Live preview
           </Pill>
@@ -44,42 +47,45 @@ export function TemplateFormPreview({ title, body, fields }: Props) {
           {fields.map((field) => (
             <label
               key={field.name}
-              className="flex flex-col gap-1 rounded-lg border border-mdt-border px-3 py-2 text-sm dark:border-mdt-border-dark"
+              className="flex flex-col gap-mdt-1 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2"
             >
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-mdt-text dark:text-mdt-text-dark">
+                <Text as="span" size="bodySm" weight="semibold">
                   {field.label ?? field.name}
-                </span>
-                {field.required && <span className="text-[11px] text-mdt-muted">Required</span>}
+                </Text>
+                {field.required && (
+                  <Text as="span" size="caption" tone="muted">
+                    Required
+                  </Text>
+                )}
               </div>
-              <input
-                className="w-full rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text outline-none focus:border-indigo-400 focus:ring focus:ring-indigo-100 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+              <Input
                 placeholder={field.placeholder}
                 value={values[field.name] ?? ""}
                 onChange={(e) => setValues((prev) => ({ ...prev, [field.name]: e.target.value }))}
               />
               {field.description && (
-                <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{field.description}</p>
+                <Text size="caption" tone="muted">{field.description}</Text>
               )}
             </label>
           ))}
         </div>
         <div className="flex gap-2">
-          <Button size="sm" onClick={() => setValues(initial)}>
+          <Button size="xs" onClick={() => setValues(initial)}>
             Reset
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => navigator.clipboard.writeText(preview)}>
+          <Button variant="secondary" size="xs" onClick={() => navigator.clipboard.writeText(preview)}>
             Copy preview
           </Button>
         </div>
       </div>
       <div className="space-y-2">
-        <h3 className="text-h3">Live preview</h3>
-        <Card className="min-h-[240px] space-y-3 border border-mdt-border bg-white p-4 text-sm leading-6 shadow-inner dark:border-mdt-border-dark dark:bg-mdt-bg-dark">
-          <p className="font-semibold text-mdt-text dark:text-mdt-text-dark">{title}</p>
-          <pre className="whitespace-pre-wrap font-sans text-mdt-text dark:text-mdt-text-dark">{preview}</pre>
-        </Card>
+        <Heading level="h3" as="h3">Live preview</Heading>
+        <Surface tone="subtle" padding="md" className="min-h-[240px] space-y-mdt-3 text-body-sm leading-6 shadow-inner">
+          <Text weight="semibold">{title}</Text>
+          <pre className="whitespace-pre-wrap font-sans text-mdt-text">{preview}</pre>
+        </Surface>
       </div>
-    </Card>
+    </Surface>
   );
 }

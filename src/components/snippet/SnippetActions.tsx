@@ -14,6 +14,7 @@ type Props = {
 export function SnippetActions({ id, slug, title, content, variant = "inline" }: Props) {
   const href = `/snippets/${slug ?? id}`;
   const builderHref = `/builder?add=${slug ?? id}`;
+  const actionSize = variant === "bar" ? "sm" : "xs";
 
   async function copy() {
     try {
@@ -62,10 +63,10 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
   if (variant === "bar") {
     return (
       <div className="flex gap-2">
-        <Button variant="secondary" size="sm" onClick={toBuilder}>
+        <Button variant="secondary" size={actionSize} onClick={toBuilder}>
           Builder
         </Button>
-        <Button size="sm" onClick={copy}>
+        <Button size={actionSize} onClick={copy}>
           Copy
         </Button>
       </div>
@@ -74,19 +75,19 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
 
   return (
     <div className="flex gap-2">
-      <Button size="sm" onClick={copy}>
+      <Button size={actionSize} onClick={copy}>
         Copy
       </Button>
-      <Button variant="secondary" size="sm" onClick={download}>
+      <Button variant="secondary" size={actionSize} onClick={download}>
         Download
       </Button>
-      <Button variant="ghost" size="sm" onClick={share} aria-label={`Share link to ${title}`}>
+      <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share link to ${title}`}>
         Share
       </Button>
-      <Button variant="ghost" size="sm" onClick={toBuilder} aria-label={`Add ${title} to builder`}>
+      <Button variant="ghost" size={actionSize} onClick={toBuilder} aria-label={`Add ${title} to builder`}>
         Add to builder
       </Button>
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" size={actionSize} asChild>
         <a href={href}>Open detail</a>
       </Button>
     </div>

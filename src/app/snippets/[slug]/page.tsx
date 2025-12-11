@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { sampleItems } from "@/lib/sampleContent";
 import { getPublicSection } from "@/lib/publicSections";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
-import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { normalizeTags } from "@/lib/tags";
 import type { Metadata } from "next";
@@ -13,6 +12,11 @@ import { SnippetActions } from "@/components/snippet/SnippetActions";
 import { DetailWarning } from "@/components/detail/DetailWarning";
 import { DetailStats } from "@/components/detail/DetailStats";
 import { FeedbackCTA } from "@/components/detail/FeedbackCTA";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 type SnippetParams = { slug: string };
 
@@ -79,83 +83,92 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
     : sampleItems.filter((i) => i.type === "snippet" && i.id !== item.id).slice(0, 3);
 
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <Breadcrumb
-        segments={[
-          { href: "/", label: "Home" },
-          { href: "/browse", label: "Browse" },
-          { label: item.title },
-        ]}
-      />
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Breadcrumb
+            segments={[
+              { href: "/", label: "Home" },
+              { href: "/browse", label: "Browse" },
+              { label: item.title },
+            ]}
+          />
 
-      <Card className="space-y-4 p-5">
-        <DetailWarning visibility={visibility} type="snippet" />
+          <Surface padding="lg" className="space-y-mdt-4">
+            <DetailWarning visibility={visibility} type="snippet" />
 
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Pill tone="blue">Snippet</Pill>
-              {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
+            <Row wrap gap={4} justify="between" align="start" className="items-start">
+              <Stack gap={3} className="min-w-0">
+                <Row wrap gap={2} className="items-center">
+                  <Pill tone="blue">Snippet</Pill>
+                  {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
+                </Row>
+                <Stack gap={2}>
+                  <Heading level="display" leading="tight">{item.title}</Heading>
+                  <Text tone="muted" className="max-w-3xl">{item.description}</Text>
+                </Stack>
+                <Row wrap gap={2}>
+                  {item.tags.map((tag) => (
+                    <Pill key={tag} tone="gray">
+                      #{tag}
+                    </Pill>
+                  ))}
+                </Row>
+              </Stack>
+              <Stack gap={2} align="end" className="w-full md:w-auto">
+                <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
+                <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
+              </Stack>
+            </Row>
+          </Surface>
+
+          <SnippetTabs title={item.title} rendered={item.description} raw={rawContent} />
+
+          <Surface padding="md" className="space-y-mdt-3">
+            <Heading level="h3" as="h4">Quality signals</Heading>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
+                <p className="text-caption text-mdt-muted">Copies</p>
+                <p className="text-h3 font-display">{item.stats.copies.toLocaleString()}</p>
+              </div>
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
+                <p className="text-caption text-mdt-muted">Views</p>
+                <p className="text-h3 font-display">{item.stats.views.toLocaleString()}</p>
+              </div>
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
+                <p className="text-caption text-mdt-muted">Votes</p>
+                <p className="text-h3 font-display">{item.stats.votes.toLocaleString()}</p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <h1 className="text-display leading-tight">{item.title}</h1>
-              <p className="text-body text-mdt-muted max-w-3xl">{item.description}</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {item.tags.map((tag) => (
-                <Pill key={tag} tone="gray">
-                  #{tag}
-                </Pill>
+          </Surface>
+
+          <Surface padding="md" className="space-y-mdt-3">
+            <Heading level="h3" as="h4">Related snippets</Heading>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {related.map((rel) => (
+                <LibraryCard key={rel.id} item={rel} />
               ))}
             </div>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
-            <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
-          </div>
-        </div>
-      </Card>
+          </Surface>
 
-      <SnippetTabs title={item.title} rendered={item.description} raw={rawContent} />
+          <FeedbackCTA title="snippet" />
+        </Stack>
 
-      <Card className="space-y-3">
-        <h4 className="text-h4">Quality signals</h4>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
-            <p className="text-caption text-mdt-muted">Copies</p>
-            <p className="text-h3 font-display">{item.stats.copies.toLocaleString()}</p>
-          </div>
-          <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
-            <p className="text-caption text-mdt-muted">Views</p>
-            <p className="text-h3 font-display">{item.stats.views.toLocaleString()}</p>
-          </div>
-          <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
-            <p className="text-caption text-mdt-muted">Votes</p>
-            <p className="text-h3 font-display">{item.stats.votes.toLocaleString()}</p>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="space-y-3">
-        <h4 className="text-h4">Related snippets</h4>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {related.map((rel) => (
-            <LibraryCard key={rel.id} item={rel} />
-          ))}
-        </div>
-      </Card>
-
-      <FeedbackCTA title="snippet" />
-
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this snippet</p>
-            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{item.title}</p>
-          </div>
-          <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} variant="bar" />
-        </div>
-      </div>
+        <Surface
+          as="div"
+          tone="raised"
+          padding="sm"
+          className="fixed inset-x-0 bottom-0 z-20 md:hidden"
+        >
+          <Row align="center" justify="between" gap={3}>
+            <Stack gap={0}>
+              <Text size="bodySm" weight="semibold">Use this snippet</Text>
+              <Text size="caption" tone="muted">{item.title}</Text>
+            </Stack>
+            <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} variant="bar" />
+          </Row>
+        </Surface>
+      </Container>
     </main>
   );
 }

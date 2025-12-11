@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { sampleItems } from "@/lib/sampleContent";
-import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import type { Metadata } from "next";
 import { TemplateFormPreview, type TemplateField } from "@/components/template/TemplateFormPreview";
@@ -15,6 +14,11 @@ import { DetailTabs } from "@/components/detail/DetailTabs";
 import { DetailStats } from "@/components/detail/DetailStats";
 import { DetailWarning } from "@/components/detail/DetailWarning";
 import { FeedbackCTA } from "@/components/detail/FeedbackCTA";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 type TemplateParams = { slug: string };
 
@@ -113,63 +117,72 @@ export default async function TemplateDetail({
   const visibility = data.visibility ?? "PUBLIC";
 
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <Breadcrumb
-        segments={[
-          { href: "/", label: "Home" },
-          { href: "/templates", label: "Templates" },
-          { label: data.title },
-        ]}
-      />
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Breadcrumb
+            segments={[
+              { href: "/", label: "Home" },
+              { href: "/templates", label: "Templates" },
+              { label: data.title },
+            ]}
+          />
 
-      <Card className="space-y-3 p-5 sticky top-16 z-10">
-        <DetailWarning visibility={visibility} type="template" />
+          <Surface tone="raised" padding="lg" className="space-y-mdt-3 sticky top-16 z-10">
+            <DetailWarning visibility={visibility} type="template" />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Pill tone="blue">Template</Pill>
-              {data.badge && <Pill tone="yellow">{data.badge}</Pill>}
-            </div>
-            <h1 className="text-display leading-tight">{data.title}</h1>
-            <p className="text-body text-mdt-muted max-w-3xl">{data.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Pill key={tag} tone="gray">#{tag}</Pill>
+            <Row wrap gap={4} justify="between" align="start" className="items-start">
+              <Stack gap={2} className="min-w-0">
+                <Row wrap gap={2} className="items-center">
+                  <Pill tone="blue">Template</Pill>
+                  {data.badge && <Pill tone="yellow">{data.badge}</Pill>}
+                </Row>
+                <Heading level="display" leading="tight">{data.title}</Heading>
+                <Text tone="muted" className="max-w-3xl">{data.description}</Text>
+                <Row wrap gap={2}>
+                  {tags.map((tag) => (
+                    <Pill key={tag} tone="gray">#{tag}</Pill>
+                  ))}
+                </Row>
+              </Stack>
+              <Stack gap={2} align="end" className="w-full md:w-auto">
+                <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
+                <DetailStats views={stats.views} copies={stats.copies} votes={stats.votes} />
+              </Stack>
+            </Row>
+          </Surface>
+
+          <TemplateFormPreview title={data.title} body={body} fields={fields} />
+
+          <DetailTabs title={data.title} rendered={initialRendered} raw={body} copyLabel="Copy" />
+
+          <Surface padding="md" className="space-y-mdt-3">
+            <Heading level="h3" as="h4">Related templates</Heading>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {related.map((rel) => (
+                <LibraryCard key={rel.id} item={rel} />
               ))}
             </div>
-          </div>
-          <div className="flex flex-col items-end gap-2 w-full md:w-auto">
-            <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
-            <DetailStats views={stats.views} copies={stats.copies} votes={stats.votes} />
-          </div>
-        </div>
-      </Card>
+          </Surface>
 
-      <TemplateFormPreview title={data.title} body={body} fields={fields} />
+          <FeedbackCTA title="template" />
+        </Stack>
 
-      <DetailTabs title={data.title} rendered={initialRendered} raw={body} copyLabel="Copy" />
-
-      <Card className="space-y-3">
-        <h4 className="text-h4">Related templates</h4>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {related.map((rel) => (
-            <LibraryCard key={rel.id} item={rel} />
-          ))}
-        </div>
-      </Card>
-
-      <FeedbackCTA title="template" />
-
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mdt-border bg-white/95 px-4 py-3 shadow-mdt-sm md:hidden dark:border-mdt-border-dark dark:bg-mdt-bg-soft-dark">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Use this template</p>
-            <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark">{data.title}</p>
-          </div>
-          <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
-        </div>
-      </div>
+        <Surface
+          as="div"
+          tone="raised"
+          padding="sm"
+          className="fixed inset-x-0 bottom-0 z-20 md:hidden"
+        >
+          <Row align="center" justify="between" gap={3}>
+            <Stack gap={0}>
+              <Text size="bodySm" weight="semibold">Use this template</Text>
+              <Text size="caption" tone="muted">{data.title}</Text>
+            </Stack>
+            <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} variant="bar" />
+          </Row>
+        </Surface>
+      </Container>
     </main>
   );
 }
