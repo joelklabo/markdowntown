@@ -10,12 +10,12 @@ export function ThemeToggle() {
   return (
     <Button
       variant="ghost"
-      size="sm"
+      size="xs"
       type="button"
       aria-pressed={isDark}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       onClick={toggle}
-      className="gap-1 text-sm"
+      className="gap-mdt-1"
     >
       <span aria-hidden>{isDark ? "🌙" : "☀️"}</span>
       <span className="hidden sm:inline">{isDark ? "Dark" : "Light"}</span>

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/Input";
-import { cn } from "@/lib/cn";
+import { cn, interactiveBase } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -102,10 +102,10 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
   }, [commands]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={setOpen}>
       <DialogOverlay className="fixed inset-0 z-50 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm" />
       <DialogContent
-        className="fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg"
+        className="fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-raised p-mdt-4 shadow-mdt-lg"
         aria-label="Command palette"
       >
         <DialogTitle className="sr-only">Command palette</DialogTitle>
@@ -116,13 +116,13 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="mt-3 max-h-[60vh] overflow-auto rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle">
+        <div className="mt-mdt-3 max-h-[60vh] overflow-auto rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle">
           {commands.length === 0 && (
-            <div className="p-4 text-sm text-mdt-muted">No matches.</div>
+            <div className="p-mdt-4 text-body-sm text-mdt-muted">No matches.</div>
           )}
           {Object.entries(grouped).map(([group, items]) => (
             <div key={group} className="border-b border-mdt-border last:border-none">
-              <div className="px-3 py-2 text-caption text-mdt-muted">{group}</div>
+              <div className="px-mdt-3 py-mdt-2 text-caption text-mdt-muted">{group}</div>
               {items.map((item, idx) => {
                 const absoluteIndex = commands.indexOf(item);
                 const currentHighlight = Math.min(highlight, Math.max(commands.length - 1, 0));
@@ -138,7 +138,8 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
                       setOpen(false);
                     }}
                     className={cn(
-                      "flex w-full items-center justify-between px-3 py-2 text-left text-sm transition",
+                      "flex w-full items-center justify-between px-mdt-3 py-mdt-2 text-left text-body-sm",
+                      interactiveBase,
                       active
                         ? "bg-[color:var(--mdt-color-surface-strong)] text-mdt-text shadow-mdt-sm"
                         : "text-mdt-text hover:bg-[color:var(--mdt-color-surface-subtle)]"
@@ -152,7 +153,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
             </div>
           ))}
         </div>
-        <div className="mt-3 flex justify-between text-xs text-mdt-muted">
+        <div className="mt-mdt-3 flex justify-between text-caption text-mdt-muted">
           <span>Use ↑ ↓ to navigate, Enter to run</span>
           <span>Esc to close</span>
         </div>

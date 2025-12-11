@@ -6,10 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "./BrandLogo";
 import { Button } from "./ui/Button";
+import { Container } from "./ui/Container";
 import { ThemeToggle } from "./ThemeToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
 import { sampleTags } from "@/lib/sampleContent";
 import { track } from "@/lib/analytics";
+import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
 const links = [
   { href: "/browse", label: "Browse" },
@@ -160,14 +162,22 @@ export function SiteNav({ user }: { user?: User }) {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]/90 backdrop-blur-lg shadow-mdt-md">
-        <div className="mx-auto grid max-w-6xl grid-cols-[auto,1fr,auto] items-center gap-2 px-4 py-3 md:grid-cols-[auto,auto,1fr] md:gap-4">
+        <Container
+          as="div"
+          padding="sm"
+          className="grid grid-cols-[auto,1fr,auto] items-center gap-mdt-2 py-mdt-3 md:grid-cols-[auto,auto,1fr] md:gap-mdt-4"
+        >
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2" aria-label="MarkdownTown home">
               <BrandLogo asLink={false} />
             </Link>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm transition hover:text-mdt-text md:hidden"
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text md:hidden",
+                interactiveBase,
+                focusRing
+              )}
               onClick={() => {
                 setShowMobileSearch(true);
                 track("nav_search_open", { source: "mobile_top" });
@@ -184,18 +194,21 @@ export function SiteNav({ user }: { user?: User }) {
             </button>
           </div>
 
-          <nav className="hidden items-center justify-center gap-3 text-sm font-medium text-mdt-muted md:flex" aria-label="Primary">
+          <nav className="hidden items-center justify-center gap-mdt-3 text-body-sm font-medium text-mdt-muted md:flex" aria-label="Primary">
             {links.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`rounded-md px-3 py-2 transition ${
+                  className={cn(
+                    "rounded-md px-mdt-3 py-mdt-2",
+                    interactiveBase,
+                    focusRing,
                     active
                       ? "bg-mdt-surface-subtle text-mdt-text shadow-mdt-sm"
                       : "hover:text-mdt-text"
-                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]`}
+                  )}
                   onClick={() => track("nav_click", { href: link.href, placement: "desktop" })}
                   aria-current={active ? "page" : undefined}
                 >
@@ -209,7 +222,7 @@ export function SiteNav({ user }: { user?: User }) {
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm md:flex"
+              className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex"
             >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
@@ -220,19 +233,19 @@ export function SiteNav({ user }: { user?: User }) {
                 ref={inputRef}
                 aria-keyshortcuts="/"
               />
-              <Button type="submit" size="sm">
+              <Button type="submit" size="xs">
                 Search
               </Button>
             </form>
             <Button
               type="button"
               variant="secondary"
-              size="sm"
+              size="xs"
               className="hidden whitespace-nowrap md:inline-flex"
               onClick={() => openCommandPalette("desktop_nav_button")}
               aria-keyshortcuts="Meta+K,Control+K"
             >
-              Command <span className="text-[11px] text-mdt-muted">⌘K</span>
+              Command <span className="text-caption text-mdt-muted">⌘K</span>
             </Button>
             <div className="hidden md:block">
               <ThemeToggle />
@@ -270,14 +283,18 @@ export function SiteNav({ user }: { user?: User }) {
             )}
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm transition hover:text-mdt-text md:hidden"
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text md:hidden",
+                interactiveBase,
+                focusRing
+              )}
               aria-label="Open menu"
               onClick={() => setShowOverflowSheet(true)}
             >
               <span aria-hidden="true">⋯</span>
             </button>
           </div>
-        </div>
+        </Container>
       </header>
 
       {/* Mobile bottom nav */}
