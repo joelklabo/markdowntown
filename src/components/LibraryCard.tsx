@@ -2,6 +2,10 @@ import Link from "next/link";
 import { Button } from "./ui/Button";
 import { Pill } from "./ui/Pill";
 import { Card } from "./ui/Card";
+import { Heading } from "./ui/Heading";
+import { Row, Stack } from "./ui/Stack";
+import { Text } from "./ui/Text";
+import { cn } from "@/lib/cn";
 import type { SampleItem } from "@/lib/sampleContent";
 
 function badgeLabel(badge?: SampleItem["badge"]) {
@@ -34,6 +38,7 @@ export function LibraryCard({
   onAddToBuilder,
   onDownloadFile,
   onPreview,
+  className,
   ...rest
 }: { item: SampleItem } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
@@ -61,27 +66,27 @@ export function LibraryCard({
   const renderPrimary = () => {
     if (item.type === "snippet" && onCopySnippet) {
       return (
-        <Button size="sm" onClick={() => onCopySnippet(item)} aria-label={`Copy ${item.title}`}>
+        <Button size="xs" onClick={() => onCopySnippet(item)} aria-label={`Copy ${item.title}`}>
           {primaryAction.label}
         </Button>
       );
     }
     if (item.type === "template" && onUseTemplate) {
       return (
-        <Button size="sm" onClick={() => onUseTemplate(item)} aria-label={`Use template ${item.title}`}>
+        <Button size="xs" onClick={() => onUseTemplate(item)} aria-label={`Use template ${item.title}`}>
           {primaryAction.label}
         </Button>
       );
     }
     if (item.type === "file" && onDownloadFile) {
       return (
-        <Button size="sm" onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
+        <Button size="xs" onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
           {primaryAction.label}
         </Button>
       );
     }
     return (
-      <Button size="sm" asChild>
+      <Button size="xs" asChild>
         <Link href={primaryAction.href}>{primaryAction.label}</Link>
       </Button>
     );
@@ -91,13 +96,13 @@ export function LibraryCard({
     if (!secondaryAction) return null;
     if (onAddToBuilder) {
       return (
-        <Button variant="secondary" size="sm" onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to builder`}>
+        <Button variant="secondary" size="xs" onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to builder`}>
           {secondaryAction.label}
         </Button>
       );
     }
     return (
-      <Button variant="secondary" size="sm" asChild>
+      <Button variant="secondary" size="xs" asChild>
         <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
       </Button>
     );
@@ -105,42 +110,52 @@ export function LibraryCard({
 
   return (
     <Card
-      className="flex h-full flex-col justify-between border border-mdt-border bg-mdt-surface shadow-mdt-md transition hover:-translate-y-[1px] hover:shadow-mdt-glow"
+      className={cn(
+        "flex h-full flex-col justify-between shadow-mdt-md hover:shadow-mdt-glow",
+        className
+      )}
       {...rest}
     >
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
+      <Stack gap={3}>
+        <Row gap={2} align="center" wrap>
           <Pill tone="blue">{typeLabel}</Pill>
           {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-h3 font-display leading-tight text-mdt-text">{item.title}</h3>
-          <p className="text-body-sm text-mdt-muted line-clamp-3">{item.description}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
+        </Row>
+
+        <Stack gap={1}>
+          <Heading level="h3" className="leading-tight">
+            {item.title}
+          </Heading>
+          <Text size="bodySm" tone="muted" className="line-clamp-3">
+            {item.description}
+          </Text>
+        </Stack>
+
+        <Row gap={2} wrap>
           {item.tags.map((tag) => (
             <Pill key={tag} tone="gray">
               #{tag}
             </Pill>
           ))}
-        </div>
-      </div>
-      <div className="mt-4 flex items-center justify-between text-xs text-mdt-muted">
-        <div className="flex gap-3">
-          <span>📄 {item.stats.views.toLocaleString()} views</span>
-          <span>📋 {item.stats.copies.toLocaleString()} copies</span>
-          <span>👍 {item.stats.votes.toLocaleString()} votes</span>
-        </div>
-        <div className="flex gap-2">
+        </Row>
+      </Stack>
+
+      <Row gap={3} align="center" justify="between" className="mt-mdt-4 text-caption text-mdt-muted">
+        <Row gap={3} wrap>
+          <Text as="span" size="caption" tone="muted">📄 {item.stats.views.toLocaleString()} views</Text>
+          <Text as="span" size="caption" tone="muted">📋 {item.stats.copies.toLocaleString()} copies</Text>
+          <Text as="span" size="caption" tone="muted">👍 {item.stats.votes.toLocaleString()} votes</Text>
+        </Row>
+        <Row gap={2} align="center">
           {onPreview && (
-            <Button variant="ghost" size="sm" onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
+            <Button variant="ghost" size="xs" onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
               Preview
             </Button>
           )}
           {renderPrimary()}
           {renderSecondary()}
-        </div>
-      </div>
+        </Row>
+      </Row>
     </Card>
   );
 }
