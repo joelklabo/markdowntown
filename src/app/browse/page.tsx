@@ -1,6 +1,5 @@
 import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { normalizeTags } from "@/lib/tags";
 import Link from "next/link";
@@ -9,6 +8,11 @@ import { listTopTags } from "@/lib/publicTags";
 import { BrowseSearch } from "@/components/browse/BrowseSearch";
 import { BrowseResults } from "@/components/browse/BrowseResults";
 import { BrowseFilterPills } from "@/components/browse/BrowseFilterPills";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
   title: "Browse library | MarkdownTown",
@@ -129,70 +133,59 @@ export default async function BrowsePage({
   const baseQueryString = baseParams.toString();
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-6 py-10 space-y-8">
-      <section className="flex flex-col gap-4 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 shadow-mdt-md">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-2">
-            <p className="text-caption text-mdt-muted">Explore</p>
-            <h1 className="text-display font-display">Browse snippets, templates, and agents.md files</h1>
-            <p className="text-body text-mdt-muted max-w-2xl">
-              Copy anything without signing in. Use filters and tags to find the right building blocks, then add them to the builder or download directly.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" asChild>
-              <Link href="/templates">Templates</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/builder">Open builder</Link>
-            </Button>
-          </div>
-        </div>
-
-        <form className="grid gap-3 md:grid-cols-[1.2fr_auto] md:items-center" action="/browse" method="get">
-          <BrowseSearch initialQuery={query ?? ""} baseQueryString={baseQueryString} />
-          <div className="flex flex-wrap justify-end gap-2">
-            {[
-              { label: "Trending", key: "trending" },
-              { label: "New", key: "new" },
-              { label: "Most copied", key: "copied" },
-              { label: "Top rated", key: "top" },
-            ].map((option) => {
-              const active = (sortParam ?? "new") === option.key;
-              return (
-                <Button
-                  key={option.key}
-                  type="submit"
-                  name="sort"
-                  value={option.key}
-                  variant={active ? "primary" : "ghost"}
-                  size="sm"
-                >
-                  {option.label}
+    <main id="main-content" className="py-mdt-8">
+      <Container size="lg" padding="md">
+        <Stack gap={8}>
+          <Surface as="section" padding="lg" className="flex flex-col gap-mdt-4">
+            <Row wrap gap={3} justify="between" align="center">
+              <Stack gap={2} className="min-w-0">
+                <Text size="caption" tone="muted">Explore</Text>
+                <Heading level="display" leading="tight">
+                  Browse snippets, templates, and agents.md files
+                </Heading>
+                <Text tone="muted" className="max-w-2xl">
+                  Copy anything without signing in. Use filters and tags to find the right building blocks, then add them to the builder or download directly.
+                </Text>
+              </Stack>
+              <Row gap={2} wrap className="w-full md:w-auto">
+                <Button variant="secondary" asChild>
+                  <Link href="/templates">Templates</Link>
                 </Button>
-              );
-            })}
-          </div>
-        </form>
-      </section>
+                <Button asChild>
+                  <Link href="/builder">Open builder</Link>
+                </Button>
+              </Row>
+            </Row>
 
-      <section className="grid gap-4 md:grid-cols-[280px_1fr]">
-        <Card className="hidden space-y-4 bg-mdt-surface shadow-mdt-sm md:block">
-          <BrowseFilterPills
-            sortOptions={sortOptions}
-            typeOptions={typeOptions}
-            popularTags={popularTagOptions}
-            activeTags={activeTagOptions}
-            clearTagsHref={clearTagsHref}
-          />
-        </Card>
+            <form className="grid gap-3 md:grid-cols-[1.2fr_auto] md:items-center" action="/browse" method="get">
+              <BrowseSearch initialQuery={query ?? ""} baseQueryString={baseQueryString} />
+              <div className="flex flex-wrap justify-end gap-2">
+                {[
+                  { label: "Trending", key: "trending" },
+                  { label: "New", key: "new" },
+                  { label: "Most copied", key: "copied" },
+                  { label: "Top rated", key: "top" },
+                ].map((option) => {
+                  const active = (sortParam ?? "new") === option.key;
+                  return (
+                    <Button
+                      key={option.key}
+                      type="submit"
+                      name="sort"
+                      value={option.key}
+                      variant={active ? "primary" : "ghost"}
+                      size="xs"
+                    >
+                      {option.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </form>
+          </Surface>
 
-        <div className="md:hidden">
-          <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-3 shadow-mdt-sm">
-            <summary className="cursor-pointer text-sm font-semibold text-mdt-text">
-              Filters & tags
-            </summary>
-            <div className="mt-3 space-y-3">
+          <section className="grid gap-4 md:grid-cols-[280px_1fr]">
+            <Surface as="aside" padding="md" className="hidden space-y-4 md:block">
               <BrowseFilterPills
                 sortOptions={sortOptions}
                 typeOptions={typeOptions}
@@ -200,29 +193,46 @@ export default async function BrowsePage({
                 activeTags={activeTagOptions}
                 clearTagsHref={clearTagsHref}
               />
+            </Surface>
+
+            <div className="md:hidden">
+              <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-3 shadow-mdt-sm">
+                <summary className="cursor-pointer text-sm font-semibold text-mdt-text">
+                  Filters & tags
+                </summary>
+                <div className="mt-3 space-y-3">
+                  <BrowseFilterPills
+                    sortOptions={sortOptions}
+                    typeOptions={typeOptions}
+                    popularTags={popularTagOptions}
+                    activeTags={activeTagOptions}
+                    clearTagsHref={clearTagsHref}
+                  />
+                </div>
+              </details>
             </div>
-          </details>
-        </div>
 
-        <div className="flex items-center justify-between flex-wrap gap-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-2 text-sm text-mdt-muted shadow-mdt-sm">
-          <span>
-            {filtered.length} result{filtered.length === 1 ? "" : "s"}
-            {query ? ` for “${query}”` : ""} {activeTags.length ? ` · tags: ${activeTags.join(", ")}` : ""}
-          </span>
-          <span className="flex gap-2">
-            <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
-            <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
-          </span>
-        </div>
+            <Surface tone="subtle" padding="sm" className="flex items-center justify-between flex-wrap gap-3 text-body-sm text-mdt-muted">
+              <span>
+                {filtered.length} result{filtered.length === 1 ? "" : "s"}
+                {query ? ` for “${query}”` : ""} {activeTags.length ? ` · tags: ${activeTags.join(", ")}` : ""}
+              </span>
+              <span className="flex gap-2">
+                <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
+                <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
+              </span>
+            </Surface>
 
-        <BrowseResults
-          initialItems={filtered}
-          query={query}
-          sortParam={sortParam}
-          typeParam={typeParam}
-          activeTags={activeTags}
-        />
-      </section>
+            <BrowseResults
+              initialItems={filtered}
+              query={query}
+              sortParam={sortParam}
+              typeParam={typeParam}
+              activeTags={activeTags}
+            />
+          </section>
+        </Stack>
+      </Container>
     </main>
   );
 }

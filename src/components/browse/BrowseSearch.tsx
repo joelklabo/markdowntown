@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Input } from "@/components/ui/Input";
+import { Text } from "@/components/ui/Text";
 
 type Props = {
   initialQuery: string;
@@ -40,17 +42,21 @@ export function BrowseSearch({ initialQuery, baseQueryString, debounceMs = 250 }
 
   return (
     <div className="relative flex-1">
-      <input
+      <Input
         type="search"
         name="q"
         id="browse-search-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Search snippets, templates…"
-        className="w-full rounded-md border border-mdt-border bg-white px-3 py-2 text-sm text-mdt-text shadow-inner outline-none transition focus:border-indigo-400 focus:ring focus:ring-indigo-100 dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark dark:focus:border-indigo-300"
+        className="bg-mdt-surface-subtle pr-14 shadow-inner"
         aria-label="Search library"
       />
-      {isPending && <span className="absolute right-2 top-2 text-[11px] text-mdt-muted">Updating…</span>}
+      {isPending && (
+        <Text as="span" size="caption" tone="muted" className="absolute right-2 top-2">
+          Updating…
+        </Text>
+      )}
     </div>
   );
 }
