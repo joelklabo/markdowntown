@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 import { DocumentForm } from "@/components/documents/DocumentForm";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { Container } from "@/components/ui/Container";
+import { Stack } from "@/components/ui/Stack";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 type Params = { id: string };
 
@@ -17,27 +21,31 @@ export default async function EditDocumentPage({ params }: { params: Promise<Par
   if (!doc) return notFound();
 
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <Breadcrumb
-        segments={[
-          { href: "/", label: "Home" },
-          { href: "/documents", label: "Documents" },
-          { label: doc.title },
-        ]}
-      />
-      <div className="space-y-2">
-        <h1 className="text-display">Edit agents.md</h1>
-        <p className="text-mdt-muted">Update content, then save and export.</p>
-      </div>
-      <DocumentForm
-        initial={{
-          id: doc.id,
-          title: doc.title,
-          description: doc.description,
-          renderedContent: doc.renderedContent ?? "",
-          tags: normalizeTags(doc.tags, { strict: false }).tags,
-        }}
-      />
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Breadcrumb
+            segments={[
+              { href: "/", label: "Home" },
+              { href: "/documents", label: "Documents" },
+              { label: doc.title },
+            ]}
+          />
+          <Stack gap={2}>
+            <Heading level="display" leading="tight">Edit agents.md</Heading>
+            <Text tone="muted">Update content, then save and export.</Text>
+          </Stack>
+          <DocumentForm
+            initial={{
+              id: doc.id,
+              title: doc.title,
+              description: doc.description,
+              renderedContent: doc.renderedContent ?? "",
+              tags: normalizeTags(doc.tags, { strict: false }).tags,
+            }}
+          />
+        </Stack>
+      </Container>
     </main>
   );
 }

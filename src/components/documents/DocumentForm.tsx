@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { TextArea } from "@/components/ui/TextArea";
+import { Select } from "@/components/ui/Select";
+import { Surface } from "@/components/ui/Surface";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Text } from "@/components/ui/Text";
 
 type Doc = {
   id?: string;
@@ -118,70 +123,80 @@ export function DocumentForm({ initial }: Props) {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
-      <Card className="space-y-3 p-4">
-        <div className="space-y-2">
-          <label className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark" htmlFor="doc-title">
-            Title
-          </label>
-          <input
-            id="doc-title"
-            className="mt-1 w-full rounded-md border border-mdt-border px-3 py-2 text-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            aria-label="Document title"
-          />
-          <label className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark" htmlFor="doc-description">
-            Description
-          </label>
-          <textarea
-            id="doc-description"
-            className="mt-1 w-full rounded-md border border-mdt-border px-3 py-2 text-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark"
-            value={description ?? ""}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            aria-label="Document description"
-          />
-          <label className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark" htmlFor="agents-md-content">
-            agents.md content
-          </label>
-          <textarea
-            id="agents-md-content"
-            className="mt-1 w-full rounded-md border border-mdt-border px-3 py-2 font-mono text-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            aria-label="agents.md content"
-          />
-          <label className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark" htmlFor="doc-tags">
-            Tags (comma separated)
-          </label>
-          <input
-            id="doc-tags"
-            className="mt-1 w-full rounded-md border border-mdt-border px-3 py-2 text-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            aria-label="Document tags"
-          />
-        </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex gap-2">
+      <Surface padding="lg" className="space-y-mdt-4">
+        <Stack gap={3}>
+          <Stack gap={1}>
+            <Text as="label" htmlFor="doc-title" size="bodySm" weight="semibold">
+              Title
+            </Text>
+            <Input
+              id="doc-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              aria-label="Document title"
+            />
+          </Stack>
+
+          <Stack gap={1}>
+            <Text as="label" htmlFor="doc-description" size="bodySm" weight="semibold">
+              Description
+            </Text>
+            <TextArea
+              id="doc-description"
+              value={description ?? ""}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              aria-label="Document description"
+            />
+          </Stack>
+
+          <Stack gap={1}>
+            <Text as="label" htmlFor="agents-md-content" size="bodySm" weight="semibold">
+              agents.md content
+            </Text>
+            <TextArea
+              id="agents-md-content"
+              className="font-mono"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={10}
+              aria-label="agents.md content"
+            />
+          </Stack>
+
+          <Stack gap={1}>
+            <Text as="label" htmlFor="doc-tags" size="bodySm" weight="semibold">
+              Tags (comma separated)
+            </Text>
+            <Input
+              id="doc-tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              aria-label="Document tags"
+            />
+          </Stack>
+        </Stack>
+
+        {error && <Text size="bodySm" className="text-red-600">{error}</Text>}
+
+        <Row gap={2}>
           <Button type="submit" disabled={saving}>
             {saving ? "Saving…" : initial?.id ? "Save changes" : "Create document"}
           </Button>
           <Button variant="secondary" type="button" onClick={() => router.back()}>
             Cancel
           </Button>
-        </div>
+        </Row>
 
-        <div className="rounded-md border border-mdt-border bg-white p-3 shadow-sm space-y-3 dark:border-mdt-border-dark dark:bg-mdt-bg-dark">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Insert snippet</span>
-            <select
+        <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+          <Row wrap align="center" gap={2}>
+            <Text as="span" size="bodySm" weight="semibold">Insert snippet</Text>
+            <Select
               value={selectedSnippet}
               onChange={(e) => setSelectedSnippet(e.target.value)}
               disabled={loadingSnippets || snippets.length === 0}
-              className="rounded-md border border-mdt-border px-2 py-1 text-sm dark:border-mdt-border-dark dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+              className="w-auto min-w-[180px]"
               aria-label="Choose snippet to insert"
             >
               {snippets.map((s) => (
@@ -189,29 +204,29 @@ export function DocumentForm({ initial }: Props) {
                   {s.title}
                 </option>
               ))}
-            </select>
+            </Select>
             <Button
               type="button"
-              size="sm"
+              size="xs"
               disabled={loadingSnippets || snippets.length === 0}
               onClick={insertSelectedSnippet}
               aria-label="Insert selected snippet into document"
             >
               Insert into document
             </Button>
-            {loadingSnippets && <span className="text-xs text-mdt-muted">Loading snippets…</span>}
-            {snippetError && <span className="text-xs text-red-600">{snippetError}</span>}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="secondary" size="sm" onClick={copyContent} disabled={!content.trim()} aria-label="Copy document markdown">
+            {loadingSnippets && <Text as="span" size="caption" tone="muted">Loading snippets…</Text>}
+            {snippetError && <Text as="span" size="caption" className="text-red-600">{snippetError}</Text>}
+          </Row>
+          <Row wrap gap={2}>
+            <Button type="button" variant="secondary" size="xs" onClick={copyContent} disabled={!content.trim()} aria-label="Copy document markdown">
               Copy markdown
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={downloadContent} disabled={!content.trim()} aria-label="Download document markdown">
+            <Button type="button" variant="ghost" size="xs" onClick={downloadContent} disabled={!content.trim()} aria-label="Download document markdown">
               Download .md
             </Button>
-          </div>
-        </div>
-      </Card>
+          </Row>
+        </Surface>
+      </Surface>
     </form>
   );
 }

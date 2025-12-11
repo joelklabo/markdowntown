@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { sampleItems } from "@/lib/sampleContent";
-import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import type { Metadata } from "next";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -9,6 +8,11 @@ import { DetailTabs } from "@/components/detail/DetailTabs";
 import { DetailStats } from "@/components/detail/DetailStats";
 import { DetailWarning } from "@/components/detail/DetailWarning";
 import { FeedbackCTA } from "@/components/detail/FeedbackCTA";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -46,51 +50,62 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
   const visibility: "PUBLIC" | "PRIVATE" | "UNLISTED" = "PUBLIC";
 
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 space-y-6">
-      <Breadcrumb
-        segments={[
-          { href: "/", label: "Home" },
-          { href: "/browse", label: "Browse" },
-          { label: item.title },
-        ]}
-      />
-      <div className="space-y-3">
-        <DetailWarning visibility={visibility} type="file" />
+    <main id="main-content" className="py-mdt-8">
+      <Container size="md" padding="md">
+        <Stack gap={6}>
+          <Breadcrumb
+            segments={[
+              { href: "/", label: "Home" },
+              { href: "/browse", label: "Browse" },
+              { label: item.title },
+            ]}
+          />
 
-        <div className="flex items-center gap-2">
-          <Pill tone="blue">agents.md</Pill>
-          {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
-        </div>
-        <h1 className="text-display leading-tight">{item.title}</h1>
-        <p className="text-body text-mdt-muted max-w-3xl">{item.description}</p>
-        <div className="flex flex-wrap gap-2">
-          {item.tags.map((tag) => (
-            <Pill key={tag} tone="gray">#{tag}</Pill>
-          ))}
-        </div>
-        <FileActions
-          id={item.id}
-          slug={item.slug ?? item.id}
-          title={item.title}
-          content={renderedContent}
-          builderHref={`/builder?clone=${item.id}`}
-        />
-        <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
-      </div>
+          <Surface padding="lg" className="space-y-mdt-3">
+            <DetailWarning visibility={visibility} type="file" />
 
-      <DetailTabs title={item.title} rendered={renderedContent} raw={renderedContent} copyLabel="Copy" />
+            <Row wrap gap={4} justify="between" align="start" className="items-start">
+              <Stack gap={2} className="min-w-0">
+                <Row wrap gap={2} className="items-center">
+                  <Pill tone="blue">agents.md</Pill>
+                  {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
+                </Row>
+                <Heading level="display" leading="tight">{item.title}</Heading>
+                <Text tone="muted" className="max-w-3xl">{item.description}</Text>
+                <Row wrap gap={2}>
+                  {item.tags.map((tag) => (
+                    <Pill key={tag} tone="gray">#{tag}</Pill>
+                  ))}
+                </Row>
+                <FileActions
+                  id={item.id}
+                  slug={item.slug ?? item.id}
+                  title={item.title}
+                  content={renderedContent}
+                  builderHref={`/builder?clone=${item.id}`}
+                />
+              </Stack>
+              <Stack gap={2} align="end" className="w-full md:w-auto">
+                <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
+              </Stack>
+            </Row>
+          </Surface>
 
-      <Card className="space-y-3">
-        <h3 className="text-h3">Components</h3>
-        <ul className="list-disc pl-5 text-sm text-mdt-muted">
-          <li>System prompt</li>
-          <li>Style guide</li>
-          <li>Tools instructions</li>
-          <li>Testing checklist</li>
-        </ul>
-      </Card>
+          <DetailTabs title={item.title} rendered={renderedContent} raw={renderedContent} copyLabel="Copy" />
 
-      <FeedbackCTA title="agents.md file" />
+          <Surface padding="md" className="space-y-mdt-3">
+            <Heading level="h3" as="h3">Components</Heading>
+            <ul className="list-disc pl-5 text-sm text-mdt-muted">
+              <li>System prompt</li>
+              <li>Style guide</li>
+              <li>Tools instructions</li>
+              <li>Testing checklist</li>
+            </ul>
+          </Surface>
+
+          <FeedbackCTA title="agents.md file" />
+        </Stack>
+      </Container>
     </main>
   );
 }

@@ -10,10 +10,12 @@ type Props = {
   title: string;
   content: string;
   builderHref?: string;
+  variant?: "inline" | "bar";
 };
 
-export function FileActions({ id, slug, title, content, builderHref }: Props) {
+export function FileActions({ id, slug, title, content, builderHref, variant = "inline" }: Props) {
   const filename = `${slug ?? id}.md`;
+  const actionSize = variant === "bar" ? "sm" : "xs";
 
   async function copy() {
     try {
@@ -56,17 +58,17 @@ export function FileActions({ id, slug, title, content, builderHref }: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button size="sm" onClick={copy}>
+      <Button size={actionSize} onClick={copy}>
         Copy
       </Button>
-      <Button variant="secondary" size="sm" onClick={download}>
+      <Button variant="secondary" size={actionSize} onClick={download}>
         Download
       </Button>
-      <Button variant="ghost" size="sm" onClick={share} aria-label={`Share ${title}`}>
+      <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share ${title}`}>
         Share
       </Button>
       {builderHref && (
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size={actionSize} asChild>
           <Link href={builderHref}>Clone to builder</Link>
         </Button>
       )}
