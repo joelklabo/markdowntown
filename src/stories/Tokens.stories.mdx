@@ -2,9 +2,20 @@ import { Meta } from "@storybook/blocks";
 
 <Meta title="Foundations/Tokens" />
 
-# Tokens
+# Tokens (V2)
 
-Semantic tokens are defined in `src/app/globals.css` and bridged to Tailwind in `tailwind.config.ts`. They power light/dark themes without hard-coded hex values.
+Design tokens live in `src/app/globals.css` as a V2 stack:
+1) primitive palette (`--mdt-neutral-*`, `--mdt-brand-*`, `--mdt-violet-*`, status hues),
+2) semantic roles (`--mdt-color-*`),
+3) component + Tailwind aliases.
+
+Tailwind in `tailwind.config.ts` bridges semantic colors plus typography/spacing scales so the entire UI can be rethemed by editing tokens only.
+
+## Primitive palette (CSS vars)
+- Neutrals: `--mdt-neutral-0…950` (light and dark sets)
+- Brand: `--mdt-brand-50…700`
+- Accent: `--mdt-violet-50…700`
+- Status: `--mdt-success-*`, `--mdt-warning-*`, `--mdt-danger-*`, `--mdt-info-*`
 
 ## Color roles
 
@@ -20,7 +31,7 @@ Semantic tokens are defined in `src/app/globals.css` and bridged to Tailwind in 
 ## Motion & spacing
 - Durations: `duration-mdt-fast|base|slow`
 - Easings: `ease-mdt-standard|mdt-emphasized`
-- Spacing: `mdt-1,2,3,4,5,6,8,10,12` (4/8 base)
+- Spacing: `mdt-0,1,2,3,4,5,6,7,8,9,10,12` (4/8 base)
 - Radii: `mdt-sm|mdt-md|mdt-lg|mdt-pill`
 - Shadows: `mdt-sm|mdt-md|mdt-lg|mdt-focus|mdt-glow`
 

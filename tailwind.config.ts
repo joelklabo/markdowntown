@@ -72,22 +72,46 @@ const config: Config = {
         mono: ["var(--font-mono)", "JetBrains Mono", "SFMono-Regular", "Menlo", "monospace"],
       },
       fontSize: {
-        display: ["2.25rem", { lineHeight: "1.2", fontWeight: "600" }],
-        h1: ["1.875rem", { lineHeight: "1.25", fontWeight: "600" }],
-        h2: ["1.5rem", { lineHeight: "1.3", fontWeight: "600" }],
-        h3: ["1.25rem", { lineHeight: "1.3", fontWeight: "500" }],
-        body: ["1rem", { lineHeight: "1.6", fontWeight: "400" }],
-        "body-sm": ["0.875rem", { lineHeight: "1.5", fontWeight: "400" }],
-        caption: ["0.75rem", { lineHeight: "1.4", fontWeight: "400" }],
+        display: [
+          "var(--mdt-type-display-size)",
+          { lineHeight: "var(--mdt-type-display-lh)", fontWeight: "var(--mdt-type-display-fw)" },
+        ],
+        h1: [
+          "var(--mdt-type-h1-size)",
+          { lineHeight: "var(--mdt-type-h1-lh)", fontWeight: "var(--mdt-type-h1-fw)" },
+        ],
+        h2: [
+          "var(--mdt-type-h2-size)",
+          { lineHeight: "var(--mdt-type-h2-lh)", fontWeight: "var(--mdt-type-h2-fw)" },
+        ],
+        h3: [
+          "var(--mdt-type-h3-size)",
+          { lineHeight: "var(--mdt-type-h3-lh)", fontWeight: "var(--mdt-type-h3-fw)" },
+        ],
+        body: [
+          "var(--mdt-type-body-size)",
+          { lineHeight: "var(--mdt-type-body-lh)", fontWeight: "var(--mdt-type-body-fw)" },
+        ],
+        "body-sm": [
+          "var(--mdt-type-body-sm-size)",
+          { lineHeight: "var(--mdt-type-body-sm-lh)", fontWeight: "var(--mdt-type-body-sm-fw)" },
+        ],
+        caption: [
+          "var(--mdt-type-caption-size)",
+          { lineHeight: "var(--mdt-type-caption-lh)", fontWeight: "var(--mdt-type-caption-fw)" },
+        ],
       },
       spacing: {
+        "mdt-0": "var(--mdt-space-0)",
         "mdt-1": "var(--space-1)",
         "mdt-2": "var(--space-2)",
         "mdt-3": "var(--space-3)",
         "mdt-4": "var(--space-4)",
         "mdt-5": "var(--space-5)",
         "mdt-6": "var(--space-6)",
+        "mdt-7": "var(--mdt-space-7)",
         "mdt-8": "var(--space-8)",
+        "mdt-9": "var(--mdt-space-9)",
         "mdt-10": "var(--space-10)",
         "mdt-12": "var(--space-12)",
       },

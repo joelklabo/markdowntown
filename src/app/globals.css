@@ -2,37 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens: semantic color roles with light/dark support */
+/* Design tokens V2: primitives → semantic roles with light/dark support */
 :root {
-  /* Brand + accents */
-  --mdt-color-primary: hsl(198 85% 52%);
-  --mdt-color-primary-strong: hsl(198 87% 42%);
-  --mdt-color-primary-soft: hsl(198 86% 93%);
-  --mdt-color-accent: hsl(258 82% 66%);
-  --mdt-color-accent-soft: hsl(258 82% 93%);
-  --mdt-color-success: hsl(157 57% 46%);
-  --mdt-color-warning: hsl(38 92% 50%);
-  --mdt-color-danger: hsl(349 74% 52%);
-  --mdt-color-info: hsl(210 90% 55%);
+  /* ==== Primitive palette (light) ==== */
+  /* Neutrals */
+  --mdt-neutral-0: hsl(220 30% 99%);
+  --mdt-neutral-25: hsl(220 30% 98%);
+  --mdt-neutral-50: hsl(220 28% 96%);
+  --mdt-neutral-100: hsl(220 22% 92%);
+  --mdt-neutral-200: hsl(220 18% 86%);
+  --mdt-neutral-300: hsl(220 16% 78%);
+  --mdt-neutral-400: hsl(222 14% 62%);
+  --mdt-neutral-500: hsl(222 16% 48%);
+  --mdt-neutral-600: hsl(222 22% 38%);
+  --mdt-neutral-700: hsl(222 34% 24%);
+  --mdt-neutral-800: hsl(222 42% 14%);
+  --mdt-neutral-900: hsl(222 50% 9%);
+  --mdt-neutral-950: hsl(222 58% 5%);
+
+  /* Brand (blue) */
+  --mdt-brand-50: hsl(198 100% 96%);
+  --mdt-brand-100: hsl(198 95% 90%);
+  --mdt-brand-200: hsl(198 92% 82%);
+  --mdt-brand-300: hsl(198 90% 72%);
+  --mdt-brand-400: hsl(198 88% 62%);
+  --mdt-brand-500: hsl(198 85% 52%);
+  --mdt-brand-600: hsl(198 87% 42%);
+  --mdt-brand-700: hsl(198 90% 34%);
+
+  /* Accent (violet) */
+  --mdt-violet-50: hsl(258 100% 96%);
+  --mdt-violet-100: hsl(258 96% 90%);
+  --mdt-violet-200: hsl(258 90% 84%);
+  --mdt-violet-300: hsl(258 88% 76%);
+  --mdt-violet-400: hsl(258 86% 70%);
+  --mdt-violet-500: hsl(258 82% 66%);
+  --mdt-violet-600: hsl(258 80% 58%);
+  --mdt-violet-700: hsl(258 78% 50%);
+
+  /* Status hues */
+  --mdt-success-500: hsl(157 60% 46%);
+  --mdt-success-600: hsl(157 62% 40%);
+  --mdt-warning-500: hsl(38 92% 50%);
+  --mdt-warning-600: hsl(38 92% 44%);
+  --mdt-danger-500: hsl(349 74% 52%);
+  --mdt-danger-600: hsl(349 76% 46%);
+  --mdt-info-500: hsl(210 90% 55%);
+  --mdt-info-600: hsl(210 92% 48%);
+
+  /* ==== Semantic color roles (light) ==== */
+  --mdt-color-primary: var(--mdt-brand-500);
+  --mdt-color-primary-strong: var(--mdt-brand-600);
+  --mdt-color-primary-soft: var(--mdt-brand-100);
+  --mdt-color-accent: var(--mdt-violet-500);
+  --mdt-color-accent-soft: var(--mdt-violet-100);
+  --mdt-color-success: var(--mdt-success-500);
+  --mdt-color-warning: var(--mdt-warning-500);
+  --mdt-color-danger: var(--mdt-danger-500);
+  --mdt-color-info: var(--mdt-info-500);
 
   /* Surfaces */
-  --mdt-color-bg: hsl(220 30% 97%);
-  --mdt-color-surface: hsl(220 25% 99%);
-  --mdt-color-surface-subtle: hsl(220 24% 96%);
-  --mdt-color-surface-strong: hsl(220 18% 90%);
-  --mdt-color-surface-raised: hsl(220 22% 98%);
-  --mdt-color-overlay: hsl(220 30% 10% / 0.45);
+  --mdt-color-bg: var(--mdt-neutral-25);
+  --mdt-color-surface: var(--mdt-neutral-0);
+  --mdt-color-surface-subtle: var(--mdt-neutral-50);
+  --mdt-color-surface-strong: var(--mdt-neutral-100);
+  --mdt-color-surface-raised: var(--mdt-neutral-0);
+  --mdt-color-overlay: hsl(222 50% 8% / 0.45);
 
   /* Lines + rings */
-  --mdt-color-border: hsl(220 18% 86%);
-  --mdt-color-border-strong: hsl(220 16% 78%);
+  --mdt-color-border: var(--mdt-neutral-200);
+  --mdt-color-border-strong: var(--mdt-neutral-300);
   --mdt-color-ring: hsl(198 85% 52% / 0.55);
 
   /* Text */
-  --mdt-color-text: hsl(222 47% 11%);
-  --mdt-color-text-muted: hsl(222 24% 42%);
-  --mdt-color-text-subtle: hsl(222 16% 55%);
+  --mdt-color-text: var(--mdt-neutral-900);
+  --mdt-color-text-muted: var(--mdt-neutral-600);
+  --mdt-color-text-subtle: var(--mdt-neutral-500);
   --mdt-color-text-on-strong: hsl(0 0% 100%);
+
+  /* Data viz palette */
+  --mdt-data-1: var(--mdt-brand-500);
+  --mdt-data-2: var(--mdt-violet-500);
+  --mdt-data-3: var(--mdt-success-500);
+  --mdt-data-4: var(--mdt-warning-500);
+  --mdt-data-5: var(--mdt-danger-500);
+  --mdt-data-6: var(--mdt-info-500);
+  --mdt-data-7: hsl(280 60% 58%);
+  --mdt-data-8: hsl(120 55% 42%);
+
+  /* Typography tokens (sizes are CSS vars for runtime theming) */
+  --mdt-font-weight-regular: 400;
+  --mdt-font-weight-medium: 500;
+  --mdt-font-weight-semibold: 600;
+  --mdt-font-weight-bold: 700;
+
+  --mdt-type-display-size: 2.25rem;
+  --mdt-type-display-lh: 1.2;
+  --mdt-type-display-fw: var(--mdt-font-weight-semibold);
+
+  --mdt-type-h1-size: 1.875rem;
+  --mdt-type-h1-lh: 1.25;
+  --mdt-type-h1-fw: var(--mdt-font-weight-semibold);
+
+  --mdt-type-h2-size: 1.5rem;
+  --mdt-type-h2-lh: 1.3;
+  --mdt-type-h2-fw: var(--mdt-font-weight-semibold);
+
+  --mdt-type-h3-size: 1.25rem;
+  --mdt-type-h3-lh: 1.3;
+  --mdt-type-h3-fw: var(--mdt-font-weight-medium);
+
+  --mdt-type-body-size: 1rem;
+  --mdt-type-body-lh: 1.6;
+  --mdt-type-body-fw: var(--mdt-font-weight-regular);
+
+  --mdt-type-body-sm-size: 0.875rem;
+  --mdt-type-body-sm-lh: 1.5;
+  --mdt-type-body-sm-fw: var(--mdt-font-weight-regular);
+
+  --mdt-type-caption-size: 0.75rem;
+  --mdt-type-caption-lh: 1.4;
+  --mdt-type-caption-fw: var(--mdt-font-weight-regular);
 
   /* Shadows */
   --mdt-shadow-sm: 0 10px 30px hsl(222 47% 11% / 0.08);
@@ -42,10 +132,16 @@
   --mdt-shadow-focus: 0 0 0 3px var(--mdt-color-ring);
 
   /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-pill: 999px;
+  --mdt-radius-sm: 6px;
+  --mdt-radius-md: 10px;
+  --mdt-radius-lg: 16px;
+  --mdt-radius-pill: 999px;
+
+  /* Legacy radii aliases */
+  --radius-sm: var(--mdt-radius-sm);
+  --radius-md: var(--mdt-radius-md);
+  --radius-lg: var(--mdt-radius-lg);
+  --radius-pill: var(--mdt-radius-pill);
 
   /* Motion */
   --mdt-motion-fast: 120ms;
@@ -61,43 +157,109 @@
   --mdt-motion-distance-far: 32px;
 
   /* Spacing tokens (4/8 base) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
+  --mdt-space-0: 0px;
+  --mdt-space-1: 4px;
+  --mdt-space-2: 8px;
+  --mdt-space-3: 12px;
+  --mdt-space-4: 16px;
+  --mdt-space-5: 20px;
+  --mdt-space-6: 24px;
+  --mdt-space-7: 28px;
+  --mdt-space-8: 32px;
+  --mdt-space-9: 36px;
+  --mdt-space-10: 40px;
+  --mdt-space-12: 48px;
+
+  /* Legacy spacing aliases */
+  --space-1: var(--mdt-space-1);
+  --space-2: var(--mdt-space-2);
+  --space-3: var(--mdt-space-3);
+  --space-4: var(--mdt-space-4);
+  --space-5: var(--mdt-space-5);
+  --space-6: var(--mdt-space-6);
+  --space-8: var(--mdt-space-8);
+  --space-10: var(--mdt-space-10);
+  --space-12: var(--mdt-space-12);
 }
 
 .dark {
-  --mdt-color-primary: hsl(198 86% 62%);
-  --mdt-color-primary-strong: hsl(198 88% 72%);
-  --mdt-color-primary-soft: hsl(198 80% 22% / 0.7);
-  --mdt-color-accent: hsl(258 85% 72%);
-  --mdt-color-accent-soft: hsl(258 84% 28% / 0.55);
-  --mdt-color-success: hsl(157 58% 56%);
-  --mdt-color-warning: hsl(38 95% 60%);
-  --mdt-color-danger: hsl(349 76% 62%);
-  --mdt-color-info: hsl(210 92% 70%);
+  /* ==== Primitive palette (dark) ==== */
+  --mdt-neutral-0: hsl(220 18% 6%);
+  --mdt-neutral-25: hsl(220 18% 8%);
+  --mdt-neutral-50: hsl(220 18% 10%);
+  --mdt-neutral-100: hsl(220 16% 14%);
+  --mdt-neutral-200: hsl(220 16% 18%);
+  --mdt-neutral-300: hsl(220 16% 22%);
+  --mdt-neutral-400: hsl(220 16% 28%);
+  --mdt-neutral-500: hsl(220 18% 38%);
+  --mdt-neutral-600: hsl(220 15% 64%);
+  --mdt-neutral-700: hsl(220 15% 74%);
+  --mdt-neutral-800: hsl(220 20% 84%);
+  --mdt-neutral-900: hsl(220 33% 92%);
+  --mdt-neutral-950: hsl(0 0% 100%);
 
-  --mdt-color-bg: hsl(220 18% 6%);
-  --mdt-color-surface: hsl(220 18% 10%);
-  --mdt-color-surface-subtle: hsl(220 16% 14%);
-  --mdt-color-surface-strong: hsl(220 16% 18%);
-  --mdt-color-surface-raised: hsl(220 16% 22%);
+  --mdt-brand-50: hsl(198 80% 22% / 0.7);
+  --mdt-brand-100: hsl(198 82% 28% / 0.55);
+  --mdt-brand-200: hsl(198 84% 36%);
+  --mdt-brand-300: hsl(198 86% 48%);
+  --mdt-brand-400: hsl(198 86% 56%);
+  --mdt-brand-500: hsl(198 86% 62%);
+  --mdt-brand-600: hsl(198 88% 72%);
+  --mdt-brand-700: hsl(198 90% 80%);
+
+  --mdt-violet-50: hsl(258 84% 28% / 0.55);
+  --mdt-violet-100: hsl(258 86% 36% / 0.6);
+  --mdt-violet-200: hsl(258 88% 46%);
+  --mdt-violet-300: hsl(258 90% 56%);
+  --mdt-violet-400: hsl(258 92% 64%);
+  --mdt-violet-500: hsl(258 85% 72%);
+  --mdt-violet-600: hsl(258 88% 78%);
+  --mdt-violet-700: hsl(258 90% 84%);
+
+  --mdt-success-500: hsl(157 58% 56%);
+  --mdt-success-600: hsl(157 60% 62%);
+  --mdt-warning-500: hsl(38 95% 60%);
+  --mdt-warning-600: hsl(38 98% 66%);
+  --mdt-danger-500: hsl(349 76% 62%);
+  --mdt-danger-600: hsl(349 78% 68%);
+  --mdt-info-500: hsl(210 92% 70%);
+  --mdt-info-600: hsl(210 94% 76%);
+
+  /* ==== Semantic color roles (dark) ==== */
+  --mdt-color-primary: var(--mdt-brand-500);
+  --mdt-color-primary-strong: var(--mdt-brand-600);
+  --mdt-color-primary-soft: var(--mdt-brand-50);
+  --mdt-color-accent: var(--mdt-violet-500);
+  --mdt-color-accent-soft: var(--mdt-violet-50);
+  --mdt-color-success: var(--mdt-success-500);
+  --mdt-color-warning: var(--mdt-warning-500);
+  --mdt-color-danger: var(--mdt-danger-500);
+  --mdt-color-info: var(--mdt-info-500);
+
+  --mdt-color-bg: var(--mdt-neutral-0);
+  --mdt-color-surface: var(--mdt-neutral-50);
+  --mdt-color-surface-subtle: var(--mdt-neutral-100);
+  --mdt-color-surface-strong: var(--mdt-neutral-200);
+  --mdt-color-surface-raised: var(--mdt-neutral-300);
   --mdt-color-overlay: hsl(220 32% 4% / 0.7);
 
-  --mdt-color-border: hsl(220 16% 28%);
-  --mdt-color-border-strong: hsl(220 18% 38%);
+  --mdt-color-border: var(--mdt-neutral-400);
+  --mdt-color-border-strong: var(--mdt-neutral-500);
   --mdt-color-ring: hsl(198 88% 65% / 0.45);
 
-  --mdt-color-text: hsl(220 33% 92%);
-  --mdt-color-text-muted: hsl(220 15% 74%);
-  --mdt-color-text-subtle: hsl(220 12% 64%);
+  --mdt-color-text: var(--mdt-neutral-900);
+  --mdt-color-text-muted: var(--mdt-neutral-700);
+  --mdt-color-text-subtle: var(--mdt-neutral-600);
   --mdt-color-text-on-strong: hsl(220 16% 12%);
+
+  --mdt-data-1: var(--mdt-brand-500);
+  --mdt-data-2: var(--mdt-violet-500);
+  --mdt-data-3: var(--mdt-success-500);
+  --mdt-data-4: var(--mdt-warning-500);
+  --mdt-data-5: var(--mdt-danger-500);
+  --mdt-data-6: var(--mdt-info-500);
+  --mdt-data-7: hsl(280 70% 65%);
+  --mdt-data-8: hsl(120 60% 52%);
 
   --mdt-shadow-sm: 0 10px 30px hsl(220 33% 4% / 0.35);
   --mdt-shadow-md: 0 18px 40px hsl(220 33% 3% / 0.45);
@@ -105,10 +267,15 @@
   --mdt-shadow-glow: 0 0 0 1px hsl(198 88% 65% / 0.22), 0 16px 48px hsl(220 33% 3% / 0.5);
   --mdt-shadow-focus: 0 0 0 3px var(--mdt-color-ring);
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-pill: 999px;
+  --mdt-radius-sm: 6px;
+  --mdt-radius-md: 10px;
+  --mdt-radius-lg: 16px;
+  --mdt-radius-pill: 999px;
+
+  --radius-sm: var(--mdt-radius-sm);
+  --radius-md: var(--mdt-radius-md);
+  --radius-lg: var(--mdt-radius-lg);
+  --radius-pill: var(--mdt-radius-pill);
 
   --mdt-motion-fast: 120ms;
   --mdt-motion-base: 180ms;
@@ -122,37 +289,28 @@
   --mdt-motion-distance-mid: 16px;
   --mdt-motion-distance-far: 32px;
 
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-}
+  --mdt-space-0: 0px;
+  --mdt-space-1: 4px;
+  --mdt-space-2: 8px;
+  --mdt-space-3: 12px;
+  --mdt-space-4: 16px;
+  --mdt-space-5: 20px;
+  --mdt-space-6: 24px;
+  --mdt-space-7: 28px;
+  --mdt-space-8: 32px;
+  --mdt-space-9: 36px;
+  --mdt-space-10: 40px;
+  --mdt-space-12: 48px;
 
-/* Data viz palette */
-:root {
-  --mdt-data-1: hsl(198 85% 52%);
-  --mdt-data-2: hsl(258 82% 66%);
-  --mdt-data-3: hsl(157 57% 46%);
-  --mdt-data-4: hsl(38 92% 50%);
-  --mdt-data-5: hsl(349 74% 52%);
-  --mdt-data-6: hsl(210 90% 55%);
-  --mdt-data-7: hsl(280 60% 58%);
-  --mdt-data-8: hsl(120 55% 42%);
-}
-.dark {
-  --mdt-data-1: hsl(198 86% 62%);
-  --mdt-data-2: hsl(258 85% 72%);
-  --mdt-data-3: hsl(157 58% 56%);
-  --mdt-data-4: hsl(38 95% 60%);
-  --mdt-data-5: hsl(349 76% 62%);
-  --mdt-data-6: hsl(210 92% 70%);
-  --mdt-data-7: hsl(280 70% 65%);
-  --mdt-data-8: hsl(120 60% 52%);
+  --space-1: var(--mdt-space-1);
+  --space-2: var(--mdt-space-2);
+  --space-3: var(--mdt-space-3);
+  --space-4: var(--mdt-space-4);
+  --space-5: var(--mdt-space-5);
+  --space-6: var(--mdt-space-6);
+  --space-8: var(--mdt-space-8);
+  --space-10: var(--mdt-space-10);
+  --space-12: var(--mdt-space-12);
 }
 
 @layer base {
