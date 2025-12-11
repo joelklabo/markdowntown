@@ -1,5 +1,10 @@
 import { listTopTags } from "@/lib/publicTags";
-import { Card } from "@/components/ui/Card";
+import { Pill } from "@/components/ui/Pill";
+import { Container } from "@/components/ui/Container";
+import { Stack } from "@/components/ui/Stack";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
+import { Surface } from "@/components/ui/Surface";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -13,28 +18,32 @@ export const revalidate = 300;
 export default async function TagsPage() {
   const tags = await listTopTags(100, 30);
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 py-10 space-y-6">
-      <div className="space-y-1">
-        <p className="text-caption text-mdt-muted">Tags</p>
-        <h1 className="text-display">Topics people are using right now</h1>
-        <p className="text-body text-mdt-muted max-w-2xl">
-          Choose a tag to jump into related snippets, templates, and agents.md files.
-        </p>
-      </div>
+    <main id="main-content" className="py-mdt-8">
+      <Container size="lg" padding="md">
+        <Stack gap={6}>
+          <Stack gap={1}>
+            <Text size="caption" tone="muted">Tags</Text>
+            <Heading level="display" leading="tight">Topics people are using right now</Heading>
+            <Text tone="muted" className="max-w-2xl">
+              Choose a tag to jump into related snippets, templates, and agents.md files.
+            </Text>
+          </Stack>
 
-      <Card className="flex flex-wrap gap-3">
-        {tags.length === 0 && <p className="text-body text-mdt-muted">No tags yet. Check back soon.</p>}
-        {tags.map(({ tag, count }) => (
-          <Link
-            key={tag}
-            href={`/browse?tag=${encodeURIComponent(tag)}`}
-            className="rounded-lg border border-mdt-border px-3 py-2 text-sm text-mdt-text transition hover:-translate-y-[1px] hover:border-indigo-300 hover:shadow-mdt-sm dark:border-mdt-border-dark dark:text-mdt-text-dark"
-          >
-            <span className="font-semibold">#{tag}</span>
-            <span className="ml-2 text-mdt-muted dark:text-mdt-muted-dark">{count} items</span>
-          </Link>
-        ))}
-      </Card>
+          <Surface tone="subtle" padding="md" className="flex flex-wrap gap-mdt-2">
+            {tags.length === 0 && <Text tone="muted">No tags yet. Check back soon.</Text>}
+            {tags.map(({ tag, count }) => (
+              <Pill key={tag} tone="gray" className="flex items-center gap-1">
+                <Link href={`/browse?tag=${encodeURIComponent(tag)}`} className="flex items-center gap-1">
+                  <Text as="span" size="bodySm" weight="semibold">#{tag}</Text>
+                  <Text as="span" size="caption" tone="muted">
+                    {count}
+                  </Text>
+                </Link>
+              </Pill>
+            ))}
+          </Surface>
+        </Stack>
+      </Container>
     </main>
   );
 }
