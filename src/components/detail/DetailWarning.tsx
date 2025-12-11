@@ -13,12 +13,12 @@ export function DetailWarning({ visibility, type }: Props) {
 
   return (
     <Card
-      className="flex items-start gap-3 border-[color:var(--mdt-color-warning)] bg-[color:var(--mdt-color-accent-soft)]/40 text-sm text-mdt-text"
+      className="flex items-start gap-mdt-3 border-[color:var(--mdt-color-warning)] bg-[color:var(--mdt-color-accent-soft)]/40 text-body-sm text-mdt-text"
       role="status"
       aria-live="polite"
     >
       <span aria-hidden>⚠️</span>
-      <div className="space-y-1">
+      <div className="space-y-mdt-1">
         <p className="font-semibold">{copy} {type}</p>
         <p className="text-mdt-muted">
           This {type} is {copy.toLowerCase()} — share carefully. Only people with the link should access it.

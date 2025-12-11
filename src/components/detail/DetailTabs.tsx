@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 type Props = {
   title: string;
@@ -25,28 +27,32 @@ export function DetailTabs({ title, rendered, raw, copyLabel = "Copy" }: Props) 
   }
 
   return (
-    <Card className="space-y-3">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-2">
-          <Button size="sm" variant={tab === "rendered" ? "primary" : "ghost"} onClick={() => setTab("rendered")}>
+    <Card className="space-y-mdt-3">
+      <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+        <div className="flex gap-mdt-2">
+          <Button size="xs" variant={tab === "rendered" ? "primary" : "ghost"} onClick={() => setTab("rendered")}>
             Rendered
           </Button>
-          <Button size="sm" variant={tab === "raw" ? "primary" : "ghost"} onClick={() => setTab("raw")}>
+          <Button size="xs" variant={tab === "raw" ? "primary" : "ghost"} onClick={() => setTab("raw")}>
             Raw
           </Button>
         </div>
-        <Button size="sm" variant="secondary" onClick={copyCurrent}>
+        <Button size="xs" variant="secondary" onClick={copyCurrent}>
           {copyLabel} {tab}
         </Button>
       </div>
 
       {tab === "rendered" ? (
-        <div className="rounded-lg border border-mdt-border bg-mdt-surface p-4 text-sm leading-6">
-          <h3 className="text-h4 mb-2 text-mdt-text">{title}</h3>
-          <p className="text-mdt-text whitespace-pre-wrap">{rendered}</p>
+        <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-4 text-body-sm leading-6">
+          <Heading level="h3" className="mb-mdt-2">
+            {title}
+          </Heading>
+          <Text as="p" size="bodySm" className="whitespace-pre-wrap">
+            {rendered}
+          </Text>
         </div>
       ) : (
-        <pre className="rounded-lg border border-mdt-border bg-mdt-surface-subtle p-4 font-mono text-xs whitespace-pre-wrap text-mdt-text">
+        <pre className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-4 font-mono text-caption whitespace-pre-wrap text-mdt-text">
 {raw}
         </pre>
       )}
