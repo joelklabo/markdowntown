@@ -1,0 +1,35 @@
+import { Meta, Canvas } from "@storybook/blocks";
+import { Heading } from "@/components/ui/Heading";
+import { Text, CodeText } from "@/components/ui/Text";
+import { Container } from "@/components/ui/Container";
+import { Stack, Row } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
+
+<Meta title="Foundations/Primitives" />
+
+# Layout & Typography (V2)
+
+These primitives are the foundation for all V2 surfaces. They consume semantic tokens only, so global rethemes are a token edit.
+
+<Canvas>
+  <Container size="sm" padding="md">
+    <Surface padding="lg">
+      <Stack gap={4}>
+        <Heading level="display">Display heading</Heading>
+        <Heading level="h1">Heading 1</Heading>
+        <Heading level="h2">Heading 2</Heading>
+        <Heading level="h3">Heading 3</Heading>
+        <Text>Default body text</Text>
+        <Text size="bodySm" tone="muted">
+          Small muted body text for supporting copy.
+        </Text>
+        <CodeText>const agents = "md";</CodeText>
+        <Row gap={2}>
+          <Surface tone="subtle" padding="sm">Subtle surface</Surface>
+          <Surface tone="strong" padding="sm">Strong surface</Surface>
+        </Row>
+      </Stack>
+    </Surface>
+  </Container>
+</Canvas>
+

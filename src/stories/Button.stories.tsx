@@ -7,7 +7,7 @@ const meta: Meta<typeof Button> = {
   component: Button,
   argTypes: {
     variant: { control: "select", options: ["primary", "secondary", "ghost"] },
-    size: { control: "select", options: ["sm", "md", "lg"] },
+    size: { control: "select", options: ["xs", "sm", "md", "lg"] },
   },
   args: {
     children: "Click me",
@@ -30,6 +30,9 @@ export const Ghost: Story = {
 export const Sizes: Story = {
   render: (args) => (
     <div className="flex items-center gap-3">
+      <Button {...args} size="xs">
+        XS
+      </Button>
       <Button {...args} size="sm">
         Small
       </Button>
