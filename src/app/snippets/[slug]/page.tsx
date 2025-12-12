@@ -94,7 +94,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
             ]}
           />
 
-          <Surface padding="lg" className="space-y-mdt-4">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-4">
             <DetailWarning visibility={visibility} type="snippet" />
 
             <Row wrap gap={4} justify="between" align="start" className="items-start">

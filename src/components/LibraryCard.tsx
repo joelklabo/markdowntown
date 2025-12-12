@@ -111,7 +111,7 @@ export function LibraryCard({
   return (
     <Card
       className={cn(
-        "flex h-full flex-col justify-between shadow-mdt-md hover:shadow-mdt-glow",
+        "flex h-full flex-col justify-between",
         className
       )}
       {...rest}
@@ -131,7 +131,7 @@ export function LibraryCard({
           </Text>
         </Stack>
 
-        <Row gap={2} wrap>
+        <Row gap={1} wrap>
           {item.tags.map((tag) => (
             <Pill key={tag} tone="gray">
               #{tag}
@@ -140,11 +140,17 @@ export function LibraryCard({
         </Row>
       </Stack>
 
-      <Row gap={3} align="center" justify="between" className="mt-mdt-4 text-caption text-mdt-muted">
-        <Row gap={3} wrap>
-          <Text as="span" size="caption" tone="muted">📄 {item.stats.views.toLocaleString()} views</Text>
-          <Text as="span" size="caption" tone="muted">📋 {item.stats.copies.toLocaleString()} copies</Text>
-          <Text as="span" size="caption" tone="muted">👍 {item.stats.votes.toLocaleString()} votes</Text>
+      <Row gap={2} align="center" justify="between" className="mt-mdt-4 text-caption text-mdt-muted">
+        <Row gap={2} wrap>
+          <Text as="span" size="caption" tone="muted">
+            {item.stats.views.toLocaleString()} views
+          </Text>
+          <Text as="span" size="caption" tone="muted">
+            {item.stats.copies.toLocaleString()} copies
+          </Text>
+          <Text as="span" size="caption" tone="muted">
+            {item.stats.votes.toLocaleString()} votes
+          </Text>
         </Row>
         <Row gap={2} align="center">
           {onPreview && (

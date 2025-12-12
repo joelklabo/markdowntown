@@ -61,7 +61,7 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
             ]}
           />
 
-          <Surface padding="lg" className="space-y-mdt-3">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-3">
             <DetailWarning visibility={visibility} type="file" />
 
             <Row wrap gap={4} justify="between" align="start" className="items-start">

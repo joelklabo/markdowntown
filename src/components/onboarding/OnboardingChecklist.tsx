@@ -80,7 +80,7 @@ export function OnboardingChecklist({ onLoadSample }: { onLoadSample: () => void
                   key={step.key}
                   role="listitem"
                   className={cn(
-                    "w-full rounded-md border px-3 py-2 text-left text-sm transition",
+                    "w-full rounded-mdt-sm border px-3 py-2 text-left text-sm transition",
                     isDone
                       ? "border-mdt-success bg-[color:var(--mdt-color-success)]/10 text-mdt-text"
                       : "border-mdt-border hover:border-mdt-border-strong"

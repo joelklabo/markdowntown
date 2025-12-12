@@ -90,7 +90,7 @@ export async function POST(request: Request) {
           documentId: created.id,
           snippetId: id,
           position: idx,
-          overrides: typeof overrides[id] === "string" ? overrides[id] : null,
+          overrides: typeof overrides[id] === "string" ? overrides[id] : undefined,
         })),
         skipDuplicates: true,
       });

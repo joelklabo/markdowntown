@@ -6,7 +6,10 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const skipDb = process.env.SKIP_DB === "1";
-export const hasDatabaseEnv = !skipDb && Boolean(process.env.DATABASE_URL);
+const databaseUrl = process.env.DATABASE_URL;
+// Only treat DB as available when a Postgres URL is configured.
+export const hasDatabaseEnv =
+  !skipDb && typeof databaseUrl === "string" && /^(postgresql|postgres):\/\//.test(databaseUrl);
 
 export const prisma =
   globalForPrisma.prisma ??

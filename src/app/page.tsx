@@ -77,7 +77,10 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-mdt-bg text-mdt-text">
       <div className="relative overflow-hidden border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(54,214,255,0.12),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(124,243,195,0.14),transparent_26%),radial-gradient(circle_at_60%_70%,rgba(30,168,231,0.10),transparent_32%)]" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(54,214,255,0.08),transparent_55%)]"
+          aria-hidden
+        />
 
         <section className="relative">
           <Container
@@ -86,7 +89,7 @@ export default async function Home() {
             className="flex flex-col gap-12 pb-mdt-16 pt-mdt-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center"
           >
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-mdt-pill bg-[color:var(--mdt-color-surface-subtle)] px-3 py-1 text-sm font-medium text-mdt-muted shadow-mdt-sm">
+            <div className="inline-flex items-center gap-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-1 text-body-sm font-medium text-mdt-muted">
               <span className="text-[10px] font-semibold uppercase tracking-wide text-[color:var(--mdt-color-primary)]">Public-first</span>
               <span>Copy without login</span>
             </div>
@@ -279,7 +282,7 @@ export default async function Home() {
                 <Link
                   key={tag}
                   href={`/browse?tag=${encodeURIComponent(tag)}`}
-                  className="rounded-mdt-pill border border-mdt-border px-3 py-1 text-sm text-mdt-text transition hover:-translate-y-[1px] hover:border-mdt-border-strong hover:shadow-mdt-sm"
+                  className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-1 text-body-sm text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface hover:border-mdt-border-strong hover:shadow-mdt-sm"
                 >
                   #{tag} - {count}
                 </Link>
@@ -304,7 +307,7 @@ export default async function Home() {
                 {copiedFiles.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] px-3 py-3 text-sm"
+                    className="flex items-center justify-between rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-3 py-3 text-sm"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -325,7 +328,7 @@ export default async function Home() {
               </div>
             </Card>
 
-            <Card className="space-y-3 border border-dashed border-mdt-border bg-[rgba(0,87,217,0.04)] dark:bg-[color:var(--mdt-color-surface-subtle)]">
+            <Card className="space-y-3 border border-dashed border-mdt-border bg-mdt-surface-subtle">
               <div className="flex items-center justify-between">
                 <h3 className="text-h3">Why sign in</h3>
                 <Pill tone="yellow">Optional</Pill>

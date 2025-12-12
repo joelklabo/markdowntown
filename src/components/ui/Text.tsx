@@ -39,12 +39,15 @@ const textVariants = cva("", {
   },
 });
 
-export type TextProps = VariantProps<typeof textVariants> & {
-  as?: React.ElementType;
-} & React.HTMLAttributes<HTMLElement>;
+type TextVariants = VariantProps<typeof textVariants>;
 
-export function Text({
-  as: Comp = "p",
+type PolymorphicProps<C extends React.ElementType, Props> =
+  Props & { as?: C } & Omit<React.ComponentPropsWithoutRef<C>, keyof Props | "as">;
+
+export type TextProps<C extends React.ElementType = "p"> = PolymorphicProps<C, TextVariants>;
+
+export function Text<C extends React.ElementType = "p">({
+  as,
   size,
   tone,
   weight,
@@ -52,7 +55,8 @@ export function Text({
   align,
   className,
   ...props
-}: TextProps) {
+}: TextProps<C>) {
+  const Comp = (as ?? "p") as React.ElementType;
   return (
     <Comp
       className={cn(textVariants({ size, tone, weight, leading, align }), className)}
@@ -61,12 +65,10 @@ export function Text({
   );
 }
 
-export type CodeTextProps = Omit<TextProps, "as"> & {
-  as?: React.ElementType;
-};
+export type CodeTextProps<C extends React.ElementType = "code"> = PolymorphicProps<C, TextVariants>;
 
-export function CodeText({
-  as: Comp = "code",
+export function CodeText<C extends React.ElementType = "code">({
+  as,
   size = "bodySm",
   tone,
   weight,
@@ -74,7 +76,8 @@ export function CodeText({
   align,
   className,
   ...props
-}: CodeTextProps) {
+}: CodeTextProps<C>) {
+  const Comp = (as ?? "code") as React.ElementType;
   return (
     <Comp
       className={cn(textVariants({ size, tone, weight, leading, align }), "font-mono", className)}

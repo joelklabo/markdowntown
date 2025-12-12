@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LibraryCard } from "@/components/LibraryCard";
 import type { SampleItem } from "@/lib/sampleContent";
 import { Button } from "@/components/ui/Button";
@@ -93,7 +93,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
     /* no-op placeholder for future visual feedback */
   }
 
-  useMemo(() => {
+  useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key.toLowerCase() === "l" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
@@ -110,8 +110,10 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
         setPreview(null);
       }
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", onKey);
+      return () => window.removeEventListener("keydown", onKey);
+    }
   }, [loadMore, preview]);
 
   function handleUseTemplate(item: SampleItem) {
@@ -126,7 +128,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
 
   if (!items.length) {
     return (
-      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 text-center shadow-mdt-sm text-mdt-muted">
+      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 text-center text-mdt-muted">
         <p className="text-body">No results yet.</p>
         <p className="text-body-sm mt-1">Try clearing filters, using fewer tags, or checking “All” types.</p>
       </div>
@@ -134,7 +136,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
   }
 
   return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
+    <div className="grid gap-mdt-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
       {items.map((item) => (
         <LibraryCard
           key={item.id}
@@ -165,7 +167,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
       {preview && (
         <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm motion-fade-in">
           <div className="absolute inset-0" onClick={() => setPreview(null)} aria-label="Close preview" />
-          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-2xl border border-mdt-border bg-mdt-surface p-5 shadow-mdt-lg md:inset-x-1/4">
+          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface p-5 shadow-mdt-lg md:inset-x-1/4">
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-caption text-mdt-muted uppercase tracking-wide">{preview.type}</p>

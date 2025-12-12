@@ -2,7 +2,7 @@ import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
-const surfaceVariants = cva("rounded-mdt-md border border-mdt-border shadow-mdt-sm", {
+const surfaceVariants = cva("rounded-mdt-md border border-mdt-border", {
   variants: {
     tone: {
       default: "bg-mdt-surface",
@@ -23,11 +23,21 @@ const surfaceVariants = cva("rounded-mdt-md border border-mdt-border shadow-mdt-
   },
 });
 
-export type SurfaceProps = VariantProps<typeof surfaceVariants> & {
-  as?: React.ElementType;
-} & React.HTMLAttributes<HTMLElement>;
+type SurfaceVariants = VariantProps<typeof surfaceVariants>;
 
-export function Surface({ as: Comp = "div", tone, padding, className, ...props }: SurfaceProps) {
+type PolymorphicProps<C extends React.ElementType, Props> =
+  Props & { as?: C } & Omit<React.ComponentPropsWithoutRef<C>, keyof Props | "as">;
+
+export type SurfaceProps<C extends React.ElementType = "div"> = PolymorphicProps<C, SurfaceVariants>;
+
+export function Surface<C extends React.ElementType = "div">({
+  as,
+  tone,
+  padding,
+  className,
+  ...props
+}: SurfaceProps<C>) {
+  const Comp = (as ?? "div") as React.ElementType;
   return (
     <Comp
       className={cn(surfaceVariants({ tone, padding }), className)}
@@ -35,4 +45,3 @@ export function Surface({ as: Comp = "div", tone, padding, className, ...props }
     />
   );
 }
-

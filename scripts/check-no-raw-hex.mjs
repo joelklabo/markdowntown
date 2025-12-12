@@ -9,7 +9,7 @@ const patterns = [
   "src/**/*.{ts,tsx,js,jsx,css,mdx}",
   "docs/**/*.{md,mdx}",
   "scripts/**/*.{ts,js,mjs,cjs}",
-  "tailwind.config.ts",
+  "tailwind.config.mjs",
   "eslint.config.mjs",
 ];
 

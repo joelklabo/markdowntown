@@ -31,6 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prisma schema validate
+        env:
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/markdowntown"
+        run: pnpm prisma:validate
+
       - name: Generate Prisma client
         env:
           DATABASE_URL: "file:./dev.db"

@@ -184,8 +184,8 @@ export default async function BrowsePage({
             </form>
           </Surface>
 
-          <section className="grid gap-4 md:grid-cols-[280px_1fr]">
-            <Surface as="aside" padding="md" className="hidden space-y-4 md:block">
+          <section className="grid gap-mdt-4 md:grid-cols-[280px_1fr]">
+            <Surface as="aside" padding="md" className="hidden space-y-mdt-4 md:block">
               <BrowseFilterPills
                 sortOptions={sortOptions}
                 typeOptions={typeOptions}
@@ -196,7 +196,7 @@ export default async function BrowsePage({
             </Surface>
 
             <div className="md:hidden">
-              <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-3 shadow-mdt-sm">
+              <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-3">
                 <summary className="cursor-pointer text-sm font-semibold text-mdt-text">
                   Filters & tags
                 </summary>
@@ -218,8 +218,8 @@ export default async function BrowsePage({
                 {query ? ` for “${query}”` : ""} {activeTags.length ? ` · tags: ${activeTags.join(", ")}` : ""}
               </span>
               <span className="flex gap-2">
-                <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
-                <span className="rounded-mdt-pill bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
+                <span className="rounded-mdt-md bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
+                <span className="rounded-mdt-md bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
               </span>
             </Surface>
 

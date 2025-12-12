@@ -14,6 +14,19 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "coverage/**",
   ]),
+  {
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.name='useMemo'] CallExpression[callee.object.name=/^(window|document)$/][callee.property.name=/^(addEventListener|removeEventListener)$/]",
+          message:
+            "Do not add/remove event listeners inside useMemo. Use useEffect so listeners aren't created during render.",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

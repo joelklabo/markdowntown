@@ -35,7 +35,7 @@ export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState })
   })();
 
   return (
-    <div className="sticky bottom-0 z-20 mt-6 flex items-center justify-between gap-4 rounded-mdt-md border border-mdt-border bg-mdt-surface px-4 py-2 text-sm text-mdt-muted shadow-mdt-sm">
+    <div className="sticky bottom-0 z-20 mt-6 flex items-center justify-between gap-4 rounded-mdt-md border border-mdt-border bg-mdt-surface px-4 py-2 text-sm text-mdt-muted">
       <div className="flex items-center gap-3">
         <Dot ok={bundleOk} />
         <span>{bundleOk ? "Bundle within budget" : "Bundle size warning"}</span>

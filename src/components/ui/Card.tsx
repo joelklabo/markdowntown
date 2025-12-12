@@ -9,7 +9,7 @@ export function Card({
   return (
     <Surface
       className={cn(
-        "transition duration-mdt-base ease-mdt-emphasized hover:-translate-y-[1px] hover:shadow-mdt-md",
+        "card",
         className
       )}
       {...props}

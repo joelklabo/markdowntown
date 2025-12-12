@@ -18,9 +18,9 @@ type Props = {
 
 export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activeTags, clearTagsHref }: Props) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-mdt-4">
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Sort</p>
+        <p className="text-sm font-semibold text-mdt-text">Sort</p>
         <div className="flex flex-wrap gap-2">
           {sortOptions.map((option) => (
             <Pill
@@ -39,7 +39,7 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Types</p>
+        <p className="text-sm font-semibold text-mdt-text">Types</p>
         <div className="flex flex-wrap gap-2">
           {typeOptions.map((option) => (
             <Pill
@@ -58,7 +58,7 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text dark:text-mdt-text-dark">Popular tags</p>
+        <p className="text-sm font-semibold text-mdt-text">Popular tags</p>
         <div className="flex flex-wrap gap-2">
           {popularTags.map((tag) => (
             <Pill key={tag.label} tone={tag.active ? "blue" : "gray"}>

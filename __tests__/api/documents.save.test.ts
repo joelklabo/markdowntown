@@ -57,7 +57,7 @@ type WhereInput = {
   userId?: string;
 };
 
-function matchesVisibility(where: WhereInput, row: Snippet) {
+function matchesVisibility(where: WhereInput, row: Snippet): boolean {
   if (where.OR) {
     return where.OR.some((cond) => matchesVisibility(cond, row));
   }

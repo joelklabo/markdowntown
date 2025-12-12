@@ -20,7 +20,7 @@ describe("Button", () => {
     const { getByText } = render(<Button>Primary</Button>);
     const className = getByText("Primary").className;
     expect(className).toContain("bg-[color:var(--mdt-color-primary)]");
-    expect(className).toContain("shadow-mdt-glow");
+    expect(className).toContain("shadow-mdt-sm");
   });
 
   it("supports asChild", () => {

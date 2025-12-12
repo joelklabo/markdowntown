@@ -67,7 +67,6 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
   const wantSnippets = type === "all" || type === "snippet";
   const wantTemplates = type === "all" || type === "template";
   const wantFiles = type === "all" || type === "file";
-  const { sections: sectionsRepo, templates: templatesRepo, documents: documentsRepo } = getServices();
 
   const rows: PublicItem[] = [];
 
@@ -92,6 +91,7 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
   }
 
   try {
+    const { sections: sectionsRepo, templates: templatesRepo, documents: documentsRepo } = getServices();
     if (wantSnippets) {
       const snippets = await sectionsRepo.listPublic({ tags: normalizedTags, search, limit: Math.min(limit * 2, 60) });
       rows.push(

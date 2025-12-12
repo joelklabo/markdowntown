@@ -144,7 +144,7 @@ export function SiteNav({ user }: { user?: User }) {
     { label: "Search", icon: "⌘K", type: "search" as const },
   ];
 
-  const quickFilters = [
+  const quickFilters: Array<{ label: string; params: Record<string, string> }> = [
     { label: "Trending", params: { sort: "trending" } },
     { label: "Snippets", params: { type: "snippet" } },
     { label: "Templates", params: { type: "template" } },

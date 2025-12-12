@@ -314,7 +314,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           <Surface
             as="div"
             padding="sm"
-            className="sticky top-16 z-10 rounded-xl bg-white/95 shadow-mdt-sm backdrop-blur-md dark:bg-mdt-bg-soft-dark/95"
+            className="sticky top-16 z-10 rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface)]/90 backdrop-blur-md"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
@@ -326,7 +326,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                       key={label}
                       type="button"
                       onClick={() => goStep(idx)}
-                      className={`flex items-center gap-2 rounded-md px-2 py-1 transition ${
+                      className={`flex items-center gap-2 rounded-mdt-sm px-2 py-1 transition ${
                         active
                           ? "bg-mdt-blue text-white"
                           : done
@@ -377,7 +377,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             </Row>
           </Row>
 
-          <div className="grid gap-4 xl:grid-cols-[300px_300px_1fr_260px] lg:grid-cols-[300px_300px_1fr]">
+          <div className="grid gap-mdt-4 xl:grid-cols-[300px_300px_1fr_260px] lg:grid-cols-[300px_300px_1fr]">
         <Surface padding="md" className="space-y-3" data-step-anchor="template">
           <div className="flex items-center justify-between">
             <h3 className="text-h3">Templates</h3>
@@ -389,7 +389,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                   key={tpl.id}
                   data-testid="builder-template"
                   onClick={() => setSelectedTemplate(tpl.id)}
-                  className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                  className={`w-full rounded-mdt-md border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
                     selectedTemplate === tpl.id
                       ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
                       : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
@@ -429,7 +429,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                           moveSnippet(snip.id, 1);
                         }
                       }}
-                      className={`flex-1 rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                      className={`flex-1 rounded-mdt-md border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
                         active
                           ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
                           : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
@@ -469,7 +469,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                       value={overrides[snip.id] ?? ""}
                       onChange={(e) => setOverride(snip.id, e.target.value)}
                       placeholder="Override this snippet (optional)"
-                      className="font-mono text-xs shadow-sm"
+                      className="font-mono text-xs"
                       rows={2}
                       aria-label={`Override content for ${snip.title}`}
                     />
@@ -506,14 +506,14 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
         {error && <p className="text-sm text-red-600">Preview error: {error}</p>}
         {saveError && <p className="text-sm text-red-600">Save error: {saveError}</p>}
         {hasPrivateContent && (
-          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1">
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-mdt-sm px-2 py-1">
             Private or unlisted snippets detected — export is fine but sharing may leak non-public content.
           </p>
         )}
         {previewLoading && <p className="text-xs text-mdt-muted">Refreshing preview…</p>}
           <div
             ref={previewRef}
-            className="rounded-lg border border-mdt-border bg-mdt-surface p-4 font-mono text-sm min-h-[300px] space-y-2"
+            className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-4 font-mono text-sm min-h-[300px] space-y-2"
           >
             {visibleLines.length === 0 && <p className="text-mdt-muted">Select a template and add snippets to see your agents.md.</p>}
             {lines.map((line, idx) => {
@@ -592,7 +592,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                               }}
                               onDoubleClick={() => toggleCollapse(node.id)}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm transition",
+                                "flex w-full items-center justify-between rounded-mdt-sm px-2 py-2 text-left text-sm transition",
                                 "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
                                 draggingOutline && node.level === 1 ? "opacity-80" : ""
                               )}
@@ -602,7 +602,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                                 <span
                                   aria-hidden
                                   className={cn(
-                                    "inline-flex h-5 w-5 items-center justify-center rounded-md border border-mdt-border text-[11px]",
+                                    "inline-flex h-5 w-5 items-center justify-center rounded-mdt-sm border border-mdt-border text-[11px]",
                                     isCollapsed ? "bg-mdt-surface-subtle" : "bg-mdt-surface-strong"
                                   )}
                                   onClick={(e) => {

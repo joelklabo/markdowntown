@@ -11,7 +11,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(function 
     <select
       ref={ref}
       className={cn(
-        "w-full appearance-none rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 pr-9 text-body-sm text-mdt-text shadow-mdt-sm",
+        "w-full appearance-none rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 pr-9 text-body-sm text-mdt-text",
         "bg-[right_0.65rem_center] bg-no-repeat",
         "placeholder:text-mdt-muted",
         interactiveBase,

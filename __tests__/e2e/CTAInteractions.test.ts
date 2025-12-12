@@ -23,7 +23,7 @@ describe("CTA interactions", () => {
 
     // Landing: browse CTA
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByRole("link", { name: /browse library/i }).click();
+    await page.getByRole("link", { name: /browse library/i }).first().click();
     expect(page.url()).toMatch(/\/browse/);
 
     // Library card actions (uses sample/public data)

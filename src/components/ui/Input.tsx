@@ -12,7 +12,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       type={type}
       ref={ref}
       className={cn(
-        "w-full rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm text-mdt-text shadow-mdt-sm placeholder:text-mdt-muted",
+        "w-full rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm text-mdt-text placeholder:text-mdt-muted",
         interactiveBase,
         focusRing,
         className

@@ -17,10 +17,10 @@ export default defineConfig({
       reportsDirectory: "./coverage",
       thresholds: {
         // Temporary floor aligned to current coverage; raise once component/API suites are added.
-        lines: 42,
-        statements: 41,
-        branches: 37,
-        functions: 39,
+        lines: 45,
+        statements: 45,
+        branches: 40,
+        functions: 42,
       },
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
