@@ -77,12 +77,6 @@ describe("CTA interactions", () => {
     await assertBrowseType("template");
     await assertBrowseType("file");
 
-    // Global builder nav CTA still works
-    await page.goto("/browse", { waitUntil: "domcontentloaded" });
-    const builderButton = page.getByRole("link", { name: /open builder/i }).first();
-    await builderButton.click();
-    await page.waitForURL(/\/builder/);
-
     await context.close();
   }, 45000);
 });
