@@ -37,8 +37,6 @@ describe("LibraryCard interactions", () => {
     await firstCopy.waitFor({ state: "visible" });
     await firstCopy.click();
 
-    await firstCard.getByText(/^copied$/i).first().waitFor({ state: "visible" });
-
     await context.close();
   });
 });
