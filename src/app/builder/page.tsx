@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { BuilderClient } from "@/components/BuilderClient";
 import { prisma } from "@/lib/prisma";
-import { sampleItems } from "@/lib/sampleContent";
 import { normalizeTags } from "@/lib/tags";
 import { auth } from "@/lib/auth";
 
@@ -56,28 +55,14 @@ export default async function BuilderPage() {
         }),
       ]);
     } catch (err) {
-      console.warn("builder: falling back to samples", err);
+      console.warn("builder: falling back to empty lists", err);
       userTemplates = [];
       userSnippets = [];
     }
   }
 
-  const fallbackTemplates = sampleItems.filter((i) => i.type === "template").map((t) => ({
-    id: t.id,
-    title: t.title,
-    description: t.description,
-    body: t.description, // sample body placeholder
-    tags: t.tags,
-  }));
-  const fallbackSnippets = sampleItems.filter((i) => i.type === "snippet").map((s) => ({
-    id: s.id,
-    title: s.title,
-    content: s.description,
-    tags: s.tags,
-  }));
-
-  const templates = (userTemplates.length ? userTemplates.map(mapTemplate) : fallbackTemplates).slice(0, 30);
-  const snippets = (userSnippets.length ? userSnippets.map(mapSnippet) : fallbackSnippets).slice(0, 60);
+  const templates = userTemplates.map(mapTemplate).slice(0, 30);
+  const snippets = userSnippets.map(mapSnippet).slice(0, 60);
 
   return <BuilderClient templates={templates} snippets={snippets} requireAuth={!userId} />;
 }

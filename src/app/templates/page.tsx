@@ -1,4 +1,3 @@
-import { sampleItems } from "@/lib/sampleContent";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
@@ -8,14 +7,29 @@ import { Stack, Row } from "@/components/ui/Stack";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { Surface } from "@/components/ui/Surface";
+import { listPublicItems, type PublicItem } from "@/lib/publicItems";
+import { normalizeTags } from "@/lib/tags";
+import type { SampleItem } from "@/lib/sampleContent";
 
 export const metadata: Metadata = {
   title: "Templates | MarkdownTown",
   description: "Templates with placeholders you can fill and export to agents.md.",
 };
 
-export default function TemplatesPage() {
-  const templates = sampleItems.filter((i) => i.type === "template");
+function toCard(item: PublicItem): SampleItem {
+  return {
+    id: item.id,
+    slug: item.slug ?? undefined,
+    title: item.title,
+    description: item.description || "Markdown template",
+    tags: normalizeTags(item.tags, { strict: false }).tags,
+    stats: item.stats,
+    type: item.type,
+  };
+}
+
+export default async function TemplatesPage() {
+  const templates = (await listPublicItems({ limit: 60, type: "template", sort: "recent" })).map(toCard);
   return (
     <main id="main-content" className="py-mdt-8">
       <Container size="lg" padding="md">

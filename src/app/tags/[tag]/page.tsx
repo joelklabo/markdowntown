@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { listTopTags } from "@/lib/publicTags";
 import { normalizeTags } from "@/lib/tags";
-import { sampleItems } from "@/lib/sampleContent";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Container } from "@/components/ui/Container";
@@ -37,9 +36,7 @@ export default async function TagDetail({ params }: { params: Promise<TagParams>
   const normalized = normalizeTags(tag, { strict: false }).tags[0] ?? tag;
 
   const items = await listPublicItems({ limit: 48, tags: [normalized], sort: "recent" });
-  const cards = (items.length ? items.map(toCard) : sampleItems)
-    .filter((i) => normalizeTags(i.tags, { strict: false }).tags.includes(normalized))
-    .map((i) => ({ ...i, tags: normalizeTags(i.tags, { strict: false }).tags }));
+  const cards = items.map(toCard);
 
   const popularTagsRaw = await listTopTags(12, 30);
   const popularTags = popularTagsRaw.length ? popularTagsRaw.map((t) => t.tag) : [];

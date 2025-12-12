@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { featureFlags } from "@/lib/flags";
-import { sampleItems } from "@/lib/sampleContent";
+import { listPublicItems } from "@/lib/publicItems";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!featureFlags.publicLibrary) {
@@ -16,7 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/tags`, changeFrequency: "daily", priority: 0.6 },
   ];
 
-  const itemPaths: MetadataRoute.Sitemap = sampleItems.map((item) => {
+  const items = await listPublicItems({ limit: 500, type: "all", sort: "recent" });
+  const itemPaths: MetadataRoute.Sitemap = items.map((item) => {
     const typePath = item.type === "template" ? "templates" : item.type === "file" ? "files" : "snippets";
     const slug = item.slug ?? item.id;
     return {

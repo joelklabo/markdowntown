@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { sampleItems } from "@/lib/sampleContent";
 import { Pill } from "@/components/ui/Pill";
 import type { Metadata } from "next";
 import { TemplateFormPreview, type TemplateField } from "@/components/template/TemplateFormPreview";
@@ -22,13 +21,11 @@ import { Text } from "@/components/ui/Text";
 
 type TemplateParams = { slug: string };
 
-const findTemplateBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "template");
-
 export const revalidate = 300;
 
 type TemplateView = {
   id: string;
-  slug?: string;
+  slug: string;
   title: string;
   description: string | null;
   body: string;
@@ -38,13 +35,9 @@ type TemplateView = {
   visibility?: "PUBLIC" | "UNLISTED" | "PRIVATE";
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<TemplateParams>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<TemplateParams> }): Promise<Metadata> {
   const { slug } = await params;
-  const item = findTemplateBySlug(slug) ?? (await getPublicTemplate(slug));
+  const item = await getPublicTemplate(slug);
   if (!item) return { title: "Template not found" };
   return {
     title: `${item.title} | MarkdownTown`,
@@ -52,53 +45,31 @@ export async function generateMetadata({
   };
 }
 
-export default async function TemplateDetail({
-  params,
-}: {
-  params: Promise<TemplateParams>;
-}) {
+export default async function TemplateDetail({ params }: { params: Promise<TemplateParams> }) {
   const { slug } = await params;
   const template: PublicTemplate | null = await getPublicTemplate(slug);
-  const fallback = findTemplateBySlug(slug);
-  const data: TemplateView | null = template
-    ? {
-        id: template.id,
-        slug: template.slug,
-        title: template.title,
-        description: template.description ?? "",
-        body: template.body ?? "",
-        tags: template.tags,
-        stats: { views: template.stats.views, copies: template.stats.copies, votes: template.stats.uses ?? 0 },
-        badge: (template as { badge?: string }).badge,
-        visibility: (template as { visibility?: TemplateView["visibility"] }).visibility ?? "PUBLIC",
-      }
-    : fallback
-      ? {
-          id: fallback.id,
-          slug: fallback.slug,
-          title: fallback.title,
-          description: fallback.description ?? "",
-          body: fallback.description ?? "",
-          tags: fallback.tags,
-          stats: { views: fallback.stats.views, copies: fallback.stats.copies, votes: fallback.stats.votes },
-          badge: fallback.badge,
-          visibility: "PUBLIC",
-        }
-      : null;
+  if (!template) return notFound();
 
-  if (!data) return notFound();
+  const data: TemplateView = {
+    id: template.id,
+    slug: template.slug,
+    title: template.title,
+    description: template.description ?? "",
+    body: template.body ?? "",
+    tags: template.tags,
+    stats: { views: template.stats.views, copies: template.stats.copies, votes: template.stats.uses ?? 0 },
+    badge: (template as { badge?: string }).badge,
+    visibility: (template as { visibility?: TemplateView["visibility"] }).visibility ?? "PUBLIC",
+  };
 
-  const fields: TemplateField[] =
-    Array.isArray((template as { fields?: TemplateField[] } | null)?.fields) && template
-      ? (template.fields as TemplateField[])
-      : [];
+  const fields: TemplateField[] = Array.isArray((template as { fields?: TemplateField[] }).fields)
+    ? ((template as { fields?: TemplateField[] }).fields as TemplateField[])
+    : [];
   const body = data.body ?? "";
   const tags = normalizeTags(data.tags ?? [], { strict: false }).tags;
   const stats = data.stats ?? { views: 0, copies: 0, votes: 0 };
 
-  const relatedPublic = template
-    ? await listPublicItems({ limit: 6, tags, type: "template" })
-    : [];
+  const relatedPublic = await listPublicItems({ limit: 6, tags, type: "template" });
   const toCard = (item: PublicItem) => ({
     id: item.id,
     slug: item.slug ?? undefined,
@@ -108,9 +79,7 @@ export default async function TemplateDetail({
     stats: item.stats,
     type: item.type,
   });
-  const related = relatedPublic.length
-    ? relatedPublic.filter((rel) => rel.id !== data.id).map(toCard).slice(0, 3)
-    : sampleItems.filter((i) => i.type === "template" && i.id !== data.id).slice(0, 3);
+  const related = relatedPublic.filter((rel) => rel.id !== data.id).map(toCard).slice(0, 3);
 
   const initialValues = Object.fromEntries(fields.map((f) => [f.name, f.placeholder ?? (f.required ? "" : "")]));
   const initialRendered = renderTemplateBody(body, initialValues);
@@ -162,18 +131,16 @@ export default async function TemplateDetail({
               {related.map((rel) => (
                 <LibraryCard key={rel.id} item={rel} />
               ))}
+              {related.length === 0 && (
+                <Text size="bodySm" tone="muted">No related templates yet.</Text>
+              )}
             </div>
           </Surface>
 
           <FeedbackCTA title="template" />
         </Stack>
 
-        <Surface
-          as="div"
-          tone="raised"
-          padding="sm"
-          className="fixed inset-x-0 bottom-0 z-20 md:hidden"
-        >
+        <Surface as="div" tone="raised" padding="sm" className="fixed inset-x-0 bottom-0 z-20 md:hidden">
           <Row align="center" justify="between" gap={3}>
             <Stack gap={0}>
               <Text size="bodySm" weight="semibold">Use this template</Text>

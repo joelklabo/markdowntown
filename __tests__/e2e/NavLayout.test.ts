@@ -33,16 +33,26 @@ describe("Navigation and browse layout integrity", () => {
     expect(ctaBox?.height).toBeLessThan(48);
     expect(signBox?.height).toBeLessThan(40);
 
+    const cardsLocator = page.locator("main .card");
+    const cardCount = await cardsLocator.count();
+    if (cardCount === 0) {
+      await page.getByText(/no results yet|no public items/i).first().waitFor({ state: "visible" });
+      await context.close();
+      return;
+    }
+
     // Cards maintain usable width
-    const firstCard = page.locator("main .card").first();
+    const firstCard = cardsLocator.first();
     await firstCard.waitFor({ state: "visible" });
     const cardBox = await firstCard.boundingBox();
     expect(cardBox?.width).toBeGreaterThan(240);
 
-    // At least two columns at desktop width
-    const cards = await page.locator("main .card").all();
-    const xs = await Promise.all(cards.slice(0, 2).map(async (c) => (await c.boundingBox())?.x ?? 0));
-    expect(new Set(xs).size).toBeGreaterThan(1);
+    if (cardCount > 1) {
+      // At least two columns at desktop width
+      const cards = await cardsLocator.all();
+      const xs = await Promise.all(cards.slice(0, 2).map(async (c) => (await c.boundingBox())?.x ?? 0));
+      expect(new Set(xs).size).toBeGreaterThan(1);
+    }
 
     await context.close();
   });
@@ -59,7 +69,15 @@ describe("Navigation and browse layout integrity", () => {
     const bottomNav = page.getByRole("navigation", { name: /primary/i });
     await bottomNav.waitFor({ state: "visible" });
 
-    const firstCard = page.locator("main .card").first();
+    const cardsLocator = page.locator("main .card");
+    const cardCount = await cardsLocator.count();
+    if (cardCount === 0) {
+      await page.getByText(/no results yet|no public items/i).first().waitFor({ state: "visible" });
+      await context.close();
+      return;
+    }
+
+    const firstCard = cardsLocator.first();
     await firstCard.waitFor({ state: "visible" });
     const cardBox = await firstCard.boundingBox();
     expect(cardBox?.width).toBeGreaterThan(220);

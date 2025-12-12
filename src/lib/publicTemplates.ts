@@ -2,7 +2,6 @@ import { unstable_cache } from "next/cache";
 import { normalizeTags } from "./tags";
 import { cacheTags } from "./cacheTags";
 import { getServices } from "@/services";
-import { sampleItems } from "./sampleContent";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -67,31 +66,10 @@ export async function getPublicTemplate(idOrSlug: string): Promise<PublicTemplat
           };
         }
       } catch (err) {
-        // fall through to sample content when database is unavailable
-        console.warn("publicTemplates: falling back to samples", err);
+        // fall through to empty result when database is unavailable
+        console.warn("publicTemplates: falling back to empty result", err);
       }
 
-      const sample = sampleItems.find((i) => (i.slug ?? i.id) === idOrSlug && i.type === "template");
-      if (sample) {
-        const now = new Date();
-        return {
-          id: sample.id,
-          slug: sample.slug ?? sample.id,
-          title: sample.title,
-          description: sample.description,
-          body: sample.description ?? "",
-          fields: [],
-          tags: normalizeTags(sample.tags, { strict: false }).tags,
-          stats: {
-            views: sample.stats.views,
-            copies: sample.stats.copies,
-            downloads: 0,
-            uses: sample.stats.votes,
-          },
-          updatedAt: now,
-          createdAt: now,
-        };
-      }
       return null;
     },
     ["public-template", idOrSlug],

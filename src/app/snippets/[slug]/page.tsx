@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { sampleItems } from "@/lib/sampleContent";
 import { getPublicSection } from "@/lib/publicSections";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { Pill } from "@/components/ui/Pill";
@@ -20,19 +19,10 @@ import { Text } from "@/components/ui/Text";
 
 type SnippetParams = { slug: string };
 
-const findSnippetBySlug = (slug: string) => sampleItems.find((i) => (i.slug ?? i.id) === slug && i.type === "snippet");
-
 export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<SnippetParams> }): Promise<Metadata> {
   const { slug } = await params;
-  const sample = findSnippetBySlug(slug);
-  if (sample) {
-    return {
-      title: `${sample.title} | MarkdownTown`,
-      description: sample.description,
-    };
-  }
   const section = await getPublicSection(slug);
   if (section) {
     return {
@@ -43,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<SnippetPara
   return { title: "Snippet not found" };
 }
 
-function toSampleCard(item: PublicItem | { id: string; slug?: string | null; title: string; description: string; tags: string[]; stats: { views: number; copies: number; votes: number }; type: "snippet" | "template" | "file" }) {
+function toSampleCard(item: PublicItem) {
   return {
     id: item.id,
     slug: item.slug ?? undefined,
@@ -57,30 +47,23 @@ function toSampleCard(item: PublicItem | { id: string; slug?: string | null; tit
 
 export default async function SnippetDetail({ params }: { params: Promise<SnippetParams> }) {
   const { slug } = await params;
-  const sample = findSnippetBySlug(slug);
-  const section = sample ? null : await getPublicSection(slug);
-  const item =
-    sample ||
-    (section && {
-      id: section.id,
-      slug: section.slug ?? section.id,
-      title: section.title,
-      description: section.content.slice(0, 240) || "Markdown snippet",
-      tags: normalizeTags(section.tags, { strict: false }).tags,
-      stats: { views: 0, copies: 0, votes: 0 },
-      badge: undefined,
-    });
+  const section = await getPublicSection(slug);
+  if (!section) return notFound();
 
-  if (!item) return notFound();
+  const item = {
+    id: section.id,
+    slug: section.slug ?? section.id,
+    title: section.title,
+    description: section.content.slice(0, 240) || "Markdown snippet",
+    tags: normalizeTags(section.tags, { strict: false }).tags,
+    stats: { views: 0, copies: 0, votes: 0 },
+    badge: undefined as string | undefined,
+  };
 
-  const rawContent = `# ${item.title}\n\n${item.description}`;
-  const visibility = (section as { visibility?: string } | null)?.visibility ?? "PUBLIC";
-  const relatedPublic = section
-    ? await listPublicItems({ limit: 6, tags: section.tags, type: "snippet" })
-    : [];
-  const related = relatedPublic.length
-    ? relatedPublic.filter((rel) => rel.id !== item.id).map(toSampleCard).slice(0, 3)
-    : sampleItems.filter((i) => i.type === "snippet" && i.id !== item.id).slice(0, 3);
+  const rawContent = section.content;
+  const visibility = (section as { visibility?: string }).visibility ?? "PUBLIC";
+  const relatedPublic = await listPublicItems({ limit: 6, tags: section.tags, type: "snippet" });
+  const related = relatedPublic.filter((rel) => rel.id !== item.id).map(toSampleCard).slice(0, 3);
 
   return (
     <main id="main-content" className="py-mdt-8">
@@ -109,9 +92,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
                 </Stack>
                 <Row wrap gap={2}>
                   {item.tags.map((tag) => (
-                    <Pill key={tag} tone="gray">
-                      #{tag}
-                    </Pill>
+                    <Pill key={tag} tone="gray">#{tag}</Pill>
                   ))}
                 </Row>
               </Stack>
@@ -122,7 +103,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
             </Row>
           </Surface>
 
-          <SnippetTabs title={item.title} rendered={item.description} raw={rawContent} />
+          <SnippetTabs title={item.title} rendered={rawContent} raw={rawContent} />
 
           <Surface padding="md" className="space-y-mdt-3">
             <Heading level="h3" as="h4">Quality signals</Heading>
@@ -148,18 +129,16 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
               {related.map((rel) => (
                 <LibraryCard key={rel.id} item={rel} />
               ))}
+              {related.length === 0 && (
+                <Text size="bodySm" tone="muted">No related snippets yet.</Text>
+              )}
             </div>
           </Surface>
 
           <FeedbackCTA title="snippet" />
         </Stack>
 
-        <Surface
-          as="div"
-          tone="raised"
-          padding="sm"
-          className="fixed inset-x-0 bottom-0 z-20 md:hidden"
-        >
+        <Surface as="div" tone="raised" padding="sm" className="fixed inset-x-0 bottom-0 z-20 md:hidden">
           <Row align="center" justify="between" gap={3}>
             <Stack gap={0}>
               <Text size="bodySm" weight="semibold">Use this snippet</Text>

@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
-import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
+import type { SampleItem } from "@/lib/sampleContent";
+import { listPublicItems, type PublicItem } from "@/lib/publicItems";
+import { listTopTags } from "@/lib/publicTags";
+import { normalizeTags } from "@/lib/tags";
 import { Container } from "@/components/ui/Container";
 import { Stack, Row } from "@/components/ui/Stack";
 import { Surface } from "@/components/ui/Surface";
@@ -62,17 +65,29 @@ const buildSteps = [
 ];
 
 export default async function Home() {
-  const tags = sampleTags;
-  const items: SampleItem[] = sampleItems;
+  const tags = await listTopTags(8, 30);
+  const publicItems = await listPublicItems({ limit: 60, sort: "recent", type: "all" });
+
+  const toCard = (item: PublicItem): SampleItem => ({
+    id: item.id,
+    slug: item.slug ?? undefined,
+    title: item.title,
+    description: item.description || "Markdown snippet",
+    tags: normalizeTags(item.tags, { strict: false }).tags,
+    stats: item.stats,
+    type: item.type,
+  });
+
+  const items: SampleItem[] = publicItems.map(toCard);
 
   const trending = items
     .slice()
     .sort((a, b) => b.stats.copies - a.stats.copies || b.stats.views - a.stats.views)
     .slice(0, 6);
 
-  const copiedFiles: SampleItem[] = sampleItems.filter((i) => i.type === "file").slice(0, 3);
-  const recentItems: SampleItem[] = sampleItems.slice(0, 6);
-  const spotlightTemplates: SampleItem[] = sampleItems.filter((i) => i.type === "template").slice(0, 6);
+  const copiedFiles = items.filter((i) => i.type === "file").slice(0, 3);
+  const recentItems = items.slice(0, 6);
+  const spotlightTemplates = items.filter((i) => i.type === "template").slice(0, 6);
 
   return (
     <div className="min-h-screen bg-mdt-bg text-mdt-text">

@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { sampleItems } from "@/lib/sampleContent";
 import { Pill } from "@/components/ui/Pill";
 import type { Metadata } from "next";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -13,41 +12,56 @@ import { Stack, Row } from "@/components/ui/Stack";
 import { Surface } from "@/components/ui/Surface";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { hasDatabaseEnv, prisma } from "@/lib/prisma";
+import { normalizeTags } from "@/lib/tags";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+type FileParams = { id: string };
+
+async function getPublicFile(idOrSlug: string) {
+  if (!hasDatabaseEnv) return null;
+  try {
+    const row = await prisma.document.findFirst({
+      where: {
+        visibility: "PUBLIC",
+        OR: [{ slug: idOrSlug }, { id: idOrSlug }],
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        renderedContent: true,
+        tags: true,
+        views: true,
+        copies: true,
+        visibility: true,
+      },
+    });
+    return row ? { ...row, tags: normalizeTags(row.tags, { strict: false }).tags } : null;
+  } catch (err) {
+    console.warn("publicFile: falling back to empty result", err);
+    return null;
+  }
+}
+
+export async function generateMetadata({ params }: { params: Promise<FileParams> }): Promise<Metadata> {
   const { id } = await params;
-  const item = sampleItems.find((i) => i.id === id && i.type === "file");
+  const item = await getPublicFile(id);
   if (!item) return { title: "agents.md not found" };
   return {
     title: `${item.title} | MarkdownTown`,
-    description: item.description,
+    description: item.description ?? "", 
   };
 }
 
-export function generateStaticParams() {
-  return sampleItems.filter((i) => i.type === "file").map((item) => ({ id: item.id }));
-}
-
-export default async function FileDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function FileDetail({ params }: { params: Promise<FileParams> }) {
   const { id } = await params;
-  const item = sampleItems.find((i) => i.id === id && i.type === "file");
+  const item = await getPublicFile(id);
   if (!item) return notFound();
 
-  const renderedContent = [
-    `# ${item.title}`,
-    "",
-    item.description,
-    "",
-    "## Components",
-    "- System prompt",
-    "- Style guide",
-    "- Tools instructions",
-    "- Testing checklist",
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  const visibility: "PUBLIC" | "PRIVATE" | "UNLISTED" = "PUBLIC";
+  const renderedContent = item.renderedContent ?? item.description ?? "";
+  const tags = normalizeTags(item.tags ?? [], { strict: false }).tags;
+  const visibility = item.visibility ?? "PUBLIC";
 
   return (
     <main id="main-content" className="py-mdt-8">
@@ -68,12 +82,11 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
               <Stack gap={2} className="min-w-0">
                 <Row wrap gap={2} className="items-center">
                   <Pill tone="blue">agents.md</Pill>
-                  {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
                 </Row>
                 <Heading level="display" leading="tight">{item.title}</Heading>
-                <Text tone="muted" className="max-w-3xl">{item.description}</Text>
+                {item.description && <Text tone="muted" className="max-w-3xl">{item.description}</Text>}
                 <Row wrap gap={2}>
-                  {item.tags.map((tag) => (
+                  {tags.map((tag) => (
                     <Pill key={tag} tone="gray">#{tag}</Pill>
                   ))}
                 </Row>
@@ -82,26 +95,16 @@ export default async function FileDetail({ params }: { params: Promise<{ id: str
                   slug={item.slug ?? item.id}
                   title={item.title}
                   content={renderedContent}
-                  builderHref={`/builder?clone=${item.id}`}
+                  builderHref={`/builder?clone=${item.slug ?? item.id}`}
                 />
               </Stack>
               <Stack gap={2} align="end" className="w-full md:w-auto">
-                <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
+                <DetailStats views={item.views ?? 0} copies={item.copies ?? 0} votes={0} />
               </Stack>
             </Row>
           </Surface>
 
           <DetailTabs title={item.title} rendered={renderedContent} raw={renderedContent} copyLabel="Copy" />
-
-          <Surface padding="md" className="space-y-mdt-3">
-            <Heading level="h3" as="h3">Components</Heading>
-            <ul className="list-disc pl-5 text-sm text-mdt-muted">
-              <li>System prompt</li>
-              <li>Style guide</li>
-              <li>Tools instructions</li>
-              <li>Testing checklist</li>
-            </ul>
-          </Surface>
 
           <FeedbackCTA title="agents.md file" />
         </Stack>

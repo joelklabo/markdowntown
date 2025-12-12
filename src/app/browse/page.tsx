@@ -1,4 +1,4 @@
-import { sampleItems, sampleTags, type SampleItem } from "@/lib/sampleContent";
+import type { SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { Button } from "@/components/ui/Button";
 import { normalizeTags } from "@/lib/tags";
@@ -93,9 +93,9 @@ export default async function BrowsePage({
 
   const items = await listPublicItems({ limit: 60, tags: activeTags, sort, type, search: query });
   const popularTagsRaw = await listTopTags(12, 30);
-  const popularTags = popularTagsRaw.length ? popularTagsRaw.map((t) => t.tag) : sampleTags.map((t) => t.tag);
+  const popularTags = popularTagsRaw.map((t) => t.tag);
 
-  const cards: SampleItem[] = (items.length ? items.map(toCard) : sampleItems).map((item) => ({
+  const cards: SampleItem[] = items.map(toCard).map((item) => ({
     ...item,
     tags: normalizeTags(item.tags, { strict: false }).tags,
   }));

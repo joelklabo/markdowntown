@@ -9,7 +9,6 @@ import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
 import { ThemeToggle } from "./ThemeToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
-import { sampleTags } from "@/lib/sampleContent";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
@@ -374,23 +373,7 @@ export function SiteNav({ user }: { user?: User }) {
                 aria-label="Search"
                 aria-keyshortcuts="/"
               />
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-2 text-[11px] text-mdt-muted">
-                  {sampleTags.slice(0, 6).map((tag) => (
-                    <button
-                      key={tag.tag}
-                      type="button"
-                      className="rounded-md border border-mdt-border px-2 py-1 hover:text-mdt-text"
-                      onClick={() => {
-                        setQuery(tag.tag);
-                        setTimeout(() => inputRef.current?.focus(), 10);
-                        track("nav_search_suggestion_click", { tag: tag.tag, source: "quick_tags" });
-                      }}
-                    >
-                      #{tag.tag}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center justify-end">
                 <Button type="submit" size="sm">
                   Search
                 </Button>
@@ -427,7 +410,7 @@ export function SiteNav({ user }: { user?: User }) {
               </div>
             </div>
 
-            {(recentSearches.length > 0 || sampleTags.length > 0) && (
+            {(recentSearches.length > 0) && (
               <div className="mt-3 space-y-2">
                 {recentSearches.length > 0 && (
                   <div>
