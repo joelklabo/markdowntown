@@ -157,7 +157,8 @@ export default async function BrowsePage({
               </Row>
             </Row>
 
-            <form className="grid gap-3 md:grid-cols-[1.2fr_auto] md:items-center" action="/browse" method="get">
+            {/* Mobile-only search + quick sort pills; desktop uses header search + sidebar filters. */}
+            <form className="grid gap-3 md:hidden" action="/browse" method="get">
               <BrowseSearch initialQuery={query ?? ""} baseQueryString={baseQueryString} />
               <div className="flex flex-wrap justify-end gap-2">
                 {[
@@ -184,7 +185,7 @@ export default async function BrowsePage({
             </form>
           </Surface>
 
-          <section className="grid gap-mdt-4 md:grid-cols-[280px_1fr]">
+          <section className="grid gap-mdt-4 md:grid-cols-[280px_minmax(0,1fr)] md:items-start">
             <Surface as="aside" padding="md" className="hidden space-y-mdt-4 md:block">
               <BrowseFilterPills
                 sortOptions={sortOptions}
@@ -212,24 +213,30 @@ export default async function BrowsePage({
               </details>
             </div>
 
-            <Surface tone="subtle" padding="sm" className="flex items-center justify-between flex-wrap gap-3 text-body-sm text-mdt-muted">
-              <span>
-                {filtered.length} result{filtered.length === 1 ? "" : "s"}
-                {query ? ` for “${query}”` : ""} {activeTags.length ? ` · tags: ${activeTags.join(", ")}` : ""}
-              </span>
-              <span className="flex gap-2">
-                <span className="rounded-mdt-md bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
-                <span className="rounded-mdt-md bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
-              </span>
-            </Surface>
+            <div className="space-y-mdt-4 md:col-start-2 md:row-start-1 min-w-0">
+              <Surface
+                tone="subtle"
+                padding="sm"
+                className="flex items-center justify-between flex-wrap gap-3 self-start text-body-sm text-mdt-muted"
+              >
+                <span>
+                  {filtered.length} result{filtered.length === 1 ? "" : "s"}
+                  {query ? ` for “${query}”` : ""} {activeTags.length ? ` · tags: ${activeTags.join(", ")}` : ""}
+                </span>
+                <span className="flex gap-2">
+                  <span className="rounded-mdt-md bg-mdt-surface px-2 py-[2px]">Sort: {sortParam ?? "new"}</span>
+                  <span className="rounded-mdt-md bg-mdt-surface px-2 py-[2px]">Type: {typeParam ?? "all"}</span>
+                </span>
+              </Surface>
 
-            <BrowseResults
-              initialItems={filtered}
-              query={query}
-              sortParam={sortParam}
-              typeParam={typeParam}
-              activeTags={activeTags}
-            />
+              <BrowseResults
+                initialItems={filtered}
+                query={query}
+                sortParam={sortParam}
+                typeParam={typeParam}
+                activeTags={activeTags}
+              />
+            </div>
           </section>
         </Stack>
       </Container>

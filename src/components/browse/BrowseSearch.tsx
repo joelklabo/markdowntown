@@ -20,6 +20,10 @@ export function BrowseSearch({ initialQuery, baseQueryString, debounceMs = 250 }
   const baseParams = useMemo(() => new URLSearchParams(baseQueryString), [baseQueryString]);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      // This search is only shown on mobile; avoid auto-replacing URLs on desktop.
+      if (window.matchMedia("(min-width: 768px)").matches) return;
+    }
     const id = setTimeout(() => {
       startTransition(() => {
         const params = new URLSearchParams(searchParams?.toString() ?? "");

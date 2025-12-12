@@ -28,11 +28,14 @@ describe("Navigation and interaction smoke", () => {
     await page.waitForURL(/\/browse/);
 
     // Browse search updates URL
-    const searchInput = page.getByRole("searchbox", { name: /search library/i });
+    const searchInput = page.locator("header").getByRole("textbox", { name: /^search$/i });
     await searchInput.click();
     await searchInput.fill("tools");
-    await searchInput.press("Enter");
-    await page.waitForURL(/browse\?q=tools/);
+    const searchButton = page.locator("header").getByRole("button", { name: /^search$/i });
+    // React state is async; give it a tick before submit.
+    await page.waitForTimeout(100);
+    await searchButton.click();
+    await page.waitForFunction(() => window.location.search.includes("q=tools"));
     expect(page.url()).toMatch(/browse\?q=tools/);
 
     await context.close();
