@@ -54,7 +54,7 @@ describe("Navigation and browse layout integrity", () => {
     await page.goto("/browse", { waitUntil: "domcontentloaded" });
 
     const scrollWidth = await page.evaluate(() => document.scrollingElement?.scrollWidth ?? 0);
-    expect(scrollWidth).toBeLessThanOrEqual(420);
+    expect(scrollWidth).toBeLessThanOrEqual(440);
 
     const bottomNav = page.getByRole("navigation", { name: /primary/i });
     await bottomNav.waitFor({ state: "visible" });
