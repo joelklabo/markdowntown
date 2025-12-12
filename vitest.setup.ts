@@ -10,3 +10,21 @@ class ResizeObserver {
 
 const globalWithRO = globalThis as typeof globalThis & { ResizeObserver?: typeof ResizeObserver };
 globalWithRO.ResizeObserver = ResizeObserver;
+
+// matchMedia is used in responsive guards; jsdom doesn't implement it.
+const globalWithMM = globalThis as typeof globalThis & {
+  matchMedia?: (query: string) => MediaQueryList;
+};
+if (!globalWithMM.matchMedia) {
+  globalWithMM.matchMedia = (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList;
+}
