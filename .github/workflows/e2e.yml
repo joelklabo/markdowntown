@@ -75,7 +75,7 @@ jobs:
           echo $! > /tmp/next.pid
           echo "Waiting for app to be ready..."
           for i in {1..30}; do
-            if curl -sf http://localhost:3000/api/health > /dev/null; then
+            if curl -sf http://localhost:3000/api/health > /dev/null && curl -sf http://localhost:3000/ > /dev/null; then
               echo "App is ready"
               exit 0
             fi
