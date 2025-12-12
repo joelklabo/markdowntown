@@ -38,6 +38,9 @@ export function LibraryCard({
   onAddToBuilder,
   onDownloadFile,
   onPreview,
+  draggable,
+  onDragStart,
+  onDragEnd,
   className,
   ...rest
 }: { item: SampleItem } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
@@ -120,6 +123,19 @@ export function LibraryCard({
         <Row gap={2} align="center" wrap>
           <Pill tone="blue">{typeLabel}</Pill>
           {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
+          {draggable && (
+            <button
+              type="button"
+              draggable
+              onDragStart={onDragStart as React.DragEventHandler<HTMLButtonElement> | undefined}
+              onDragEnd={onDragEnd as React.DragEventHandler<HTMLButtonElement> | undefined}
+              className="ml-auto inline-flex cursor-grab select-none items-center rounded-mdt-sm border border-mdt-border bg-mdt-surface px-2 py-[2px] text-caption text-mdt-muted hover:border-mdt-border-strong hover:text-mdt-text active:cursor-grabbing"
+              aria-label="Drag card to builder"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Drag
+            </button>
+          )}
         </Row>
 
         <Stack gap={1}>
