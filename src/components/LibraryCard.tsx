@@ -113,6 +113,7 @@ export function LibraryCard({
 
   return (
     <Card
+      data-testid="library-card"
       className={cn(
         "flex h-full flex-col justify-between",
         className
@@ -168,7 +169,7 @@ export function LibraryCard({
             {item.stats.votes.toLocaleString()} votes
           </Text>
         </Row>
-        <Row gap={2} align="center">
+        <Row gap={2} align="center" className="relative z-10">
           {onPreview && (
             <Button variant="ghost" size="xs" onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
               Preview

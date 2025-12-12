@@ -6,9 +6,14 @@ const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+const scriptSrcDirective =
+  process.env.NODE_ENV === "development"
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'";
+
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self'",
+  scriptSrcDirective,
   "connect-src 'self' https://app.posthog.com https://*.sentry.io https://sentry.io",
   "img-src 'self' data: blob: https://avatars.githubusercontent.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

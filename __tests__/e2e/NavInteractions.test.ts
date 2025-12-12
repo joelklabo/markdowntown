@@ -25,7 +25,7 @@ describe("Navigation and interaction smoke", () => {
 
     // Desktop nav link (avoid hero CTA duplicates)
     await page.locator("header").getByRole("link", { name: /^browse$/i }).first().click();
-    expect(page.url()).toMatch(/\/browse/);
+    await page.waitForURL(/\/browse/);
 
     // Browse search updates URL
     const searchInput = page.getByRole("searchbox", { name: /search library/i });
