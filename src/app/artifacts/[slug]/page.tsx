@@ -6,7 +6,7 @@ import { Text } from "@/components/ui/Text";
 import { Pill } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
 import { Stack, Row } from "@/components/ui/Stack";
-import Link from "next/link";
+import { ForkButton } from "@/components/artifact/ForkButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -41,9 +41,7 @@ export default async function ArtifactPage({ params }: { params: Promise<{ slug:
             </Row>
           </Stack>
           <Row gap={2}>
-             <Button variant="secondary" asChild>
-               <Link href={`/workbench?fork=${item.slug || item.id}`}>Fork / Edit</Link>
-             </Button>
+             <ForkButton artifactId={item.id} />
              <Button>Copy</Button>
           </Row>
         </div>
