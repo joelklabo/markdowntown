@@ -3,11 +3,13 @@ import { CompilationResult, CompiledFile, getAdapter, registerAdapter } from '..
 import { agentsMdAdapter } from '../adapters/agentsMd';
 import { githubCopilotAdapter } from '../adapters/githubCopilot';
 import { claudeCodeAdapter } from '../adapters/claudeCode';
+import { geminiCliAdapter } from '../adapters/geminiCli';
 
 // Register built-in adapters
 registerAdapter(agentsMdAdapter);
 registerAdapter(githubCopilotAdapter);
 registerAdapter(claudeCodeAdapter);
+registerAdapter(geminiCliAdapter);
 
 export async function compile(
   def: UniversalAgentDefinition,

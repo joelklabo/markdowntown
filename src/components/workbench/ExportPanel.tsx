@@ -70,6 +70,9 @@ export function ExportPanel() {
           <Checkbox checked={targets.includes('claude-code')} onChange={() => toggleTarget('claude-code')}>
             Claude Code (CLAUDE.md)
           </Checkbox>
+          <Checkbox checked={targets.includes('gemini-cli')} onChange={() => toggleTarget('gemini-cli')}>
+            Gemini CLI (GEMINI.md)
+          </Checkbox>
         </div>
       </div>
       
