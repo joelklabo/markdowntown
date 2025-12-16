@@ -87,7 +87,7 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
       slug: a.slug,
       title: a.title,
       description: (a.description ?? "").slice(0, 240),
-      tags: a.tags,
+      tags: normalizeTags(a.tags, { strict: false }).tags,
       stats: {
         views: a.views,
         copies: a.copies,

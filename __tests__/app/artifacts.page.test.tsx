@@ -19,6 +19,7 @@ vi.mock('@/lib/publicItems', () => ({
 
 vi.mock('next/navigation', () => ({
   notFound: vi.fn(),
+  useRouter: vi.fn().mockReturnValue({ push: vi.fn() }),
 }));
 
 describe('ArtifactPage', () => {

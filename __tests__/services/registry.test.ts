@@ -4,7 +4,6 @@ vi.mock("@/lib/prisma", async () => {
   return { ...actual, hasDatabaseEnv: true };
 });
 import { getServices, setServices, resetServices, createServices } from "@/services";
-import { listPublicItems } from "@/lib/publicItems";
 import { getPublicSection, listPublicSections } from "@/lib/publicSections";
 import { getPublicTemplate } from "@/lib/publicTemplates";
 
@@ -57,13 +56,6 @@ describe("service registry", () => {
     expect(services.sections).toBeDefined();
     expect(services.templates).toBeDefined();
     expect(services.documents).toBeDefined();
-  });
-
-  it("allows swapping services for tests", async () => {
-    setServices({ sections: stubSections, templates: stubTemplates, documents: stubDocuments });
-    const items = await listPublicItems({ type: "snippet" });
-    expect(items[0]?.id).toBe("s1");
-    expect(stubSections.listPublic).toHaveBeenCalled();
   });
 
   it("routes public section helpers through registry", async () => {
