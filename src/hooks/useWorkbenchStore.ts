@@ -4,6 +4,9 @@ import { UAMBlock, UAMScope } from '@/lib/uam/types';
 import { CompilationResult } from '@/lib/uam/adapters';
 
 interface WorkbenchState {
+  id?: string;
+  title: string;
+  description: string;
   blocks: UAMBlock[];
   scopes: UAMScope[];
   selectedScope: string | null;
@@ -13,6 +16,9 @@ interface WorkbenchState {
   autosaveStatus: 'idle' | 'saving' | 'saved' | 'error';
   
   // Actions
+  setId: (id?: string) => void;
+  setTitle: (title: string) => void;
+  setDescription: (desc: string) => void;
   addBlock: (block: UAMBlock) => void;
   updateBlock: (id: string, updates: Partial<UAMBlock>) => void;
   removeBlock: (id: string) => void;
@@ -32,6 +38,9 @@ interface WorkbenchState {
 export const useWorkbenchStore = create<WorkbenchState>()(
   persist(
     (set) => ({
+      id: undefined,
+      title: 'Untitled Agent',
+      description: '',
       blocks: [],
       scopes: ['root'],
       selectedScope: 'root',
@@ -39,6 +48,10 @@ export const useWorkbenchStore = create<WorkbenchState>()(
       targets: [],
       compilationResult: null,
       autosaveStatus: 'idle',
+
+      setId: (id) => set({ id }),
+      setTitle: (title) => set({ title }),
+      setDescription: (description) => set({ description }),
 
       addBlock: (block) => set((state) => ({ blocks: [...state.blocks, block] })),
       updateBlock: (id, updates) => set((state) => ({
