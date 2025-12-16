@@ -25,6 +25,7 @@ export const UAMBlockSchema = z.object({
   type: UAMBlockTypeSchema,
   content: z.string(),
   metadata: z.record(z.string(), z.unknown()).optional(),
+  scopes: z.array(UAMScopeSchema).optional(),
 });
 
 export const UAMTargetSchema = z.object({

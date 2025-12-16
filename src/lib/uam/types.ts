@@ -23,6 +23,7 @@ export interface UAMBlock {
   type: UAMBlockType;
   content: string;
   metadata?: Record<string, unknown>;
+  scopes?: UAMScope[];
 }
 
 export interface UAMTarget {
