@@ -90,7 +90,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Save artifact error:', error);
     if (error instanceof z.ZodError) {
-        return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
+        return NextResponse.json({ error: 'Validation failed', details: error.issues }, { status: 400 });
     }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

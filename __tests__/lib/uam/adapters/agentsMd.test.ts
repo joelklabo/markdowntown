@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { agentsMdAdapter } from '@/lib/uam/adapters/agentsMd';
 import { UniversalAgentDefinition } from '@/lib/uam/types';
+import { CompiledFile } from '@/lib/uam/adapters';
 
 describe('AGENTS.md Adapter', () => {
-  it('compiles global blocks to root AGENTS.md', () => {
+  it('compiles global blocks to root AGENTS.md', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -14,7 +15,7 @@ describe('AGENTS.md Adapter', () => {
       ],
     };
 
-    const result = agentsMdAdapter.compile(def);
+    const result = await agentsMdAdapter.compile(def);
     
     expect(result.warnings).toHaveLength(0);
     expect(result.files).toHaveLength(1);
@@ -23,7 +24,7 @@ describe('AGENTS.md Adapter', () => {
     expect(result.files[0].content).toContain('Also do that.');
   });
 
-  it('compiles scoped blocks to directory AGENTS.md', () => {
+  it('compiles scoped blocks to directory AGENTS.md', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -35,19 +36,19 @@ describe('AGENTS.md Adapter', () => {
       ],
     };
 
-    const result = agentsMdAdapter.compile(def);
+    const result = await agentsMdAdapter.compile(def);
     
     expect(result.files).toHaveLength(3);
-    const rootFile = result.files.find(f => f.path === 'AGENTS.md');
-    const srcFile = result.files.find(f => f.path === 'src/AGENTS.md');
-    const libFile = result.files.find(f => f.path === 'src/lib/AGENTS.md');
+    const rootFile = result.files.find((f: CompiledFile) => f.path === 'AGENTS.md');
+    const srcFile = result.files.find((f: CompiledFile) => f.path === 'src/AGENTS.md');
+    const libFile = result.files.find((f: CompiledFile) => f.path === 'src/lib/AGENTS.md');
 
     expect(rootFile?.content).toBe('Root content');
     expect(srcFile?.content).toBe('Src content');
     expect(libFile?.content).toBe('Lib content');
   });
 
-  it('warns on glob scopes', () => {
+  it('warns on glob scopes', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -57,7 +58,7 @@ describe('AGENTS.md Adapter', () => {
       ],
     };
 
-    const result = agentsMdAdapter.compile(def);
+    const result = await agentsMdAdapter.compile(def);
     
     expect(result.files).toHaveLength(0);
     expect(result.warnings).toHaveLength(1);

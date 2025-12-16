@@ -3,7 +3,7 @@ import { windsurfRulesAdapter } from '@/lib/uam/adapters/windsurfRules';
 import { UniversalAgentDefinition } from '@/lib/uam/types';
 
 describe('Windsurf Rules Adapter', () => {
-  it('compiles to .windsurfrules', () => {
+  it('compiles to .windsurfrules', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -14,7 +14,7 @@ describe('Windsurf Rules Adapter', () => {
       ],
     };
 
-    const result = windsurfRulesAdapter.compile(def);
+    const result = await windsurfRulesAdapter.compile(def);
     
     expect(result.files).toHaveLength(1);
     expect(result.files[0].path).toBe('.windsurfrules');

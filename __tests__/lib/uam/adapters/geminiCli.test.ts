@@ -3,7 +3,7 @@ import { geminiCliAdapter } from '@/lib/uam/adapters/geminiCli';
 import { UniversalAgentDefinition } from '@/lib/uam/types';
 
 describe('Gemini CLI Adapter', () => {
-  it('compiles to GEMINI.md', () => {
+  it('compiles to GEMINI.md', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -13,7 +13,7 @@ describe('Gemini CLI Adapter', () => {
       ],
     };
 
-    const result = geminiCliAdapter.compile(def);
+    const result = await geminiCliAdapter.compile(def);
     
     expect(result.files).toHaveLength(1);
     expect(result.files[0].path).toBe('GEMINI.md');

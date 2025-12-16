@@ -1,8 +1,8 @@
-export type SampleItemType = "snippet" | "template" | "file";
+export type SampleItemType = "snippet" | "template" | "file" | "agent";
 
 export type SampleItem = {
   id: string;
-  slug?: string;
+  slug?: string | null;
   title: string;
   description: string;
   tags: string[];

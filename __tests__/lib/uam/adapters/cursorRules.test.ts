@@ -3,7 +3,7 @@ import { cursorRulesAdapter } from '@/lib/uam/adapters/cursorRules';
 import { UniversalAgentDefinition } from '@/lib/uam/types';
 
 describe('Cursor Rules Adapter', () => {
-  it('compiles to .cursorrules', () => {
+  it('compiles to .cursorrules', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -14,7 +14,7 @@ describe('Cursor Rules Adapter', () => {
       ],
     };
 
-    const result = cursorRulesAdapter.compile(def);
+    const result = await cursorRulesAdapter.compile(def);
     
     expect(result.files).toHaveLength(1);
     expect(result.files[0].path).toBe('.cursorrules');

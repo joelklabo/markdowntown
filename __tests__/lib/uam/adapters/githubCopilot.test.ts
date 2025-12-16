@@ -3,7 +3,7 @@ import { githubCopilotAdapter } from '@/lib/uam/adapters/githubCopilot';
 import { UniversalAgentDefinition } from '@/lib/uam/types';
 
 describe('GitHub Copilot Adapter', () => {
-  it('compiles global blocks to copilot-instructions.md', () => {
+  it('compiles global blocks to copilot-instructions.md', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -13,7 +13,7 @@ describe('GitHub Copilot Adapter', () => {
       ],
     };
 
-    const result = githubCopilotAdapter.compile(def);
+    const result = await githubCopilotAdapter.compile(def);
     
     expect(result.files).toHaveLength(1);
     expect(result.files[0].path).toBe('.github/copilot-instructions.md');
@@ -21,7 +21,7 @@ describe('GitHub Copilot Adapter', () => {
     expect(result.warnings).toHaveLength(0);
   });
 
-  it('formats scoped blocks with glob patterns', () => {
+  it('formats scoped blocks with glob patterns', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -31,14 +31,14 @@ describe('GitHub Copilot Adapter', () => {
       ],
     };
 
-    const result = githubCopilotAdapter.compile(def);
+    const result = await githubCopilotAdapter.compile(def);
     
     expect(result.files[0].content).toContain('For files matching `**/*.ts`:');
     expect(result.files[0].content).toContain('TS rules');
     expect(result.warnings).toHaveLength(0);
   });
 
-  it('warns on non-glob scopes', () => {
+  it('warns on non-glob scopes', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -48,7 +48,7 @@ describe('GitHub Copilot Adapter', () => {
       ],
     };
 
-    const result = githubCopilotAdapter.compile(def);
+    const result = await githubCopilotAdapter.compile(def);
     
     expect(result.warnings).toHaveLength(1);
     expect(result.warnings[0]).toContain('not a glob pattern');

@@ -3,7 +3,7 @@ import { claudeCodeAdapter } from '@/lib/uam/adapters/claudeCode';
 import { UniversalAgentDefinition } from '@/lib/uam/types';
 
 describe('Claude Code Adapter', () => {
-  it('compiles to CLAUDE.md', () => {
+  it('compiles to CLAUDE.md', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -14,7 +14,7 @@ describe('Claude Code Adapter', () => {
       ],
     };
 
-    const result = claudeCodeAdapter.compile(def);
+    const result = await claudeCodeAdapter.compile(def);
     
     expect(result.files).toHaveLength(1);
     expect(result.files[0].path).toBe('CLAUDE.md');

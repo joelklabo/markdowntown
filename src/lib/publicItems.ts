@@ -1,6 +1,6 @@
 import { normalizeTags } from "./tags";
 import { unstable_cache } from "next/cache";
-import { cacheTags } from "./cacheTags";
+import { cacheTags, type PublicListType } from "./cacheTags";
 import { prisma, hasDatabaseEnv } from "@/lib/prisma";
 import { ArtifactType, Prisma } from "@prisma/client";
 

@@ -6,18 +6,10 @@ import { Heading } from "./ui/Heading";
 import { Row, Stack } from "./ui/Stack";
 import { Text } from "./ui/Text";
 import { cn } from "@/lib/cn";
+import type { SampleItem } from "@/lib/sampleContent";
 
 // Compatible with SampleItem for now, but prefer PublicItem
-type Item = {
-  id: string;
-  slug?: string | null;
-  title: string;
-  description: string;
-  tags: string[];
-  stats: { views: number; copies: number; votes: number };
-  type: string; // relax type check or use PublicItemType
-  badge?: "new" | "trending" | "staff";
-};
+type Item = SampleItem;
 
 function badgeLabel(badge?: Item["badge"]) {
   switch (badge) {
