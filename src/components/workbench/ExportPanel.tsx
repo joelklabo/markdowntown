@@ -67,6 +67,9 @@ export function ExportPanel() {
           <Checkbox checked={targets.includes('github-copilot')} onChange={() => toggleTarget('github-copilot')}>
             GitHub Copilot
           </Checkbox>
+          <Checkbox checked={targets.includes('claude-code')} onChange={() => toggleTarget('claude-code')}>
+            Claude Code (CLAUDE.md)
+          </Checkbox>
         </div>
       </div>
       

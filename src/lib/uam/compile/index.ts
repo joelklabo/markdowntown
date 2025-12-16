@@ -2,10 +2,12 @@ import { UniversalAgentDefinition } from '../types';
 import { CompilationResult, CompiledFile, getAdapter, registerAdapter } from '../adapters';
 import { agentsMdAdapter } from '../adapters/agentsMd';
 import { githubCopilotAdapter } from '../adapters/githubCopilot';
+import { claudeCodeAdapter } from '../adapters/claudeCode';
 
 // Register built-in adapters
 registerAdapter(agentsMdAdapter);
 registerAdapter(githubCopilotAdapter);
+registerAdapter(claudeCodeAdapter);
 
 export async function compile(
   def: UniversalAgentDefinition,
