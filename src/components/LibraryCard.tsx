@@ -6,9 +6,20 @@ import { Heading } from "./ui/Heading";
 import { Row, Stack } from "./ui/Stack";
 import { Text } from "./ui/Text";
 import { cn } from "@/lib/cn";
-import type { SampleItem } from "@/lib/sampleContent";
 
-function badgeLabel(badge?: SampleItem["badge"]) {
+// Compatible with SampleItem for now, but prefer PublicItem
+type Item = {
+  id: string;
+  slug?: string | null;
+  title: string;
+  description: string;
+  tags: string[];
+  stats: { views: number; copies: number; votes: number };
+  type: string; // relax type check or use PublicItemType
+  badge?: "new" | "trending" | "staff";
+};
+
+function badgeLabel(badge?: Item["badge"]) {
   switch (badge) {
     case "new":
       return { label: "New", tone: "green" as const };
@@ -22,11 +33,11 @@ function badgeLabel(badge?: SampleItem["badge"]) {
 }
 
 type Handlers = {
-  onCopySnippet?: (item: SampleItem) => void;
-  onUseTemplate?: (item: SampleItem) => void;
-  onAddToBuilder?: (item: SampleItem) => void;
-  onDownloadFile?: (item: SampleItem) => void;
-  onPreview?: (item: SampleItem) => void;
+  onCopySnippet?: (item: Item) => void;
+  onUseTemplate?: (item: Item) => void;
+  onAddToBuilder?: (item: Item) => void;
+  onDownloadFile?: (item: Item) => void;
+  onPreview?: (item: Item) => void;
   copied?: boolean;
 };
 
@@ -43,16 +54,16 @@ export function LibraryCard({
   onDragEnd,
   className,
   ...rest
-}: { item: SampleItem } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
+}: { item: Item } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
-  const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : "agents.md";
+  const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : item.type === "agent" ? "Agent" : "File";
   const slug = item.slug ?? item.id;
   const detailHref =
     item.type === "template"
       ? `/templates/${slug}`
       : item.type === "file"
         ? `/files/${slug}`
-        : `/snippets/${slug}`;
+        : `/snippets/${slug}`; // What about agent? /agents/${slug}?
 
   const primaryAction =
     item.type === "template"
@@ -88,12 +99,15 @@ export function LibraryCard({
         </Button>
       );
     }
+    // Agent primary action? Maybe "Fork"? Or "View"?
+    // For now View.
     return (
       <Button size="xs" asChild>
         <Link href={primaryAction.href}>{primaryAction.label}</Link>
       </Button>
     );
   };
+
 
   const renderSecondary = () => {
     if (!secondaryAction) return null;
