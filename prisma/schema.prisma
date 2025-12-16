@@ -24,6 +24,7 @@ model User {
   sections       Snippet[]
   templates      Template[]
   documents      Document[]
+  artifacts      Artifact[]
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 }
@@ -32,6 +33,53 @@ enum Visibility {
   PUBLIC
   UNLISTED
   PRIVATE
+}
+
+enum ArtifactType {
+  SNIPPET
+  TEMPLATE
+  AGENT
+  DOCUMENT
+}
+
+model Artifact {
+  id          String       @id @default(cuid())
+  slug        String?      @unique
+  type        ArtifactType
+  title       String
+  description String?
+  visibility  Visibility   @default(PRIVATE)
+  tags        String[]     @default([])
+  views       Int          @default(0)
+  copies      Int          @default(0)
+  downloads   Int          @default(0)
+  votesUp     Int          @default(0)
+  votesDown   Int          @default(0)
+  favorites   Int          @default(0)
+  
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
+  
+  versions    ArtifactVersion[]
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([visibility])
+  @@index([type])
+}
+
+model ArtifactVersion {
+  id          String   @id @default(cuid())
+  artifactId  String
+  artifact    Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+  version     Int      @default(1)
+  content     Json
+  message     String?
+  createdAt   DateTime @default(now())
+
+  @@index([artifactId])
 }
 
 enum SnippetKind {
