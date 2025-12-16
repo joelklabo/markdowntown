@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { StructurePanel } from '@/components/workbench/StructurePanel';
 import { EditorPanel } from '@/components/workbench/EditorPanel';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
+import { WorkbenchHeader } from '@/components/workbench/WorkbenchHeader';
 
 export default function WorkbenchPage() {
   const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>('structure');
@@ -26,6 +27,8 @@ export default function WorkbenchPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col bg-white dark:bg-black">
+      <WorkbenchHeader />
+      
       {/* Mobile Tab Bar */}
       <div className="md:hidden flex border-b border-gray-200 dark:border-gray-800">
         <button onClick={() => setMobileTab('structure')} className={tabClass('structure')}>

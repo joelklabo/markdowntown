@@ -2,7 +2,7 @@ export const cacheTags = {
   landing: "cache:landing",
   tags: "cache:tags",
   list: (type: "all" | "snippet" | "template" | "file" | "agent") => `cache:list:${type}`,
-  detail: (type: "snippet" | "template" | "file" | "agent", idOrSlug: string) => `cache:detail:${type}:${idOrSlug}`,
+  detail: (type: string, idOrSlug: string) => `cache:detail:${type}:${idOrSlug}`,
 };
 
 export type PublicListType = "all" | "snippet" | "template" | "file" | "agent";
