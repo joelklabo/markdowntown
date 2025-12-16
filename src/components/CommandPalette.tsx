@@ -44,12 +44,12 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
   const commands = useMemo(() => {
     const baseCommands: CommandItem[] = [
       { label: "Go to home", action: () => router.push("/"), group: "Go to" },
-      { label: "Browse library", action: () => router.push("/browse"), group: "Go to", hint: "⌘B" },
-      { label: "Open builder", action: () => router.push("/builder"), group: "Go to", hint: "⌘Shift+B" },
-      { label: "View templates", action: () => router.push("/templates"), group: "Templates" },
+      { label: "Browse library", action: () => router.push("/library"), group: "Go to", hint: "⌘B" },
+      { label: "Open workbench", action: () => router.push("/workbench"), group: "Go to", hint: "⌘Shift+B" },
+      { label: "View templates", action: () => router.push("/library?type=template"), group: "Templates" },
       { label: "Docs", action: () => router.push("/docs"), group: "Go to" },
       { label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode", action: toggle, group: "Actions", hint: "⌘L" },
-      { label: "Open search", action: () => router.push("/browse"), group: "Actions", hint: "/" },
+      { label: "Open search", action: () => router.push("/library"), group: "Actions", hint: "/" },
     ];
     const q = query.trim().toLowerCase();
     const merged = [...suggestions, ...baseCommands];

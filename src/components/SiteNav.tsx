@@ -13,10 +13,8 @@ import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
 const links = [
-  { href: "/browse", label: "Browse" },
-  { href: "/templates", label: "Templates" },
-  { href: "/tags", label: "Tags" },
-  { href: "/builder", label: "Builder" },
+  { href: "/library", label: "Library" },
+  { href: "/workbench", label: "Workbench" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -63,7 +61,7 @@ export function SiteNav({ user }: { user?: User }) {
       if (value) params.set(key, value);
     });
     const search = params.toString();
-    return search ? `/browse?${search}` : "/browse";
+    return search ? `/library?${search}` : "/library";
   }
 
   function applyQuickFilter(overrides: Record<string, string>, source: string) {
@@ -137,9 +135,8 @@ export function SiteNav({ user }: { user?: User }) {
 
   const bottomNavItems = [
     { href: "/", label: "Home", icon: "🏠", type: "link" as const },
-    { href: "/browse", label: "Browse", icon: "🔎", type: "link" as const },
-    { href: "/templates", label: "Templates", icon: "📄", type: "link" as const },
-    { href: "/builder", label: "Builder", icon: "🛠️", type: "link" as const },
+    { href: "/library", label: "Library", icon: "📚", type: "link" as const },
+    { href: "/workbench", label: "Workbench", icon: "🛠️", type: "link" as const },
     { label: "Search", icon: "⌘K", type: "search" as const },
   ];
 
