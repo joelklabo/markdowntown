@@ -1,7 +1,7 @@
-import { UniversalAgentDefinition } from './types';
-import { CompilationResult, CompiledFile, getAdapter, registerAdapter } from './adapters';
-import { agentsMdAdapter } from './adapters/agentsMd';
-import { githubCopilotAdapter } from './adapters/githubCopilot';
+import { UniversalAgentDefinition } from '../types';
+import { CompilationResult, CompiledFile, getAdapter, registerAdapter } from '../adapters';
+import { agentsMdAdapter } from '../adapters/agentsMd';
+import { githubCopilotAdapter } from '../adapters/githubCopilot';
 
 // Register built-in adapters
 registerAdapter(agentsMdAdapter);
