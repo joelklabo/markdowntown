@@ -35,13 +35,13 @@ export function StructurePanel() {
   };
 
   if (!enabled) {
-    return <div className="p-4 text-gray-400 text-sm">Loading structure...</div>;
+    return <div className="p-4 text-mdt-muted text-body-sm">Loading structure...</div>;
   }
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-4">
-        <span className="font-bold text-sm text-gray-500 uppercase tracking-wider">Blocks</span>
+        <span className="font-bold text-body-sm text-mdt-muted uppercase tracking-wider">Blocks</span>
         <Button size="xs" onClick={handleAdd}>+ Add</Button>
       </div>
       
@@ -62,30 +62,30 @@ export function StructurePanel() {
                       className={`
                         p-2 rounded border group flex items-center gap-2 cursor-pointer transition-colors
                         ${selectedBlockId === block.id 
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                          : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-blue-300'
+                          ? 'border-mdt-primary bg-mdt-primary/10' 
+                          : 'border-mdt-border bg-mdt-surface hover:border-mdt-primary-soft'
                         }
                         ${snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''}
                       `}
                       onClick={() => selectBlock(block.id)}
                       style={provided.draggableProps.style}
                     >
-                      <div {...provided.dragHandleProps} className="text-gray-400 cursor-grab hover:text-gray-600 px-1">
+                      <div {...provided.dragHandleProps} className="text-mdt-muted cursor-grab hover:text-mdt-text px-1">
                         ⋮⋮
                       </div>
                       <div className="flex-1 min-w-0">
                          <div className="flex items-center gap-2 mb-1">
-                             <span className="font-mono text-[10px] uppercase text-gray-500 bg-gray-100 dark:bg-gray-700 px-1 rounded">
+                             <span className="font-mono text-[10px] uppercase text-mdt-muted bg-mdt-surface-strong px-1 rounded">
                                {block.type}
                              </span>
                          </div>
-                         <div className="truncate text-xs text-gray-700 dark:text-gray-300 font-mono">
+                         <div className="truncate text-caption text-mdt-text font-mono">
                            {block.content || '(empty)'}
                          </div>
                       </div>
                       <button 
                         onClick={(e) => { e.stopPropagation(); removeBlock(block.id); }}
-                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 p-1"
+                        className="opacity-0 group-hover:opacity-100 text-mdt-muted hover:text-mdt-danger p-1"
                         aria-label="Remove block"
                       >
                         ×

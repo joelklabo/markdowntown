@@ -16,7 +16,7 @@ export function EditorPanel() {
 
   if (!block) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+      <div className="h-full flex items-center justify-center text-mdt-muted text-body-sm">
         Select a block to edit
       </div>
     );
@@ -45,26 +45,26 @@ export function EditorPanel() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4 border-b border-gray-100 dark:border-gray-800 pb-2">
+      <div className="flex items-center gap-2 mb-4 border-b border-mdt-border pb-2">
         <select 
           value={block.type} 
           onChange={handleTypeChange}
-          className="text-sm border-none bg-transparent font-bold uppercase text-gray-500 focus:ring-0 cursor-pointer hover:text-black dark:hover:text-white"
+          className="text-body-sm border-none bg-transparent font-bold uppercase text-mdt-muted focus:ring-0 cursor-pointer hover:text-mdt-text"
         >
           {BLOCK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        <span className="text-xs text-gray-300 font-mono ml-auto">ID: {block.id.slice(0, 8)}</span>
+        <span className="text-caption text-mdt-muted font-mono ml-auto">ID: {block.id.slice(0, 8)}</span>
       </div>
       
       <TextArea
         value={block.content}
         onChange={handleChange}
-        className="flex-1 font-mono text-sm resize-none border-none focus:ring-0 p-0 bg-transparent"
+        className="flex-1 font-mono text-body-sm resize-none border-none focus:ring-0 p-0 bg-transparent"
         placeholder={`Type content for ${block.type}... (supports Markdown)`}
         autoFocus
       />
       
-      <div className="mt-2 text-xs text-gray-300">
+      <div className="mt-2 text-caption text-mdt-muted">
         Tip: Type <code>/code</code>, <code>/prompt</code> to switch type.
       </div>
     </div>

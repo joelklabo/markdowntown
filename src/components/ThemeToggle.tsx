@@ -2,10 +2,19 @@
 
 import { useTheme } from "@/providers/ThemeProvider";
 import { Button } from "./ui/Button";
+import { useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
-  const isDark = theme === "dark";
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const isDark = mounted && theme === "dark";
 
   return (
     <Button
