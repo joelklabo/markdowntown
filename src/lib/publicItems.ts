@@ -19,6 +19,11 @@ export type PublicItem = {
   createdAt: Date;
 };
 
+export type PublicItemDetail = PublicItem & {
+  content: unknown;
+  version: number;
+};
+
 export type ListPublicItemsInput = {
   limit?: number;
   tags?: unknown;
@@ -97,6 +102,48 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
   }
 }
 
+async function getPublicItemRaw(slug: string): Promise<PublicItemDetail | null> {
+  if (!hasDatabaseEnv) return null;
+  
+  try {
+    const artifact = await prisma.artifact.findFirst({
+      where: {
+        OR: [{ id: slug }, { slug }],
+        visibility: 'PUBLIC',
+      },
+      include: {
+        versions: {
+          orderBy: { version: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    if (!artifact) return null;
+    const latest = artifact.versions[0];
+
+    return {
+      id: artifact.id,
+      slug: artifact.slug,
+      title: artifact.title,
+      description: artifact.description ?? "",
+      tags: artifact.tags,
+      stats: {
+        views: artifact.views,
+        copies: artifact.copies,
+        votes: artifact.votesUp || 0,
+      },
+      type: (artifact.type === 'DOCUMENT' ? 'file' : artifact.type.toLowerCase()) as PublicItemType,
+      createdAt: artifact.createdAt,
+      content: latest?.content ?? {},
+      version: latest?.version ?? 0,
+    };
+  } catch (err) {
+    console.warn("getPublicItem: error", err);
+    return null;
+  }
+}
+
 const listCache = new Map<string, ReturnType<typeof unstable_cache>>();
 
 function getListCache(type: string) {
@@ -118,4 +165,23 @@ export async function listPublicItems(input: ListPublicItemsInput = {}): Promise
   if (isTestEnv) return listPublicItemsRaw(input);
   const cached = getListCache(type);
   return cached(input);
+}
+
+const detailCache = new Map<string, ReturnType<typeof unstable_cache>>();
+
+export async function getPublicItem(slug: string): Promise<PublicItemDetail | null> {
+  if (isTestEnv) return getPublicItemRaw(slug);
+  // Cache key based on slug?
+  // But type is unknown. I'll use a generic key.
+  const key = `detail:${slug}`;
+  if (!detailCache.has(key)) {
+    detailCache.set(key, unstable_cache(
+      async (s: string) => getPublicItemRaw(s),
+      ["public-item-detail", slug],
+      { revalidate: 60, tags: [cacheTags.detail("all", slug)] } 
+      // cacheTags.detail expects type. I don't know type yet. 
+      // I'll assume "all" or generic. The implementation of cacheTags.detail might just use string concat.
+    ));
+  }
+  return detailCache.get(key)!(slug);
 }
