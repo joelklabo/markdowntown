@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { StructurePanel } from '@/components/workbench/StructurePanel';
+import { EditorPanel } from '@/components/workbench/EditorPanel';
+import { OutputPanel } from '@/components/workbench/OutputPanel';
 
 export default function WorkbenchPage() {
   const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>('structure');
@@ -40,27 +43,27 @@ export default function WorkbenchPage() {
       <div className="flex-1 grid grid-cols-1 md:grid-cols-[280px_1fr_320px] overflow-hidden">
         {/* Structure Pane */}
         <div className={`h-full border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 ${mobileTab === 'structure' ? 'block' : 'hidden md:block'}`}>
-          <div className="p-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Structure</h2>
-            {/* Placeholder for StructurePanel */}
-            <div className="text-gray-400 text-sm">Structure Panel</div>
+          <div className="h-full p-4 overflow-hidden">
+            <StructurePanel />
           </div>
         </div>
 
         {/* Editor Pane */}
         <div className={`h-full bg-white dark:bg-black relative ${mobileTab === 'editor' ? 'block' : 'hidden md:block'}`}>
-          <div className="p-4">
-            {/* Placeholder for EditorPanel */}
-             <div className="text-gray-400 text-sm">Editor Panel</div>
+          <div className="h-full p-4 overflow-hidden">
+             <EditorPanel />
           </div>
         </div>
 
         {/* Output Pane */}
         <div className={`h-full border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 ${mobileTab === 'output' ? 'block' : 'hidden md:block'}`}>
-           <div className="p-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Output</h2>
-            {/* Placeholder for OutputPanel */}
-            <div className="text-gray-400 text-sm">Output Panel</div>
+           <div className="h-full pt-4 pb-0 px-0 overflow-hidden flex flex-col">
+            {/* OutputPanel has its own tabs header which should be at top. 
+                If I keep p-4, tabs will be indented. 
+                OutputPanel design expects to control the top area.
+                I'll remove padding for OutputPanel container or adjust.
+            */}
+            <OutputPanel />
           </div>
         </div>
       </div>
