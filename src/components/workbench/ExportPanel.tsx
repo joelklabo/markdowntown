@@ -73,6 +73,9 @@ export function ExportPanel() {
           <Checkbox checked={targets.includes('gemini-cli')} onChange={() => toggleTarget('gemini-cli')}>
             Gemini CLI (GEMINI.md)
           </Checkbox>
+          <Checkbox checked={targets.includes('cursor-rules')} onChange={() => toggleTarget('cursor-rules')}>
+            Cursor Rules (.cursorrules)
+          </Checkbox>
         </div>
       </div>
       

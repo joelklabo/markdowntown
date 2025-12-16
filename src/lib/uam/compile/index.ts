@@ -4,12 +4,14 @@ import { agentsMdAdapter } from '../adapters/agentsMd';
 import { githubCopilotAdapter } from '../adapters/githubCopilot';
 import { claudeCodeAdapter } from '../adapters/claudeCode';
 import { geminiCliAdapter } from '../adapters/geminiCli';
+import { cursorRulesAdapter } from '../adapters/cursorRules';
 
 // Register built-in adapters
 registerAdapter(agentsMdAdapter);
 registerAdapter(githubCopilotAdapter);
 registerAdapter(claudeCodeAdapter);
 registerAdapter(geminiCliAdapter);
+registerAdapter(cursorRulesAdapter);
 
 export async function compile(
   def: UniversalAgentDefinition,
