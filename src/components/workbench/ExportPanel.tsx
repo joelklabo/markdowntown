@@ -76,6 +76,9 @@ export function ExportPanel() {
           <Checkbox checked={targets.includes('cursor-rules')} onChange={() => toggleTarget('cursor-rules')}>
             Cursor Rules (.cursorrules)
           </Checkbox>
+          <Checkbox checked={targets.includes('windsurf-rules')} onChange={() => toggleTarget('windsurf-rules')}>
+            Windsurf Rules (.windsurfrules)
+          </Checkbox>
         </div>
       </div>
       
