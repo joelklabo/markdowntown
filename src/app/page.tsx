@@ -7,6 +7,7 @@ import { LibraryCard } from "@/components/LibraryCard";
 import type { SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { listTopTags } from "@/lib/publicTags";
+import { hasDatabaseEnv, prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 import { Container } from "@/components/ui/Container";
 import { Stack, Row } from "@/components/ui/Stack";
@@ -20,11 +21,32 @@ export const metadata: Metadata = {
   description: "Copy battle-tested snippets and templates, preview in the builder, and export agents.md with confidence.",
 };
 
-const proof = [
-  { label: "Snippets & templates", value: "1,200+", hint: "Curated library" },
-  { label: "Copies this month", value: "42k", hint: "No login required" },
-  { label: "Avg. copy time", value: "12s", hint: "Keyboard-first" },
-];
+type HomeCounters = {
+  artifacts: number;
+  copies: number;
+  views: number;
+};
+
+async function getPublicCounters(): Promise<HomeCounters> {
+  if (!hasDatabaseEnv) return { artifacts: 0, copies: 0, views: 0 };
+
+  try {
+    const agg = await prisma.artifact.aggregate({
+      where: { visibility: "PUBLIC" },
+      _count: { _all: true },
+      _sum: { copies: true, views: true },
+    });
+
+    return {
+      artifacts: agg._count._all,
+      copies: agg._sum.copies ?? 0,
+      views: agg._sum.views ?? 0,
+    };
+  } catch (err) {
+    console.warn("home: failed to compute counters", err);
+    return { artifacts: 0, copies: 0, views: 0 };
+  }
+}
 
 const features = [
   {
@@ -45,19 +67,6 @@ const features = [
   },
 ];
 
-const socialProof = [
-  {
-    quote: "We replaced a folder of gists with MarkdownTown and ship prompts twice as fast.",
-    name: "Priya N.",
-    role: "LLM platform lead",
-  },
-  {
-    quote: "The builder's live preview keeps our AI docs tidy and reviewable.",
-    name: "Diego R.",
-    role: "Staff engineer",
-  },
-];
-
 const buildSteps = [
   { title: "Pick a template", copy: "Start from battle-tested scaffolds or go blank." },
   { title: "Add snippets", copy: "Search, tag, and reorder sections with keyboard shortcuts." },
@@ -65,8 +74,11 @@ const buildSteps = [
 ];
 
 export default async function Home() {
-  const tags = await listTopTags(8, 30);
-  const publicItems = await listPublicItems({ limit: 60, sort: "recent", type: "all" });
+  const [tags, publicItems, counters] = await Promise.all([
+    listTopTags(8, 30),
+    listPublicItems({ limit: 60, sort: "recent", type: "all" }),
+    getPublicCounters(),
+  ]);
 
   const toCard = (item: PublicItem): SampleItem => ({
     id: item.id,
@@ -79,6 +91,42 @@ export default async function Home() {
   });
 
   const items: SampleItem[] = publicItems.map(toCard);
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-mdt-bg text-mdt-text">
+        <div className="relative overflow-hidden border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]">
+          <Container size="lg" padding="lg" className="py-mdt-16">
+            <Surface tone="raised" padding="lg" className="mx-auto max-w-3xl space-y-4 text-center shadow-mdt-lg">
+              <Heading level="display" leading="tight">
+                Nothing public yet
+              </Heading>
+              <Text tone="muted">
+                Publish an artifact to seed the Library. Until then, you can still build agents.md locally.
+              </Text>
+              <Row justify="center" gap={3} wrap>
+                <Button asChild>
+                  <Link href="/browse">Browse library</Link>
+                </Button>
+                <Button variant="secondary" asChild>
+                  <Link href="/builder">Open builder</Link>
+                </Button>
+              </Row>
+              <Text size="caption" tone="muted">
+                Tip: Make an artifact public to show it on the homepage.
+              </Text>
+            </Surface>
+          </Container>
+        </div>
+      </div>
+    );
+  }
+
+  const proof = [
+    { label: "Public artifacts", value: counters.artifacts.toLocaleString(), hint: "Live library count" },
+    { label: "Total copies", value: counters.copies.toLocaleString(), hint: "Across public artifacts" },
+    { label: "Total views", value: counters.views.toLocaleString(), hint: "Across public artifacts" },
+  ];
 
   const trending = items
     .slice()
@@ -399,21 +447,6 @@ export default async function Home() {
               {spotlightTemplates.length === 0 && <Card className="p-4 text-sm text-mdt-muted">No templates yet.</Card>}
             </div>
           </Card>
-        </section>
-
-        <section className="grid gap-4 rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-6 shadow-mdt-md md:grid-cols-2">
-          <div className="space-y-3">
-            <p className="text-caption text-mdt-muted">Teams are already shipping</p>
-            <h3 className="text-h3">Social proof from builders</h3>
-          </div>
-          <div className="grid gap-3">
-            {socialProof.map((item) => (
-              <div key={item.name} className="rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] p-3 text-sm text-mdt-text">
-                <p className="text-mdt-text">&quot;{item.quote}&quot;</p>
-                <p className="text-xs text-mdt-muted">{item.name} - {item.role}</p>
-              </div>
-            ))}
-          </div>
         </section>
 
           <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-10 text-center shadow-mdt-md space-y-4">
