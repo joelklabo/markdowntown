@@ -5,10 +5,71 @@
   "retrievedAt": "2025-12-17T00:00:00Z",
   "lastVerified": "2025-12-17T00:00:00Z",
   "artifacts": [],
-  "claims": [],
+  "claims": [
+    {
+      "id": "cursor.path-scoping.alwaysapply",
+      "statement": "Cursor supports alwaysApply to apply a rule regardless of globs scope.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/cursor/cursorrules",
+          "excerpt": "alwaysApply",
+          "title": "Cursor documentation"
+        }
+      ],
+      "features": [
+        "path-scoping"
+      ]
+    },
+    {
+      "id": "cursor.path-scoping.globs",
+      "statement": "Cursor supports scoping rules to file globs using a globs field in rule frontmatter.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/cursor/cursorrules",
+          "excerpt": "globs",
+          "title": "Cursor documentation"
+        }
+      ],
+      "features": [
+        "path-scoping"
+      ]
+    },
+    {
+      "id": "cursor.path-scoping.precedence",
+      "statement": "When multiple Cursor rules match, more specific scoped rules take precedence.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/cursor/cursorrules",
+          "excerpt": "precedence",
+          "title": "Cursor documentation"
+        }
+      ],
+      "features": [
+        "path-scoping"
+      ]
+    },
+    {
+      "id": "cursor.repo-instructions.rules-files",
+      "statement": "Cursor supports repository instructions via .cursor/rules/*.mdc rule files.",
+      "confidence": "high",
+      "evidence": [
+        {
+          "url": "https://example.com/cursor/cursorrules",
+          "excerpt": ".cursor/rules/*.mdc",
+          "title": "Cursor documentation"
+        }
+      ],
+      "features": [
+        "repo-instructions"
+      ]
+    }
+  ],
   "featureSupport": {
-    "repo-instructions": "no",
-    "path-scoping": "no",
+    "repo-instructions": "yes",
+    "path-scoping": "yes",
     "imports": "no"
   }
 }
