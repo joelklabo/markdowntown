@@ -87,7 +87,9 @@ jobs:
         run: pnpm type-check
 
       - name: Test
-        run: pnpm test
+        run: |
+          mkdir -p test-results
+          pnpm test -- --reporter=default --reporter=junit --outputFile=test-results/vitest-junit.xml
 
       - name: Build
         env:
@@ -104,7 +106,52 @@ jobs:
         run: pnpm bundle:check
 
       - name: Coverage
+        if: always()
         run: pnpm test:coverage
+
+      - name: Job summary (tests + coverage)
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pathlib
+          import xml.etree.ElementTree as ET
+
+          summary_path = pathlib.Path(os.environ["GITHUB_STEP_SUMMARY"])
+
+          junit = pathlib.Path("test-results/vitest-junit.xml")
+          if junit.exists():
+            root = ET.parse(junit).getroot()
+            suites = root.findall("testsuite") if root.tag == "testsuites" else [root]
+            tests = sum(int(s.get("tests", 0)) for s in suites)
+            failures = sum(int(s.get("failures", 0)) for s in suites)
+            errors = sum(int(s.get("errors", 0)) for s in suites)
+            skipped = sum(int(s.get("skipped", 0)) for s in suites)
+            test_line = f"- Unit tests: {tests} (failures={failures}, errors={errors}, skipped={skipped})"
+          else:
+            test_line = "- Unit tests: JUnit report not found"
+
+          coverage = pathlib.Path("coverage/coverage-summary.json")
+          if coverage.exists():
+            data = json.loads(coverage.read_text())
+            total = data.get("total") or {}
+            def pct(key: str) -> str:
+              value = (total.get(key) or {}).get("pct")
+              return "n/a" if value is None else f\"{value:.1f}%\"
+            cov_line = f\"- Coverage: lines {pct('lines')}, statements {pct('statements')}, branches {pct('branches')}, functions {pct('functions')} (json-summary)\"
+          else:
+            cov_line = "- Coverage: summary not found"
+
+          summary_path.write_text(
+            \"\"\"## CI Summary
+
+          {test_line}
+          {cov_line}
+          \"\"\".format(test_line=test_line, cov_line=cov_line).strip() + \"\\n\",
+            encoding=\"utf-8\",
+          )
+          PY
 
       - name: Upload coverage to Codecov
         if: ${{ env.CODECOV_TOKEN != '' }}
@@ -119,3 +166,14 @@ jobs:
         if: ${{ env.CODECOV_TOKEN == '' }}
         run: |
           echo "Codecov upload skipped: \`CODECOV_TOKEN\` is not available in this context." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test & coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checks-test-artifacts
+          path: |
+            test-results/
+            coverage/
+          if-no-files-found: warn
+          retention-days: 14

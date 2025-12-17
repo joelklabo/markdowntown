@@ -13,7 +13,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: "v8",
-      reporter: ["text", "lcov"],
+      reporter: ["text", "lcov", "json-summary"],
       reportsDirectory: "./coverage",
       thresholds: {
         // Temporary floor aligned to current coverage; raise once component/API suites are added.
