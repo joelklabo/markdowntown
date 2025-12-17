@@ -20,4 +20,11 @@ describe("Pill", () => {
     expect(el.className).toContain("bg-mdt-accent-soft");
     expect(el.className).toContain("text-mdt-accent");
   });
+
+  it("uses semantic status soft tokens for blue tone", () => {
+    const { getByText } = render(<Pill tone="blue">Info</Pill>);
+    const el = getByText("Info");
+    expect(el.className).toContain("mdt-color-info-soft");
+    expect(el.className).toContain("mdt-color-info");
+  });
 });

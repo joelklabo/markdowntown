@@ -9,10 +9,10 @@ export function Badge({ tone = "neutral", className, ...props }: BadgeProps) {
   const toneMap: Record<NonNullable<BadgeProps["tone"]>, string> = {
     neutral: "bg-[color:var(--mdt-color-surface-subtle)] text-mdt-text",
     primary: "bg-[color:var(--mdt-color-primary-soft)] text-[color:var(--mdt-color-primary-strong)]",
-    success: "bg-[color:var(--mdt-color-success)]/15 text-[color:var(--mdt-color-success)]",
-    warning: "bg-[color:var(--mdt-color-warning)]/18 text-[color:var(--mdt-color-warning)]",
-    danger: "bg-[color:var(--mdt-color-danger)]/16 text-[color:var(--mdt-color-danger)]",
-    info: "bg-[color:var(--mdt-color-info)]/16 text-[color:var(--mdt-color-info)]",
+    success: "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-color-success)]",
+    warning: "bg-[color:var(--mdt-color-warning-soft)] text-[color:var(--mdt-color-warning)]",
+    danger: "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-color-danger)]",
+    info: "bg-[color:var(--mdt-color-info-soft)] text-[color:var(--mdt-color-info)]",
   };
   return (
     <span
