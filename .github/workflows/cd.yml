@@ -49,6 +49,7 @@ jobs:
         run: pnpm build
 
       - name: Azure login
+        id: azure_login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -91,14 +92,27 @@ jobs:
           echo "CONTAINERAPP_FQDN=$FQDN" >> $GITHUB_ENV
 
       - name: Smoke test deployed revision (Container Apps FQDN)
+        id: smoke_test_containerapp
         run: |
           set -euo pipefail
           BASE="https://$CONTAINERAPP_FQDN"
           echo "Smoke testing $BASE"
 
-          echo "Waiting for /api/health..."
+          curl_json() {
+            local url="$1"
+            curl -sS --fail --show-error \
+              --connect-timeout 5 \
+              --max-time 20 \
+              --retry 3 \
+              --retry-delay 2 \
+              --retry-max-time 60 \
+              -H "Accept: application/json" \
+              "$url"
+          }
+
+          echo "Waiting for /api/health (with timeouts/retries)..."
           for i in {1..30}; do
-            if curl -sf --max-time 10 "$BASE/api/health" > /dev/null; then
+            if curl_json "$BASE/api/health" | jq -e '.status == "ok"' > /dev/null; then
               echo "Healthy"
               break
             fi
@@ -106,8 +120,8 @@ jobs:
             sleep 5
           done
 
-          curl -sf --max-time 10 "$BASE/api/health"
-          curl -sf --max-time 10 "$BASE/api/public/items" > /dev/null
+          curl_json "$BASE/api/health" | jq -e '.status == "ok"' > /dev/null
+          curl_json "$BASE/api/public/items?limit=1" | jq -e 'type == "array"' > /dev/null
 
       - name: Smoke test prod domain (Cloudflare may challenge)
         run: |
@@ -120,6 +134,36 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Diagnostics (on failure)
+        if: failure() && steps.azure_login.outcome == 'success'
+        run: |
+          set -euo pipefail
+          echo "=== CD diagnostics ==="
+          echo "Image: $IMAGE"
+          echo "Container App: $AZURE_CONTAINERAPP_NAME (RG: $AZURE_RESOURCE_GROUP)"
+          echo "Container Apps FQDN: $CONTAINERAPP_FQDN"
+
+          REVISION="$(az containerapp show -n $AZURE_CONTAINERAPP_NAME -g $AZURE_RESOURCE_GROUP --query properties.latestRevisionName -o tsv)"
+          echo "Latest revision: $REVISION"
+
+          echo "--- Container App status ---"
+          az containerapp show -n $AZURE_CONTAINERAPP_NAME -g $AZURE_RESOURCE_GROUP \
+            --query "{provisioningState:properties.provisioningState,runningStatus:properties.runningStatus,latestRevisionName:properties.latestRevisionName}" \
+            -o jsonc || true
+
+          echo "--- Revisions (all) ---"
+          az containerapp revision list -n $AZURE_CONTAINERAPP_NAME -g $AZURE_RESOURCE_GROUP --all \
+            --query "[].{name:name,active:properties.active,traffic:properties.trafficWeight,health:properties.healthState,created:properties.createdTime}" \
+            -o table || true
+
+          echo "--- Recent console logs (tail 80) ---"
+          az containerapp logs show -n $AZURE_CONTAINERAPP_NAME -g $AZURE_RESOURCE_GROUP --revision "$REVISION" \
+            --tail 80 --format text || true
+
+          echo "--- Recent system logs (tail 80) ---"
+          az containerapp logs show -n $AZURE_CONTAINERAPP_NAME -g $AZURE_RESOURCE_GROUP --revision "$REVISION" \
+            --tail 80 --type system --format text || true
 
       - name: Kick migrate job (optional)
         if: false  # enable when ready
