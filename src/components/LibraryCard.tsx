@@ -55,7 +55,9 @@ export function LibraryCard({
       ? `/templates/${slug}`
       : item.type === "file"
         ? `/files/${slug}`
-        : `/snippets/${slug}`; // What about agent? /agents/${slug}?
+        : item.type === "agent"
+          ? `/a/${slug}`
+          : `/snippets/${slug}`;
 
   const primaryAction =
     item.type === "template"
