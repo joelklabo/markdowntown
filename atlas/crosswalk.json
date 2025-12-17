@@ -2,32 +2,31 @@
   "schemaVersion": 1,
   "crosswalk": {
     "repo-instructions": {
-      "github-copilot": ["repo-instructions"],
-      "copilot-cli": ["repo-instructions"],
-      "claude-code": ["repo-instructions"],
-      "gemini-cli": ["repo-instructions"],
-      "codex-cli": ["repo-instructions"],
-      "cursor": ["repo-instructions"],
-      "windsurf": ["repo-instructions"]
+      "github-copilot": [".github/copilot-instructions.md"],
+      "copilot-cli": ["AGENTS.md"],
+      "claude-code": ["CLAUDE.md"],
+      "gemini-cli": ["GEMINI.md"],
+      "codex-cli": ["AGENTS.md"],
+      "cursor": [".cursorrules"],
+      "windsurf": [".windsurfrules"]
     },
     "path-scoping": {
-      "github-copilot": ["path-scoping"],
-      "copilot-cli": ["path-scoping"],
-      "claude-code": ["path-scoping"],
-      "gemini-cli": ["path-scoping"],
-      "codex-cli": ["path-scoping"],
-      "cursor": ["path-scoping"],
-      "windsurf": ["path-scoping"]
+      "github-copilot": [".github/copilot-instructions.md"],
+      "copilot-cli": ["**/AGENTS.md"],
+      "claude-code": ["CLAUDE.md"],
+      "gemini-cli": ["GEMINI.md"],
+      "codex-cli": ["**/AGENTS.md"],
+      "cursor": [".cursorrules"],
+      "windsurf": [".windsurfrules"]
     },
     "imports": {
-      "github-copilot": ["imports"],
-      "copilot-cli": ["imports"],
-      "claude-code": ["imports"],
-      "gemini-cli": ["imports"],
-      "codex-cli": ["imports"],
-      "cursor": ["imports"],
-      "windsurf": ["imports"]
+      "github-copilot": [".github/copilot-instructions.md"],
+      "copilot-cli": ["AGENTS.md", "**/AGENTS.md"],
+      "claude-code": ["CLAUDE.md"],
+      "gemini-cli": ["GEMINI.md"],
+      "codex-cli": ["AGENTS.md", "**/AGENTS.md"],
+      "cursor": [".cursorrules"],
+      "windsurf": [".windsurfrules"]
     }
   }
 }
-
