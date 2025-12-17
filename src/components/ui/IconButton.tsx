@@ -20,10 +20,10 @@ const styles = cva(base, {
         "bg-transparent text-[color:var(--mdt-color-text)] border-transparent hover:bg-[color:var(--mdt-color-surface-subtle)]",
     },
     size: {
-      xs: "h-8 w-8 text-xs",
-      sm: "h-9 w-9 text-sm",
-      md: "h-10 w-10 text-base",
-      lg: "h-11 w-11 text-lg",
+      xs: "h-mdt-8 w-mdt-8 text-xs",
+      sm: "h-mdt-9 w-mdt-9 text-sm",
+      md: "h-mdt-10 w-mdt-10 text-base",
+      lg: "h-mdt-11 w-mdt-11 text-lg",
     },
     shape: {
       rounded: "rounded-mdt-md",

@@ -23,6 +23,14 @@ describe("Button", () => {
     expect(className).toContain("shadow-mdt-sm");
   });
 
+  it("applies token-based size classes", () => {
+    const { getByText, rerender } = render(<Button size="xs">Size</Button>);
+    expect(getByText("Size").className).toContain("h-mdt-8");
+
+    rerender(<Button size="lg">Size</Button>);
+    expect(getByText("Size").className).toContain("h-mdt-11");
+  });
+
   it("supports asChild", () => {
     const { getByText } = render(
       <Button asChild>

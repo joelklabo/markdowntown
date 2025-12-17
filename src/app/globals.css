@@ -71,6 +71,7 @@
   --spacing-mdt-8: var(--mdt-space-8);
   --spacing-mdt-9: var(--mdt-space-9);
   --spacing-mdt-10: var(--mdt-space-10);
+  --spacing-mdt-11: var(--mdt-space-11);
   --spacing-mdt-12: var(--mdt-space-12);
   --spacing-mdt-14: var(--mdt-space-14);
   --spacing-mdt-16: var(--mdt-space-16);
@@ -269,6 +270,7 @@
   --mdt-space-8: calc(32px * var(--mdt-density-scale));
   --mdt-space-9: calc(36px * var(--mdt-density-scale));
   --mdt-space-10: calc(40px * var(--mdt-density-scale));
+  --mdt-space-11: calc(44px * var(--mdt-density-scale));
   --mdt-space-12: calc(48px * var(--mdt-density-scale));
   --mdt-space-14: calc(56px * var(--mdt-density-scale));
   --mdt-space-16: calc(64px * var(--mdt-density-scale));

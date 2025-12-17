@@ -20,10 +20,10 @@ const buttonVariants = cva(base, {
         "bg-transparent text-[color:var(--mdt-color-text)] border-transparent hover:bg-[color:var(--mdt-color-surface-subtle)]",
     },
     size: {
-      xs: "h-8 px-mdt-2 py-mdt-1 text-caption",
-      sm: "h-9 px-mdt-3",
-      md: "h-10",
-      lg: "h-11 px-mdt-5 text-body",
+      xs: "h-mdt-8 px-mdt-2 py-mdt-1 text-caption",
+      sm: "h-mdt-9 px-mdt-3",
+      md: "h-mdt-10",
+      lg: "h-mdt-11 px-mdt-5 text-body",
     },
   },
   defaultVariants: {
