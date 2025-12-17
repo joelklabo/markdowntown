@@ -1,6 +1,7 @@
 import type { AtlasExtractor } from "./types.ts";
 import { claudeCodeMemoryExtractor } from "./claude_code_memory.ts";
 import { copilotDocsInstructionsExtractor } from "./copilot_docs_instructions.ts";
+import { geminiCliDocsExtractor } from "./gemini_cli.ts";
 
 const noopExtractor: AtlasExtractor = {
   sourceId: "__noop__",
@@ -19,3 +20,4 @@ export function getExtractor(sourceId: string): AtlasExtractor {
 
 registerExtractor(copilotDocsInstructionsExtractor);
 registerExtractor(claudeCodeMemoryExtractor);
+registerExtractor(geminiCliDocsExtractor);
