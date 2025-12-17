@@ -128,4 +128,29 @@ describe('useWorkbenchStore', () => {
     expect(result.current.cloudSaveStatus).toBe('saved');
     expect(result.current.cloudLastSavedAt).not.toBeNull();
   });
+
+  it('stores targets with adapter versions and options', () => {
+    const { result } = renderHook(() => useWorkbenchStore());
+
+    act(() => {
+      result.current.toggleTarget('github-copilot');
+    });
+
+    expect(result.current.targets).toHaveLength(1);
+    expect(result.current.targets[0]).toMatchObject({
+      targetId: 'github-copilot',
+      adapterVersion: '1',
+      options: {},
+    });
+
+    act(() => {
+      result.current.setUam({
+        ...result.current.uam,
+        targets: [{ targetId: 'github-copilot', adapterVersion: '9', options: { exportSkills: true } }],
+      });
+    });
+
+    expect(result.current.targets[0]?.adapterVersion).toBe('9');
+    expect(result.current.uam.targets[0]?.options).toMatchObject({ exportSkills: true });
+  });
 });

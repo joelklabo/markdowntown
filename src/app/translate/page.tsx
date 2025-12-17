@@ -1,5 +1,6 @@
 import { TranslatePageClient } from '@/components/translate/TranslatePageClient';
 import { loadExampleText } from '@/lib/atlas/load';
+import { createUamTargetV1 } from '@/lib/uam/uamTypes';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -14,7 +15,8 @@ export default async function TranslatePage(props: { searchParams: Promise<Searc
   const target = firstString(searchParams.target)?.trim() ?? null;
   const example = firstString(searchParams.example)?.trim() ?? null;
 
-  const initialTargets = target && target.length > 0 ? [target] : ['agents-md', 'github-copilot'];
+  const initialTargetIds = target && target.length > 0 ? [target] : ['agents-md', 'github-copilot'];
+  const initialTargets = initialTargetIds.map((targetId) => createUamTargetV1(targetId));
 
   let initialInput = '';
   let initialError: string | null = null;
@@ -31,4 +33,3 @@ export default async function TranslatePage(props: { searchParams: Promise<Searc
     <TranslatePageClient initialInput={initialInput} initialTargets={initialTargets} initialError={initialError} />
   );
 }
-

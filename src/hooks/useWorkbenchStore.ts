@@ -6,6 +6,7 @@ import {
   createEmptyUamV1,
   createUamTargetV1,
   GLOBAL_SCOPE_ID,
+  normalizeUamTargetsV1,
   type UamBlockKindV1,
   type UamBlockV1,
   type UamScopeV1,
@@ -81,10 +82,6 @@ function syncUamTargetsFromLegacy(targetIds: string[]): UamTargetV1[] {
   return targetIds.map(targetId => createUamTargetV1(targetId));
 }
 
-function syncLegacyTargetsFromUam(targets: UamTargetV1[]): string[] {
-  return targets.map(t => t.targetId);
-}
-
 function syncLegacyBlocksFromUam(blocks: UamBlockV1[]): UAMBlock[] {
   return blocks.map((b) => {
     const legacyType = (b as unknown as { type?: UAMBlockType }).type ?? 'instruction';
@@ -129,6 +126,7 @@ function normalizeWorkbenchUam(uam: UamV1): UamV1 {
       title: withGlobal.meta.title ?? 'Untitled Agent',
       description: withGlobal.meta.description ?? '',
     },
+    targets: normalizeUamTargetsV1(withGlobal.targets),
   };
 }
 
@@ -150,7 +148,7 @@ interface WorkbenchState {
   description: string;
   scopes: string[];
   blocks: UAMBlock[];
-  targets: string[];
+  targets: UamTargetV1[];
 
   // Selection
   selectedScopeId: string;
@@ -216,7 +214,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         const selectedScopeId = ensureSelectedScopeId(normalized, selectedScopeIdHint);
         const scopes = normalized.scopes.map(legacyScopeLabel);
         const blocks = syncLegacyBlocksFromUam(normalized.blocks);
-        const targets = syncLegacyTargetsFromUam(normalized.targets);
+        const targets = normalized.targets;
 
         return {
           uam: normalized,
@@ -468,10 +466,10 @@ export const useWorkbenchStore = create<WorkbenchState>()(
 
         toggleTarget: (targetId) => {
           set((state) => {
-            const next = state.targets.includes(targetId)
-              ? state.targets.filter(t => t !== targetId)
-              : [...state.targets, targetId];
-            return { targets: next, uam: { ...state.uam, targets: syncUamTargetsFromLegacy(next) } };
+            const nextTargets = state.targets.some((t) => t.targetId === targetId)
+              ? state.targets.filter((t) => t.targetId !== targetId)
+              : [...state.targets, createUamTargetV1(targetId)];
+            return { targets: nextTargets, uam: { ...state.uam, targets: nextTargets } };
           });
           markDirty();
           onPersisted();
@@ -681,7 +679,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           description: normalized.meta.description ?? '',
           scopes: normalized.scopes.map(legacyScopeLabel),
           blocks: syncLegacyBlocksFromUam(normalized.blocks),
-          targets: syncLegacyTargetsFromUam(normalized.targets),
+          targets: normalized.targets,
           visibility: next.visibility ?? 'PRIVATE',
           tags: next.tags ?? [],
         };

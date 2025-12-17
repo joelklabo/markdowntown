@@ -75,7 +75,7 @@ describe('WorkbenchPage', () => {
     const badge = screen.getByLabelText('Visibility: Draft');
     expect(badge).toBeInTheDocument();
 
-    const copilot = screen.getByLabelText('GitHub Copilot') as HTMLInputElement;
+    const copilot = screen.getByLabelText(/GitHub Copilot/i) as HTMLInputElement;
     expect(copilot.checked).toBe(true);
   });
 
@@ -117,7 +117,7 @@ describe('WorkbenchPage', () => {
       target: { value: 'Hello from scope' },
     });
 
-    fireEvent.click(screen.getByLabelText('GitHub Copilot'));
+    fireEvent.click(screen.getByLabelText(/GitHub Copilot/i));
     fireEvent.click(screen.getByRole('button', { name: 'Compile' }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());

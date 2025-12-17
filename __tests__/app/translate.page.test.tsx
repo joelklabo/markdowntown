@@ -46,8 +46,8 @@ describe('TranslatePage', () => {
     const jsx = await TranslatePage({ searchParams: Promise.resolve({ target: 'github-copilot' }) });
     render(jsx);
 
-    const agents = screen.getByLabelText('AGENTS.md') as HTMLInputElement;
-    const copilot = screen.getByLabelText('GitHub Copilot') as HTMLInputElement;
+    const agents = screen.getByLabelText(/AGENTS\.md/i) as HTMLInputElement;
+    const copilot = screen.getByLabelText(/GitHub Copilot/i) as HTMLInputElement;
 
     expect(agents.checked).toBe(false);
     expect(copilot.checked).toBe(true);

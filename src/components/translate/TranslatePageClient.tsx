@@ -7,17 +7,17 @@ import { TranslateInput } from '@/components/translate/TranslateInput';
 import { TranslateOutput, type TranslateCompileResult } from '@/components/translate/TranslateOutput';
 import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 import { createZip } from '@/lib/compile/zip';
-import { wrapMarkdownAsGlobal, type UamV1 } from '@/lib/uam/uamTypes';
+import { createUamTargetV1, wrapMarkdownAsGlobal, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 
 type TranslatePageClientProps = {
   initialInput: string;
-  initialTargets: string[];
+  initialTargets: UamTargetV1[];
   initialError: string | null;
 };
 
 export function TranslatePageClient({ initialInput, initialTargets, initialError }: TranslatePageClientProps) {
   const [input, setInput] = useState(initialInput);
-  const [targets, setTargets] = useState<string[]>(initialTargets);
+  const [targets, setTargets] = useState<UamTargetV1[]>(initialTargets);
   const [result, setResult] = useState<TranslateCompileResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
@@ -50,7 +50,17 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
       : undefined;
 
   const toggleTarget = (t: string) => {
-    setTargets(prev => (prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]));
+    setTargets((prev) =>
+      prev.some((entry) => entry.targetId === t)
+        ? prev.filter((entry) => entry.targetId !== t)
+        : [...prev, createUamTargetV1(t)]
+    );
+  };
+
+  const updateTarget = (targetId: string, patch: Partial<Omit<UamTargetV1, 'targetId'>>) => {
+    setTargets((prev) =>
+      prev.map((entry) => (entry.targetId === targetId ? { ...entry, ...patch } : entry))
+    );
   };
 
   const handleCompile = async () => {
@@ -67,7 +77,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           uam: detected.uam,
-          targets: targets.map(targetId => ({ targetId })),
+          targets,
         }),
       });
 
@@ -108,6 +118,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
         <TranslateOutput
           targets={targets}
           onToggleTarget={toggleTarget}
+          onUpdateTarget={updateTarget}
           onCompile={handleCompile}
           onDownloadZip={handleDownload}
           loading={loading}
@@ -120,4 +131,3 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
     </Container>
   );
 }
-

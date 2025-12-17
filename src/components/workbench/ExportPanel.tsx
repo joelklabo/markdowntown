@@ -5,8 +5,10 @@ import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { FileTree } from '@/components/ui/FileTree';
+import { Input } from '@/components/ui/Input';
+import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
-import { createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
+import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 
 const COMPILE_DEBOUNCE_MS = 250;
 
@@ -19,6 +21,10 @@ function hasTarget(targets: UamTargetV1[], targetId: string) {
   return targets.some(t => t.targetId === targetId);
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export function ExportPanel() {
   const uam = useWorkbenchStore(s => s.uam);
   const setUam = useWorkbenchStore(s => s.setUam);
@@ -28,6 +34,8 @@ export function ExportPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [optionsErrors, setOptionsErrors] = useState<Record<string, string>>({});
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingUamRef = useRef<UamV1 | null>(null);
@@ -106,6 +114,11 @@ export function ExportPanel() {
     setUam(nextUam);
   };
 
+  const updateTarget = (targetId: string, patch: Partial<Omit<UamTargetV1, 'targetId'>>) => {
+    const nextTargets = uam.targets.map((target) => (target.targetId === targetId ? { ...target, ...patch } : target));
+    setUam({ ...uam, targets: nextTargets });
+  };
+
   const handleDownload = async () => {
     if (!result || result.files.length === 0) return;
     try {
@@ -126,12 +139,86 @@ export function ExportPanel() {
       <div>
         <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Targets</h3>
         <div className="space-y-2">
-          {TARGETS.map(t => (
-            <Checkbox key={t.targetId} checked={targetIds.includes(t.targetId)} onChange={() => toggleTarget(t.targetId)}>
-              {t.label}
+          {TARGETS.map((t) => {
+            const selected = uam.targets.find((target) => target.targetId === t.targetId) ?? null;
+            return (
+              <Checkbox key={t.targetId} checked={targetIds.includes(t.targetId)} onChange={() => toggleTarget(t.targetId)}>
+              <span className="inline-flex items-center gap-2">
+                <span>{t.label}</span>
+                {selected ? (
+                  <span aria-hidden className="font-mono text-[11px] text-gray-500">
+                    v{selected.adapterVersion}
+                  </span>
+                ) : null}
+              </span>
             </Checkbox>
-          ))}
+            );
+          })}
         </div>
+
+        <button
+          type="button"
+          className="mt-2 text-xs text-gray-500 underline underline-offset-4"
+          onClick={() => setShowAdvanced((value) => !value)}
+        >
+          {showAdvanced ? 'Hide advanced' : 'Advanced'}
+        </button>
+
+        {showAdvanced && uam.targets.length > 0 ? (
+          <div className="mt-3 space-y-3 rounded border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-3">
+            {uam.targets.map((target) => (
+              <div
+                key={target.targetId}
+                className="space-y-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-3"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="font-mono text-xs text-gray-700 dark:text-gray-300">{target.targetId}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs text-gray-500">Adapter</div>
+                    <Input
+                      size="sm"
+                      value={target.adapterVersion}
+                      onChange={(e) => {
+                        const next = e.target.value.trim();
+                        updateTarget(target.targetId, { adapterVersion: next.length > 0 ? next : DEFAULT_ADAPTER_VERSION });
+                      }}
+                      className="w-20 font-mono"
+                      aria-label={`Adapter version for ${target.targetId}`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Options (JSON)</div>
+                  <TextArea
+                    defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
+                    rows={4}
+                    className="font-mono text-xs"
+                    onBlur={(e) => {
+                      const text = e.target.value.trim();
+                      try {
+                        const parsed = text.length === 0 ? {} : JSON.parse(text);
+                        if (!isRecord(parsed)) throw new Error('Options must be an object');
+                        updateTarget(target.targetId, { options: parsed });
+                        setOptionsErrors((prev) => {
+                          const next = { ...prev };
+                          delete next[target.targetId];
+                          return next;
+                        });
+                      } catch {
+                        setOptionsErrors((prev) => ({ ...prev, [target.targetId]: 'Invalid JSON options' }));
+                      }
+                    }}
+                    aria-label={`Options for ${target.targetId}`}
+                  />
+                  {optionsErrors[target.targetId] ? (
+                    <div className="mt-1 text-xs text-red-500">{optionsErrors[target.targetId]}</div>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="flex gap-2 items-center flex-wrap">
@@ -219,4 +306,3 @@ export function ExportPanel() {
     </div>
   );
 }
-
