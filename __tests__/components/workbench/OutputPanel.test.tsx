@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import { createUamTargetV1 } from '@/lib/uam/uamTypes';
 
 // Mock createZip which is imported in ExportPanel
-vi.mock('@/lib/uam/compile/zip', () => ({
+vi.mock('@/lib/compile/zip', () => ({
   createZip: vi.fn().mockResolvedValue(new Blob([])),
 }));
 
@@ -18,9 +19,10 @@ describe('OutputPanel', () => {
     act(() => {
       useWorkbenchStore.getState().resetDraft();
       useWorkbenchStore.setState({
-        targets: ['agents-md'],
         compilationResult: null,
       });
+      const store = useWorkbenchStore.getState();
+      store.setUam({ ...store.uam, targets: [createUamTargetV1('agents-md')] });
     });
     vi.clearAllMocks();
     global.fetch = vi.fn();
@@ -44,14 +46,17 @@ describe('OutputPanel', () => {
   it('triggers compile', async () => {
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ files: [], warnings: [] }),
+      json: async () => ({ files: [{ path: 'AGENTS.md', content: 'hello' }], warnings: [], info: [] }),
     });
 
     render(<OutputPanel />);
     fireEvent.click(screen.getByText('Compile'));
     
     await waitFor(() => {
-      expect(screen.getByText('Download Zip')).toBeInTheDocument();
+      expect(screen.getByText('Manifest')).toBeInTheDocument();
+      expect(screen.getByText('hello')).toBeInTheDocument();
     });
+
+    expect(screen.getByRole('button', { name: 'Download zip' })).toBeEnabled();
   });
 });
