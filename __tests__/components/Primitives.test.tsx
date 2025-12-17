@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
+import { Select } from "@/components/ui/Select";
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerCloseButton, DrawerTrigger } from "@/components/ui/Drawer";
@@ -32,15 +33,32 @@ function DrawerHarness() {
 
 describe("UI primitives", () => {
 
-  it("renders Input and TextArea", () => {
+  it("renders form controls with size variants", () => {
     render(
       <div>
-        <Input placeholder="Email" />
-        <TextArea placeholder="Notes" />
+        <Input placeholder="Email" data-testid="input-md" />
+        <Input size="xs" placeholder="Email xs" data-testid="input-xs" />
+        <TextArea placeholder="Notes" data-testid="textarea-md" />
+        <TextArea size="xs" placeholder="Notes xs" data-testid="textarea-xs" />
+        <Select data-testid="select-md">
+          <option value="one">One</option>
+        </Select>
+        <Select size="sm" data-testid="select-sm">
+          <option value="two">Two</option>
+        </Select>
       </div>
     );
     expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Notes")).toBeInTheDocument();
+
+    expect(screen.getByTestId("input-md").className).toContain("h-mdt-10");
+    expect(screen.getByTestId("input-xs").className).toContain("h-mdt-8");
+
+    expect(screen.getByTestId("textarea-md").className).toContain("px-mdt-3");
+    expect(screen.getByTestId("textarea-xs").className).toContain("px-mdt-2");
+
+    expect(screen.getByTestId("select-md").className).toContain("h-mdt-10");
+    expect(screen.getByTestId("select-sm").className).toContain("h-mdt-9");
   });
 
   it("renders V2 typography primitives", () => {
