@@ -4,49 +4,79 @@ import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 
 describe('useWorkbenchStore', () => {
   beforeEach(() => {
-    // Reset store
     localStorage.clear();
-    useWorkbenchStore.setState({
-      blocks: [],
-      scopes: ['root'],
-      selectedScope: 'root',
-      selectedBlockId: null,
-      targets: [],
-      compilationResult: null,
-      autosaveStatus: 'idle',
-    }); // merge
+    act(() => {
+      useWorkbenchStore.getState().resetDraft();
+    });
   });
 
-  it('adds a block', () => {
+  it('stores UAM v1 as the source of truth', () => {
     const { result } = renderHook(() => useWorkbenchStore());
     
     act(() => {
-      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'test' });
+      result.current.setTitle('My Agent');
+      result.current.setDescription('My Description');
     });
 
-    expect(result.current.blocks).toHaveLength(1);
-    expect(result.current.blocks[0].content).toBe('test');
+    expect(result.current.uam.schemaVersion).toBe(1);
+    expect(result.current.uam.meta.title).toBe('My Agent');
+    expect(result.current.uam.meta.description).toBe('My Description');
   });
 
-  it('updates a block', () => {
+  it('adds scopes and blocks within the selected scope', () => {
     const { result } = renderHook(() => useWorkbenchStore());
     
+    let scopeId = '';
     act(() => {
-      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'test' });
-      result.current.updateBlock('b1', { content: 'updated' });
+      scopeId = result.current.addScope({ kind: 'glob', name: 'ts', patterns: ['src/**/*.ts'] });
+      result.current.selectScope(scopeId);
+      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'hello' });
     });
 
-    expect(result.current.blocks[0].content).toBe('updated');
+    const block = result.current.uam.blocks.find(b => b.id === 'b1');
+    expect(block?.scopeId).toBe(scopeId);
+    expect(block?.body).toBe('hello');
+
+    act(() => {
+      result.current.updateBlockBody('b1', 'updated');
+      result.current.updateBlockTitle('b1', 'Title');
+    });
+
+    const updated = result.current.uam.blocks.find(b => b.id === 'b1');
+    expect(updated?.body).toBe('updated');
+    expect(updated?.title).toBe('Title');
   });
 
-  it('removes a block', () => {
+  it('reorders blocks within a scope without moving other scopes', () => {
     const { result } = renderHook(() => useWorkbenchStore());
-    
+    let scopeA = '';
+    let scopeB = '';
+
     act(() => {
-      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'test' });
-      result.current.removeBlock('b1');
+      scopeA = result.current.addScope({ kind: 'glob', name: 'a', patterns: ['src/**/*.ts'] });
+      scopeB = result.current.addScope({ kind: 'dir', name: 'b', dir: 'docs' });
+
+      result.current.selectScope(scopeA);
+      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'one' });
+      result.current.addBlock({ id: 'b2', type: 'instruction', content: 'two' });
+
+      result.current.selectScope(scopeB);
+      result.current.addBlock({ id: 'b3', type: 'instruction', content: 'three' });
     });
 
-    expect(result.current.blocks).toHaveLength(0);
+    expect(result.current.blocks.map(b => b.id)).toEqual(['b1', 'b2', 'b3']);
+
+    act(() => {
+      result.current.moveBlock('b2', 0);
+    });
+
+    expect(result.current.blocks.map(b => b.id)).toEqual(['b2', 'b1', 'b3']);
+
+    act(() => {
+      result.current.removeScope(scopeA);
+    });
+
+    expect(result.current.blocks.map(b => b.id)).toEqual(['b3']);
+    expect(result.current.uam.blocks.map(b => b.id)).toEqual(['b3']);
   });
 });

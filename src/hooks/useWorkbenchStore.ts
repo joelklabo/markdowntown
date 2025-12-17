@@ -1,95 +1,548 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { UAMBlock, UAMScope } from '@/lib/uam/types';
-import { CompilationResult } from '@/lib/uam/adapters';
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
+import type { CompilationResult } from '@/lib/uam/adapters';
+import type { UAMBlock, UAMBlockType } from '@/lib/uam/types';
+import {
+  createEmptyUamV1,
+  createUamTargetV1,
+  GLOBAL_SCOPE_ID,
+  type UamBlockKindV1,
+  type UamBlockV1,
+  type UamScopeV1,
+  type UamTargetV1,
+  type UamV1,
+} from '@/lib/uam/uamTypes';
+
+type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+type BlockUpsertInput = Partial<UAMBlock> & {
+  scopeId?: string;
+  kind?: UamBlockKindV1;
+  title?: string;
+  body?: string;
+};
+
+type WorkbenchScopeInput =
+  | UamScopeV1
+  | {
+      id?: string;
+      kind: UamScopeV1['kind'];
+      name?: string;
+      dir?: string;
+      patterns?: string[];
+    };
+
+function safeLocalStorage(): StateStorage {
+  return {
+    getItem: (name) => (typeof localStorage === 'undefined' ? null : localStorage.getItem(name)),
+    setItem: (name, value) => {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(name, value);
+    },
+    removeItem: (name) => {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.removeItem(name);
+    },
+  };
+}
+
+function debounce<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delayMs: number) {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  return (...args: TArgs) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delayMs);
+  };
+}
+
+function randomId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+  return `id_${Math.random().toString(16).slice(2)}`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function normalizeDirScope(dir: string): string {
+  const normalized = dir.replace(/\\/g, '/').trim().replace(/^\.\/+/, '').replace(/\/+$/, '');
+  if (normalized === '' || normalized === '.' || normalized === '/') return '';
+  return normalized;
+}
+
+function legacyScopeLabel(scope: UamScopeV1): string {
+  if (scope.kind === 'global') return 'root';
+  if (scope.kind === 'dir') return normalizeDirScope(scope.dir);
+  return scope.patterns[0] ?? 'root';
+}
+
+function syncUamTargetsFromLegacy(targetIds: string[]): UamTargetV1[] {
+  return targetIds.map(targetId => createUamTargetV1(targetId));
+}
+
+function syncLegacyTargetsFromUam(targets: UamTargetV1[]): string[] {
+  return targets.map(t => t.targetId);
+}
+
+function syncLegacyBlocksFromUam(blocks: UamBlockV1[]): UAMBlock[] {
+  return blocks.map((b) => {
+    const legacyType = (b as unknown as { type?: UAMBlockType }).type ?? 'instruction';
+    const legacyContent = (b as unknown as { content?: string }).content ?? b.body;
+    return {
+      id: b.id,
+      type: legacyType,
+      content: legacyContent,
+    };
+  });
+}
+
+function syncUamBlocksFromLegacy(blocks: UAMBlock[], selectedScopeId: string): UamBlockV1[] {
+  return blocks.map((b) => ({
+    id: b.id,
+    scopeId: selectedScopeId,
+    kind: 'markdown',
+    body: b.content,
+    ...(b.type ? { type: b.type } : {}),
+    ...(b.content ? { content: b.content } : {}),
+  })) as unknown as UamBlockV1[];
+}
+
+function ensureGlobalScope(uam: UamV1): UamV1 {
+  if (uam.scopes.some(s => s.id === GLOBAL_SCOPE_ID)) return uam;
+  return {
+    ...uam,
+    scopes: [{ id: GLOBAL_SCOPE_ID, kind: 'global', name: 'Global' }, ...uam.scopes],
+  };
+}
+
+function ensureSelectedScopeId(uam: UamV1, selectedScopeId: string | null | undefined): string {
+  if (selectedScopeId && uam.scopes.some(s => s.id === selectedScopeId)) return selectedScopeId;
+  return uam.scopes.some(s => s.id === GLOBAL_SCOPE_ID) ? GLOBAL_SCOPE_ID : (uam.scopes[0]?.id ?? GLOBAL_SCOPE_ID);
+}
+
+function normalizeWorkbenchUam(uam: UamV1): UamV1 {
+  const withGlobal = ensureGlobalScope(uam);
+  return {
+    ...withGlobal,
+    meta: {
+      title: withGlobal.meta.title ?? 'Untitled Agent',
+      description: withGlobal.meta.description ?? '',
+    },
+  };
+}
+
+type PersistedWorkbenchState = {
+  id?: string;
+  uam: UamV1;
+  selectedScopeId?: string;
+  selectedBlockId?: string | null;
+};
 
 interface WorkbenchState {
   id?: string;
+  uam: UamV1;
+
+  // Legacy/compat fields (kept in sync with `uam`)
   title: string;
   description: string;
+  scopes: string[];
   blocks: UAMBlock[];
-  scopes: UAMScope[];
+  targets: string[];
+
+  // Selection
+  selectedScopeId: string;
   selectedScope: string | null;
   selectedBlockId: string | null;
-  targets: string[];
+
   compilationResult: CompilationResult | null;
-  autosaveStatus: 'idle' | 'saving' | 'saved' | 'error';
-  
+  autosaveStatus: AutosaveStatus;
+  lastSavedAt: number | null;
+
   // Actions
   setId: (id?: string) => void;
   setTitle: (title: string) => void;
   setDescription: (desc: string) => void;
-  addBlock: (block: UAMBlock) => void;
-  updateBlock: (id: string, updates: Partial<UAMBlock>) => void;
+
+  setUam: (uam: UamV1) => void;
+
+  addScope: (scope: WorkbenchScopeInput) => string;
+  removeScope: (scopeId: string) => void;
+  selectScope: (scopeId: string | null) => void;
+
+  addBlock: (block: BlockUpsertInput) => string;
+  updateBlock: (id: string, updates: BlockUpsertInput) => void;
+  updateBlockBody: (id: string, body: string) => void;
+  updateBlockTitle: (id: string, title?: string) => void;
   removeBlock: (id: string) => void;
   moveBlock: (id: string, newIndex: number) => void;
-  
-  addScope: (scope: UAMScope) => void;
-  removeScope: (scope: UAMScope) => void;
-  selectScope: (scope: string | null) => void;
-  
+
   selectBlock: (id: string | null) => void;
-  
-  toggleTarget: (target: string) => void;
+
+  toggleTarget: (targetId: string) => void;
   setCompilationResult: (result: CompilationResult | null) => void;
-  setAutosaveStatus: (status: 'idle' | 'saving' | 'saved' | 'error') => void;
+  setAutosaveStatus: (status: AutosaveStatus) => void;
+  resetDraft: () => void;
 }
+
+const AUTOSAVE_DEBOUNCE_MS = 500;
 
 export const useWorkbenchStore = create<WorkbenchState>()(
   persist(
-    (set) => ({
-      id: undefined,
-      title: 'Untitled Agent',
-      description: '',
-      blocks: [],
-      scopes: ['root'],
-      selectedScope: 'root',
-      selectedBlockId: null,
-      targets: [],
-      compilationResult: null,
-      autosaveStatus: 'idle',
+    (set, get) => {
+      const markDirty = () => {
+        const status = get().autosaveStatus;
+        if (status !== 'saving') set({ autosaveStatus: 'saving' });
+      };
 
-      setId: (id) => set({ id }),
-      setTitle: (title) => set({ title }),
-      setDescription: (description) => set({ description }),
+      const onPersisted = debounce(() => {
+        set({ autosaveStatus: 'saved', lastSavedAt: Date.now() });
+      }, AUTOSAVE_DEBOUNCE_MS);
 
-      addBlock: (block) => set((state) => ({ blocks: [...state.blocks, block] })),
-      updateBlock: (id, updates) => set((state) => ({
-        blocks: state.blocks.map(b => b.id === id ? { ...b, ...updates } : b)
-      })),
-      removeBlock: (id) => set((state) => ({
-        blocks: state.blocks.filter(b => b.id !== id)
-      })),
-      moveBlock: (id, newIndex) => set((state) => {
-        const blocks = [...state.blocks];
-        const index = blocks.findIndex(b => b.id === id);
-        if (index === -1) return {};
-        const [moved] = blocks.splice(index, 1);
-        blocks.splice(newIndex, 0, moved);
-        return { blocks };
-      }),
+      return {
+        id: undefined,
+        uam: createEmptyUamV1({ title: 'Untitled Agent' }),
 
-      addScope: (scope) => set((state) => ({ 
-        scopes: state.scopes.includes(scope) ? state.scopes : [...state.scopes, scope] 
-      })),
-      removeScope: (scope) => set((state) => ({
-        scopes: state.scopes.filter(s => s !== scope),
-        selectedScope: state.selectedScope === scope ? 'root' : state.selectedScope
-      })),
-      selectScope: (scope) => set({ selectedScope: scope }),
+        title: 'Untitled Agent',
+        description: '',
+        scopes: ['root'],
+        blocks: [],
+        targets: [],
 
-      selectBlock: (id) => set({ selectedBlockId: id }),
+        selectedScopeId: GLOBAL_SCOPE_ID,
+        selectedScope: 'root',
+        selectedBlockId: null,
 
-      toggleTarget: (target) => set((state) => ({
-        targets: state.targets.includes(target) 
-          ? state.targets.filter(t => t !== target) 
-          : [...state.targets, target]
-      })),
-      setCompilationResult: (result) => set({ compilationResult: result }),
-      setAutosaveStatus: (status) => set({ autosaveStatus: status }),
-    }),
+        compilationResult: null,
+        autosaveStatus: 'idle',
+        lastSavedAt: null,
+
+        setId: (id) => set({ id }),
+
+        setTitle: (title) => {
+          set((state) => ({
+            title,
+            uam: { ...state.uam, meta: { ...state.uam.meta, title } },
+          }));
+          markDirty();
+          onPersisted();
+        },
+
+        setDescription: (description) => {
+          set((state) => ({
+            description,
+            uam: { ...state.uam, meta: { ...state.uam.meta, description } },
+          }));
+          markDirty();
+          onPersisted();
+        },
+
+        setUam: (uam) => {
+          const normalized = normalizeWorkbenchUam(uam);
+          const selectedScopeId = ensureSelectedScopeId(normalized, get().selectedScopeId);
+          const scopes = normalized.scopes.map(legacyScopeLabel);
+          const blocks = syncLegacyBlocksFromUam(normalized.blocks);
+          const targets = syncLegacyTargetsFromUam(normalized.targets);
+
+          set({
+            uam: normalized,
+            selectedScopeId,
+            selectedScope: legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
+            title: normalized.meta.title,
+            description: normalized.meta.description ?? '',
+            scopes,
+            blocks,
+            targets,
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        addScope: (scopeInput) => {
+          const scope: UamScopeV1 = (() => {
+            if ('id' in scopeInput && 'kind' in scopeInput) {
+              return scopeInput as UamScopeV1;
+            }
+
+            const id = (scopeInput as { id?: string }).id ?? randomId();
+            if (scopeInput.kind === 'global') return { id, kind: 'global', name: scopeInput.name };
+            if (scopeInput.kind === 'dir') return { id, kind: 'dir', dir: scopeInput.dir ?? '', name: scopeInput.name };
+            return { id, kind: 'glob', patterns: scopeInput.patterns ?? [], name: scopeInput.name };
+          })();
+
+          set((state) => {
+            if (state.uam.scopes.some(s => s.id === scope.id)) return {};
+            const uam = { ...state.uam, scopes: [...state.uam.scopes, scope] };
+            return { uam, scopes: uam.scopes.map(legacyScopeLabel) };
+          });
+          markDirty();
+          onPersisted();
+          return scope.id;
+        },
+
+        removeScope: (scopeId) => {
+          set((state) => {
+            const remainingScopes = state.uam.scopes.filter(s => s.id !== scopeId);
+            const remainingBlocks = state.uam.blocks.filter(b => b.scopeId !== scopeId);
+            const normalized = ensureGlobalScope({ ...state.uam, scopes: remainingScopes, blocks: remainingBlocks });
+            const selectedScopeId = ensureSelectedScopeId(normalized, state.selectedScopeId === scopeId ? null : state.selectedScopeId);
+
+            return {
+              uam: normalized,
+              selectedScopeId,
+              selectedScope:
+                legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
+              scopes: normalized.scopes.map(legacyScopeLabel),
+              blocks: syncLegacyBlocksFromUam(remainingBlocks),
+              selectedBlockId: remainingBlocks.some(b => b.id === state.selectedBlockId) ? state.selectedBlockId : null,
+            };
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        selectScope: (scopeId) => {
+          set((state) => {
+            if (!scopeId) {
+              return { selectedScopeId: state.selectedScopeId, selectedScope: state.selectedScope };
+            }
+            const scope = state.uam.scopes.find(s => s.id === scopeId);
+            if (!scope) return {};
+            return { selectedScopeId: scopeId, selectedScope: legacyScopeLabel(scope) };
+          });
+          onPersisted();
+        },
+
+        addBlock: (blockInput) => {
+          const id = blockInput.id ?? randomId();
+          const type: UAMBlockType = (blockInput.type as UAMBlockType | undefined) ?? 'instruction';
+          const content = blockInput.content ?? blockInput.body ?? '';
+          const scopeId = blockInput.scopeId ?? get().selectedScopeId;
+          const kind: UamBlockKindV1 = blockInput.kind ?? 'markdown';
+
+          const uamBlock: UamBlockV1 = {
+            id,
+            scopeId,
+            kind,
+            title: blockInput.title,
+            body: content,
+            ...(blockInput.type ? { type: blockInput.type } : {}),
+            ...(blockInput.content ? { content: blockInput.content } : {}),
+          } as unknown as UamBlockV1;
+
+          set((state) => ({
+            blocks: [...state.blocks, { id, type, content }],
+            uam: { ...state.uam, blocks: [...state.uam.blocks, uamBlock] },
+          }));
+          markDirty();
+          onPersisted();
+          return id;
+        },
+
+        updateBlock: (id, updates) => {
+          set((state) => {
+            const blocks = state.blocks.map(b => {
+              if (b.id !== id) return b;
+              return {
+                ...b,
+                ...(updates.type ? { type: updates.type as UAMBlockType } : {}),
+                ...(typeof updates.content === 'string' ? { content: updates.content } : {}),
+              };
+            });
+
+            const uamBlocks = state.uam.blocks.map(b => {
+              if (b.id !== id) return b;
+              const nextBody = typeof updates.body === 'string' ? updates.body : typeof updates.content === 'string' ? updates.content : b.body;
+              const nextTitle = updates.title ?? b.title;
+              const nextKind = updates.kind ?? b.kind;
+              const nextScopeId = updates.scopeId ?? b.scopeId;
+              return {
+                ...b,
+                ...(updates.type ? { type: updates.type } : {}),
+                ...(typeof updates.content === 'string' ? { content: updates.content } : {}),
+                body: nextBody,
+                title: nextTitle,
+                kind: nextKind,
+                scopeId: nextScopeId,
+              } as unknown as UamBlockV1;
+            });
+
+            return { blocks, uam: { ...state.uam, blocks: uamBlocks } };
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        updateBlockBody: (id, body) => {
+          get().updateBlock(id, { body, content: body });
+        },
+
+        updateBlockTitle: (id, title) => {
+          get().updateBlock(id, { title });
+        },
+
+        removeBlock: (id) => {
+          set((state) => ({
+            blocks: state.blocks.filter(b => b.id !== id),
+            uam: { ...state.uam, blocks: state.uam.blocks.filter(b => b.id !== id) },
+            selectedBlockId: state.selectedBlockId === id ? null : state.selectedBlockId,
+          }));
+          markDirty();
+          onPersisted();
+        },
+
+        moveBlock: (id, newIndex) => {
+          set((state) => {
+            const scopeIdByBlockId = new Map(state.uam.blocks.map(b => [b.id, b.scopeId] as const));
+            const scopeId = scopeIdByBlockId.get(id);
+            if (!scopeId) return {};
+
+            const indices: number[] = [];
+            const scopedBlocks: UAMBlock[] = [];
+            state.blocks.forEach((b, idx) => {
+              if (scopeIdByBlockId.get(b.id) === scopeId) {
+                indices.push(idx);
+                scopedBlocks.push(b);
+              }
+            });
+
+            const fromIndex = scopedBlocks.findIndex(b => b.id === id);
+            if (fromIndex === -1) return {};
+
+            const nextScoped = [...scopedBlocks];
+            const [moved] = nextScoped.splice(fromIndex, 1);
+            nextScoped.splice(newIndex, 0, moved);
+
+            const nextBlocks = [...state.blocks];
+            indices.forEach((originalIdx, i) => {
+              nextBlocks[originalIdx] = nextScoped[i]!;
+            });
+
+            const nextUamBlocks = state.uam.blocks
+              .slice()
+              .sort((a, b) => nextBlocks.findIndex(lb => lb.id === a.id) - nextBlocks.findIndex(lb => lb.id === b.id));
+
+            return { blocks: nextBlocks, uam: { ...state.uam, blocks: nextUamBlocks } };
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        selectBlock: (id) => {
+          set({ selectedBlockId: id });
+          onPersisted();
+        },
+
+        toggleTarget: (targetId) => {
+          set((state) => {
+            const next = state.targets.includes(targetId)
+              ? state.targets.filter(t => t !== targetId)
+              : [...state.targets, targetId];
+            return { targets: next, uam: { ...state.uam, targets: syncUamTargetsFromLegacy(next) } };
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        setCompilationResult: (result) => set({ compilationResult: result }),
+        setAutosaveStatus: (status) => set({ autosaveStatus: status }),
+
+        resetDraft: () => {
+          const uam = createEmptyUamV1({ title: 'Untitled Agent' });
+          set({
+            id: undefined,
+            uam,
+            title: uam.meta.title,
+            description: uam.meta.description ?? '',
+            scopes: ['root'],
+            blocks: [],
+            targets: [],
+            selectedScopeId: GLOBAL_SCOPE_ID,
+            selectedScope: 'root',
+            selectedBlockId: null,
+            compilationResult: null,
+            autosaveStatus: 'idle',
+            lastSavedAt: null,
+          });
+          onPersisted();
+        },
+      };
+    },
     {
       name: 'workbench-storage',
+      version: 2,
+      storage: createJSONStorage(() => safeLocalStorage()),
+      partialize: (state): PersistedWorkbenchState => ({
+        id: state.id,
+        uam: state.uam,
+        selectedScopeId: state.selectedScopeId,
+        selectedBlockId: state.selectedBlockId,
+      }),
+      migrate: (persistedState, version) => {
+        const raw = (persistedState as { state?: unknown })?.state ?? persistedState;
+
+        if (version >= 2 && isRecord(raw) && 'uam' in raw) {
+          const persisted = raw as PersistedWorkbenchState;
+          const normalized = normalizeWorkbenchUam(persisted.uam);
+          return {
+            id: persisted.id,
+            uam: normalized,
+            selectedBlockId: persisted.selectedBlockId ?? null,
+            selectedScopeId: persisted.selectedScopeId,
+          } satisfies PersistedWorkbenchState;
+        }
+
+        // Legacy v0/v1 store migration (pre-UAM v1)
+        const legacy = raw as Partial<{
+          id?: string;
+          title?: string;
+          description?: string;
+          blocks?: UAMBlock[];
+          scopes?: string[];
+          selectedScope?: string | null;
+          selectedBlockId?: string | null;
+          targets?: string[];
+        }>;
+
+        const base = createEmptyUamV1({
+          title: legacy.title ?? 'Untitled Agent',
+          description: legacy.description ?? '',
+        });
+
+        const selectedScopeId = GLOBAL_SCOPE_ID;
+        const blocks = legacy.blocks ?? [];
+        const uamBlocks = syncUamBlocksFromLegacy(blocks, selectedScopeId);
+
+        const targets = legacy.targets ?? [];
+        const uamTargets = syncUamTargetsFromLegacy(targets);
+
+        const uam = normalizeWorkbenchUam({ ...base, blocks: uamBlocks, targets: uamTargets });
+
+        return {
+          id: legacy.id,
+          uam,
+          selectedBlockId: legacy.selectedBlockId ?? null,
+          selectedScopeId,
+        } satisfies PersistedWorkbenchState;
+      },
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState as unknown as PersistedWorkbenchState) ?? {};
+        const next = { ...currentState, ...persisted } as WorkbenchState;
+
+        const normalized = normalizeWorkbenchUam(next.uam);
+        const selectedScopeId = ensureSelectedScopeId(normalized, next.selectedScopeId);
+
+        return {
+          ...next,
+          uam: normalized,
+          selectedScopeId,
+          selectedScope:
+            legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
+          title: normalized.meta.title,
+          description: normalized.meta.description ?? '',
+          scopes: normalized.scopes.map(legacyScopeLabel),
+          blocks: syncLegacyBlocksFromUam(normalized.blocks),
+          targets: syncLegacyTargetsFromUam(normalized.targets),
+        };
+      },
     }
   )
 );
