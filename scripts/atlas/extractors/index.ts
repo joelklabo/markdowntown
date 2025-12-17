@@ -1,4 +1,5 @@
 import type { AtlasExtractor } from "./types.ts";
+import { copilotDocsInstructionsExtractor } from "./copilot_docs_instructions.ts";
 
 const noopExtractor: AtlasExtractor = {
   sourceId: "__noop__",
@@ -15,3 +16,4 @@ export function getExtractor(sourceId: string): AtlasExtractor {
   return registry.get(sourceId) ?? { ...noopExtractor, sourceId };
 }
 
+registerExtractor(copilotDocsInstructionsExtractor);
