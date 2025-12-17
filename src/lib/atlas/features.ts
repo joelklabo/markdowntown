@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { AtlasPlatformIdSchema } from './schema';
-import type { AtlasPlatformId } from './types';
+import { AtlasPlatformIdSchema } from './schema.ts';
+import type { AtlasPlatformId } from './types.ts';
 
 export const ATLAS_FEATURES = [
   { id: 'repo-instructions', label: 'Repo instructions' },

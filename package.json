@@ -20,7 +20,7 @@
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "test:visual": "npx playwright test --config=playwright-visual.config.ts",
-    "atlas:validate": "node scripts/atlas/validate.mjs",
+    "atlas:validate": "node --no-warnings scripts/atlas/validate.ts",
     "atlas:index": "node scripts/atlas/index.mjs",
     "atlas:fetch": "node scripts/atlas/fetch.mjs",
     "atlas:extract": "node scripts/atlas/extract.mjs",

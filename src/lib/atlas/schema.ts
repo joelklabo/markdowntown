@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ATLAS_FACTS_SCHEMA_VERSION, type PlatformFacts } from './types';
+import { ATLAS_FACTS_SCHEMA_VERSION, type PlatformFacts } from './types.ts';
 
 export const AtlasPlatformIdSchema = z.enum([
   'github-copilot',
@@ -64,4 +64,3 @@ export function parsePlatformFacts(input: unknown): PlatformFacts {
 export function safeParsePlatformFacts(input: unknown) {
   return PlatformFactsSchema.safeParse(input);
 }
-

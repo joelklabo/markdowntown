@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ZodError } from 'zod';
-import { AtlasPlatformIdSchema, parsePlatformFacts } from './schema';
-import { parseAtlasCrosswalk } from './features';
-import type { AtlasCrosswalk } from './features';
-import type { AtlasPlatformId, PlatformFacts } from './types';
+import { AtlasPlatformIdSchema, parsePlatformFacts } from './schema.ts';
+import { parseAtlasCrosswalk } from './features.ts';
+import type { AtlasCrosswalk } from './features.ts';
+import type { AtlasPlatformId, PlatformFacts } from './types.ts';
 
 export type AtlasLoadOptions = {
   atlasDir?: string;

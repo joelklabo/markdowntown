@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ZodError, z } from "zod";
 import { parse as parseYaml } from "yaml";
-import { AtlasPlatformIdSchema } from "./schema";
+import { AtlasPlatformIdSchema } from "./schema.ts";
 
 export const ATLAS_SOURCES_SCHEMA_VERSION = 1 as const;
 
@@ -87,4 +87,3 @@ export function loadAtlasSources(options?: { atlasDir?: string }): AtlasSourcesF
     throw error;
   }
 }
-
