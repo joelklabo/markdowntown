@@ -144,12 +144,8 @@ jobs:
             cov_line = "- Coverage: summary not found"
 
           summary_path.write_text(
-            \"\"\"## CI Summary
-
-          {test_line}
-          {cov_line}
-          \"\"\".format(test_line=test_line, cov_line=cov_line).strip() + \"\\n\",
-            encoding=\"utf-8\",
+            f"## CI Summary\n\n{test_line}\n{cov_line}\n",
+            encoding="utf-8",
           )
           PY
 
