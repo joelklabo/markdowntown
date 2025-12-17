@@ -17,6 +17,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.repository == 'joelklabo/markdowntown'
     permissions:
       contents: read
       id-token: write

@@ -88,11 +88,15 @@ jobs:
         run: pnpm test:coverage
 
       - name: Upload coverage to Codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        if: ${{ env.CODECOV_TOKEN != '' }}
+        if: ${{ secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           fail_ci_if_error: false
           verbose: true
+
+      - name: Codecov skipped (missing token)
+        if: ${{ secrets.CODECOV_TOKEN == '' }}
+        run: |
+          echo "Codecov upload skipped: \`CODECOV_TOKEN\` is not available in this context." >> "$GITHUB_STEP_SUMMARY"
