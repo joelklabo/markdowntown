@@ -21,7 +21,7 @@ export type PublicItem = {
 
 export type PublicItemDetail = PublicItem & {
   content: unknown;
-  version: number;
+  version: string;
 };
 
 export type ListPublicItemsInput = {
@@ -36,6 +36,19 @@ function normalizeInputTags(input?: unknown): string[] {
   return normalizeTags(input, { strict: false }).tags;
 }
 
+const artifactTypeByPublicType: Record<PublicItemType, ArtifactType> = {
+  snippet: 'MODULE',
+  template: 'TEMPLATE',
+  file: 'ARTIFACT',
+  agent: 'ARTIFACT',
+};
+
+function toPublicType(t: ArtifactType): PublicItemType {
+  if (t === 'TEMPLATE') return 'template';
+  if (t === 'MODULE') return 'snippet';
+  return 'agent';
+}
+
 async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<PublicItem[]> {
   const { limit = 30, tags = [], type = "all", sort = "recent", search = null } = input;
   const normalizedTags = normalizeInputTags(tags);
@@ -44,19 +57,12 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
     return [];
   }
 
-  const typeMap: Record<string, ArtifactType> = {
-    snippet: 'SNIPPET',
-    template: 'TEMPLATE',
-    file: 'DOCUMENT',
-    agent: 'AGENT'
-  };
-
   const where: Prisma.ArtifactWhereInput = {
     visibility: 'PUBLIC',
   };
 
-  if (type !== 'all' && typeMap[type]) {
-    where.type = typeMap[type];
+  if (type !== 'all' && artifactTypeByPublicType[type]) {
+    where.type = artifactTypeByPublicType[type];
   }
 
   if (normalizedTags.length > 0) {
@@ -93,7 +99,7 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
         copies: a.copies,
         votes: a.votesUp || 0,
       },
-      type: (a.type === 'DOCUMENT' ? 'file' : a.type.toLowerCase()) as PublicItemType,
+      type: toPublicType(a.type),
       createdAt: a.createdAt,
     }));
   } catch (err) {
@@ -113,7 +119,7 @@ async function getPublicItemRaw(slug: string): Promise<PublicItemDetail | null> 
       },
       include: {
         versions: {
-          orderBy: { version: 'desc' },
+          orderBy: { createdAt: 'desc' },
           take: 1,
         },
       },
@@ -133,10 +139,10 @@ async function getPublicItemRaw(slug: string): Promise<PublicItemDetail | null> 
         copies: artifact.copies,
         votes: artifact.votesUp || 0,
       },
-      type: (artifact.type === 'DOCUMENT' ? 'file' : artifact.type.toLowerCase()) as PublicItemType,
+      type: toPublicType(artifact.type),
       createdAt: artifact.createdAt,
-      content: latest?.content ?? {},
-      version: latest?.version ?? 0,
+      content: latest?.uam ?? {},
+      version: latest?.version ?? "draft",
     };
   } catch (err) {
     console.warn("getPublicItem: error", err);

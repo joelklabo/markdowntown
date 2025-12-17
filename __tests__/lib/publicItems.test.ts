@@ -20,7 +20,7 @@ describe("listPublicItems", () => {
         {
           id: "s1",
           slug: "s1",
-          type: "SNIPPET",
+          type: "MODULE",
           title: "Snippet One",
           description: "Hello",
           tags: ["System Prompt"],
@@ -45,7 +45,7 @@ describe("listPublicItems", () => {
         {
           id: "d1",
           slug: "d1",
-          type: "DOCUMENT",
+          type: "ARTIFACT",
           title: "Doc",
           description: "Doc desc",
           tags: ["file"],
@@ -67,7 +67,7 @@ describe("listPublicItems", () => {
     const tags = items.flatMap((i) => i.tags);
     expect(tags).toContain("system-prompt");
     expect(tags).toContain("style");
-    expect(items.map((i) => i.type)).toEqual(expect.arrayContaining(["snippet", "template", "file"]));
+    expect(items.map((i) => i.type)).toEqual(expect.arrayContaining(["snippet", "template", "agent"]));
   });
 
   it("limits to a specific type", async () => {

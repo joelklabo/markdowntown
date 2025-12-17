@@ -10,9 +10,7 @@ export function WorkbenchHeader() {
   const { data: session } = useSession();
   const id = useWorkbenchStore(s => s.id);
   const title = useWorkbenchStore(s => s.title);
-  const description = useWorkbenchStore(s => s.description);
-  const blocks = useWorkbenchStore(s => s.blocks);
-  const scopes = useWorkbenchStore(s => s.scopes);
+  const uam = useWorkbenchStore(s => s.uam);
   
   const setTitle = useWorkbenchStore(s => s.setTitle);
   const setId = useWorkbenchStore(s => s.setId);
@@ -29,16 +27,9 @@ export function WorkbenchHeader() {
       const payload = {
         id,
         title,
-        description,
         tags: [],
         visibility: 'PRIVATE',
-        content: {
-          kind: 'UniversalAgent',
-          apiVersion: 'v1',
-          metadata: { name: title, description },
-          scopes,
-          blocks,
-        },
+        uam,
         message: 'Saved via Workbench',
       };
 

@@ -41,11 +41,11 @@ describe('POST /api/artifacts/fork', () => {
       id: 'a1',
       title: 'Original',
       description: 'Desc',
-      type: 'AGENT',
+      type: 'ARTIFACT',
       visibility: 'PUBLIC',
       userId: 'u1',
       tags: ['tag1'],
-      versions: [{ version: 1, content: { foo: 'bar' } }],
+      versions: [{ version: '1', uam: { foo: 'bar' } }],
     });
 
     // Mock create response
@@ -70,9 +70,10 @@ describe('POST /api/artifacts/fork', () => {
       data: expect.objectContaining({
         title: 'Fork of Original',
         userId: 'u2',
+        forkedFromId: 'a1',
         versions: expect.objectContaining({
           create: expect.objectContaining({
-            content: { foo: 'bar' },
+            uam: { foo: 'bar' },
             message: expect.stringContaining('Forked from a1'),
           }),
         }),

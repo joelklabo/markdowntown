@@ -36,10 +36,9 @@ enum Visibility {
 }
 
 enum ArtifactType {
-  SNIPPET
   TEMPLATE
-  AGENT
-  DOCUMENT
+  MODULE
+  ARTIFACT
 }
 
 model Artifact {
@@ -50,6 +49,9 @@ model Artifact {
   description String?
   visibility  Visibility   @default(PRIVATE)
   tags        String[]     @default([])
+  targets     String[]     @default([])
+  hasScopes   Boolean      @default(false)
+  lintGrade   String?
   views       Int          @default(0)
   copies      Int          @default(0)
   downloads   Int          @default(0)
@@ -59,6 +61,10 @@ model Artifact {
   
   userId      String?
   user        User?        @relation(fields: [userId], references: [id])
+
+  forkedFromId String?
+  forkedFrom   Artifact?   @relation("ArtifactFork", fields: [forkedFromId], references: [id])
+  forks        Artifact[]  @relation("ArtifactFork")
   
   versions    ArtifactVersion[]
   
@@ -68,14 +74,19 @@ model Artifact {
   @@index([userId])
   @@index([visibility])
   @@index([type])
+  @@index([tags], type: Gin)
+  @@index([targets], type: Gin)
+  @@index([forkedFromId])
 }
 
 model ArtifactVersion {
   id          String   @id @default(cuid())
   artifactId  String
   artifact    Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
-  version     Int      @default(1)
-  content     Json
+  version     String   @default("draft")
+  uam         Json
+  compiled    Json?
+  lint        Json?
   message     String?
   createdAt   DateTime @default(now())
 

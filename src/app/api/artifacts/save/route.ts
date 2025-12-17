@@ -9,10 +9,10 @@ const SaveSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1),
   description: z.string().optional(),
-  type: z.nativeEnum(ArtifactType).default('AGENT'),
+  type: z.nativeEnum(ArtifactType).default('ARTIFACT'),
   visibility: z.nativeEnum(Visibility).default('PRIVATE'),
   tags: z.array(z.string()).default([]),
-  content: z.unknown(),
+  uam: z.unknown(),
   message: z.string().optional(),
 });
 
@@ -42,12 +42,16 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
 
-      // Calculate next version
-      const aggregate = await prisma.artifactVersion.aggregate({
+      // Calculate next numeric version (stored as a string). Ignore non-numeric versions like "draft".
+      const versions = await prisma.artifactVersion.findMany({
         where: { artifactId: body.id },
-        _max: { version: true },
+        select: { version: true },
       });
-      const nextVersion = (aggregate._max.version ?? 0) + 1;
+      const maxNumeric = versions.reduce((max, v) => {
+        const parsed = Number.parseInt(v.version, 10);
+        return Number.isFinite(parsed) ? Math.max(max, parsed) : max;
+      }, 0);
+      const nextVersion = String(maxNumeric + 1);
 
       artifact = await prisma.artifact.update({
         where: { id: body.id },
@@ -59,7 +63,7 @@ export async function POST(req: Request) {
           versions: {
             create: {
               version: nextVersion,
-              content: body.content as Prisma.InputJsonValue, // Json
+              uam: body.uam as Prisma.InputJsonValue, // JSON
               message: body.message,
             },
           },
@@ -77,8 +81,8 @@ export async function POST(req: Request) {
           userId: session.user.id,
           versions: {
             create: {
-              version: 1,
-              content: body.content as Prisma.InputJsonValue,
+              version: '1',
+              uam: body.uam as Prisma.InputJsonValue,
               message: body.message ?? 'Initial version',
             },
           },

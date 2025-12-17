@@ -19,7 +19,7 @@ vi.mock('@/lib/prisma', () => ({
       create: vi.fn(),
     },
     artifactVersion: {
-      aggregate: vi.fn(),
+      findMany: vi.fn(),
     },
   },
 }));
@@ -44,7 +44,7 @@ describe('POST /api/artifacts/save', () => {
       method: 'POST',
       body: JSON.stringify({
         title: 'New Agent',
-        content: { foo: 'bar' },
+        uam: { schemaVersion: 1, meta: { title: 'New Agent' }, scopes: [], blocks: [] },
       }),
     });
 
@@ -62,7 +62,7 @@ describe('POST /api/artifacts/save', () => {
   it('updates existing artifact', async () => {
     (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
     (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', userId: 'u1' });
-    (prisma.artifactVersion.aggregate as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ _max: { version: 1 } });
+    (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '1' }]);
     (prisma.artifact.update as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1' });
 
     const req = new Request('http://localhost', {
@@ -70,7 +70,7 @@ describe('POST /api/artifacts/save', () => {
       body: JSON.stringify({
         id: 'a1',
         title: 'Updated Agent',
-        content: { foo: 'baz' },
+        uam: { schemaVersion: 1, meta: { title: 'Updated Agent' }, scopes: [], blocks: [] },
       }),
     });
 
@@ -82,7 +82,7 @@ describe('POST /api/artifacts/save', () => {
         title: 'Updated Agent',
         versions: expect.objectContaining({
           create: expect.objectContaining({
-            version: 2,
+            version: '2',
           }),
         }),
       }),

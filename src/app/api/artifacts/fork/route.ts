@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       where: { id: body.artifactId },
       include: {
         versions: {
-          orderBy: { version: 'desc' },
+          orderBy: { createdAt: 'desc' },
           take: 1,
         },
       },
@@ -51,11 +51,12 @@ export async function POST(req: Request) {
         type: original.type,
         visibility: 'PRIVATE',
         tags: original.tags,
+        forkedFromId: original.id,
         userId: session.user.id,
         versions: {
           create: {
-            version: 1,
-            content: latestVersion.content as Prisma.InputJsonValue,
+            version: '1',
+            uam: latestVersion.uam as Prisma.InputJsonValue,
             message: `Forked from ${original.id} v${latestVersion.version}`,
           },
         },
