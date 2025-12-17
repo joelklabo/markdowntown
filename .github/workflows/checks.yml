@@ -14,6 +14,23 @@ jobs:
     steps:
       - run: echo "Workflow is running (smoke check)."
 
+  dependency_review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: smoke
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          config-file: .github/dependency-review.yml
+          fail-on-severity: high
+          fail-on-scopes: runtime
+
   atlas:
     runs-on: ubuntu-latest
     needs: smoke
