@@ -1,8 +1,12 @@
 import { EvidenceBadge } from "@/components/atlas/EvidenceBadge";
+import { DownloadExamplesZipButton } from "@/components/atlas/DownloadExamplesZipButton";
+import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Row, Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
+import type { AtlasPlatformId } from "@/lib/atlas/types";
 import type { PlatformFacts } from "@/lib/atlas/types";
+import Link from "next/link";
 
 function isoDate(value: string): string | null {
   const parsed = new Date(value);
@@ -12,10 +16,18 @@ function isoDate(value: string): string | null {
 
 type PlatformHeaderProps = {
   facts: PlatformFacts;
+  baselineExampleId: string | null;
+  defaultTargetId: string;
+  zipFiles: Array<{ platformId: AtlasPlatformId; fileName: string }>;
 };
 
-export function PlatformHeader({ facts }: PlatformHeaderProps) {
+export function PlatformHeader({ facts, baselineExampleId, defaultTargetId, zipFiles }: PlatformHeaderProps) {
   const lastVerified = isoDate(facts.lastVerified);
+  const translateHref = baselineExampleId
+    ? `/translate?target=${encodeURIComponent(defaultTargetId)}&example=${encodeURIComponent(baselineExampleId)}`
+    : `/translate?target=${encodeURIComponent(defaultTargetId)}`;
+
+  const workbenchHref = baselineExampleId ? `/workbench?templateId=${encodeURIComponent(baselineExampleId)}` : null;
 
   return (
     <header className="space-y-mdt-3">
@@ -41,6 +53,22 @@ export function PlatformHeader({ facts }: PlatformHeaderProps) {
           Platform facts from <span className="font-mono">atlas/facts/{facts.platformId}.json</span>.
         </Text>
       </Stack>
+
+      <Row gap={2} wrap>
+        <Button asChild size="sm" variant="secondary">
+          <Link href={translateHref}>Open in Translate</Link>
+        </Button>
+        {workbenchHref ? (
+          <Button asChild size="sm" variant="secondary">
+            <Link href={workbenchHref}>Open baseline template in Workbench</Link>
+          </Button>
+        ) : (
+          <Button size="sm" variant="secondary" disabled>
+            Open baseline template in Workbench
+          </Button>
+        )}
+        <DownloadExamplesZipButton files={zipFiles} downloadName={`atlas-${facts.platformId}-examples.zip`} />
+      </Row>
     </header>
   );
 }

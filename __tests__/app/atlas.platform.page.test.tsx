@@ -1,3 +1,4 @@
+import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
@@ -18,6 +19,21 @@ const { notFound } = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({
   notFound,
 }));
+
+vi.mock("next/link", () => {
+  type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string;
+    children: React.ReactNode;
+  };
+  return {
+    __esModule: true,
+    default: ({ href, children, ...rest }: LinkProps) => (
+      <a href={href} {...rest}>
+        {children}
+      </a>
+    ),
+  };
+});
 
 import AtlasPlatformPage from "@/app/atlas/platforms/[platformId]/page";
 
@@ -67,6 +83,16 @@ describe("AtlasPlatformPage", () => {
     render(jsx);
 
     expect(screen.getByRole("heading", { name: "GitHub Copilot" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open in Translate" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/translate?target=github-copilot")
+    );
+    expect(screen.getByRole("link", { name: "Open baseline template in Workbench" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/workbench?templateId=")
+    );
+
+    expect(screen.getAllByRole("button", { name: "Download example zip" }).length).toBeGreaterThan(0);
     expect(screen.getByText("Spec")).toBeInTheDocument();
     expect(screen.getByText("Artifacts")).toBeInTheDocument();
     expect(screen.getByText(".github/copilot-instructions.md")).toBeInTheDocument();
@@ -76,6 +102,8 @@ describe("AtlasPlatformPage", () => {
     expect(screen.getByText("Examples")).toBeInTheDocument();
     expect(screen.getByText("example.md")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy example example.md" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Translate" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Workbench" })).toBeInTheDocument();
   });
 
   it("calls notFound for unknown platformId", async () => {
