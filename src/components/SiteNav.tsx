@@ -16,6 +16,7 @@ const links = [
   { href: "/library", label: "Library" },
   { href: "/workbench", label: "Workbench" },
   { href: "/translate", label: "Translate" },
+  { href: "/atlas", label: "Atlas" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -138,6 +139,7 @@ export function SiteNav({ user }: { user?: User }) {
     { href: "/library", label: "Library", icon: "📚", type: "link" as const },
     { href: "/workbench", label: "Workbench", icon: "🛠️", type: "link" as const },
     { href: "/translate", label: "Translate", icon: "🌐", type: "link" as const },
+    { href: "/atlas", label: "Atlas", icon: "🧭", type: "link" as const },
     { label: "Search", icon: "⌘K", type: "search" as const },
   ];
 
