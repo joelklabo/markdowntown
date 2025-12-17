@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
@@ -10,9 +9,19 @@ function isBypassed(pathname: string) {
   return ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+function traceIdFromCrypto(): string {
+  try {
+    const maybeCrypto = globalThis.crypto as Crypto | undefined;
+    if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
+  } catch {
+    // ignore
+  }
+  return `trace_${Math.random().toString(16).slice(2)}${Date.now().toString(16)}`;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const traceId = req.headers.get("x-trace-id") ?? randomUUID();
+  const traceId = req.headers.get("x-trace-id") ?? traceIdFromCrypto();
 
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-trace-id", traceId);

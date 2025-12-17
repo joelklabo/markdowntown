@@ -6,6 +6,66 @@ import { ArtifactType, Prisma } from "@prisma/client";
 import { safeParseUamV1 } from "@/lib/uam/uamValidate";
 
 const isTestEnv = process.env.NODE_ENV === "test";
+const isDevEnv = process.env.NODE_ENV === "development";
+
+const DEMO_ITEM_SLUG = "visual-demo";
+
+function demoPublicItemDetail(slug: string): PublicItemDetail | null {
+  if (slug !== DEMO_ITEM_SLUG) return null;
+
+  const content = {
+    schemaVersion: 1,
+    meta: {
+      title: "Visual Demo Artifact",
+      description: "Deterministic demo artifact used for local visual snapshots.",
+      license: "MIT",
+    },
+    scopes: [
+      { id: "global", kind: "global", name: "Global" },
+      { id: "src", kind: "dir", dir: "src", name: "Source" },
+    ],
+    blocks: [
+      {
+        id: "block-global",
+        scopeId: "global",
+        kind: "markdown",
+        title: "System",
+        body: "You are a precise, friendly coding assistant. Keep responses concise and actionable.",
+      },
+      {
+        id: "block-src",
+        scopeId: "src",
+        kind: "checklist",
+        title: "Quality bar",
+        body: "- Run `pnpm test`\n- Run `pnpm lint`\n- Update docs when behavior changes",
+      },
+    ],
+    capabilities: [],
+    targets: [{ targetId: "agents-md" }, { targetId: "github-copilot" }],
+  };
+
+  const counts = countsFromUam(content);
+  const createdAt = new Date("2025-12-10T12:00:00Z");
+  const updatedAt = new Date("2025-12-15T12:00:00Z");
+
+  return {
+    ...counts,
+    id: DEMO_ITEM_SLUG,
+    slug: DEMO_ITEM_SLUG,
+    title: "Visual Demo Artifact",
+    description: "A stable artifact used to validate /a/[slug] layout in visual regression tests.",
+    tags: ["visual", "demo", "workbench"],
+    targets: ["agents-md", "github-copilot"],
+    hasScopes: true,
+    lintGrade: "A",
+    stats: { views: 1420, copies: 310, votes: 64 },
+    type: "agent",
+    createdAt,
+    updatedAt,
+    content,
+    version: "1",
+  };
+}
 
 export type PublicItemType = "snippet" | "template" | "file" | "agent";
 
@@ -169,7 +229,10 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
 }
 
 async function getPublicItemRaw(slug: string): Promise<PublicItemDetail | null> {
-  if (!hasDatabaseEnv) return null;
+  if (!hasDatabaseEnv) {
+    if (isDevEnv) return demoPublicItemDetail(slug);
+    return null;
+  }
 
   try {
     const artifact = await prisma.artifact.findFirst({
