@@ -63,10 +63,26 @@ if (!Number.isFinite(minutes) || minutes <= 0) {
 const thresholdMs = minutes * 60 * 1000;
 const nowMs = Date.now();
 
+function execBdJson(cmd) {
+  return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+}
+
 /** @type {Array<{id: string, status?: string, updated_at?: string, updatedAt?: string, title?: string}>} */
-const issues = JSON.parse(
-  execSync("bd list --status in_progress --json", { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
-);
+let issuesRaw = "";
+try {
+  issuesRaw = execBdJson("bd list --status in_progress --json");
+} catch (err) {
+  const stderr = String(err?.stderr ?? err?.output?.[2] ?? err?.message ?? "");
+  if (stderr.includes("Database out of sync with JSONL")) {
+    console.log("bd database out of sync; running `bd sync --import-only`…");
+    execSync("bd sync --import-only", { stdio: "inherit" });
+    issuesRaw = execBdJson("bd list --status in_progress --json");
+  } else {
+    throw err;
+  }
+}
+
+const issues = JSON.parse(issuesRaw);
 
 const stale = issues
   .map((issue) => {
