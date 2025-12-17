@@ -1,5 +1,6 @@
 import type { Adapter } from './types';
 import { agentsMdCodexAdapter } from './agentsMdCodex';
+import { githubCopilotAdapter } from './githubCopilot';
 
 export interface AdapterRegistry {
   register(adapter: Adapter): void;
@@ -37,6 +38,7 @@ export function createAdapterRegistry(): AdapterRegistry {
 
 export const adapterRegistry = createAdapterRegistry();
 adapterRegistry.register(agentsMdCodexAdapter);
+adapterRegistry.register(githubCopilotAdapter);
 
 export function registerAdapter(adapter: Adapter) {
   adapterRegistry.register(adapter);
@@ -53,3 +55,4 @@ export function listAdapters(targetId?: string) {
 export type { Adapter } from './types';
 export type { CompileResult, CompiledFile } from './types';
 export { agentsMdCodexAdapter } from './agentsMdCodex';
+export { githubCopilotAdapter } from './githubCopilot';
