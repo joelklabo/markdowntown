@@ -1,28 +1,14 @@
-import React from "react";
-import { cn } from "@/lib/cn";
+import { Callout } from "@/components/mdx/Callout";
+import { CodeBlock } from "@/components/mdx/CodeBlock";
+import { Evidence } from "@/components/mdx/Evidence";
+import { SpecCard } from "@/components/mdx/SpecCard";
 
-export const MDX_ALLOWED_COMPONENTS = new Set<string>(["CodeBlock"]);
-
-type CodeBlockProps = React.HTMLAttributes<HTMLPreElement> & {
-  children?: React.ReactNode;
-};
-
-export function CodeBlock({ className, children, ...props }: CodeBlockProps) {
-  return (
-    <pre
-      data-mdx-code-block
-      className={cn(
-        "mdx-code-block overflow-x-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-[11px] leading-relaxed text-mdt-text",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </pre>
-  );
-}
+export const MDX_ALLOWED_COMPONENTS = new Set<string>(["Callout", "SpecCard", "Evidence", "CodeBlock"]);
 
 export const MDX_COMPONENTS = {
   pre: CodeBlock,
   CodeBlock,
+  Callout,
+  SpecCard,
+  Evidence,
 };
