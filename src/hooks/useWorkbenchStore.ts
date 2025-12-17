@@ -142,6 +142,7 @@ type PersistedWorkbenchState = {
 interface WorkbenchState {
   id?: string;
   uam: UamV1;
+  baselineUam: UamV1 | null;
 
   // Legacy/compat fields (kept in sync with `uam`)
   title: string;
@@ -231,6 +232,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
       return {
         id: undefined,
         uam: createEmptyUamV1({ title: 'Untitled Agent' }),
+        baselineUam: null,
 
         title: 'Untitled Agent',
         description: '',
@@ -509,7 +511,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               state.setId(data.id);
             }
 
-            set({ cloudSaveStatus: 'saved', cloudLastSavedAt: Date.now() });
+            set({ cloudSaveStatus: 'saved', cloudLastSavedAt: Date.now(), baselineUam: state.uam });
             return data.id ?? null;
           } catch (err) {
             console.error(err);
@@ -523,6 +525,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           set({
             id: undefined,
             uam,
+            baselineUam: null,
             title: uam.meta.title,
             description: uam.meta.description ?? '',
             scopes: ['root'],
@@ -547,6 +550,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           set({
             id: undefined,
             ...deriveFromUam(normalized, null),
+            baselineUam: normalized,
             selectedBlockId: null,
             compilationResult: null,
             autosaveStatus: 'idle',
@@ -580,9 +584,11 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             const parsed = safeParseUamV1(uam);
             if (!parsed.success) throw new Error('Artifact has invalid UAM');
 
+            const normalized = normalizeWorkbenchUam(parsed.data);
             set({
               id: artifactId,
-              ...deriveFromUam(parsed.data, get().selectedScopeId),
+              ...deriveFromUam(normalized, get().selectedScopeId),
+              baselineUam: normalized,
               selectedBlockId: null,
               compilationResult: null,
               autosaveStatus: 'idle',
