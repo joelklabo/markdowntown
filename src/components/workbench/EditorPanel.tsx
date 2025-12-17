@@ -2,15 +2,16 @@
 
 import React from 'react';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
-import { TextArea } from '@/components/ui/TextArea';
-import { UAMBlockType } from '@/lib/uam/types';
-
-const BLOCK_TYPES: UAMBlockType[] = ['instruction', 'prompt', 'code', 'context'];
+import { Input } from '@/components/ui/Input';
+import { CodeEditor } from '@/components/ui/CodeEditor';
+import type { UamBlockKindV1 } from '@/lib/uam/uamTypes';
 
 export function EditorPanel() {
   const selectedBlockId = useWorkbenchStore(s => s.selectedBlockId);
-  const blocks = useWorkbenchStore(s => s.blocks);
+  const blocks = useWorkbenchStore(s => s.uam.blocks);
   const updateBlock = useWorkbenchStore(s => s.updateBlock);
+  const updateBlockBody = useWorkbenchStore(s => s.updateBlockBody);
+  const updateBlockTitle = useWorkbenchStore(s => s.updateBlockTitle);
 
   const block = blocks.find(b => b.id === selectedBlockId);
 
@@ -22,50 +23,73 @@ export function EditorPanel() {
     );
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-    
-    // Simple slash command: if content starts with /type, switch type
-    // Only if it was empty or we are typing at start?
-    // Let's do it if the whole content matches the pattern to avoid accidental triggers
-    if (val.startsWith('/')) {
-        const match = BLOCK_TYPES.find(t => val === `/${t} ` || val === `/${t}`);
-        if (match) {
-            updateBlock(block.id, { type: match, content: '' }); // Clear content after switch
-            return;
-        }
-    }
-    
-    updateBlock(block.id, { content: val });
+  const helpersByKind: Record<UamBlockKindV1, { placeholder: string; template?: string }> = {
+    markdown: { placeholder: 'Write Markdown instructions…' },
+    checklist: {
+      placeholder: 'Checklist items (Markdown)…',
+      template: '- [ ] Add item\n- [ ] Add item\n',
+    },
+    commands: {
+      placeholder: 'Commands to run (Markdown)…',
+      template: '```bash\npnpm test\n```\n',
+    },
+    'dos-donts': {
+      placeholder: "Dos and don'ts (Markdown)…",
+      template: '## Do\n- \n\n## Don’t\n- \n',
+    },
+    files: {
+      placeholder: 'Files to read/write (Markdown)…',
+      template: '- `src/...`\n- `__tests__/...`\n',
+    },
   };
 
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateBlock(block.id, { type: e.target.value as UAMBlockType });
+  const slashCommands: Array<{ cmd: string; kind: UamBlockKindV1 }> = [
+    { cmd: '/checklist', kind: 'checklist' },
+    { cmd: '/commands', kind: 'commands' },
+    { cmd: '/files', kind: 'files' },
+  ];
+
+  const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+
+    if (val.startsWith('/')) {
+      const match = slashCommands.find(s => val === s.cmd || val === `${s.cmd} `);
+      if (match) {
+        const template = helpersByKind[match.kind].template ?? '';
+        updateBlock(block.id, { kind: match.kind });
+        updateBlockBody(block.id, template);
+        return;
+      }
+    }
+
+    updateBlockBody(block.id, val);
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4 border-b border-mdt-border pb-2">
-        <select 
-          value={block.type} 
-          onChange={handleTypeChange}
-          className="text-body-sm border-none bg-transparent font-bold uppercase text-mdt-muted focus:ring-0 cursor-pointer hover:text-mdt-text"
-        >
-          {BLOCK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <span className="text-caption text-mdt-muted font-mono ml-auto">ID: {block.id.slice(0, 8)}</span>
+      <div className="flex items-center gap-2 mb-3">
+        <Input
+          value={block.title ?? ''}
+          onChange={(e) => updateBlockTitle(block.id, e.target.value || undefined)}
+          placeholder="Block title (optional)"
+          className="h-8"
+          aria-label="Block title"
+        />
+        <span className="text-[11px] text-mdt-muted font-mono whitespace-nowrap">
+          {block.kind.toUpperCase()}
+        </span>
       </div>
-      
-      <TextArea
-        value={block.content}
-        onChange={handleChange}
-        className="flex-1 font-mono text-body-sm resize-none border-none focus:ring-0 p-0 bg-transparent"
-        placeholder={`Type content for ${block.type}... (supports Markdown)`}
+
+      <CodeEditor
+        value={block.body}
+        onChange={handleBodyChange}
+        className="flex-1 resize-none border-none focus:ring-0 p-0 bg-transparent"
+        placeholder={helpersByKind[block.kind].placeholder}
         autoFocus
       />
-      
+
       <div className="mt-2 text-caption text-mdt-muted">
-        Tip: Type <code>/code</code>, <code>/prompt</code> to switch type.
+        Tip: Type <code>/checklist</code>, <code>/commands</code>, <code>/files</code> to switch kind.
       </div>
     </div>
   );
