@@ -2,12 +2,16 @@
 
 import { useDensity } from "@/providers/DensityProvider";
 import { Button } from "./ui/Button";
+import { Tooltip } from "./ui/Tooltip";
 
-export function DensityToggle() {
+type DensityToggleMode = "full" | "icon";
+
+export function DensityToggle({ mode = "full" }: { mode?: DensityToggleMode }) {
   const { density, toggleDensity } = useDensity();
   const isCompact = density === "compact";
+  const label = isCompact ? "Compact" : "Comfortable";
 
-  return (
+  const content = (
     <Button
       variant="ghost"
       size="xs"
@@ -18,8 +22,13 @@ export function DensityToggle() {
       className="gap-mdt-1"
     >
       <span aria-hidden>↕</span>
-      <span>{`Density: ${isCompact ? "Compact" : "Comfortable"}`}</span>
+      {mode === "full" ? <span>{`Density: ${label}`}</span> : <span className="sr-only">{`Density: ${label}`}</span>}
     </Button>
   );
-}
 
+  if (mode === "icon") {
+    return <Tooltip content={`Density: ${label}`}>{content}</Tooltip>;
+  }
+
+  return content;
+}

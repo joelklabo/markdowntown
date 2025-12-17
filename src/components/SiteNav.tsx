@@ -8,6 +8,7 @@ import { BrandLogo } from "./BrandLogo";
 import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
 import { ThemeToggle } from "./ThemeToggle";
+import { DensityToggle } from "./DensityToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
@@ -247,6 +248,9 @@ export function SiteNav({ user }: { user?: User }) {
               Command <span className="text-caption text-mdt-muted">⌘K</span>
             </Button>
             <div className="hidden md:block">
+              <DensityToggle mode="icon" />
+            </div>
+            <div className="hidden md:block">
               <ThemeToggle />
             </div>
             {user ? (
@@ -484,6 +488,7 @@ export function SiteNav({ user }: { user?: User }) {
               >
                 Search
               </Button>
+              <DensityToggle />
             </div>
             <div className="grid grid-cols-2 gap-3">
               {overflowLinks.map((link) => (
