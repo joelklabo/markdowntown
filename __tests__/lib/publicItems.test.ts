@@ -30,6 +30,7 @@ describe("listPublicItems", () => {
         copies: 2,
         votesUp: 3,
         createdAt: now,
+        updatedAt: now,
         versions: [
           {
             uam: {
@@ -62,6 +63,7 @@ describe("listPublicItems", () => {
         copies: 4,
         votesUp: 0,
         createdAt: now,
+        updatedAt: now,
         versions: [
           {
             uam: {
@@ -87,6 +89,7 @@ describe("listPublicItems", () => {
         copies: 9,
         votesUp: 2,
         createdAt: now,
+        updatedAt: now,
         versions: [],
       },
     ]);

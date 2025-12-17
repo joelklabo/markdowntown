@@ -23,6 +23,7 @@ export type PublicItem = {
   stats: { views: number; copies: number; votes: number };
   type: PublicItemType;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export type PublicItemDetail = PublicItem & {
@@ -159,6 +160,7 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
       },
       type: toPublicType(a.type),
       createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
     }));
   } catch (err) {
     console.warn("publicItems: error fetching artifacts", err);
@@ -186,6 +188,7 @@ async function getPublicItemRaw(slug: string): Promise<PublicItemDetail | null> 
     if (!artifact) return null;
     const latest = artifact.versions[0];
     const counts = countsFromUam(latest?.uam);
+    const updatedAt = latest?.createdAt ?? artifact.updatedAt ?? artifact.createdAt;
 
     return {
       ...counts,
@@ -204,6 +207,7 @@ async function getPublicItemRaw(slug: string): Promise<PublicItemDetail | null> 
       },
       type: toPublicType(artifact.type),
       createdAt: artifact.createdAt,
+      updatedAt,
       content: latest?.uam ?? {},
       version: latest?.version ?? "draft",
     };

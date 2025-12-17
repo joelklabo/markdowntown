@@ -1,10 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button, type ButtonProps } from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 
-export function ForkButton({ artifactId }: { artifactId: string }) {
+export type ForkButtonProps = {
+  artifactId: string;
+  label?: string;
+  variant?: ButtonProps['variant'];
+  size?: ButtonProps['size'];
+  className?: string;
+};
+
+export function ForkButton({
+  artifactId,
+  label = 'Fork / Edit',
+  variant = 'secondary',
+  size = 'md',
+  className,
+}: ForkButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -29,8 +43,8 @@ export function ForkButton({ artifactId }: { artifactId: string }) {
   };
 
   return (
-    <Button variant="secondary" onClick={handleFork} disabled={loading}>
-      {loading ? 'Forking...' : 'Fork / Edit'}
+    <Button className={className} variant={variant} size={size} onClick={handleFork} disabled={loading}>
+      {loading ? 'Forking...' : label}
     </Button>
   );
 }
