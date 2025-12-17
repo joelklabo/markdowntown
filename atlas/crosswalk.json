@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "crosswalk": {
+    "repo-instructions": {
+      "github-copilot": ["repo-instructions"],
+      "copilot-cli": ["repo-instructions"],
+      "claude-code": ["repo-instructions"],
+      "gemini-cli": ["repo-instructions"],
+      "codex-cli": ["repo-instructions"],
+      "cursor": ["repo-instructions"],
+      "windsurf": ["repo-instructions"]
+    },
+    "path-scoping": {
+      "github-copilot": ["path-scoping"],
+      "copilot-cli": ["path-scoping"],
+      "claude-code": ["path-scoping"],
+      "gemini-cli": ["path-scoping"],
+      "codex-cli": ["path-scoping"],
+      "cursor": ["path-scoping"],
+      "windsurf": ["path-scoping"]
+    },
+    "imports": {
+      "github-copilot": ["imports"],
+      "copilot-cli": ["imports"],
+      "claude-code": ["imports"],
+      "gemini-cli": ["imports"],
+      "codex-cli": ["imports"],
+      "cursor": ["imports"],
+      "windsurf": ["imports"]
+    }
+  }
+}
+
