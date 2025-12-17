@@ -1,20 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { geminiCliAdapter } from '@/lib/adapters/geminiCli';
 import type { UamTargetV1, UamV1 } from '@/lib/uam/uamTypes';
+import { makeUam } from './fixtures/makeUam';
+import { geminiCliFixtures } from './fixtures/geminiCli';
 
 function uamFixture(overrides: Partial<UamV1> = {}): UamV1 {
-  return {
-    schemaVersion: 1,
-    meta: { title: 'Test' },
-    scopes: [],
-    blocks: [],
-    capabilities: [],
-    targets: [],
-    ...overrides,
-  };
+  return makeUam(overrides);
 }
 
 describe('Gemini CLI v1 adapter', () => {
+  for (const fixture of geminiCliFixtures) {
+    it(`fixture: ${fixture.name}`, async () => {
+      const result = await geminiCliAdapter.compile(fixture.uam, fixture.target);
+      expect(result).toEqual(fixture.expected);
+    });
+  }
+
   it('emits GEMINI.md in flat mode with scope sections (lossy)', async () => {
     const uam = uamFixture({
       scopes: [

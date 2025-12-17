@@ -1,22 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { cursorRulesAdapter } from '@/lib/adapters/cursorRules';
-import type { UamV1 } from '@/lib/uam/uamTypes';
-
-function uamFixture(overrides: Partial<UamV1> = {}): UamV1 {
-  return {
-    schemaVersion: 1,
-    meta: { title: 'Test' },
-    scopes: [],
-    blocks: [],
-    capabilities: [],
-    targets: [],
-    ...overrides,
-  };
-}
+import { makeUam } from './fixtures/makeUam';
+import { cursorRulesFixtures } from './fixtures/cursorRules';
 
 describe('Cursor rules v1 adapter', () => {
+  for (const fixture of cursorRulesFixtures) {
+    it(`fixture: ${fixture.name}`, async () => {
+      const result = await cursorRulesAdapter.compile(fixture.uam, fixture.target);
+      expect(result).toEqual(fixture.expected);
+    });
+  }
+
   it('writes global rules as alwaysApply: true', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: 'global', kind: 'global' }],
       blocks: [{ id: 'b1', scopeId: 'global', kind: 'markdown', body: 'Global body' }],
     });
@@ -41,7 +37,7 @@ describe('Cursor rules v1 adapter', () => {
   });
 
   it('writes scoped rules with globs and alwaysApply: false', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [
         { id: 'global', kind: 'global' },
         { id: 'src', kind: 'dir', dir: 'src' },
@@ -92,4 +88,3 @@ describe('Cursor rules v1 adapter', () => {
     );
   });
 });
-

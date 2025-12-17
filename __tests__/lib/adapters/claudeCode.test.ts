@@ -1,22 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { claudeCodeAdapter } from "@/lib/adapters/claudeCode";
-import type { UamTargetV1, UamV1 } from "@/lib/uam/uamTypes";
-
-function uamFixture(overrides: Partial<UamV1> = {}): UamV1 {
-  return {
-    schemaVersion: 1,
-    meta: { title: "Test" },
-    scopes: [],
-    blocks: [],
-    capabilities: [],
-    targets: [],
-    ...overrides,
-  };
-}
+import type { UamTargetV1 } from "@/lib/uam/uamTypes";
+import { makeUam } from "./fixtures/makeUam";
+import { claudeCodeFixtures } from "./fixtures/claudeCode";
 
 describe("Claude Code v1 adapter", () => {
+  for (const fixture of claudeCodeFixtures) {
+    it(`fixture: ${fixture.name}`, async () => {
+      const result = await claudeCodeAdapter.compile(fixture.uam, fixture.target);
+      expect(result).toEqual(fixture.expected);
+    });
+  }
+
   it("emits global scope to CLAUDE.md", async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: "global", kind: "global" }],
       blocks: [
         { id: "b1", scopeId: "global", kind: "markdown", body: "One" },
@@ -33,7 +30,7 @@ describe("Claude Code v1 adapter", () => {
   });
 
   it("emits scoped rules to .claude/rules/*.md", async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: "s1", kind: "dir", dir: "src" }],
       blocks: [{ id: "b1", scopeId: "s1", kind: "markdown", body: "Dir rules" }],
     });
@@ -48,7 +45,7 @@ describe("Claude Code v1 adapter", () => {
   });
 
   it("handles rule name collisions deterministically", async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [
         { id: "a", kind: "glob", name: "rules", patterns: ["src/**/*.ts"] },
         { id: "b", kind: "glob", name: "rules", patterns: ["src/**/*.tsx"] },
@@ -65,7 +62,7 @@ describe("Claude Code v1 adapter", () => {
   });
 
   it("exports skills when configured", async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: "global", kind: "global" }],
       blocks: [{ id: "b1", scopeId: "global", kind: "markdown", body: "Global rules" }],
       capabilities: [
@@ -82,4 +79,3 @@ describe("Claude Code v1 adapter", () => {
     expect(skill).toContain('"level": "strict"');
   });
 });
-

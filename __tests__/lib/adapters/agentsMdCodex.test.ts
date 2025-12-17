@@ -1,46 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { agentsMdCodexAdapter } from '@/lib/adapters/agentsMdCodex';
-import type { UamV1 } from '@/lib/uam/uamTypes';
-
-function uamFixture(overrides: Partial<UamV1> = {}): UamV1 {
-  return {
-    schemaVersion: 1,
-    meta: { title: 'Test' },
-    scopes: [],
-    blocks: [],
-    capabilities: [],
-    targets: [],
-    ...overrides,
-  };
-}
+import { makeUam } from './fixtures/makeUam';
+import { agentsMdCodexFixtures } from './fixtures/agentsMdCodex';
 
 describe('AGENTS.md (Codex) v1 adapter', () => {
-  it('compiles global and directory scopes to AGENTS.md files', async () => {
-    const uam = uamFixture({
-      scopes: [
-        { id: 'global', kind: 'global' },
-        { id: 'src', kind: 'dir', dir: 'src' },
-        { id: 'lib', kind: 'dir', dir: 'src/lib/' },
-      ],
-      blocks: [
-        { id: 'b1', scopeId: 'global', kind: 'markdown', body: 'Root content' },
-        { id: 'b2', scopeId: 'src', kind: 'markdown', body: 'Src content' },
-        { id: 'b3', scopeId: 'lib', kind: 'markdown', body: 'Lib content' },
-      ],
+  for (const fixture of agentsMdCodexFixtures) {
+    it(`fixture: ${fixture.name}`, async () => {
+      const result = await agentsMdCodexAdapter.compile(fixture.uam, fixture.target);
+      expect(result).toEqual(fixture.expected);
     });
-
-    const result = await agentsMdCodexAdapter.compile(uam);
-
-    expect(result.warnings).toHaveLength(0);
-    expect(result.files.map(f => f.path)).toEqual(['AGENTS.md', 'src/AGENTS.md', 'src/lib/AGENTS.md']);
-
-    expect(result.files.find(f => f.path === 'AGENTS.md')?.content).toBe('Root content');
-    expect(result.files.find(f => f.path === 'src/AGENTS.md')?.content).toBe('Src content');
-    expect(result.files.find(f => f.path === 'src/lib/AGENTS.md')?.content).toBe('Lib content');
-  });
+  }
 
   it('warns on glob scopes and skips them', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: 'g1', kind: 'glob', patterns: ['src/**/*.ts'] }],
       blocks: [{ id: 'b1', scopeId: 'g1', kind: 'markdown', body: 'Bad content' }],
     });
@@ -53,7 +25,7 @@ describe('AGENTS.md (Codex) v1 adapter', () => {
   });
 
   it('handles duplicate directory paths deterministically', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [
         { id: 's1', kind: 'dir', dir: 'src' },
         { id: 's2', kind: 'dir', dir: 'src/' },
@@ -72,4 +44,3 @@ describe('AGENTS.md (Codex) v1 adapter', () => {
     expect(result.warnings.some(w => w.includes('Multiple scopes map'))).toBe(true);
   });
 });
-

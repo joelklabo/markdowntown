@@ -1,22 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { githubCopilotAdapter } from '@/lib/adapters/githubCopilot';
-import type { UamV1 } from '@/lib/uam/uamTypes';
-
-function uamFixture(overrides: Partial<UamV1> = {}): UamV1 {
-  return {
-    schemaVersion: 1,
-    meta: { title: 'Test' },
-    scopes: [],
-    blocks: [],
-    capabilities: [],
-    targets: [],
-    ...overrides,
-  };
-}
+import { makeUam } from './fixtures/makeUam';
+import { githubCopilotFixtures } from './fixtures/githubCopilot';
 
 describe('GitHub Copilot v1 adapter', () => {
+  for (const fixture of githubCopilotFixtures) {
+    it(`fixture: ${fixture.name}`, async () => {
+      const result = await githubCopilotAdapter.compile(fixture.uam, fixture.target);
+      expect(result).toEqual(fixture.expected);
+    });
+  }
+
   it('emits global scope to .github/copilot-instructions.md', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: 'global', kind: 'global' }],
       blocks: [
         { id: 'b1', scopeId: 'global', kind: 'markdown', body: 'One' },
@@ -34,7 +30,7 @@ describe('GitHub Copilot v1 adapter', () => {
   });
 
   it('emits glob scopes to .github/instructions/*.instructions.md with applyTo', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: 's1', kind: 'glob', name: 'typescript', patterns: ['src/**/*.ts'] }],
       blocks: [{ id: 'b1', scopeId: 's1', kind: 'markdown', body: 'TS rules' }],
     });
@@ -48,7 +44,7 @@ describe('GitHub Copilot v1 adapter', () => {
   });
 
   it('formats multiple applyTo globs as a YAML list', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [
         { id: 's1', kind: 'glob', name: 'frontend', patterns: ['src/**/*.tsx', 'src/**/*.ts'] },
       ],
@@ -65,7 +61,7 @@ describe('GitHub Copilot v1 adapter', () => {
   });
 
   it('warns on non-glob scoped blocks and does not silently mis-scope', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [{ id: 's1', kind: 'dir', dir: 'src' }],
       blocks: [{ id: 'b1', scopeId: 's1', kind: 'markdown', body: 'Do not mis-scope me' }],
     });
@@ -78,7 +74,7 @@ describe('GitHub Copilot v1 adapter', () => {
   });
 
   it('handles scope name collisions deterministically', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [
         { id: 'a', kind: 'glob', name: 'rules', patterns: ['src/**/*.ts'] },
         { id: 'b', kind: 'glob', name: 'rules', patterns: ['src/**/*.tsx'] },
@@ -97,4 +93,3 @@ describe('GitHub Copilot v1 adapter', () => {
     ]);
   });
 });
-

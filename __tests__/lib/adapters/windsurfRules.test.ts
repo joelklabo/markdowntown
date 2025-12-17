@@ -1,22 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { windsurfRulesAdapter } from '@/lib/adapters/windsurfRules';
-import type { UamV1 } from '@/lib/uam/uamTypes';
-
-function uamFixture(overrides: Partial<UamV1> = {}): UamV1 {
-  return {
-    schemaVersion: 1,
-    meta: { title: 'Test' },
-    scopes: [],
-    blocks: [],
-    capabilities: [],
-    targets: [],
-    ...overrides,
-  };
-}
+import { makeUam } from './fixtures/makeUam';
+import { windsurfRulesFixtures } from './fixtures/windsurfRules';
 
 describe('Windsurf rules v1 adapter', () => {
+  for (const fixture of windsurfRulesFixtures) {
+    it(`fixture: ${fixture.name}`, async () => {
+      const result = await windsurfRulesAdapter.compile(fixture.uam, fixture.target);
+      expect(result).toEqual(fixture.expected);
+    });
+  }
+
   it('emits global_rules.md and .windsurf/rules/*.md for scoped blocks', async () => {
-    const uam = uamFixture({
+    const uam = makeUam({
       scopes: [
         { id: 'global', kind: 'global' },
         { id: 'src', kind: 'dir', dir: 'src' },
@@ -49,4 +45,3 @@ describe('Windsurf rules v1 adapter', () => {
     );
   });
 });
-
