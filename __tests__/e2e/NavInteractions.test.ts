@@ -17,17 +17,17 @@ describe("Navigation and interaction smoke", () => {
 
   const maybe = baseURL ? it : it.skip;
 
-  maybe("nav links, search, and builder reorder controls work", async () => {
+  maybe("nav links and search update URL", async () => {
     const context = await browser.newContext({ baseURL });
     const page = await context.newPage();
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Desktop nav link (avoid hero CTA duplicates)
-    await page.locator("header").getByRole("link", { name: /^browse$/i }).first().click();
-    await page.waitForURL(/\/browse/);
+    await page.locator("header").getByRole("link", { name: /^library$/i }).first().click();
+    await page.waitForURL(/\/library/);
 
-    // Browse search updates URL
+    // Library search updates URL
     const searchInput = page.locator("header").getByRole("textbox", { name: /^search$/i });
     await searchInput.click();
     await searchInput.fill("tools");
@@ -36,7 +36,7 @@ describe("Navigation and interaction smoke", () => {
     await page.waitForTimeout(100);
     await searchButton.click();
     await page.waitForFunction(() => window.location.search.includes("q=tools"));
-    expect(page.url()).toMatch(/browse\?q=tools/);
+    expect(page.url()).toMatch(/library\?q=tools/);
 
     await context.close();
   }, 45000);

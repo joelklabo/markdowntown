@@ -15,6 +15,7 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 const links = [
   { href: "/library", label: "Library" },
   { href: "/workbench", label: "Workbench" },
+  { href: "/translate", label: "Translate" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -134,9 +135,9 @@ export function SiteNav({ user }: { user?: User }) {
   }, [showMobileSearch, showOverflowSheet]);
 
   const bottomNavItems = [
-    { href: "/", label: "Home", icon: "🏠", type: "link" as const },
     { href: "/library", label: "Library", icon: "📚", type: "link" as const },
     { href: "/workbench", label: "Workbench", icon: "🛠️", type: "link" as const },
+    { href: "/translate", label: "Translate", icon: "🌐", type: "link" as const },
     { label: "Search", icon: "⌘K", type: "search" as const },
   ];
 
@@ -222,7 +223,7 @@ export function SiteNav({ user }: { user?: User }) {
             >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
-                placeholder="Search snippets, templates…"
+                placeholder="Search library…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search"
