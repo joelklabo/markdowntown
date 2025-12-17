@@ -20,6 +20,10 @@ describe("publicTags query", () => {
     expect(query).toHaveBeenCalledTimes(1);
     const [sql] = query.mock.calls[0];
     const fragment = sql as Prisma.Sql;
+    expect(fragment.sql).toContain('FROM "Artifact"');
+    expect(fragment.sql).not.toContain('FROM "Snippet"');
+    expect(fragment.sql).not.toContain('FROM "Template"');
+    expect(fragment.sql).not.toContain('FROM "Document"');
     expect(fragment.sql).toContain("INTERVAL '1 day'");
     expect(fragment.sql).not.toContain("make_interval");
     expect(fragment.values).toContain(7);

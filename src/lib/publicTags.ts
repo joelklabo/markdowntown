@@ -21,11 +21,7 @@ async function queryTags(limit: number, windowDays?: number | null): Promise<Pub
     >(Prisma.sql`
       SELECT tag, COUNT(*)::int AS count
       FROM (
-        SELECT unnest("tags") AS tag FROM "Snippet" WHERE "visibility" = 'PUBLIC' ${whereWindow}
-        UNION ALL
-        SELECT unnest("tags") AS tag FROM "Template" WHERE "visibility" = 'PUBLIC' ${whereWindow}
-        UNION ALL
-        SELECT unnest("tags") AS tag FROM "Document" WHERE "visibility" = 'PUBLIC' ${whereWindow}
+        SELECT unnest("tags") AS tag FROM "Artifact" WHERE "visibility" = 'PUBLIC' ${whereWindow}
       ) AS t
       GROUP BY tag
       ORDER BY count DESC
