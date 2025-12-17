@@ -48,6 +48,8 @@ describe("CommandPalette", () => {
 
     fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     expect(screen.getByPlaceholderText("Type a command or search…")).toBeInTheDocument();
+    expect(document.querySelector(".mdt-radix-overlay")).not.toBeNull();
+    expect(document.querySelector(".mdt-radix-panel-scale")).not.toBeNull();
     expect(track).toHaveBeenCalled();
   });
 
@@ -66,6 +68,7 @@ describe("CommandPalette", () => {
     expect(screen.getByText("Translate (paste)")).toBeInTheDocument();
     expect(screen.getByText("Create new artifact")).toBeInTheDocument();
     expect(screen.getByText("Export zip")).toBeInTheDocument();
+    expect(screen.getByText("⌘B").closest("kbd")).not.toBeNull();
   });
 
   it("opens block picker query with Ctrl+P", () => {

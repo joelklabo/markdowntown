@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/Input";
+import { Kbd } from "@/components/ui/Kbd";
 import { searchAtlasPaletteHits } from "@/lib/atlas/searchIndex";
 import { cn, interactiveBase } from "@/lib/cn";
 import { track } from "@/lib/analytics";
@@ -23,6 +24,16 @@ type CommandItem = {
 type PaletteProps = {
   suggestions?: CommandItem[];
 };
+
+function isShortcutHint(value: string): boolean {
+  const hint = value.trim();
+  if (!hint) return false;
+  const lower = hint.toLowerCase();
+  if (lower === "esc" || lower === "enter" || lower === "tab") return true;
+  if (hint === "/") return true;
+  if (hint.includes("⌘") || hint.includes("⇧") || hint.toLowerCase().includes("ctrl") || hint.toLowerCase().includes("alt")) return true;
+  return false;
+}
 
 export function CommandPalette({ suggestions = [] }: PaletteProps) {
   const router = useRouter();
@@ -227,9 +238,9 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
 
   return (
       <Dialog open={open} onOpenChange={setOpen}>
-      <DialogOverlay className="fixed inset-0 z-50 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm" />
+      <DialogOverlay className="mdt-radix-overlay fixed inset-0 z-50 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm" />
       <DialogContent
-        className="fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-raised p-mdt-4 shadow-mdt-lg"
+        className="mdt-radix-panel-scale fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-raised p-mdt-4 shadow-mdt-lg"
         aria-label="Command palette"
       >
         <DialogTitle className="sr-only">Command palette</DialogTitle>
@@ -271,7 +282,13 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
                     )}
                   >
                     <span>{item.label}</span>
-                    {item.hint && <span className="text-caption text-mdt-muted">{item.hint}</span>}
+                    {item.hint ? (
+                      isShortcutHint(item.hint) ? (
+                        <Kbd className="text-mdt-muted shadow-none">{item.hint}</Kbd>
+                      ) : (
+                        <span className="text-caption text-mdt-muted">{item.hint}</span>
+                      )
+                    ) : null}
                   </button>
                 );
               })}
