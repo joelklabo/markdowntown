@@ -24,24 +24,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          queries: security-and-quality
-          config-file: .github/codeql/codeql-config.yml
-
-      - name: Enable pnpm
-        run: corepack enable
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
+      - name: Enable pnpm
+        run: corepack enable
+
       - name: Install deps
         run: pnpm install --frozen-lockfile
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          config-file: .github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -90,4 +90,3 @@ jobs:
           fi
 
           echo "No high-confidence high/critical CodeQL findings detected."
-

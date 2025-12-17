@@ -40,7 +40,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
+          cache: pnpm
 
       - name: Enable pnpm
         run: corepack enable
@@ -63,6 +64,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
 
       - name: Enable pnpm
         run: corepack enable

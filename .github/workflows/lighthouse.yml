@@ -28,11 +28,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: latest
-          run_install: false
+          cache: pnpm
+      - name: Enable pnpm
+        run: corepack enable
       - name: Validate OpenAPI
         run: pnpm install --frozen-lockfile && pnpm docs:openapi
       - name: Write Lighthouse config
