@@ -22,7 +22,7 @@
     "test:visual": "npx playwright test --config=playwright-visual.config.ts",
     "atlas:validate": "node --no-warnings scripts/atlas/validate.ts",
     "atlas:index": "node scripts/atlas/index.mjs",
-    "atlas:fetch": "node scripts/atlas/fetch.mjs",
+    "atlas:fetch": "node --no-warnings scripts/atlas/fetch-sources.ts",
     "atlas:extract": "node scripts/atlas/extract.mjs",
     "atlas:changelog": "node scripts/atlas/changelog.mjs",
     "atlas:update": "pnpm atlas:fetch && pnpm atlas:extract && pnpm atlas:index && pnpm atlas:validate && pnpm atlas:changelog",
