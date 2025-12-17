@@ -17,26 +17,58 @@ describe('TranslatePage', () => {
     global.fetch = vi.fn();
   });
 
-  it('renders input and output sections', () => {
-    render(<TranslatePage />);
+  it('renders input and output sections', async () => {
+    const jsx = await TranslatePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
     expect(screen.getByText('Input')).toBeInTheDocument();
     expect(screen.getByText('Output')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Compile/i })).toBeInTheDocument();
   });
 
-  it('detects markdown format', () => {
-    render(<TranslatePage />);
+  it('detects markdown format', async () => {
+    const jsx = await TranslatePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
     const textarea = screen.getByPlaceholderText(/Paste Markdown/i);
     fireEvent.change(textarea, { target: { value: '# Hello' } });
     expect(screen.getByText(/Detected: Markdown/i)).toBeInTheDocument();
   });
 
-  it('detects UAM v1 (JSON) format', () => {
-    render(<TranslatePage />);
+  it('detects UAM v1 (JSON) format', async () => {
+    const jsx = await TranslatePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
     const textarea = screen.getByPlaceholderText(/Paste Markdown/i);
     const uam = JSON.stringify({ schemaVersion: 1, meta: { title: 'Test' }, scopes: [], blocks: [] });
     fireEvent.change(textarea, { target: { value: uam } });
     expect(screen.getByText(/Detected: UAM v1 \(JSON\)/i)).toBeInTheDocument();
+  });
+
+  it('preselects target from query params', async () => {
+    const jsx = await TranslatePage({ searchParams: Promise.resolve({ target: 'github-copilot' }) });
+    render(jsx);
+
+    const agents = screen.getByLabelText('AGENTS.md') as HTMLInputElement;
+    const copilot = screen.getByLabelText('GitHub Copilot') as HTMLInputElement;
+
+    expect(agents.checked).toBe(false);
+    expect(copilot.checked).toBe(true);
+  });
+
+  it('loads example content from query params', async () => {
+    const jsx = await TranslatePage({
+      searchParams: Promise.resolve({ example: 'claude-code/CLAUDE.md', target: 'github-copilot' }),
+    });
+    render(jsx);
+
+    const textarea = screen.getByPlaceholderText(/Paste Markdown/i) as HTMLTextAreaElement;
+    expect(textarea.value).toContain('CLAUDE.md');
+  });
+
+  it('shows a helpful error for unknown examples', async () => {
+    const jsx = await TranslatePage({
+      searchParams: Promise.resolve({ example: 'claude-code/DOES_NOT_EXIST.md', target: 'github-copilot' }),
+    });
+    render(jsx);
+    expect(screen.getByText(/Example not found/i)).toBeInTheDocument();
   });
 
   it('compiles and shows results', async () => {
@@ -49,7 +81,8 @@ describe('TranslatePage', () => {
       }),
     });
 
-    render(<TranslatePage />);
+    const jsx = await TranslatePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
     const textarea = screen.getByPlaceholderText(/Paste Markdown/i);
     fireEvent.change(textarea, { target: { value: '# Hello' } });
     

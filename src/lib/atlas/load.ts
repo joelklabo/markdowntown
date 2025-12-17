@@ -158,6 +158,23 @@ export function loadAtlasExample(
   return readUtf8File(examplePath);
 }
 
+export function loadExampleText(exampleId: string, options?: AtlasLoadOptions): string {
+  const normalized = exampleId.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  const parts = normalized.split('/').filter(Boolean);
+  if (parts.length !== 2) {
+    throw new Error(`[atlas] Invalid example id: ${exampleId}`);
+  }
+
+  const platformCandidate = parts[0];
+  const platformParsed = AtlasPlatformIdSchema.safeParse(platformCandidate);
+  if (!platformParsed.success) {
+    throw new Error(`[atlas] Unknown platformId "${platformCandidate}" in example id: ${exampleId}`);
+  }
+
+  const fileName = parts[1];
+  return loadAtlasExample(platformParsed.data, fileName, options);
+}
+
 export type AtlasExample = {
   fileName: string;
   contents: string;
