@@ -106,11 +106,45 @@ export function listAtlasPlatforms(options?: AtlasLoadOptions): AtlasPlatformId[
   return platformIds;
 }
 
-export function loadAtlasGuideMdx(slug: string, options?: AtlasLoadOptions): string {
-  assertSafePathSegment(slug, 'guide slug');
+function parseSafePath(value: string, label: string): string[] {
+  const segments = value.split('/').filter(Boolean);
+  if (segments.length === 0) {
+    throw new Error(`[atlas] Invalid ${label}: ${value}`);
+  }
+  for (const segment of segments) {
+    assertSafePathSegment(segment, label);
+  }
+  return segments;
+}
+
+export type AtlasGuideKind = 'concepts' | 'recipes';
+
+export function listAtlasGuideSlugs(kind: AtlasGuideKind, options?: AtlasLoadOptions): string[] {
   const atlasDir = getAtlasDir(options);
-  const guidePath = path.join(atlasDir, 'guides', `${slug}.mdx`);
-  return readUtf8File(guidePath);
+  const guidesDir = path.join(atlasDir, 'guides', kind);
+  if (!fs.existsSync(guidesDir)) return [];
+
+  const slugs: string[] = [];
+  const fileNames = fs.readdirSync(guidesDir);
+
+  for (const fileName of fileNames) {
+    if (!fileName.endsWith('.mdx')) continue;
+    const fullPath = path.join(guidesDir, fileName);
+    if (!fs.statSync(fullPath).isFile()) continue;
+    const slug = path.basename(fileName, '.mdx');
+    assertSafePathSegment(slug, 'guide slug');
+    slugs.push(slug);
+  }
+
+  slugs.sort();
+  return slugs;
+}
+
+export function loadAtlasGuideMdx(guidePath: string, options?: AtlasLoadOptions): string {
+  const segments = parseSafePath(guidePath, 'guide path');
+  const atlasDir = getAtlasDir(options);
+  const filePath = path.join(atlasDir, 'guides', ...segments) + '.mdx';
+  return readUtf8File(filePath);
 }
 
 export function loadAtlasExample(
