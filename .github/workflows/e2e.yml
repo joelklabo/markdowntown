@@ -134,7 +134,7 @@ jobs:
           failures_html = f"<h2>Failures</h2><ul>{items}</ul>" if failure_cases else "<h2>No failures</h2>"
 
           out_file.write_text(
-            f\"\"\"<!doctype html>
+            f"""<!doctype html>
           <html>
             <head>
               <meta charset="utf-8"/>
@@ -152,7 +152,7 @@ jobs:
               {failures_html}
             </body>
           </html>
-          \"\"\",
+          """,
             encoding="utf-8",
           )
           PY
