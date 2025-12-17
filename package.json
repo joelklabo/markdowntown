@@ -28,6 +28,7 @@
     "atlas:changelog": "node scripts/atlas/changelog.mjs",
     "atlas:update": "pnpm atlas:fetch && pnpm atlas:extract && pnpm atlas:index && pnpm atlas:validate && pnpm atlas:changelog",
     "prisma:validate": "prisma validate",
+    "seed:demo": "node --no-warnings scripts/seed-demo-artifacts.ts",
     "prepare": "husky"
   },
   "dependencies": {
