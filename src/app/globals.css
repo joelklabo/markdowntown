@@ -494,6 +494,33 @@
     background-size: 200% 100%;
     animation: mdt-skeleton 1.4s var(--mdt-motion-ease-standard) infinite;
   }
+
+  .mdt-radix-overlay {
+    will-change: opacity;
+  }
+  .mdt-radix-overlay[data-state="open"] {
+    animation: mdt-radix-fade-in var(--mdt-motion-enter) var(--mdt-motion-ease-standard) both;
+  }
+  .mdt-radix-overlay[data-state="closed"] {
+    animation: mdt-radix-fade-out var(--mdt-motion-exit) var(--mdt-motion-ease-standard) both;
+  }
+
+  .mdt-radix-panel-scale,
+  .mdt-radix-panel-slide {
+    will-change: transform, opacity;
+  }
+  .mdt-radix-panel-scale[data-state="open"] {
+    animation: mdt-radix-panel-scale-in var(--mdt-motion-enter) var(--mdt-motion-ease-emphasized) both;
+  }
+  .mdt-radix-panel-scale[data-state="closed"] {
+    animation: mdt-radix-panel-scale-out var(--mdt-motion-exit) var(--mdt-motion-ease-standard) both;
+  }
+  .mdt-radix-panel-slide[data-state="open"] {
+    animation: mdt-radix-panel-slide-in var(--mdt-motion-enter) var(--mdt-motion-ease-emphasized) both;
+  }
+  .mdt-radix-panel-slide[data-state="closed"] {
+    animation: mdt-radix-panel-slide-out var(--mdt-motion-exit) var(--mdt-motion-ease-standard) both;
+  }
 }
 
 @keyframes mdt-fade-in {
@@ -524,6 +551,68 @@
   to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes mdt-radix-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mdt-radix-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mdt-radix-panel-scale-in {
+  from {
+    transform: scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes mdt-radix-panel-scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.97);
+    opacity: 0;
+  }
+}
+
+@keyframes mdt-radix-panel-slide-in {
+  from {
+    transform: translateY(var(--mdt-motion-distance-mid));
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes mdt-radix-panel-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(var(--mdt-motion-distance-mid));
+    opacity: 0;
   }
 }
 
