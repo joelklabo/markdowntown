@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { generateAtlasChangelog } from "./generate-changelog.ts";
+
 const atlasDir = path.join(process.cwd(), "atlas");
 
 if (!fs.existsSync(atlasDir)) {
@@ -8,5 +10,10 @@ if (!fs.existsSync(atlasDir)) {
   process.exit(0);
 }
 
-console.log("[atlas:changelog] OK (placeholder)");
+const result = await generateAtlasChangelog({ atlasDir });
 
+if (result.markdownSummary) {
+  console.log(result.markdownSummary.trimEnd());
+} else {
+  console.log("[atlas:changelog] No claim/support changes detected.");
+}
