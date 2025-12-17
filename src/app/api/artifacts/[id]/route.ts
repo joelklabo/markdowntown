@@ -39,9 +39,14 @@ export async function GET(_req: Request, context: RouteContext) {
   });
 }
 
-const PatchSchema = z.object({
-  visibility: z.nativeEnum(Visibility),
-});
+const PatchSchema = z
+  .object({
+    title: z.string().min(1).optional(),
+    description: z.string().optional(),
+    visibility: z.nativeEnum(Visibility).optional(),
+    tags: z.array(z.string()).optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, { message: 'No fields provided' });
 
 export async function PATCH(req: Request, context: RouteContext) {
   return withAPM(req, async () => {
@@ -72,13 +77,21 @@ export async function PATCH(req: Request, context: RouteContext) {
 
     const updated = await prisma.artifact.update({
       where: { id: existing.id },
-      data: { visibility: parsed.data.visibility },
+      data: {
+        ...(parsed.data.title !== undefined ? { title: parsed.data.title } : {}),
+        ...(parsed.data.description !== undefined ? { description: parsed.data.description } : {}),
+        ...(parsed.data.visibility !== undefined ? { visibility: parsed.data.visibility } : {}),
+        ...(parsed.data.tags !== undefined ? { tags: parsed.data.tags } : {}),
+      },
     });
 
-    auditLog('artifact_visibility_update', {
+    auditLog('artifact_meta_update', {
       actorId: session.user.id,
       artifactId: existing.id,
-      visibility: parsed.data.visibility,
+      ...(parsed.data.title !== undefined ? { title: parsed.data.title } : {}),
+      ...(parsed.data.description !== undefined ? { description: parsed.data.description } : {}),
+      ...(parsed.data.visibility !== undefined ? { visibility: parsed.data.visibility } : {}),
+      ...(parsed.data.tags !== undefined ? { tags: parsed.data.tags } : {}),
     });
 
     return NextResponse.json(updated);

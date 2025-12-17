@@ -15,6 +15,7 @@ import {
 import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 
 type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+export type ArtifactVisibility = 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
 
 type BlockUpsertInput = Partial<UAMBlock> & {
   scopeId?: string;
@@ -136,6 +137,8 @@ type PersistedWorkbenchState = {
   uam: UamV1;
   selectedScopeId?: string;
   selectedBlockId?: string | null;
+  visibility?: ArtifactVisibility;
+  tags?: string[];
 };
 
 interface WorkbenchState {
@@ -154,6 +157,9 @@ interface WorkbenchState {
   selectedScope: string | null;
   selectedBlockId: string | null;
 
+  visibility: ArtifactVisibility;
+  tags: string[];
+
   compilationResult: CompilationResult | null;
   autosaveStatus: AutosaveStatus;
   lastSavedAt: number | null;
@@ -164,6 +170,8 @@ interface WorkbenchState {
   setId: (id?: string) => void;
   setTitle: (title: string) => void;
   setDescription: (desc: string) => void;
+  setVisibility: (visibility: ArtifactVisibility) => void;
+  setTags: (tags: string[]) => void;
 
   setUam: (uam: UamV1) => void;
 
@@ -235,6 +243,9 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         selectedScope: 'root',
         selectedBlockId: null,
 
+        visibility: 'PRIVATE',
+        tags: [],
+
         compilationResult: null,
         autosaveStatus: 'idle',
         lastSavedAt: null,
@@ -257,6 +268,18 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             description,
             uam: { ...state.uam, meta: { ...state.uam.meta, description } },
           }));
+          markDirty();
+          onPersisted();
+        },
+
+        setVisibility: (visibility) => {
+          set({ visibility });
+          markDirty();
+          onPersisted();
+        },
+
+        setTags: (tags) => {
+          set({ tags });
           markDirty();
           onPersisted();
         },
@@ -464,8 +487,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             const payload = {
               id: state.id,
               title: state.title,
-              tags: [],
-              visibility: 'PRIVATE',
+              tags: state.tags,
+              visibility: state.visibility,
               uam: state.uam,
               message: 'Saved via Workbench',
             };
@@ -512,6 +535,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             compilationResult: null,
             autosaveStatus: 'idle',
             lastSavedAt: null,
+            visibility: 'PRIVATE',
+            tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
           });
@@ -525,8 +550,13 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               throw new Error(`Failed to load artifact (${res.status})`);
             }
 
-            const data = (await res.json()) as { artifact?: { id?: string }; latestVersion?: { uam?: unknown } };
+            const data = (await res.json()) as {
+              artifact?: { id?: string; visibility?: unknown; tags?: unknown };
+              latestVersion?: { uam?: unknown };
+            };
             const artifactId = data.artifact?.id ?? idOrSlug;
+            const visibility = data.artifact?.visibility;
+            const tags = data.artifact?.tags;
             const uam = data.latestVersion?.uam;
             if (!uam) throw new Error('Artifact has no versions');
 
@@ -540,6 +570,11 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               compilationResult: null,
               autosaveStatus: 'idle',
               lastSavedAt: null,
+              visibility:
+                visibility === 'PUBLIC' || visibility === 'UNLISTED' || visibility === 'PRIVATE'
+                  ? visibility
+                  : 'PRIVATE',
+              tags: Array.isArray(tags) ? tags.map(v => String(v).trim()).filter(Boolean) : [],
               cloudSaveStatus: 'idle',
               cloudLastSavedAt: null,
             });
@@ -558,6 +593,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         uam: state.uam,
         selectedScopeId: state.selectedScopeId,
         selectedBlockId: state.selectedBlockId,
+        visibility: state.visibility,
+        tags: state.tags,
       }),
       migrate: (persistedState, version) => {
         const raw = (persistedState as { state?: unknown })?.state ?? persistedState;
@@ -570,6 +607,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             uam: normalized,
             selectedBlockId: persisted.selectedBlockId ?? null,
             selectedScopeId: persisted.selectedScopeId,
+            visibility: persisted.visibility,
+            tags: persisted.tags,
           } satisfies PersistedWorkbenchState;
         }
 
@@ -624,6 +663,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           scopes: normalized.scopes.map(legacyScopeLabel),
           blocks: syncLegacyBlocksFromUam(normalized.blocks),
           targets: syncLegacyTargetsFromUam(normalized.targets),
+          visibility: next.visibility ?? 'PRIVATE',
+          tags: next.tags ?? [],
         };
       },
     }

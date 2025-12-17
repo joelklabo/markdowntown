@@ -44,7 +44,19 @@ describe('POST /api/artifacts/save', () => {
       method: 'POST',
       body: JSON.stringify({
         title: 'New Agent',
-        uam: { schemaVersion: 1, meta: { title: 'New Agent' }, scopes: [], blocks: [] },
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'New Agent' },
+          scopes: [
+            { id: 'global', kind: 'global' },
+            { id: 'docs', kind: 'dir', dir: 'docs' },
+          ],
+          blocks: [],
+          targets: [
+            { targetId: 'github-copilot', adapterVersion: '1', options: {} },
+            { targetId: 'agents-md', adapterVersion: '1', options: {} },
+          ],
+        },
       }),
     });
 
@@ -53,6 +65,8 @@ describe('POST /api/artifacts/save', () => {
     expect(prisma.artifact.create).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({
         title: 'New Agent',
+        targets: ['agents-md', 'github-copilot'],
+        hasScopes: true,
         userId: 'u1',
         versions: expect.any(Object),
       }),
@@ -70,7 +84,16 @@ describe('POST /api/artifacts/save', () => {
       body: JSON.stringify({
         id: 'a1',
         title: 'Updated Agent',
-        uam: { schemaVersion: 1, meta: { title: 'Updated Agent' }, scopes: [], blocks: [] },
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'Updated Agent' },
+          scopes: [
+            { id: 'global', kind: 'global' },
+            { id: 'src', kind: 'glob', patterns: ['src/**/*.ts'] },
+          ],
+          blocks: [],
+          targets: [{ targetId: 'agents-md', adapterVersion: '1', options: {} }],
+        },
       }),
     });
 
@@ -80,6 +103,8 @@ describe('POST /api/artifacts/save', () => {
       where: { id: 'a1' },
       data: expect.objectContaining({
         title: 'Updated Agent',
+        targets: ['agents-md'],
+        hasScopes: true,
         versions: expect.objectContaining({
           create: expect.objectContaining({
             version: '2',

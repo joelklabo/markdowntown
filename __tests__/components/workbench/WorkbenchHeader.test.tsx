@@ -21,6 +21,7 @@ describe('WorkbenchHeader', () => {
     (useSession as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ data: null });
     render(<WorkbenchHeader />);
     expect(screen.getByDisplayValue('Test Agent')).toBeInTheDocument();
+    expect(screen.getByLabelText('Visibility: Draft')).toBeInTheDocument();
   });
 
   it('shows sign in warning if logged out', () => {
@@ -34,6 +35,21 @@ describe('WorkbenchHeader', () => {
     (useSession as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ data: { user: { name: 'User' } } });
     render(<WorkbenchHeader />);
     expect(screen.getByText('Save')).not.toBeDisabled();
+  });
+
+  it('allows setting visibility and tags', () => {
+    (useSession as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ data: null });
+    render(<WorkbenchHeader />);
+
+    fireEvent.change(screen.getByLabelText('Visibility'), { target: { value: 'PUBLIC' } });
+    expect(useWorkbenchStore.getState().visibility).toBe('PUBLIC');
+    expect(screen.getByLabelText('Visibility: Public')).toBeInTheDocument();
+
+    const tagsInput = screen.getByLabelText('Tags');
+    fireEvent.focus(tagsInput);
+    fireEvent.change(tagsInput, { target: { value: 'foo, bar' } });
+    fireEvent.blur(tagsInput);
+    expect(useWorkbenchStore.getState().tags).toEqual(['foo', 'bar']);
   });
 
   it('saves artifact', async () => {

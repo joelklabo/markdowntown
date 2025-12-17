@@ -44,6 +44,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Invalid target configuration', details: invalidTargets }, { status: 400 });
       }
 
+      const targetIds = Array.from(new Set(parsedUam.data.targets.map(t => t.targetId))).sort();
+      const hasScopes = parsedUam.data.scopes.some(s => s.kind !== 'global');
+
       let artifact;
 
       if (body.id) {
@@ -78,6 +81,8 @@ export async function POST(req: Request) {
             description: body.description,
             visibility: body.visibility,
             tags: body.tags,
+            targets: targetIds,
+            hasScopes,
             versions: {
               create: {
                 version: nextVersion,
@@ -106,6 +111,8 @@ export async function POST(req: Request) {
             type: body.type,
             visibility: body.visibility,
             tags: body.tags,
+            targets: targetIds,
+            hasScopes,
             userId: session.user.id,
             versions: {
               create: {
