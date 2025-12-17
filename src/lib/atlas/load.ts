@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { AtlasPlatformIdSchema, parsePlatformFacts } from './schema.ts';
 import { parseAtlasCrosswalk } from './features.ts';
 import type { AtlasCrosswalk } from './features.ts';
@@ -181,4 +181,82 @@ export function listAtlasExamples(platformId: AtlasPlatformId, options?: AtlasLo
 
   out.sort((a, b) => a.fileName.localeCompare(b.fileName));
   return out;
+}
+
+export type AtlasChangelogDiff = {
+  platformId: AtlasPlatformId;
+  before: unknown | null;
+  after: unknown | null;
+};
+
+export type AtlasImpactedClaim = {
+  platformId: AtlasPlatformId;
+  claimId: string;
+};
+
+export type AtlasChangelogEntry = {
+  id: string;
+  date: string;
+  summary: string;
+  diffs: AtlasChangelogDiff[];
+  impactedClaims: AtlasImpactedClaim[];
+};
+
+export type AtlasChangelog = {
+  lastUpdated?: string;
+  entries: AtlasChangelogEntry[];
+};
+
+const AtlasChangelogDiffSchema = z.object({
+  platformId: AtlasPlatformIdSchema,
+  before: z.unknown().nullable(),
+  after: z.unknown().nullable(),
+});
+
+const AtlasImpactedClaimSchema = z.object({
+  platformId: AtlasPlatformIdSchema,
+  claimId: z.string().min(1),
+});
+
+const AtlasChangelogEntrySchema = z.object({
+  id: z.string().min(1),
+  date: z.string().datetime(),
+  summary: z.string().min(1),
+  diffs: z.array(AtlasChangelogDiffSchema).default(() => []),
+  impactedClaims: z.array(AtlasImpactedClaimSchema).default(() => []),
+});
+
+const AtlasChangelogSchema = z
+  .union([
+    z.object({
+      lastUpdated: z.string().datetime().optional(),
+      entries: z.array(AtlasChangelogEntrySchema).default(() => []),
+    }),
+    z.array(AtlasChangelogEntrySchema),
+  ])
+  .transform(value => {
+    if (Array.isArray(value)) return { entries: value };
+    return value;
+  });
+
+export function loadAtlasChangelog(options?: AtlasLoadOptions): AtlasChangelog {
+  const atlasDir = getAtlasDir(options);
+  const changelogPath = path.join(atlasDir, 'changelog.json');
+  if (!fs.existsSync(changelogPath)) return { entries: [] };
+
+  const raw = readJsonFile(changelogPath);
+  try {
+    return AtlasChangelogSchema.parse(raw);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new Error(`[atlas] Invalid changelog at ${changelogPath}\n${formatZodError(error)}`);
+    }
+    throw error;
+  }
+}
+
+export function loadAtlasChangelogEntry(entryId: string, options?: AtlasLoadOptions): AtlasChangelogEntry | null {
+  assertSafePathSegment(entryId, 'changelog entry id');
+  const changelog = loadAtlasChangelog(options);
+  return changelog.entries.find(entry => entry.id === entryId) ?? null;
 }
