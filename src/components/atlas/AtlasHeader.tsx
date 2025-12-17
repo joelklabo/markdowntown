@@ -1,5 +1,5 @@
+import { AtlasSearch } from "@/components/atlas/AtlasSearch";
 import { LastUpdatedBadge } from "@/components/atlas/LastUpdatedBadge";
-import { cn, focusRing } from "@/lib/cn";
 
 export function AtlasHeader() {
   return (
@@ -12,16 +12,7 @@ export function AtlasHeader() {
 
         <div className="flex items-center gap-mdt-2">
           <div className="relative w-full md:w-[360px]">
-            <input
-              type="search"
-              aria-label="Search Atlas"
-              placeholder="Search Atlas (coming soon)"
-              disabled
-              className={cn(
-                "h-10 w-full rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-3 text-body-sm text-mdt-muted shadow-mdt-sm",
-                focusRing
-              )}
-            />
+            <AtlasSearch />
           </div>
         </div>
       </div>

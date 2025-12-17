@@ -27,6 +27,11 @@ vi.mock("next/link", () => {
   };
 });
 
+vi.mock("next/navigation", () => ({
+  __esModule: true,
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 import AtlasLayout from "@/app/atlas/layout";
 
 describe("AtlasLayout", () => {
