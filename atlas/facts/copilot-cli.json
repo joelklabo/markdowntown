@@ -5,11 +5,104 @@
   "retrievedAt": "2025-12-17T00:00:00Z",
   "lastVerified": "2025-12-17T00:00:00Z",
   "artifacts": [],
-  "claims": [],
+  "claims": [
+    {
+      "id": "copilot-cli.custom-agents.org-dir",
+      "statement": "GitHub Copilot CLI can load organization-level custom agent profiles from /agents in an organization .github-private repository.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": ".github-private",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.custom-agents.precedence",
+      "statement": "When custom agent names conflict, Copilot CLI prefers higher-precedence agent scopes over lower-precedence ones.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": "naming conflicts",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.custom-agents.repo-dir",
+      "statement": "GitHub Copilot CLI can load repository-level custom agent profiles from .github/agents.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": ".github/agents",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.custom-agents.user-dir",
+      "statement": "GitHub Copilot CLI can load user-level custom agent profiles from ~/.copilot/agents.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": "~/.copilot/agents",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ]
+    },
+    {
+      "id": "copilot-cli.path-scoping.instructions-files",
+      "statement": "GitHub Copilot CLI supports path-scoped instructions via .github/copilot-instructions/**/*.instructions.md files.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": ".instructions.md",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ],
+      "features": [
+        "path-scoping"
+      ]
+    },
+    {
+      "id": "copilot-cli.repo-instructions.agents-file",
+      "statement": "GitHub Copilot CLI supports agent files such as AGENTS.md.",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": "AGENTS.md",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ],
+      "features": [
+        "repo-instructions"
+      ]
+    },
+    {
+      "id": "copilot-cli.repo-instructions.file",
+      "statement": "GitHub Copilot CLI supports repository-wide instructions via .github/copilot-instructions.md.",
+      "confidence": "high",
+      "evidence": [
+        {
+          "url": "https://example.com/copilot-cli/agents-md",
+          "excerpt": ".github/copilot-instructions.md",
+          "title": "GitHub Copilot CLI documentation"
+        }
+      ],
+      "features": [
+        "repo-instructions"
+      ]
+    }
+  ],
   "featureSupport": {
-    "repo-instructions": "no",
-    "path-scoping": "no",
+    "repo-instructions": "yes",
+    "path-scoping": "yes",
     "imports": "no"
   }
 }
-

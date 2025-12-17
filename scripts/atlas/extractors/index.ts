@@ -1,6 +1,7 @@
 import type { AtlasExtractor } from "./types.ts";
 import { claudeCodeMemoryExtractor } from "./claude_code_memory.ts";
 import { codexCliAgentsExtractor } from "./codex_cli_agents.ts";
+import { copilotCliDocsExtractor } from "./copilot_cli.ts";
 import { copilotDocsInstructionsExtractor } from "./copilot_docs_instructions.ts";
 import { cursorRulesDocsExtractor } from "./cursor_rules.ts";
 import { geminiCliDocsExtractor } from "./gemini_cli.ts";
@@ -27,3 +28,4 @@ registerExtractor(geminiCliDocsExtractor);
 registerExtractor(codexCliAgentsExtractor);
 registerExtractor(cursorRulesDocsExtractor);
 registerExtractor(windsurfRulesDocsExtractor);
+registerExtractor(copilotCliDocsExtractor);
