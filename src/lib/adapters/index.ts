@@ -1,4 +1,5 @@
 import type { Adapter } from './types';
+import { agentsMdCodexAdapter } from './agentsMdCodex';
 
 export interface AdapterRegistry {
   register(adapter: Adapter): void;
@@ -35,6 +36,7 @@ export function createAdapterRegistry(): AdapterRegistry {
 }
 
 export const adapterRegistry = createAdapterRegistry();
+adapterRegistry.register(agentsMdCodexAdapter);
 
 export function registerAdapter(adapter: Adapter) {
   adapterRegistry.register(adapter);
@@ -50,4 +52,4 @@ export function listAdapters(targetId?: string) {
 
 export type { Adapter } from './types';
 export type { CompileResult, CompiledFile } from './types';
-
+export { agentsMdCodexAdapter } from './agentsMdCodex';
