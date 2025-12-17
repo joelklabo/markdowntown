@@ -20,8 +20,8 @@ export function Tooltip({ content, children, side = "top", align = "center" }: T
             align={align}
             sideOffset={6}
             className={cn(
+              "mdt-radix-panel-scale",
               "z-50 rounded-mdt-md border border-mdt-border bg-mdt-surface-raised px-mdt-3 py-mdt-2 text-caption font-medium text-mdt-text shadow-mdt-md",
-              "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
             )}
           >
             {content}

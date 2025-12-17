@@ -509,13 +509,17 @@
   .mdt-radix-panel-slide {
     will-change: transform, opacity;
   }
-  .mdt-radix-panel-scale[data-state="open"] {
+  .mdt-radix-panel-scale[data-state="open"],
+  .mdt-radix-panel-scale[data-state="delayed-open"],
+  .mdt-radix-panel-scale[data-state="instant-open"] {
     animation: mdt-radix-panel-scale-in var(--mdt-motion-enter) var(--mdt-motion-ease-emphasized) both;
   }
   .mdt-radix-panel-scale[data-state="closed"] {
     animation: mdt-radix-panel-scale-out var(--mdt-motion-exit) var(--mdt-motion-ease-standard) both;
   }
-  .mdt-radix-panel-slide[data-state="open"] {
+  .mdt-radix-panel-slide[data-state="open"],
+  .mdt-radix-panel-slide[data-state="delayed-open"],
+  .mdt-radix-panel-slide[data-state="instant-open"] {
     animation: mdt-radix-panel-slide-in var(--mdt-motion-enter) var(--mdt-motion-ease-emphasized) both;
   }
   .mdt-radix-panel-slide[data-state="closed"] {
