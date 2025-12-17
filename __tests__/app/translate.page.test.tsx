@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TranslatePage from '@/app/translate/page';
 
 // Mock createZip which is imported
-vi.mock('@/lib/uam/compile/zip', () => ({
+vi.mock('@/lib/compile/zip', () => ({
   createZip: vi.fn().mockResolvedValue(new Blob([])),
 }));
 
@@ -21,22 +21,22 @@ describe('TranslatePage', () => {
     render(<TranslatePage />);
     expect(screen.getByText('Input')).toBeInTheDocument();
     expect(screen.getByText('Output')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Translate \/ Compile/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Compile/i })).toBeInTheDocument();
   });
 
   it('detects markdown format', () => {
     render(<TranslatePage />);
     const textarea = screen.getByPlaceholderText(/Paste Markdown/i);
     fireEvent.change(textarea, { target: { value: '# Hello' } });
-    expect(screen.getByText(/Detected format: Markdown/i)).toBeInTheDocument();
+    expect(screen.getByText(/Detected: Markdown/i)).toBeInTheDocument();
   });
 
-  it('detects UAM format', () => {
+  it('detects UAM v1 (JSON) format', () => {
     render(<TranslatePage />);
     const textarea = screen.getByPlaceholderText(/Paste Markdown/i);
-    const uam = JSON.stringify({ kind: 'UniversalAgent', blocks: [] });
+    const uam = JSON.stringify({ schemaVersion: 1, meta: { title: 'Test' }, scopes: [], blocks: [] });
     fireEvent.change(textarea, { target: { value: uam } });
-    expect(screen.getByText(/Detected format: UAM \(JSON\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Detected: UAM v1 \(JSON\)/i)).toBeInTheDocument();
   });
 
   it('compiles and shows results', async () => {
@@ -45,6 +45,7 @@ describe('TranslatePage', () => {
       json: async () => ({
         files: [{ path: 'AGENTS.md', content: '# Hello' }],
         warnings: [],
+        info: [],
       }),
     });
 
@@ -52,12 +53,17 @@ describe('TranslatePage', () => {
     const textarea = screen.getByPlaceholderText(/Paste Markdown/i);
     fireEvent.change(textarea, { target: { value: '# Hello' } });
     
-    const button = screen.getByRole('button', { name: /Translate \/ Compile/i });
+    const button = screen.getByRole('button', { name: /Compile/i });
     fireEvent.click(button);
 
     await waitFor(() => {
       expect(screen.getByText('AGENTS.md')).toBeInTheDocument();
       expect(screen.getByText('# Hello')).toBeInTheDocument();
     });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/compile',
+      expect.objectContaining({ method: 'POST' })
+    );
   });
 });
