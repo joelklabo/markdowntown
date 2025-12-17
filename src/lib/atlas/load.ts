@@ -123,3 +123,28 @@ export function loadAtlasExample(
   const examplePath = path.join(atlasDir, 'examples', platformId, fileName);
   return readUtf8File(examplePath);
 }
+
+export type AtlasExample = {
+  fileName: string;
+  contents: string;
+};
+
+export function listAtlasExamples(platformId: AtlasPlatformId, options?: AtlasLoadOptions): AtlasExample[] {
+  const atlasDir = getAtlasDir(options);
+  const examplesDir = path.join(atlasDir, 'examples', platformId);
+  if (!fs.existsSync(examplesDir)) return [];
+
+  const out: AtlasExample[] = [];
+  const fileNames = fs.readdirSync(examplesDir);
+
+  for (const fileName of fileNames) {
+    if (fileName.startsWith('.')) continue;
+    const fullPath = path.join(examplesDir, fileName);
+    if (!fs.statSync(fullPath).isFile()) continue;
+    assertSafeFileName(fileName);
+    out.push({ fileName, contents: readUtf8File(fullPath) });
+  }
+
+  out.sort((a, b) => a.fileName.localeCompare(b.fileName));
+  return out;
+}
