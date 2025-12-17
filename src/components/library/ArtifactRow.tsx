@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { cn } from "@/lib/cn";
 import { ForkButton } from "@/components/artifact/ForkButton";
+import { PreviewDrawer } from "@/components/library/PreviewDrawer";
 
 export type ArtifactRowItem = {
   id: string;
@@ -87,6 +88,7 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
+        <PreviewDrawer artifactId={item.id} title={item.title} targets={item.targets} />
         <Button size="xs" variant="secondary" onClick={handleCopy} aria-label={`Copy link for ${item.title}`}>
           {copied ? "Copied" : "Copy"}
         </Button>
