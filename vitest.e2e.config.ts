@@ -8,5 +8,7 @@ export default defineConfig({
     environment: "node",
     include: ["__tests__/e2e/**/*.test.ts"],
     exclude: ["__tests__/visual/**", "**/node_modules/**", "**/.pnpm/**"],
+    fileParallelism: false,
+    maxWorkers: 1,
   },
 });
