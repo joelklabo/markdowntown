@@ -9,7 +9,7 @@ export function DrawerOverlay(props: React.ComponentPropsWithoutRef<typeof Dialo
     <DialogPrimitive.Overlay
       {...props}
       className={cn(
-        "fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out",
+        "mdt-radix-overlay fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm",
         props.className
       )}
     />
@@ -29,8 +29,8 @@ export function DrawerContent({
         {...props}
         aria-describedby={ariaDescribedBy ?? undefined}
         className={cn(
+          "mdt-radix-panel-slide-right",
           "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-mdt-border bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
-          "data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right",
           className
         )}
       >
