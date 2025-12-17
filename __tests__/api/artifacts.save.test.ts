@@ -88,4 +88,57 @@ describe('POST /api/artifacts/save', () => {
       }),
     }));
   });
+
+  it('forbids updates for non-owners', async () => {
+    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u2' } });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', userId: 'u1' });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: 'a1',
+        title: 'Updated Agent',
+        uam: { schemaVersion: 1, meta: { title: 'Updated Agent' }, scopes: [], blocks: [] },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(403);
+  });
+
+  it('rejects invalid UAM payloads', async () => {
+    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Bad Agent',
+        uam: { schemaVersion: 999, meta: { title: 'Bad Agent' } },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects unknown target configurations', async () => {
+    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Agent',
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'Agent' },
+          scopes: [],
+          blocks: [],
+          targets: [{ targetId: 'unknown', adapterVersion: '1', options: {} }],
+        },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+  });
 });

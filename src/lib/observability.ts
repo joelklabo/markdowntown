@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 const nowMs = () => Number(process.hrtime.bigint()) / 1_000_000;
 
@@ -41,4 +42,23 @@ export async function withAPM(request: Request, handler: Handler): Promise<NextR
   });
 
   return response;
+}
+
+export function auditLog(event: string, data: Record<string, unknown>) {
+  try {
+    console.info(event, data);
+  } catch {
+    // ignore console failures
+  }
+
+  try {
+    Sentry.addBreadcrumb({
+      category: "api",
+      message: event,
+      data,
+      level: "info",
+    });
+  } catch {
+    // ignore sentry failures/misconfig
+  }
 }

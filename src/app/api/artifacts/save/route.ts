@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { auditLog, withAPM } from '@/lib/observability';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { ArtifactType, Visibility, Prisma } from '@prisma/client';
+import { safeParseUamV1 } from '@/lib/uam/uamValidate';
+import { resolveAdapter } from '@/lib/adapters';
 
 const SaveSchema = z.object({
   id: z.string().optional(),
@@ -19,89 +22,120 @@ const SaveSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  return withAPM(req, async () => {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  try {
-    const json = await req.json();
-    const body = SaveSchema.parse(json);
+    try {
+      const json = await req.json();
+      const body = SaveSchema.parse(json);
 
-    let artifact;
-
-    if (body.id) {
-      // Update existing
-      const existing = await prisma.artifact.findUnique({
-        where: { id: body.id },
-      });
-
-      if (!existing) {
-        return NextResponse.json({ error: 'Artifact not found' }, { status: 404 });
+      const parsedUam = safeParseUamV1(body.uam);
+      if (!parsedUam.success) {
+        return NextResponse.json({ error: 'Invalid UAM v1 payload', details: parsedUam.error.issues }, { status: 400 });
       }
 
-      if (existing.userId !== session.user.id) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      const invalidTargets = parsedUam.data.targets
+        .filter(t => !resolveAdapter(t.targetId, t.adapterVersion))
+        .map(t => ({ targetId: t.targetId, adapterVersion: t.adapterVersion }));
+      if (invalidTargets.length > 0) {
+        return NextResponse.json({ error: 'Invalid target configuration', details: invalidTargets }, { status: 400 });
       }
 
-      // Calculate next numeric version (stored as a string). Ignore non-numeric versions like "draft".
-      const versions = await prisma.artifactVersion.findMany({
-        where: { artifactId: body.id },
-        select: { version: true },
-      });
-      const maxNumeric = versions.reduce((max, v) => {
-        const parsed = Number.parseInt(v.version, 10);
-        return Number.isFinite(parsed) ? Math.max(max, parsed) : max;
-      }, 0);
-      const nextVersion = String(maxNumeric + 1);
+      let artifact;
 
-      artifact = await prisma.artifact.update({
-        where: { id: body.id },
-        data: {
-          title: body.title,
-          description: body.description,
-          visibility: body.visibility,
-          tags: body.tags,
-          versions: {
-            create: {
-              version: nextVersion,
-              uam: body.uam as Prisma.InputJsonValue, // JSON
-              ...(body.compiled !== undefined ? { compiled: body.compiled as Prisma.InputJsonValue } : {}),
-              ...(body.lint !== undefined ? { lint: body.lint as Prisma.InputJsonValue } : {}),
-              message: body.message,
+      if (body.id) {
+        // Update existing
+        const existing = await prisma.artifact.findUnique({
+          where: { id: body.id },
+        });
+
+        if (!existing) {
+          return NextResponse.json({ error: 'Artifact not found' }, { status: 404 });
+        }
+
+        if (existing.userId !== session.user.id) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        // Calculate next numeric version (stored as a string). Ignore non-numeric versions like "draft".
+        const versions = await prisma.artifactVersion.findMany({
+          where: { artifactId: body.id },
+          select: { version: true },
+        });
+        const maxNumeric = versions.reduce((max, v) => {
+          const parsed = Number.parseInt(v.version, 10);
+          return Number.isFinite(parsed) ? Math.max(max, parsed) : max;
+        }, 0);
+        const nextVersion = String(maxNumeric + 1);
+
+        artifact = await prisma.artifact.update({
+          where: { id: body.id },
+          data: {
+            title: body.title,
+            description: body.description,
+            visibility: body.visibility,
+            tags: body.tags,
+            versions: {
+              create: {
+                version: nextVersion,
+                uam: parsedUam.data as unknown as Prisma.InputJsonValue, // JSON
+                ...(body.compiled !== undefined ? { compiled: body.compiled as Prisma.InputJsonValue } : {}),
+                ...(body.lint !== undefined ? { lint: body.lint as Prisma.InputJsonValue } : {}),
+                message: body.message,
+              },
             },
           },
-        },
-      });
-    } else {
-      // Create new
-      artifact = await prisma.artifact.create({
-        data: {
-          title: body.title,
-          description: body.description,
+        });
+
+        auditLog('artifact_save', {
+          actorId: session.user.id,
+          action: 'update',
+          artifactId: artifact.id,
+          version: nextVersion,
+          visibility: body.visibility,
+        });
+      } else {
+        // Create new
+        artifact = await prisma.artifact.create({
+          data: {
+            title: body.title,
+            description: body.description,
+            type: body.type,
+            visibility: body.visibility,
+            tags: body.tags,
+            userId: session.user.id,
+            versions: {
+              create: {
+                version: '1',
+                uam: parsedUam.data as unknown as Prisma.InputJsonValue,
+                ...(body.compiled !== undefined ? { compiled: body.compiled as Prisma.InputJsonValue } : {}),
+                ...(body.lint !== undefined ? { lint: body.lint as Prisma.InputJsonValue } : {}),
+                message: body.message ?? 'Initial version',
+              },
+            },
+          },
+        });
+
+        auditLog('artifact_save', {
+          actorId: session.user.id,
+          action: 'create',
+          artifactId: artifact.id,
+          version: '1',
+          visibility: body.visibility,
           type: body.type,
-          visibility: body.visibility,
-          tags: body.tags,
-          userId: session.user.id,
-          versions: {
-            create: {
-              version: '1',
-              uam: body.uam as Prisma.InputJsonValue,
-              ...(body.compiled !== undefined ? { compiled: body.compiled as Prisma.InputJsonValue } : {}),
-              ...(body.lint !== undefined ? { lint: body.lint as Prisma.InputJsonValue } : {}),
-              message: body.message ?? 'Initial version',
-            },
-          },
-        },
-      });
-    }
+        });
+      }
 
-    return NextResponse.json(artifact);
-  } catch (error) {
-    console.error('Save artifact error:', error);
-    if (error instanceof z.ZodError) {
+      return NextResponse.json(artifact);
+    } catch (error) {
+      console.error('Save artifact error:', error);
+      if (error instanceof z.ZodError) {
         return NextResponse.json({ error: 'Validation failed', details: error.issues }, { status: 400 });
+      }
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
+  });
 }
