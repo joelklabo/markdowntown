@@ -4,6 +4,7 @@ import "./globals.css";
 import { PosthogProviderLazy } from "@/providers/PosthogProviderLazy";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { DensityProvider } from "@/providers/DensityProvider";
 import { getSession } from "@/lib/auth";
 import { SiteNav } from "@/components/SiteNav";
 import { Footer } from "@/components/Footer";
@@ -94,16 +95,18 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <AuthProvider session={session}>
-          <ThemeProvider>
-            <PosthogProviderLazy>
-              <SiteNav user={user} />
-              <WhatNewBanner />
-              <CommandPalette />
-              <PerfVitalsToggle />
-              <main id="main-content">{children}</main>
-              <Footer />
-            </PosthogProviderLazy>
-          </ThemeProvider>
+          <DensityProvider>
+            <ThemeProvider>
+              <PosthogProviderLazy>
+                <SiteNav user={user} />
+                <WhatNewBanner />
+                <CommandPalette />
+                <PerfVitalsToggle />
+                <main id="main-content">{children}</main>
+                <Footer />
+              </PosthogProviderLazy>
+            </ThemeProvider>
+          </DensityProvider>
         </AuthProvider>
       </body>
     </html>
