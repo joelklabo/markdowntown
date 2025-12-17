@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/Input";
+import { searchAtlasPaletteHits } from "@/lib/atlas/searchIndex";
 import { cn, interactiveBase } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -16,6 +17,7 @@ type CommandItem = {
   hint?: string;
   action: () => void;
   group: "Go to" | "Templates" | "Snippets" | "Files" | "Actions" | "Workbench";
+  closeOnRun?: boolean;
 };
 
 type PaletteProps = {
@@ -50,6 +52,38 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
 
   const commands = useMemo(() => {
     const inWorkbench = pathname.startsWith("/workbench");
+    const rawQuery = query.trim();
+    const lowerQuery = rawQuery.toLowerCase();
+    const atlasPrefix = lowerQuery.startsWith("atlas:") ? "atlas:" : lowerQuery.startsWith("atlas ") ? "atlas " : null;
+
+    if (atlasPrefix) {
+      const atlasQuery = rawQuery.slice(atlasPrefix.length).trim();
+      const hits = atlasQuery ? searchAtlasPaletteHits(atlasQuery) : [];
+
+      const atlasCommands: CommandItem[] = [
+        {
+          label: "Back to commands",
+          hint: "Esc",
+          group: "Go to",
+          closeOnRun: false,
+          action: () => {
+            setQuery("");
+            setHighlight(0);
+          },
+        },
+        ...hits.map(
+          (hit): CommandItem => ({
+            label: hit.label,
+            hint: hit.hint,
+            group: "Go to",
+            action: () => router.push(hit.href),
+          })
+        ),
+      ];
+
+      return atlasCommands;
+    }
+
     const blockCommands: CommandItem[] = inWorkbench
       ? uam.blocks.map((block) => {
           const title = block.title?.trim();
@@ -72,6 +106,16 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
       { label: "Go to home", action: () => router.push("/"), group: "Go to" },
       { label: "Browse library", action: () => router.push("/library"), group: "Go to", hint: "⌘B" },
       { label: "Open workbench", action: () => router.push("/workbench"), group: "Go to", hint: "⌘Shift+B" },
+      {
+        label: "Search Atlas…",
+        hint: "Atlas",
+        group: "Go to",
+        closeOnRun: false,
+        action: () => {
+          setHighlight(0);
+          setQuery("atlas ");
+        },
+      },
       { label: "Translate (paste)", action: () => router.push("/translate"), group: "Go to" },
       { label: "View templates", action: () => router.push("/library?type=template"), group: "Templates" },
       { label: "Docs", action: () => router.push("/docs"), group: "Go to" },
@@ -97,7 +141,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
       },
       { label: "Open search", action: () => router.push("/library"), group: "Actions", hint: "/" },
     ];
-    const q = query.trim().toLowerCase();
+    const q = lowerQuery;
     const merged = [...suggestions, ...blockCommands, ...baseCommands];
     if (!q) return merged;
     return merged.filter((cmd) => cmd.label.toLowerCase().includes(q));
@@ -165,7 +209,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         if (cmd) {
           cmd.action();
           track("command_palette_run", { label: cmd.label });
-          setOpen(false);
+          if (cmd.closeOnRun !== false) setOpen(false);
         }
       }
     }
@@ -216,7 +260,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
                     onClick={() => {
                       item.action();
                       track("command_palette_run", { label: item.label });
-                      setOpen(false);
+                      if (item.closeOnRun !== false) setOpen(false);
                     }}
                     className={cn(
                       "flex w-full items-center justify-between px-mdt-3 py-mdt-2 text-left text-body-sm",

@@ -173,3 +173,36 @@ export function searchAtlas(
   const limit = options?.limit ?? 12;
   return scored.slice(0, limit).map((item) => item.entry.result);
 }
+
+export type AtlasPaletteHit = {
+  id: string;
+  label: string;
+  hint: string;
+  href: string;
+};
+
+export function searchAtlasPaletteHits(
+  query: string,
+  options?: {
+    index?: AtlasSearchIndex;
+    limit?: number;
+  }
+): AtlasPaletteHit[] {
+  const hits = searchAtlas(query, { index: options?.index, limit: options?.limit ?? 10 }).filter(
+    (result) => result.kind !== "path"
+  );
+
+  const labelForKind: Record<Exclude<AtlasSearchResultKind, "path">, string> = {
+    platform: "Platform",
+    claim: "Claim",
+    guide: "Guide",
+    recipe: "Recipe",
+  };
+
+  return hits.map((result) => ({
+    id: result.id,
+    label: result.title,
+    hint: labelForKind[result.kind as Exclude<AtlasSearchResultKind, "path">] ?? "Atlas",
+    href: result.href,
+  }));
+}

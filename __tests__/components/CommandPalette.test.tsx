@@ -1,9 +1,11 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CommandPalette, COMMAND_PALETTE_OPEN_EVENT } from "@/components/CommandPalette";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { useWorkbenchStore } from "@/hooks/useWorkbenchStore";
 import { track } from "@/lib/analytics";
+import { searchAtlasPaletteHits } from "@/lib/atlas/searchIndex";
 
 const push = vi.fn();
 
@@ -14,6 +16,10 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/analytics", () => ({
   track: vi.fn(),
+}));
+
+vi.mock("@/lib/atlas/searchIndex", () => ({
+  searchAtlasPaletteHits: vi.fn(),
 }));
 
 describe("CommandPalette", () => {
@@ -107,5 +113,43 @@ describe("CommandPalette", () => {
     fireEvent.keyDown(window, { key: "e", ctrlKey: true, shiftKey: true });
     const input = screen.getByPlaceholderText("Type a command or search…");
     expect(input).toHaveValue("export");
+  });
+
+  it("supports Atlas search mode and navigates to hits", async () => {
+    const user = userEvent.setup();
+
+    const searchMock = vi.mocked(searchAtlasPaletteHits);
+    searchMock.mockImplementation((value: string) => {
+      if (!value.toLowerCase().includes("cop")) return [];
+      return [
+        {
+          id: "platform:github-copilot",
+          label: "GitHub Copilot",
+          hint: "Platform",
+          href: "/atlas/platforms/github-copilot",
+        },
+      ];
+    });
+
+    render(
+      <ThemeProvider>
+        <CommandPalette />
+      </ThemeProvider>
+    );
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_OPEN_EVENT, { detail: { origin: "test" } }));
+    });
+
+    fireEvent.click(screen.getByText("Search Atlas…"));
+    const input = screen.getByPlaceholderText("Type a command or search…");
+    expect(input).toHaveValue("atlas ");
+
+    await user.type(input, "cop");
+    expect(searchAtlasPaletteHits).toHaveBeenLastCalledWith("cop");
+    expect(screen.getByText("GitHub Copilot")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("GitHub Copilot"));
+    expect(push).toHaveBeenCalledWith("/atlas/platforms/github-copilot");
   });
 });
