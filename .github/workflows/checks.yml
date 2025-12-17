@@ -14,6 +14,26 @@ jobs:
     steps:
       - run: echo "Workflow is running (smoke check)."
 
+  atlas:
+    runs-on: ubuntu-latest
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Atlas validate
+        run: pnpm atlas:validate
+
   build:
     runs-on: ubuntu-latest
     needs: smoke
