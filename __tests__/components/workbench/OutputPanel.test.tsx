@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 
@@ -14,10 +14,13 @@ global.URL.revokeObjectURL = vi.fn();
 
 describe('OutputPanel', () => {
   beforeEach(() => {
-    useWorkbenchStore.setState({
-      blocks: [],
-      targets: ['agents-md'],
-      compilationResult: null,
+    localStorage.clear();
+    act(() => {
+      useWorkbenchStore.getState().resetDraft();
+      useWorkbenchStore.setState({
+        targets: ['agents-md'],
+        compilationResult: null,
+      });
     });
     vi.clearAllMocks();
     global.fetch = vi.fn();
@@ -27,13 +30,15 @@ describe('OutputPanel', () => {
     render(<OutputPanel />);
     expect(screen.getByText('Export')).toBeInTheDocument();
     expect(screen.getByText('Preview')).toBeInTheDocument();
+    expect(screen.getByText('Lint')).toBeInTheDocument();
+    expect(screen.getByText('Diff')).toBeInTheDocument();
     expect(screen.getByText('Targets')).toBeInTheDocument(); // Export panel content
   });
 
   it('switches tabs', () => {
     render(<OutputPanel />);
     fireEvent.click(screen.getByText('Preview'));
-    expect(screen.getByText('No compilation result yet.')).toBeInTheDocument(); // Preview panel content
+    expect(screen.getByText(/# Untitled Agent/)).toBeInTheDocument(); // Preview panel content
   });
 
   it('triggers compile', async () => {
