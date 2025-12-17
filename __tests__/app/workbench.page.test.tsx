@@ -16,13 +16,13 @@ describe('WorkbenchPage', () => {
     localStorage.clear();
     sessionStorage.clear();
     useWorkbenchStore.getState().resetDraft();
-    window.history.pushState({}, '', '/workbench');
     vi.restoreAllMocks();
     global.fetch = vi.fn();
   });
 
   it('renders layout panels', async () => {
-    render(<WorkbenchPage />);
+    const jsx = await WorkbenchPage({ searchParams: Promise.resolve({}) });
+    render(jsx);
     
     // Structure Panel (starts with loading or Blocks)
     // It renders "Loading structure..." initially.
@@ -36,16 +36,15 @@ describe('WorkbenchPage', () => {
     expect(screen.getByText('Preview')).toBeInTheDocument();
   });
 
-  it('renders tab controls', () => {
-    render(<WorkbenchPage />);
+  it('renders tab controls', async () => {
+    const jsx = await WorkbenchPage({ searchParams: Promise.resolve({}) });
+    render(jsx);
     expect(screen.getByRole('button', { name: 'Structure' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Editor' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Output' })).toBeInTheDocument();
   });
 
   it('loads artifact by id from query params', async () => {
-    window.history.pushState({}, '', '/workbench?id=a1');
-
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -56,11 +55,28 @@ describe('WorkbenchPage', () => {
       }),
     });
 
-    render(<WorkbenchPage />);
+    const jsx = await WorkbenchPage({ searchParams: Promise.resolve({ id: 'a1' }) });
+    render(jsx);
 
     await waitFor(() => {
       expect(screen.getByLabelText('Agent Title')).toHaveValue('Loaded Title');
     });
+  });
+
+  it('loads a workbench template from atlas examples', async () => {
+    const jsx = await WorkbenchPage({ searchParams: Promise.resolve({ templateId: 'github-copilot/copilot-instructions.md' }) });
+    render(jsx);
+
+    await waitFor(() => {
+      const title = screen.getByLabelText('Agent Title') as HTMLInputElement;
+      expect(title.value).toContain('github-copilot');
+    });
+
+    const badge = screen.getByLabelText('Visibility: Draft');
+    expect(badge).toBeInTheDocument();
+
+    const copilot = screen.getByLabelText('GitHub Copilot') as HTMLInputElement;
+    expect(copilot.checked).toBe(true);
   });
 
   it('covers add/edit/compile flow', async () => {
@@ -82,7 +98,8 @@ describe('WorkbenchPage', () => {
       throw new Error(`Unexpected fetch: ${String(input)}`);
     });
 
-    render(<WorkbenchPage />);
+    const jsx = await WorkbenchPage({ searchParams: Promise.resolve({}) });
+    render(jsx);
 
     await waitFor(() => expect(screen.getByText('Scopes')).toBeInTheDocument());
 

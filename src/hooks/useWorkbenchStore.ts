@@ -193,6 +193,7 @@ interface WorkbenchState {
   setAutosaveStatus: (status: AutosaveStatus) => void;
   saveArtifact: () => Promise<string | null>;
   resetDraft: () => void;
+  initializeFromTemplate: (uam: UamV1) => void;
   loadArtifact: (idOrSlug: string) => Promise<void>;
 }
 
@@ -540,6 +541,24 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
           });
+          onPersisted();
+        },
+
+        initializeFromTemplate: (templateUam) => {
+          const normalized = normalizeWorkbenchUam(templateUam);
+          set({
+            id: undefined,
+            ...deriveFromUam(normalized, null),
+            selectedBlockId: null,
+            compilationResult: null,
+            autosaveStatus: 'idle',
+            lastSavedAt: null,
+            visibility: 'PRIVATE',
+            tags: [],
+            cloudSaveStatus: 'idle',
+            cloudLastSavedAt: null,
+          });
+          markDirty();
           onPersisted();
         },
 

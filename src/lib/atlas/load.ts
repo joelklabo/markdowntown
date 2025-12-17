@@ -5,6 +5,7 @@ import { AtlasPlatformIdSchema, parsePlatformFacts } from './schema.ts';
 import { parseAtlasCrosswalk } from './features.ts';
 import type { AtlasCrosswalk } from './features.ts';
 import type { AtlasPlatformId, PlatformFacts } from './types.ts';
+import { createUamTargetV1, wrapMarkdownAsGlobal, type UamV1 } from '../uam/uamTypes.ts';
 
 export type AtlasLoadOptions = {
   atlasDir?: string;
@@ -173,6 +174,41 @@ export function loadExampleText(exampleId: string, options?: AtlasLoadOptions): 
 
   const fileName = parts[1];
   return loadAtlasExample(platformParsed.data, fileName, options);
+}
+
+function templateTargetIdForPlatform(platformId: AtlasPlatformId): string {
+  if (platformId === 'github-copilot') return 'github-copilot';
+  if (platformId === 'claude-code') return 'claude-code';
+  if (platformId === 'gemini-cli') return 'gemini-cli';
+  if (platformId === 'cursor') return 'cursor-rules';
+  if (platformId === 'windsurf') return 'windsurf-rules';
+  return 'agents-md';
+}
+
+export function loadWorkbenchTemplateUam(templateId: string, options?: AtlasLoadOptions): UamV1 {
+  const normalized = templateId.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  const parts = normalized.split('/').filter(Boolean);
+  if (parts.length !== 2) {
+    throw new Error(`[atlas] Invalid template id: ${templateId}`);
+  }
+
+  const platformCandidate = parts[0];
+  const platformParsed = AtlasPlatformIdSchema.safeParse(platformCandidate);
+  if (!platformParsed.success) {
+    throw new Error(`[atlas] Unknown platformId "${platformCandidate}" in template id: ${templateId}`);
+  }
+
+  const fileName = parts[1];
+  const contents = loadAtlasExample(platformParsed.data, fileName, options);
+  const title = `${platformParsed.data}: ${fileName}`;
+
+  const uam = wrapMarkdownAsGlobal(contents, { title });
+  const targetId = templateTargetIdForPlatform(platformParsed.data);
+
+  return {
+    ...uam,
+    targets: [createUamTargetV1(targetId)],
+  };
 }
 
 export type AtlasExample = {
