@@ -31,6 +31,12 @@ export function ForkButton({
         body: JSON.stringify({ artifactId }),
       });
 
+      if (res.status === 401) {
+        setLoading(false);
+        router.push('/signin');
+        return;
+      }
+
       if (!res.ok) throw new Error('Fork failed');
       
       const data = await res.json();

@@ -5,16 +5,24 @@ import { StructurePanel } from '@/components/workbench/StructurePanel';
 import { EditorPanel } from '@/components/workbench/EditorPanel';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
 import { WorkbenchHeader } from '@/components/workbench/WorkbenchHeader';
+import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 
 export default function WorkbenchPage() {
   const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>('structure');
   const [mounted, setMounted] = useState(false);
+  const loadArtifact = useWorkbenchStore(s => s.loadArtifact);
 
   // Hydration fix for zustand persist if needed, or just generally to avoid mismatch
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (id) void loadArtifact(id);
+  }, [loadArtifact, mounted]);
 
   if (!mounted) return null; // or a skeleton
 

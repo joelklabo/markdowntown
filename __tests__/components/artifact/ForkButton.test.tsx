@@ -55,4 +55,19 @@ describe('ForkButton', () => {
       expect(screen.getByText('Fork / Edit')).toBeInTheDocument(); // Reset loading
     });
   });
+
+  it('redirects to sign-in when unauthorized', async () => {
+    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+    });
+
+    render(<ForkButton artifactId="123" />);
+    fireEvent.click(screen.getByText('Fork / Edit'));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/signin');
+      expect(global.alert).not.toHaveBeenCalled();
+    });
+  });
 });

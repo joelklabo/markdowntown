@@ -12,6 +12,7 @@ import {
   type UamTargetV1,
   type UamV1,
 } from '@/lib/uam/uamTypes';
+import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 
 type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -181,6 +182,7 @@ interface WorkbenchState {
   setCompilationResult: (result: CompilationResult | null) => void;
   setAutosaveStatus: (status: AutosaveStatus) => void;
   resetDraft: () => void;
+  loadArtifact: (idOrSlug: string) => Promise<void>;
 }
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -196,6 +198,25 @@ export const useWorkbenchStore = create<WorkbenchState>()(
       const onPersisted = debounce(() => {
         set({ autosaveStatus: 'saved', lastSavedAt: Date.now() });
       }, AUTOSAVE_DEBOUNCE_MS);
+
+      const deriveFromUam = (uam: UamV1, selectedScopeIdHint: string | null | undefined) => {
+        const normalized = normalizeWorkbenchUam(uam);
+        const selectedScopeId = ensureSelectedScopeId(normalized, selectedScopeIdHint);
+        const scopes = normalized.scopes.map(legacyScopeLabel);
+        const blocks = syncLegacyBlocksFromUam(normalized.blocks);
+        const targets = syncLegacyTargetsFromUam(normalized.targets);
+
+        return {
+          uam: normalized,
+          selectedScopeId,
+          selectedScope: legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
+          title: normalized.meta.title,
+          description: normalized.meta.description ?? '',
+          scopes,
+          blocks,
+          targets,
+        };
+      };
 
       return {
         id: undefined,
@@ -236,22 +257,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         },
 
         setUam: (uam) => {
-          const normalized = normalizeWorkbenchUam(uam);
-          const selectedScopeId = ensureSelectedScopeId(normalized, get().selectedScopeId);
-          const scopes = normalized.scopes.map(legacyScopeLabel);
-          const blocks = syncLegacyBlocksFromUam(normalized.blocks);
-          const targets = syncLegacyTargetsFromUam(normalized.targets);
-
-          set({
-            uam: normalized,
-            selectedScopeId,
-            selectedScope: legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
-            title: normalized.meta.title,
-            description: normalized.meta.description ?? '',
-            scopes,
-            blocks,
-            targets,
-          });
+          set(deriveFromUam(uam, get().selectedScopeId));
           markDirty();
           onPersisted();
         },
@@ -463,6 +469,34 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             lastSavedAt: null,
           });
           onPersisted();
+        },
+
+        loadArtifact: async (idOrSlug) => {
+          try {
+            const res = await fetch(`/api/artifacts/${idOrSlug}`);
+            if (!res.ok) {
+              throw new Error(`Failed to load artifact (${res.status})`);
+            }
+
+            const data = (await res.json()) as { artifact?: { id?: string }; latestVersion?: { uam?: unknown } };
+            const artifactId = data.artifact?.id ?? idOrSlug;
+            const uam = data.latestVersion?.uam;
+            if (!uam) throw new Error('Artifact has no versions');
+
+            const parsed = safeParseUamV1(uam);
+            if (!parsed.success) throw new Error('Artifact has invalid UAM');
+
+            set({
+              id: artifactId,
+              ...deriveFromUam(parsed.data, get().selectedScopeId),
+              selectedBlockId: null,
+              compilationResult: null,
+              autosaveStatus: 'idle',
+              lastSavedAt: null,
+            });
+          } catch (err) {
+            console.error(err);
+          }
         },
       };
     },
