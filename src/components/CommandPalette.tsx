@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
+import { usePathname, useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogDescription, DialogOverlay, DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/Input";
 import { cn, interactiveBase } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useWorkbenchStore } from "@/hooks/useWorkbenchStore";
 
 export const COMMAND_PALETTE_OPEN_EVENT = "mdt:command-palette-open";
 
@@ -14,7 +15,7 @@ type CommandItem = {
   label: string;
   hint?: string;
   action: () => void;
-  group: "Go to" | "Templates" | "Snippets" | "Files" | "Actions";
+  group: "Go to" | "Templates" | "Snippets" | "Files" | "Actions" | "Workbench";
 };
 
 type PaletteProps = {
@@ -23,7 +24,13 @@ type PaletteProps = {
 
 export function CommandPalette({ suggestions = [] }: PaletteProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { theme, toggle } = useTheme();
+  const uam = useWorkbenchStore((s) => s.uam);
+  const resetDraft = useWorkbenchStore((s) => s.resetDraft);
+  const selectScope = useWorkbenchStore((s) => s.selectScope);
+  const selectBlock = useWorkbenchStore((s) => s.selectBlock);
+
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
@@ -42,32 +49,105 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
   }, []);
 
   const commands = useMemo(() => {
+    const inWorkbench = pathname.startsWith("/workbench");
+    const blockCommands: CommandItem[] = inWorkbench
+      ? uam.blocks.map((block) => {
+          const title = block.title?.trim();
+          const preview = title && title.length > 0 ? title : (block.body.trim().split("\n")[0] ?? "(empty)");
+          const label = `Open block: ${preview.length > 80 ? `${preview.slice(0, 77)}…` : preview}`;
+          return {
+            label,
+            group: "Workbench",
+            hint: "⌘P",
+            action: () => {
+              selectScope(block.scopeId);
+              selectBlock(block.id);
+              router.push("/workbench");
+            },
+          };
+        })
+      : [];
+
     const baseCommands: CommandItem[] = [
       { label: "Go to home", action: () => router.push("/"), group: "Go to" },
       { label: "Browse library", action: () => router.push("/library"), group: "Go to", hint: "⌘B" },
       { label: "Open workbench", action: () => router.push("/workbench"), group: "Go to", hint: "⌘Shift+B" },
+      { label: "Translate (paste)", action: () => router.push("/translate"), group: "Go to" },
       { label: "View templates", action: () => router.push("/library?type=template"), group: "Templates" },
       { label: "Docs", action: () => router.push("/docs"), group: "Go to" },
-      { label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode", action: toggle, group: "Actions", hint: "⌘L" },
+      {
+        label: "Create new artifact",
+        action: () => {
+          resetDraft();
+          router.push("/workbench");
+        },
+        group: "Actions",
+      },
+      {
+        label: "Export zip",
+        action: () => router.push("/workbench"),
+        group: "Actions",
+        hint: "⌘⇧E",
+      },
+      {
+        label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode",
+        action: toggle,
+        group: "Actions",
+        hint: "⌘L",
+      },
       { label: "Open search", action: () => router.push("/library"), group: "Actions", hint: "/" },
     ];
     const q = query.trim().toLowerCase();
-    const merged = [...suggestions, ...baseCommands];
+    const merged = [...suggestions, ...blockCommands, ...baseCommands];
     if (!q) return merged;
     return merged.filter((cmd) => cmd.label.toLowerCase().includes(q));
-  }, [query, suggestions, router, theme, toggle]);
+  }, [pathname, query, resetDraft, router, selectBlock, selectScope, suggestions, theme, toggle, uam.blocks]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const isMac = /mac/i.test(navigator.userAgent);
-      const cmdK = (isMac && e.metaKey && e.key.toLowerCase() === "k") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "k");
+      const key = e.key.toLowerCase();
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
+
+      const cmdK = modKey && key === "k";
+      const cmdP = modKey && key === "p";
+      const cmdShiftE = modKey && e.shiftKey && key === "e";
+      const cmdS = modKey && key === "s";
+
       if (cmdK) {
         e.preventDefault();
         setOpen(true);
         setHighlight(0);
+        setQuery("");
         track("command_palette_open", { origin: "keyboard" });
         return;
       }
+
+      if (cmdP && pathname.startsWith("/workbench")) {
+        e.preventDefault();
+        setOpen(true);
+        setHighlight(0);
+        setQuery("open block");
+        track("workbench_shortcut", { shortcut: "cmd_p", action: "open_block" });
+        return;
+      }
+
+      if (cmdShiftE) {
+        e.preventDefault();
+        setOpen(true);
+        setHighlight(0);
+        setQuery("export");
+        track("workbench_shortcut", { shortcut: "cmd_shift_e", action: "export" });
+        return;
+      }
+
+      if (cmdS && pathname.startsWith("/workbench")) {
+        e.preventDefault();
+        useWorkbenchStore.setState({ autosaveStatus: "saved", lastSavedAt: Date.now() });
+        track("workbench_shortcut", { shortcut: "cmd_s", action: "save_draft" });
+        return;
+      }
+
       if (!open) return;
       if (e.key === "Escape") setOpen(false);
       if (e.key === "ArrowDown") {
@@ -91,7 +171,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, commands, highlight]);
+  }, [open, commands, highlight, pathname]);
 
   const grouped = useMemo(() => {
     const groups: Record<string, CommandItem[]> = {};
@@ -109,6 +189,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         aria-label="Command palette"
       >
         <DialogTitle className="sr-only">Command palette</DialogTitle>
+        <DialogDescription className="sr-only">Search commands and run actions.</DialogDescription>
         <Input
           data-cmd-input
           autoFocus

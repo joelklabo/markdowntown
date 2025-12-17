@@ -5,12 +5,16 @@ import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { Button } from '@/components/ui/Button';
 import { useSession } from 'next-auth/react';
 import { Input } from '@/components/ui/Input';
+import { COMMAND_PALETTE_OPEN_EVENT } from '@/components/CommandPalette';
+import { track } from '@/lib/analytics';
 
 export function WorkbenchHeader() {
   const { data: session } = useSession();
   const id = useWorkbenchStore(s => s.id);
   const title = useWorkbenchStore(s => s.title);
   const uam = useWorkbenchStore(s => s.uam);
+  const autosaveStatus = useWorkbenchStore(s => s.autosaveStatus);
+  const lastSavedAt = useWorkbenchStore(s => s.lastSavedAt);
   
   const setTitle = useWorkbenchStore(s => s.setTitle);
   const setId = useWorkbenchStore(s => s.setId);
@@ -45,9 +49,11 @@ export function WorkbenchHeader() {
       if (data.id) {
         setId(data.id);
       }
+      track('workbench_save_artifact', { id: data.id ?? null });
       setAutosaveStatus('saved');
     } catch (e) {
       console.error(e);
+      track('workbench_save_artifact_failed', {});
       setAutosaveStatus('error');
     } finally {
       setSaving(false);
@@ -65,6 +71,25 @@ export function WorkbenchHeader() {
          />
        </div>
        <div className="flex gap-2 items-center">
+         <Button
+           size="sm"
+           variant="secondary"
+           onClick={() => {
+             window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_OPEN_EVENT, { detail: { origin: 'workbench_header' } }));
+           }}
+           title="Command palette (⌘K)"
+         >
+           ⌘K
+         </Button>
+         <div className="text-xs text-gray-500 tabular-nums">
+           {autosaveStatus === 'saving'
+             ? 'Saving draft…'
+             : autosaveStatus === 'saved'
+               ? `Draft saved${lastSavedAt ? ` · ${new Date(lastSavedAt).toLocaleTimeString()}` : ''}`
+               : autosaveStatus === 'error'
+                 ? 'Draft save error'
+                 : 'Draft'}
+         </div>
          <Button size="sm" onClick={handleSave} disabled={saving || !session}>
            {saving ? 'Saving...' : 'Save'}
          </Button>
