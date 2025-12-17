@@ -4,6 +4,7 @@ import { codexCliAgentsExtractor } from "./codex_cli_agents.ts";
 import { copilotDocsInstructionsExtractor } from "./copilot_docs_instructions.ts";
 import { cursorRulesDocsExtractor } from "./cursor_rules.ts";
 import { geminiCliDocsExtractor } from "./gemini_cli.ts";
+import { windsurfRulesDocsExtractor } from "./windsurf_rules.ts";
 
 const noopExtractor: AtlasExtractor = {
   sourceId: "__noop__",
@@ -25,3 +26,4 @@ registerExtractor(claudeCodeMemoryExtractor);
 registerExtractor(geminiCliDocsExtractor);
 registerExtractor(codexCliAgentsExtractor);
 registerExtractor(cursorRulesDocsExtractor);
+registerExtractor(windsurfRulesDocsExtractor);
