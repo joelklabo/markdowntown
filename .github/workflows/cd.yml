@@ -21,6 +21,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -79,6 +80,28 @@ jobs:
           tags: ${{ env.IMAGE }}
           cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/markdowntown:buildcache
           cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/markdowntown:buildcache,mode=max
+
+      - name: Validate Trivy ignore list
+        run: node scripts/validate-trivy-ignore.mjs
+
+      - name: Trivy scan image (CRITICAL)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+          trivyignores: .trivyignore
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
 
       - name: Deploy to Container Apps
         run: |
