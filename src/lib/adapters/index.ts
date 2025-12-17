@@ -2,6 +2,7 @@ import type { Adapter } from './types';
 import { agentsMdCodexAdapter } from './agentsMdCodex';
 import { githubCopilotAdapter } from './githubCopilot';
 import { claudeCodeAdapter } from './claudeCode';
+import { geminiCliAdapter } from './geminiCli';
 
 export interface AdapterRegistry {
   register(adapter: Adapter): void;
@@ -41,6 +42,7 @@ export const adapterRegistry = createAdapterRegistry();
 adapterRegistry.register(agentsMdCodexAdapter);
 adapterRegistry.register(githubCopilotAdapter);
 adapterRegistry.register(claudeCodeAdapter);
+adapterRegistry.register(geminiCliAdapter);
 
 export function registerAdapter(adapter: Adapter) {
   adapterRegistry.register(adapter);
@@ -59,3 +61,4 @@ export type { CompileResult, CompiledFile } from './types';
 export { agentsMdCodexAdapter } from './agentsMdCodex';
 export { githubCopilotAdapter } from './githubCopilot';
 export { claudeCodeAdapter } from './claudeCode';
+export { geminiCliAdapter } from './geminiCli';
