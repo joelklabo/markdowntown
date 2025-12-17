@@ -153,9 +153,13 @@
   --mdt-color-accent: var(--mdt-violet-500);
   --mdt-color-accent-soft: var(--mdt-violet-100);
   --mdt-color-success: var(--mdt-success-500);
+  --mdt-color-success-soft: hsl(157 60% 46% / 0.15);
   --mdt-color-warning: var(--mdt-warning-500);
+  --mdt-color-warning-soft: hsl(38 92% 50% / 0.15);
   --mdt-color-danger: var(--mdt-danger-500);
+  --mdt-color-danger-soft: hsl(349 74% 52% / 0.16);
   --mdt-color-info: var(--mdt-info-500);
+  --mdt-color-info-soft: hsl(210 90% 55% / 0.15);
 
   /* Surfaces */
   --mdt-color-bg: var(--mdt-neutral-25);
@@ -339,9 +343,13 @@
   --mdt-color-accent: var(--mdt-violet-500);
   --mdt-color-accent-soft: var(--mdt-violet-50);
   --mdt-color-success: var(--mdt-success-500);
+  --mdt-color-success-soft: hsl(157 58% 56% / 0.15);
   --mdt-color-warning: var(--mdt-warning-500);
+  --mdt-color-warning-soft: hsl(38 95% 60% / 0.15);
   --mdt-color-danger: var(--mdt-danger-500);
+  --mdt-color-danger-soft: hsl(349 76% 62% / 0.16);
   --mdt-color-info: var(--mdt-info-500);
+  --mdt-color-info-soft: hsl(210 92% 70% / 0.15);
 
   --mdt-color-bg: var(--mdt-neutral-0);
   --mdt-color-surface: var(--mdt-neutral-50);
