@@ -10,51 +10,24 @@ import { track } from '@/lib/analytics';
 
 export function WorkbenchHeader() {
   const { data: session } = useSession();
-  const id = useWorkbenchStore(s => s.id);
   const title = useWorkbenchStore(s => s.title);
-  const uam = useWorkbenchStore(s => s.uam);
   const autosaveStatus = useWorkbenchStore(s => s.autosaveStatus);
   const lastSavedAt = useWorkbenchStore(s => s.lastSavedAt);
+  const cloudSaveStatus = useWorkbenchStore(s => s.cloudSaveStatus);
+  const cloudLastSavedAt = useWorkbenchStore(s => s.cloudLastSavedAt);
+  const saveArtifact = useWorkbenchStore(s => s.saveArtifact);
   
   const setTitle = useWorkbenchStore(s => s.setTitle);
-  const setId = useWorkbenchStore(s => s.setId);
-  const setAutosaveStatus = useWorkbenchStore(s => s.setAutosaveStatus);
-  
+
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!session) return;
     setSaving(true);
-    setAutosaveStatus('saving');
-    
     try {
-      const payload = {
-        id,
-        title,
-        tags: [],
-        visibility: 'PRIVATE',
-        uam,
-        message: 'Saved via Workbench',
-      };
-
-      const res = await fetch('/api/artifacts/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error('Save failed');
-      const data = await res.json();
-      
-      if (data.id) {
-        setId(data.id);
-      }
-      track('workbench_save_artifact', { id: data.id ?? null });
-      setAutosaveStatus('saved');
-    } catch (e) {
-      console.error(e);
-      track('workbench_save_artifact_failed', {});
-      setAutosaveStatus('error');
+      const id = await saveArtifact();
+      if (id) track('workbench_save_artifact', { id });
+      else track('workbench_save_artifact_failed', {});
     } finally {
       setSaving(false);
     }
@@ -81,17 +54,30 @@ export function WorkbenchHeader() {
          >
            ⌘K
          </Button>
-         <div className="text-xs text-gray-500 tabular-nums">
-           {autosaveStatus === 'saving'
-             ? 'Saving draft…'
-             : autosaveStatus === 'saved'
-               ? `Draft saved${lastSavedAt ? ` · ${new Date(lastSavedAt).toLocaleTimeString()}` : ''}`
-               : autosaveStatus === 'error'
-                 ? 'Draft save error'
-                 : 'Draft'}
+         <div className="text-xs text-gray-500 tabular-nums leading-tight">
+           <div>
+             {autosaveStatus === 'saving'
+               ? 'Draft: saving…'
+               : autosaveStatus === 'saved'
+                 ? `Draft: saved${lastSavedAt ? ` · ${new Date(lastSavedAt).toLocaleTimeString()}` : ''}`
+                 : autosaveStatus === 'error'
+                   ? 'Draft: error'
+                   : 'Draft: idle'}
+           </div>
+           <div>
+             {!session
+               ? 'Cloud: sign in'
+               : cloudSaveStatus === 'saving'
+                 ? 'Cloud: saving…'
+                 : cloudSaveStatus === 'saved'
+                   ? `Cloud: saved${cloudLastSavedAt ? ` · ${new Date(cloudLastSavedAt).toLocaleTimeString()}` : ''}`
+                   : cloudSaveStatus === 'error'
+                     ? 'Cloud: error'
+                     : 'Cloud: idle'}
+           </div>
          </div>
-         <Button size="sm" onClick={handleSave} disabled={saving || !session}>
-           {saving ? 'Saving...' : 'Save'}
+         <Button size="sm" onClick={handleSave} disabled={saving || cloudSaveStatus === 'saving' || !session}>
+           {saving || cloudSaveStatus === 'saving' ? 'Saving...' : 'Save'}
          </Button>
          {!session && <span className="text-xs text-red-500">Sign in to save</span>}
        </div>

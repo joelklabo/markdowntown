@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { WorkbenchHeader } from '@/components/workbench/WorkbenchHeader';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { useSession } from 'next-auth/react';
@@ -8,9 +8,10 @@ vi.mock('next-auth/react');
 
 describe('WorkbenchHeader', () => {
   beforeEach(() => {
-    useWorkbenchStore.setState({
-      title: 'Test Agent',
-      id: undefined,
+    localStorage.clear();
+    act(() => {
+      useWorkbenchStore.getState().resetDraft();
+      useWorkbenchStore.getState().setTitle('Test Agent');
     });
     vi.clearAllMocks();
     global.fetch = vi.fn();

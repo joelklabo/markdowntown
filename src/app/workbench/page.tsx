@@ -20,8 +20,9 @@ export default function WorkbenchPage() {
 
   useEffect(() => {
     if (!mounted) return;
-    const id = new URLSearchParams(window.location.search).get('id');
-    if (id) void loadArtifact(id);
+    const params = new URLSearchParams(window.location.search);
+    const idOrSlug = params.get('id') ?? params.get('slug') ?? params.get('artifact');
+    if (idOrSlug) void loadArtifact(idOrSlug);
   }, [loadArtifact, mounted]);
 
   if (!mounted) return null; // or a skeleton

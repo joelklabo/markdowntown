@@ -157,6 +157,8 @@ interface WorkbenchState {
   compilationResult: CompilationResult | null;
   autosaveStatus: AutosaveStatus;
   lastSavedAt: number | null;
+  cloudSaveStatus: AutosaveStatus;
+  cloudLastSavedAt: number | null;
 
   // Actions
   setId: (id?: string) => void;
@@ -181,6 +183,7 @@ interface WorkbenchState {
   toggleTarget: (targetId: string) => void;
   setCompilationResult: (result: CompilationResult | null) => void;
   setAutosaveStatus: (status: AutosaveStatus) => void;
+  saveArtifact: () => Promise<string | null>;
   resetDraft: () => void;
   loadArtifact: (idOrSlug: string) => Promise<void>;
 }
@@ -235,6 +238,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         compilationResult: null,
         autosaveStatus: 'idle',
         lastSavedAt: null,
+        cloudSaveStatus: 'idle',
+        cloudLastSavedAt: null,
 
         setId: (id) => set({ id }),
 
@@ -451,6 +456,46 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         setCompilationResult: (result) => set({ compilationResult: result }),
         setAutosaveStatus: (status) => set({ autosaveStatus: status }),
 
+        saveArtifact: async () => {
+          const state = get();
+          set({ cloudSaveStatus: 'saving' });
+
+          try {
+            const payload = {
+              id: state.id,
+              title: state.title,
+              tags: [],
+              visibility: 'PRIVATE',
+              uam: state.uam,
+              message: 'Saved via Workbench',
+            };
+
+            const res = await fetch('/api/artifacts/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) {
+              const body = await res.json().catch(() => null);
+              const message = body?.error ?? 'Save failed';
+              throw new Error(message);
+            }
+
+            const data = (await res.json()) as { id?: string };
+            if (data.id) {
+              state.setId(data.id);
+            }
+
+            set({ cloudSaveStatus: 'saved', cloudLastSavedAt: Date.now() });
+            return data.id ?? null;
+          } catch (err) {
+            console.error(err);
+            set({ cloudSaveStatus: 'error' });
+            return null;
+          }
+        },
+
         resetDraft: () => {
           const uam = createEmptyUamV1({ title: 'Untitled Agent' });
           set({
@@ -467,6 +512,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             compilationResult: null,
             autosaveStatus: 'idle',
             lastSavedAt: null,
+            cloudSaveStatus: 'idle',
+            cloudLastSavedAt: null,
           });
           onPersisted();
         },
@@ -493,6 +540,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               compilationResult: null,
               autosaveStatus: 'idle',
               lastSavedAt: null,
+              cloudSaveStatus: 'idle',
+              cloudLastSavedAt: null,
             });
           } catch (err) {
             console.error(err);
