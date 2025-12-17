@@ -1,0 +1,72 @@
+# Atlas sources registry (schemaVersion: 1)
+#
+# Notes:
+# - urls are placeholders until the fetch pipeline is wired up.
+# - expectedPhrases are cheap assertions to detect major doc changes.
+
+schemaVersion: 1
+
+sources:
+  - id: github-copilot-repo-instructions
+    platformId: github-copilot
+    kind: docs
+    url: https://example.com/github-copilot/repo-instructions
+    cadence: monthly
+    expectedPhrases:
+      - .github/copilot-instructions.md
+    trust: official
+
+  - id: claude-code-claude-md
+    platformId: claude-code
+    kind: docs
+    url: https://example.com/claude-code/claude-md
+    cadence: monthly
+    expectedPhrases:
+      - CLAUDE.md
+    trust: official
+
+  - id: gemini-cli-gemini-md
+    platformId: gemini-cli
+    kind: docs
+    url: https://example.com/gemini-cli/gemini-md
+    cadence: monthly
+    expectedPhrases:
+      - GEMINI.md
+    trust: official
+
+  - id: cursor-cursorrules
+    platformId: cursor
+    kind: docs
+    url: https://example.com/cursor/cursorrules
+    cadence: monthly
+    expectedPhrases:
+      - .cursorrules
+    trust: official
+
+  - id: windsurf-windsurfrules
+    platformId: windsurf
+    kind: docs
+    url: https://example.com/windsurf/windsurfrules
+    cadence: monthly
+    expectedPhrases:
+      - .windsurfrules
+    trust: official
+
+  - id: codex-cli-agents-md
+    platformId: codex-cli
+    kind: docs
+    url: https://example.com/codex-cli/agents-md
+    cadence: monthly
+    expectedPhrases:
+      - AGENTS.md
+    trust: medium
+
+  - id: copilot-cli-agents-md
+    platformId: copilot-cli
+    kind: docs
+    url: https://example.com/copilot-cli/agents-md
+    cadence: monthly
+    expectedPhrases:
+      - AGENTS.md
+    trust: medium
+
