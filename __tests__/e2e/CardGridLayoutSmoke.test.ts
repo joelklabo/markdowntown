@@ -14,7 +14,7 @@ function overlaps(a: Rect, b: Rect, tolerance = 2) {
   return a.x + tolerance < bx2 && ax2 > b.x + tolerance && a.y + tolerance < by2 && ay2 > b.y + tolerance;
 }
 
-describe("Card grid layout smoke", () => {
+describe("Library layout smoke", () => {
   let browser: Browser;
 
   beforeAll(async () => {
@@ -27,7 +27,7 @@ describe("Card grid layout smoke", () => {
 
   const maybe = baseURL ? it : it.skip;
 
-  maybe("browse/template grids render without overlaps or horizontal overflow", { timeout: 45000 }, async () => {
+  maybe("library renders without overlaps or horizontal overflow", { timeout: 45000 }, async () => {
     const context = await browser.newContext({
       baseURL,
       viewport: { width: 1280, height: 900 },
@@ -35,25 +35,31 @@ describe("Card grid layout smoke", () => {
     const page = await context.newPage();
 
     const paths = [
+      "/library",
+      "/library?type=snippet",
+      "/library?type=template",
+      "/library?type=file",
       "/browse",
       "/browse?type=snippet",
       "/browse?type=template",
       "/browse?type=file",
       "/templates",
+      "/tags",
     ];
 
     for (const path of paths) {
       await page.goto(path, { waitUntil: "domcontentloaded" });
+      expect(page.url()).toMatch(/\/library/);
 
-      const cards = page.getByTestId("library-card");
-      const count = await cards.count();
+      const rows = page.getByTestId("artifact-row");
+      const count = await rows.count();
 
       if (count === 0) {
         // Empty states are allowed but should render cleanly.
-        await page.getByText(/no results yet|no templates yet|nothing here/i).first().waitFor({ state: "visible" });
+        await page.getByText(/no public items found|no public items/i).first().waitFor({ state: "visible" });
       } else {
         const sampleCount = Math.min(count, 12);
-        const boxes = (await cards.evaluateAll(
+        const boxes = (await rows.evaluateAll(
           (els, n) =>
             els.slice(0, n).map((el) => {
               const r = el.getBoundingClientRect();
@@ -84,9 +90,9 @@ describe("Card grid layout smoke", () => {
       expect(scrollWidth).toBeLessThanOrEqual(innerWidth + 24);
     }
 
-    // Mobile overflow sanity on browse
+    // Mobile overflow sanity on library
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/browse", { waitUntil: "domcontentloaded" });
+    await page.goto("/library", { waitUntil: "domcontentloaded" });
     const mobileScrollWidth = await page.evaluate(() => document.scrollingElement?.scrollWidth ?? document.body.scrollWidth);
     const mobileInnerWidth = await page.evaluate(() => window.innerWidth);
     expect(mobileScrollWidth).toBeLessThanOrEqual(mobileInnerWidth + 32);

@@ -24,58 +24,35 @@ describe("CTA interactions", () => {
     }
     const page = await context.newPage();
 
-    async function assertBrowseType(type: "snippet" | "template" | "file") {
-      await page.goto(`/browse?type=${type}`, { waitUntil: "domcontentloaded" });
-
-      // If no results, don't fail on missing CTAs.
-      const emptyState = page.getByText(/no results yet/i);
-      if (await emptyState.isVisible()) return;
-
-      if (type !== "file") {
-        const preview = page.getByRole("button", { name: /^preview\b/i }).first();
-        await preview.waitFor({ state: "visible" });
-        await preview.click();
-        await page.getByRole("button", { name: /close preview/i }).first().waitFor({ state: "visible" });
-        // close preview
-        await page.getByRole("button", { name: /close preview/i }).first().click();
-      }
-
-      if (type === "snippet") {
-        const copy = page.getByRole("button", { name: /^copy\b/i }).first();
-        await copy.waitFor({ state: "visible" });
-        await copy.click();
-        await page.getByText(/^copied$/i).first().waitFor({ state: "visible" });
-
-        const add = page.getByRole("button", { name: /add .* to builder/i }).first();
-        await Promise.all([page.waitForURL(/\/builder\?add=/), add.click()]);
-        return;
-      }
-
-      if (type === "template") {
-        const useTemplate = page.getByRole("button", { name: /^use template\b/i }).first();
-        await useTemplate.waitFor({ state: "visible" });
-        await Promise.all([page.waitForURL(/\/templates\//), useTemplate.click()]);
-
-        await page.goto("/browse?type=template", { waitUntil: "domcontentloaded" });
-        const add = page.getByRole("button", { name: /add .* to builder/i }).first();
-        await Promise.all([page.waitForURL(/\/builder\?add=/), add.click()]);
-        return;
-      }
-
-      const download = page.getByRole("button", { name: /^download\b/i }).first();
-      await download.waitFor({ state: "visible" });
-      await Promise.all([page.waitForURL(/\/files\//), download.click()]);
-    }
-
     // Landing: browse CTA
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByRole("link", { name: /browse library/i }).first().click();
-    await page.waitForURL(/\/browse/);
+    await page.locator("header").getByRole("link", { name: /^library$/i }).first().click();
+    await page.waitForURL(/\/library/);
+    await page.getByRole("heading", { name: /library/i }).waitFor({ state: "visible" });
 
-    // Browse surfaces: card CTAs
-    await assertBrowseType("snippet");
-    await assertBrowseType("template");
-    await assertBrowseType("file");
+    // Legacy /templates should redirect into Library filters.
+    await page.locator("header").getByRole("link", { name: /use a template/i }).first().click();
+    await page.waitForURL(/\/library\?type=template/);
+
+    // Library CTAs: copy link + open workbench (if any rows exist).
+    const rows = page.getByTestId("artifact-row");
+    const rowCount = await rows.count();
+    if (rowCount === 0) {
+      await page.getByText(/no public items found|no public items/i).first().waitFor({ state: "visible" });
+      await context.close();
+      return;
+    }
+
+    const firstRow = rows.first();
+    const copy = firstRow.getByRole("button", { name: /copy link/i }).first();
+    await copy.waitFor({ state: "visible" });
+    await copy.click();
+    await page.getByText(/^copied$/i).first().waitFor({ state: "visible" });
+
+    const openWorkbench = firstRow.getByRole("link", { name: /open workbench/i }).first();
+    await openWorkbench.waitFor({ state: "visible" });
+    await openWorkbench.click();
+    await page.waitForURL(/\/workbench/);
 
     await context.close();
   }, 45000);

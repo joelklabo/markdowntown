@@ -44,6 +44,7 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
 
   return (
     <div
+      data-testid="artifact-row"
       className={cn(
         "flex flex-col gap-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-4 shadow-mdt-sm",
         "sm:flex-row sm:items-start sm:justify-between"
@@ -97,4 +98,3 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
     </div>
   );
 }
-

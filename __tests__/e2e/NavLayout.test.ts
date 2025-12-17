@@ -22,6 +22,7 @@ describe("Navigation and browse layout integrity", () => {
     const page = await context.newPage();
 
     await page.goto("/browse", { waitUntil: "domcontentloaded" });
+    expect(page.url()).toMatch(/\/library/);
 
     // Header buttons should not wrap
     const header = page.locator("header");
@@ -33,26 +34,21 @@ describe("Navigation and browse layout integrity", () => {
     expect(ctaBox?.height).toBeLessThan(48);
     expect(signBox?.height).toBeLessThan(40);
 
-    const cardsLocator = page.locator("main .card");
-    const cardCount = await cardsLocator.count();
-    if (cardCount === 0) {
-      await page.getByText(/no results yet|no public items/i).first().waitFor({ state: "visible" });
+    await page.getByRole("heading", { name: /library/i }).waitFor({ state: "visible" });
+
+    const rows = page.getByTestId("artifact-row");
+    const rowCount = await rows.count();
+    if (rowCount === 0) {
+      await page.getByText(/no public items found|no public items/i).first().waitFor({ state: "visible" });
       await context.close();
       return;
     }
 
-    // Cards maintain usable width
-    const firstCard = cardsLocator.first();
-    await firstCard.waitFor({ state: "visible" });
-    const cardBox = await firstCard.boundingBox();
-    expect(cardBox?.width).toBeGreaterThan(240);
-
-    if (cardCount > 1) {
-      // At least two columns at desktop width
-      const cards = await cardsLocator.all();
-      const xs = await Promise.all(cards.slice(0, 2).map(async (c) => (await c.boundingBox())?.x ?? 0));
-      expect(new Set(xs).size).toBeGreaterThan(1);
-    }
+    // Rows maintain usable width
+    const firstRow = rows.first();
+    await firstRow.waitFor({ state: "visible" });
+    const rowBox = await firstRow.boundingBox();
+    expect(rowBox?.width).toBeGreaterThan(240);
 
     await context.close();
   });
@@ -62,6 +58,7 @@ describe("Navigation and browse layout integrity", () => {
     const page = await context.newPage();
 
     await page.goto("/browse", { waitUntil: "domcontentloaded" });
+    expect(page.url()).toMatch(/\/library/);
 
     const scrollWidth = await page.evaluate(() => document.scrollingElement?.scrollWidth ?? 0);
     expect(scrollWidth).toBeLessThanOrEqual(440);
@@ -69,18 +66,20 @@ describe("Navigation and browse layout integrity", () => {
     const bottomNav = page.getByRole("navigation", { name: /primary/i });
     await bottomNav.waitFor({ state: "visible" });
 
-    const cardsLocator = page.locator("main .card");
-    const cardCount = await cardsLocator.count();
-    if (cardCount === 0) {
-      await page.getByText(/no results yet|no public items/i).first().waitFor({ state: "visible" });
+    await page.getByRole("heading", { name: /library/i }).waitFor({ state: "visible" });
+
+    const rows = page.getByTestId("artifact-row");
+    const rowCount = await rows.count();
+    if (rowCount === 0) {
+      await page.getByText(/no public items found|no public items/i).first().waitFor({ state: "visible" });
       await context.close();
       return;
     }
 
-    const firstCard = cardsLocator.first();
-    await firstCard.waitFor({ state: "visible" });
-    const cardBox = await firstCard.boundingBox();
-    expect(cardBox?.width).toBeGreaterThan(220);
+    const firstRow = rows.first();
+    await firstRow.waitFor({ state: "visible" });
+    const rowBox = await firstRow.boundingBox();
+    expect(rowBox?.width).toBeGreaterThan(220);
 
     await context.close();
   });

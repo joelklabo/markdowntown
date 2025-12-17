@@ -34,7 +34,8 @@ describe("Section flow", () => {
       const builder = await page.goto(`${baseURL}/builder`, { waitUntil: "domcontentloaded", timeout: 15000 });
       expect(builder?.status()).toBeGreaterThanOrEqual(200);
       expect(builder?.status()).toBeLessThan(400);
-      await page.getByText(/Assemble your agents\.md/i).waitFor({ state: "visible" });
+      expect(page.url()).toMatch(/\/workbench/);
+      await page.getByRole("textbox", { name: /agent title/i }).waitFor({ state: "visible" });
 
       await page.close();
     }
