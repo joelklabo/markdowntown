@@ -29,7 +29,7 @@ describe('/api/artifacts/[id]', () => {
     (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     (prisma.artifact.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-    const res = await GET(new Request('http://localhost'), { params: { id: 'missing' } });
+    const res = await GET(new Request('http://localhost'), { params: Promise.resolve({ id: 'missing' }) });
     expect(res.status).toBe(404);
   });
 
@@ -42,7 +42,7 @@ describe('/api/artifacts/[id]', () => {
       versions: [],
     });
 
-    const res = await GET(new Request('http://localhost'), { params: { id: 'a1' } });
+    const res = await GET(new Request('http://localhost'), { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(403);
   });
 
@@ -55,7 +55,7 @@ describe('/api/artifacts/[id]', () => {
       versions: [{ id: 'v1', version: '1', uam: { foo: 'bar' }, message: null, createdAt: new Date() }],
     });
 
-    const res = await GET(new Request('http://localhost'), { params: { id: 'a1' } });
+    const res = await GET(new Request('http://localhost'), { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.latestVersion.version).toBe('1');
@@ -64,7 +64,7 @@ describe('/api/artifacts/[id]', () => {
   it('rejects visibility updates when logged out', async () => {
     (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     const req = new Request('http://localhost', { method: 'PATCH', body: JSON.stringify({ visibility: 'PUBLIC' }) });
-    const res = await PATCH(req, { params: { id: 'a1' } });
+    const res = await PATCH(req, { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(401);
   });
 
@@ -73,7 +73,7 @@ describe('/api/artifacts/[id]', () => {
     (prisma.artifact.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', userId: 'u1' });
 
     const req = new Request('http://localhost', { method: 'PATCH', body: JSON.stringify({ visibility: 'PUBLIC' }) });
-    const res = await PATCH(req, { params: { id: 'a1' } });
+    const res = await PATCH(req, { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(403);
   });
 
@@ -83,9 +83,8 @@ describe('/api/artifacts/[id]', () => {
     (prisma.artifact.update as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', visibility: 'UNLISTED' });
 
     const req = new Request('http://localhost', { method: 'PATCH', body: JSON.stringify({ visibility: 'UNLISTED' }) });
-    const res = await PATCH(req, { params: { id: 'a1' } });
+    const res = await PATCH(req, { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(200);
     expect(prisma.artifact.update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'a1' } }));
   });
 });
-

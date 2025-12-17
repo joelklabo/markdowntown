@@ -5,13 +5,13 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Visibility } from '@prisma/client';
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: Request, context: RouteContext) {
   const session = await getServerSession(authOptions);
   const viewerId = session?.user?.id ?? null;
 
-  const idOrSlug = params.id;
+  const { id: idOrSlug } = await context.params;
 
   const artifact = await prisma.artifact.findFirst({
     where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },
@@ -40,7 +40,7 @@ const PatchSchema = z.object({
   visibility: z.nativeEnum(Visibility),
 });
 
-export async function PATCH(req: Request, { params }: Params) {
+export async function PATCH(req: Request, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -52,7 +52,7 @@ export async function PATCH(req: Request, { params }: Params) {
     return NextResponse.json({ error: 'Invalid payload', details: parsed.error.issues }, { status: 400 });
   }
 
-  const idOrSlug = params.id;
+  const { id: idOrSlug } = await context.params;
   const existing = await prisma.artifact.findFirst({
     where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },
     select: { id: true, userId: true },

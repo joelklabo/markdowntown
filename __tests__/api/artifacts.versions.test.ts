@@ -31,7 +31,7 @@ describe('/api/artifacts/[id]/versions', () => {
     (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     (prisma.artifact.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-    const res = await GET(new Request('http://localhost'), { params: { id: 'missing' } });
+    const res = await GET(new Request('http://localhost'), { params: Promise.resolve({ id: 'missing' }) });
     expect(res.status).toBe(404);
   });
 
@@ -43,7 +43,7 @@ describe('/api/artifacts/[id]/versions', () => {
       visibility: 'PRIVATE',
     });
 
-    const res = await GET(new Request('http://localhost'), { params: { id: 'a1' } });
+    const res = await GET(new Request('http://localhost'), { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(403);
   });
 
@@ -58,11 +58,10 @@ describe('/api/artifacts/[id]/versions', () => {
       { id: 'v1', version: '1', message: 'init', createdAt: new Date() },
     ]);
 
-    const res = await GET(new Request('http://localhost'), { params: { id: 'a1' } });
+    const res = await GET(new Request('http://localhost'), { params: Promise.resolve({ id: 'a1' }) });
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.versions).toHaveLength(1);
     expect(json.versions[0].version).toBe('1');
   });
 });
-

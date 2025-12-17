@@ -3,13 +3,13 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: Request, context: RouteContext) {
   const session = await getServerSession(authOptions);
   const viewerId = session?.user?.id ?? null;
 
-  const idOrSlug = params.id;
+  const { id: idOrSlug } = await context.params;
   const artifact = await prisma.artifact.findFirst({
     where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },
     select: { id: true, visibility: true, userId: true },
@@ -37,4 +37,3 @@ export async function GET(_req: Request, { params }: Params) {
 
   return NextResponse.json({ artifactId: artifact.id, versions });
 }
-
