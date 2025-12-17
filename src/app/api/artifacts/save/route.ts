@@ -13,6 +13,8 @@ const SaveSchema = z.object({
   visibility: z.nativeEnum(Visibility).default('PRIVATE'),
   tags: z.array(z.string()).default([]),
   uam: z.unknown(),
+  compiled: z.unknown().optional(),
+  lint: z.unknown().optional(),
   message: z.string().optional(),
 });
 
@@ -64,6 +66,8 @@ export async function POST(req: Request) {
             create: {
               version: nextVersion,
               uam: body.uam as Prisma.InputJsonValue, // JSON
+              ...(body.compiled !== undefined ? { compiled: body.compiled as Prisma.InputJsonValue } : {}),
+              ...(body.lint !== undefined ? { lint: body.lint as Prisma.InputJsonValue } : {}),
               message: body.message,
             },
           },
@@ -83,6 +87,8 @@ export async function POST(req: Request) {
             create: {
               version: '1',
               uam: body.uam as Prisma.InputJsonValue,
+              ...(body.compiled !== undefined ? { compiled: body.compiled as Prisma.InputJsonValue } : {}),
+              ...(body.lint !== undefined ? { lint: body.lint as Prisma.InputJsonValue } : {}),
               message: body.message ?? 'Initial version',
             },
           },
