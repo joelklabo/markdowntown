@@ -69,10 +69,42 @@ jobs:
             --image $IMAGE \
             --set-env-vars SKIP_DB=1
 
-      - name: Smoke test prod /
+      - name: Resolve Container Apps ingress URL
         run: |
-          curl -I --fail https://markdown.town
-          curl -I --fail https://markdown.town/api/public/items
+          FQDN="$(az containerapp show -n $AZURE_CONTAINERAPP_NAME -g $AZURE_RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)"
+          echo "Container Apps FQDN: $FQDN"
+          echo "CONTAINERAPP_FQDN=$FQDN" >> $GITHUB_ENV
+
+      - name: Smoke test deployed revision (Container Apps FQDN)
+        run: |
+          set -euo pipefail
+          BASE="https://$CONTAINERAPP_FQDN"
+          echo "Smoke testing $BASE"
+
+          echo "Waiting for /api/health..."
+          for i in {1..30}; do
+            if curl -sf --max-time 10 "$BASE/api/health" > /dev/null; then
+              echo "Healthy"
+              break
+            fi
+            echo "Not ready yet ($i/30)"
+            sleep 5
+          done
+
+          curl -sf --max-time 10 "$BASE/api/health"
+          curl -sf --max-time 10 "$BASE/api/public/items" > /dev/null
+
+      - name: Smoke test prod domain (Cloudflare may challenge)
+        run: |
+          set -euo pipefail
+          for url in "https://markdown.town" "https://markdown.town/api/public/items"; do
+            status="$(curl -s -o /dev/null -w "%{http_code}" -I "$url" || true)"
+            echo "$url -> $status"
+            if [ "$status" -ge 500 ] || [ "$status" -eq 000 ]; then
+              echo "Unexpected status from $url: $status"
+              exit 1
+            fi
+          done
 
       - name: Kick migrate job (optional)
         if: false  # enable when ready
