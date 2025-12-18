@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
+import { Radio } from "@/components/ui/Radio";
 import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
 import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
+import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsScan";
+import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import type { RepoTree, SimulationResult, SimulatorToolId } from "@/lib/atlas/simulators/types";
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
@@ -53,10 +56,26 @@ function runSimulation(tool: SimulatorToolId, cwd: string, repoText: string): Si
 export function ContextSimulator() {
   const [tool, setTool] = useState<SimulatorToolId>("github-copilot");
   const [cwd, setCwd] = useState("");
+  const [repoSource, setRepoSource] = useState<"manual" | "folder">("manual");
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
+  const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
+  const [scanMeta, setScanMeta] = useState<{ totalFiles: number; truncated: boolean; rootName?: string } | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<SimulationResult>(() => runSimulation("github-copilot", "", DEFAULT_REPO_TREE));
 
-  const repoFileCount = useMemo(() => parseRepoPaths(repoText).length, [repoText]);
+  const canPickDirectory = typeof window !== "undefined" && "showDirectoryPicker" in window;
+
+  const manualPaths = useMemo(() => parseRepoPaths(repoText), [repoText]);
+  const repoFileCount = repoSource === "folder" ? scannedTree?.files.length ?? 0 : manualPaths.length;
+
+  const scannedPreview = useMemo(() => {
+    const paths = (scannedTree?.files ?? []).map((file) => file.path);
+    const limit = 200;
+    const head = paths.slice(0, limit);
+    const suffix = paths.length > limit ? `\n… (${paths.length - limit} more)` : "";
+    return head.join("\n") + suffix;
+  }, [scannedTree]);
 
   return (
     <div className="grid gap-mdt-6 lg:grid-cols-[360px,1fr]">
@@ -81,6 +100,34 @@ export function ContextSimulator() {
           </div>
 
           <div className="space-y-2">
+            <div className="text-body-sm font-semibold text-mdt-text">Repo source</div>
+            <div className="flex flex-wrap gap-4">
+              <Radio
+                name="sim-repo-source"
+                checked={repoSource === "manual"}
+                onChange={() => setRepoSource("manual")}
+                label="Manual (paste paths)"
+              />
+              <Radio
+                name="sim-repo-source"
+                checked={repoSource === "folder"}
+                disabled={!canPickDirectory}
+                onChange={() => setRepoSource("folder")}
+                label="Local folder (File System Access API)"
+              />
+            </div>
+            {!canPickDirectory ? (
+              <Text tone="muted" size="bodySm">
+                Folder picking isn’t supported in this browser.
+              </Text>
+            ) : (
+              <Text tone="muted" size="bodySm">
+                Scans locally in your browser. File contents are never uploaded.
+              </Text>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <label htmlFor="sim-cwd" className="text-body-sm font-semibold text-mdt-text">
               Current directory (cwd)
             </label>
@@ -99,19 +146,74 @@ export function ContextSimulator() {
             <label htmlFor="sim-tree" className="text-body-sm font-semibold text-mdt-text">
               Repo tree (paths)
             </label>
-            <TextArea
-              id="sim-tree"
-              rows={10}
-              value={repoText}
-              onChange={(e) => setRepoText(e.target.value)}
-              placeholder="One path per line (e.g. .github/copilot-instructions.md)"
-            />
+            {repoSource === "folder" ? (
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={!canPickDirectory || isScanning}
+                  onClick={async () => {
+                    setScanError(null);
+                    setIsScanning(true);
+                    try {
+                      const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+                      if (!picker) throw new Error("File System Access API not available");
+                      const handle = await picker();
+                      const { tree, totalFiles, truncated } = await scanRepoTree(handle as FileSystemDirectoryHandleLike);
+                      setScannedTree(tree);
+                      setScanMeta({ totalFiles, truncated, rootName: (handle as { name?: string }).name });
+                    } catch (err) {
+                      if (err instanceof DOMException && err.name === "AbortError") {
+                        return;
+                      }
+                      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+                    } finally {
+                      setIsScanning(false);
+                    }
+                  }}
+                >
+                  {isScanning ? "Scanning…" : "Choose folder"}
+                </Button>
+
+                {scanError ? (
+                  <Text tone="muted" size="bodySm">
+                    {scanError}
+                  </Text>
+                ) : null}
+
+                {scanMeta ? (
+                  <Text tone="muted" size="bodySm">
+                    {scanMeta.rootName ? `${scanMeta.rootName}: ` : ""}
+                    {scanMeta.totalFiles} file(s) scanned{scanMeta.truncated ? " (truncated)" : ""}.
+                  </Text>
+                ) : null}
+
+                <TextArea id="sim-tree" rows={10} value={scannedPreview} readOnly />
+              </div>
+            ) : (
+              <TextArea
+                id="sim-tree"
+                rows={10}
+                value={repoText}
+                onChange={(e) => setRepoText(e.target.value)}
+                placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+              />
+            )}
             <Text tone="muted" size="bodySm">
               {repoFileCount} file(s). Lines starting with `#` or `//` are ignored.
             </Text>
           </div>
 
-          <Button type="button" onClick={() => setResult(runSimulation(tool, cwd, repoText))}>
+          <Button
+            type="button"
+            onClick={() => {
+              const tree =
+                repoSource === "folder"
+                  ? scannedTree ?? { files: [] }
+                  : toRepoTree(manualPaths);
+              setResult(simulateContextResolution({ tool, cwd, tree }));
+            }}
+          >
             Simulate
           </Button>
         </Stack>
