@@ -1,13 +1,13 @@
-# MarkdownTown Redesign 2025 Plan
+# mark downtown redesign 2025 plan
 
 ## Goals
 - Make the interface feel calm, competent, and intelligent while reducing visual busyness.
-- Guide first-time visitors to the value (why MarkdownTown, what you can build) within 10 seconds.
+- Guide first-time visitors to the value (why mark downtown, what you can build) within 10 seconds.
 - Let returning users move from browse -> assemble -> export in one continuous, low-friction flow.
 - Ship a design system that makes future components "fit in by default" across light and dark modes.
 
 ## Primary user stories
-- New visitor: grasp what MarkdownTown does, view a credible example, and try building without account creation.
+- New visitor: grasp what mark downtown does, view a credible example, and try building without account creation.
 - Researcher: compare snippets/templates, save favorites, and understand popularity/quality signals quickly.
 - Builder: assemble or edit an agents.md in a focused workbench with real-time feedback and AI assist.
 - Returning pro: jump back into the last file, use shortcuts/command palette, and export or share confidently.

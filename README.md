@@ -1,4 +1,4 @@
-# Markdown Town
+# mark downtown
 Compose and preview markdown sections in a three-panel editor, backed by Next.js, Prisma, and GitHub OAuth.
 
 ## What’s here
@@ -8,7 +8,7 @@ Compose and preview markdown sections in a three-panel editor, backed by Next.js
 - GitHub login via NextAuth (database sessions).
 - Health check at `/api/health`.
 - Dockerfile, GitHub Actions CI (lint, type-check, build), Beads backlog.
-- Design system: MarkdownTown brand icon, Tailwind tokens, global utilities, and UI primitives (BrandLogo, Button, Card, Pill).
+- Design system: mark downtown brand icon, Tailwind tokens, global utilities, and UI primitives (BrandLogo, Button, Card, Pill).
 - Release docs: Semantic Versioning, CHANGELOG, and migration/release guides in `docs/`.
 - CDN-friendly asset headers; ACA scaling set to min=1, max=5; HTTP scale rule concurrentRequests=50.
 - Open Graph image: `public/og-image-base.svg` registered in Next metadata.

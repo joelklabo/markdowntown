@@ -27,7 +27,7 @@ Make the homepage immediately useful to anonymous visitors: show high-signal con
 - Inline gate on save/favorite/vote/comment with post-auth retry.
 
 ## SEO/meta
-- H1: “MarkdownTown agents.md library” (or similar); include “snippets” and “templates”.
+- H1: “mark downtown agents.md library” (or similar); include “snippets” and “templates”.
 - Meta description: highlight copy/download and templates; avoid feature-flagged claims until live.
 - Structured data: ItemList for featured rails; BreadcrumbList for nav.
 

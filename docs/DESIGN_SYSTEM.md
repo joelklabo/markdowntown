@@ -1,4 +1,4 @@
-# MarkdownTown Design System (2025)
+# mark downtown design system (2025)
 
 ## Tokens
 - **Color roles (light/dark via CSS vars):** primary / primary-strong / primary-soft, accent / accent-soft, success, warning, danger, info, bg, surface, surface-subtle, surface-strong, surface-raised, overlay, border, border-strong, ring, text, text-muted, text-subtle, text-on-strong. See `src/app/globals.css`.
@@ -19,7 +19,7 @@
 - Markdown preview styles consume surface/text tokens for light/dark parity.
 
 ## Primitives
-- `BrandLogo`, `Button` (primary/secondary/ghost, sm/md/lg, `asChild`), `Card`, `Pill`; helper `cn` in `src/lib/cn.ts`.
+- `BrandLogo`, `Wordmark`, `Button` (primary/secondary/ghost, sm/md/lg, `asChild`), `Card`, `Pill`; helper `cn` in `src/lib/cn.ts`.
 - Detail kit: `DetailTabs` (rendered/raw toggle + copy), `DetailStats` (views/copies/votes strip), `DetailWarning` (private/unlisted banner), `FeedbackCTA` (feedback prompt).
 - Status: `BuilderStatus` shows perf/cache/save state for builder.
 

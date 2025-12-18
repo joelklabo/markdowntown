@@ -1,6 +1,6 @@
 # Developer Onboarding
 
-Welcome to MarkdownTown. This guide gets you running locally in a few minutes.
+Welcome to mark downtown. This guide gets you running locally in a few minutes.
 
 ## Prerequisites
 - Node.js 20 (matches production)

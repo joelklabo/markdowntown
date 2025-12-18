@@ -1,4 +1,4 @@
-# MarkdownTown Design System
+# mark downtown design system
 
 Last updated: Dec 3, 2025
 
@@ -50,6 +50,7 @@ Legacy aliases (`mdt-blue`, `mdt-bg`, etc.) still map to the semantic set for ba
 - **Breadcrumb / Card / Tooltip / Drawer:** surfaces, borders, overlay token for Drawer.
 - **Avatar:** image or initials fallback; sizes `sm|md|lg`.
 - **Pagination:** previous/next and page buttons styled with surface/primary-soft tokens.
+- **Wordmark:** `Wordmark` (`src/components/Wordmark.tsx`) renders the voxel/cityscape brand wordmark and respects `prefers-reduced-motion`.
 
 ## File map
 - Tokens: `src/app/globals.css` (`:root` and `.dark` CSS variables).

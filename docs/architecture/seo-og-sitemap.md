@@ -9,7 +9,7 @@ Epic: markdowntown-7z8
 
 ## Meta strategy
 - Dynamic metadata per page (Next.js Metadata API):
-  - title: "{item.title} | MarkdownTown"
+  - title: "{item.title} | mark downtown"
   - description: first 150-200 chars of content/description.
   - og:image: generated OG card with title + type + tags.
   - canonical: `https://markdown.town/{type}/{slug}`
