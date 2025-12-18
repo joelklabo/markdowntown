@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { clamp01 } from "./sim/easing";
+import type { CityWordmarkActorRect } from "./sim/actors/types";
 import { CITY_WORDMARK_GLYPH_ROWS } from "./sim/glyphs";
 import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/layout";
 import { getCityWordmarkPalette } from "./sim/palette";
@@ -19,6 +20,7 @@ type LivingCityWordmarkSvgProps = {
   /** Normalized time-of-day (0..1). */
   timeOfDay?: number;
   nowMs?: number;
+  actorRects?: readonly CityWordmarkActorRect[];
 };
 
 const ACCESSIBLE_TITLE = "mark downtown";
@@ -51,6 +53,7 @@ export function LivingCityWordmarkSvg({
   seed = "markdowntown",
   timeOfDay = 0.78,
   nowMs = 0,
+  actorRects = [],
 }: LivingCityWordmarkSvgProps) {
   const layout = useMemo(() => createCityWordmarkLayout(), []);
 
@@ -158,6 +161,15 @@ export function LivingCityWordmarkSvg({
         ))}
       </g>
 
+      <rect
+        x={0}
+        y={(layout.baselineY - 1) * SCALE}
+        width={width}
+        height={SCALE}
+        fill={rgbToCss(palette.buildingMuted)}
+        opacity={0.25}
+      />
+
       <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
         {windows.map((w, idx) => (
           <rect
@@ -170,6 +182,27 @@ export function LivingCityWordmarkSvg({
           />
         ))}
       </g>
+
+      {actorRects.length > 0 && (
+        <g>
+          {actorRects.map((r, idx) => {
+            const fill = r.tone === "headlight" ? palette.window : palette.buildingMuted;
+            const baseOpacity = r.opacity ?? 1;
+            const opacity = r.tone === "headlight" ? baseOpacity * clamp01(nightness * 1.25) : baseOpacity;
+            return (
+              <rect
+                key={`actor-${idx}-${r.tone}-${r.x}-${r.y}-${r.width}-${r.height}`}
+                x={r.x * SCALE}
+                y={r.y * SCALE}
+                width={r.width * SCALE}
+                height={r.height * SCALE}
+                fill={rgbToCss(fill)}
+                opacity={opacity}
+              />
+            );
+          })}
+        </g>
+      )}
     </svg>
   );
 }

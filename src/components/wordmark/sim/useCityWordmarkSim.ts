@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import type { CityWordmarkConfig } from "./types";
-import { getDefaultCityWordmarkConfig } from "./config";
+import type { CityWordmarkActorRect } from "./actors/types";
 import {
   getCityWordmarkEngineSnapshot,
   setCityWordmarkEngineConfig,
@@ -17,15 +17,15 @@ type CityWordmarkSimSnapshot = ReturnType<typeof getCityWordmarkEngineSnapshot>;
 const subscribeNoop = () => () => {};
 
 const frozenDefaults: CityWordmarkSimSnapshot = {
-  nowMs: 0,
+  ...getCityWordmarkEngineSnapshot(),
   playing: false,
-  config: getDefaultCityWordmarkConfig(),
 };
 
 export type CityWordmarkSim = {
   nowMs: number;
   playing: boolean;
   config: CityWordmarkConfig;
+  actorRects: readonly CityWordmarkActorRect[];
   setPlaying: (playing: boolean) => void;
   togglePlaying: () => void;
   setTimeOfDay: (timeOfDay: number) => void;
@@ -84,12 +84,23 @@ export function useCityWordmarkSim(options: { enabled?: boolean } = {}): CityWor
       nowMs: snapshot.nowMs,
       playing: snapshot.playing,
       config: snapshot.config,
+      actorRects: snapshot.actorRects,
       setPlaying,
       togglePlaying,
       setTimeOfDay,
       step,
       setConfig,
     }),
-    [setConfig, setPlaying, setTimeOfDay, snapshot.config, snapshot.nowMs, snapshot.playing, step, togglePlaying]
+    [
+      setConfig,
+      setPlaying,
+      setTimeOfDay,
+      snapshot.actorRects,
+      snapshot.config,
+      snapshot.nowMs,
+      snapshot.playing,
+      step,
+      togglePlaying,
+    ]
   );
 }

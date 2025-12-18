@@ -1,5 +1,8 @@
 import type { CityWordmarkConfig } from "./types";
 import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "./config";
+import type { CityWordmarkActor, CityWordmarkActorRect } from "./actors/types";
+import { spawnCarActors } from "./actors/car";
+import { createCityWordmarkLayout } from "./layout";
 import { normalizeTimeOfDay } from "./time";
 
 export type CityWordmarkEngineListener = () => void;
@@ -8,18 +11,29 @@ export type CityWordmarkEngineSnapshot = Readonly<{
   nowMs: number;
   playing: boolean;
   config: CityWordmarkConfig;
+  actorRects: readonly CityWordmarkActorRect[];
 }>;
 
-const FIXED_STEP_MS = 100;
+const FIXED_STEP_MS = 50;
 const DAY_CYCLE_MS = 240_000;
 const MAX_FRAME_MS = 250;
 
 const listeners = new Set<CityWordmarkEngineListener>();
 
+const layout = createCityWordmarkLayout();
+let actors: CityWordmarkActor[] = [];
+
 let snapshot: CityWordmarkEngineSnapshot = {
   nowMs: 0,
   playing: true,
   config: getDefaultCityWordmarkConfig(),
+  actorRects: [],
+};
+
+actors = spawnCarActors({ config: snapshot.config, layout });
+snapshot = {
+  ...snapshot,
+  actorRects: actors.flatMap((actor) => actor.render({ nowMs: snapshot.nowMs, config: snapshot.config, layout })),
 };
 
 type FrameHandle = number | ReturnType<typeof setTimeout>;
@@ -73,13 +87,20 @@ function advance(stepMs: number) {
     snapshot.config.timeOfDay + (stepMs * snapshot.config.timeScale) / DAY_CYCLE_MS
   );
 
+  const nextConfig = {
+    ...snapshot.config,
+    timeOfDay: nextTimeOfDay,
+  };
+
+  const updateCtx = { nowMs: nextNowMs, dtMs: stepMs, config: nextConfig, layout };
+  actors = actors.map((actor) => actor.update(updateCtx));
+  const actorRects = actors.flatMap((actor) => actor.render({ nowMs: nextNowMs, config: nextConfig, layout }));
+
   snapshot = {
     ...snapshot,
     nowMs: nextNowMs,
-    config: {
-      ...snapshot.config,
-      timeOfDay: nextTimeOfDay,
-    },
+    config: nextConfig,
+    actorRects,
   };
 }
 
@@ -130,21 +151,17 @@ export function setCityWordmarkEnginePlaying(playing: boolean) {
 }
 
 export function setCityWordmarkEngineConfig(overrides: unknown) {
-  snapshot = {
-    ...snapshot,
-    config: mergeCityWordmarkConfig(snapshot.config, overrides),
-  };
+  const nextConfig = mergeCityWordmarkConfig(snapshot.config, overrides);
+  actors = spawnCarActors({ config: nextConfig, layout });
+  const actorRects = actors.flatMap((actor) => actor.render({ nowMs: snapshot.nowMs, config: nextConfig, layout }));
+  snapshot = { ...snapshot, config: nextConfig, actorRects };
   emit();
 }
 
 export function setCityWordmarkEngineTimeOfDay(timeOfDay: number) {
-  snapshot = {
-    ...snapshot,
-    config: {
-      ...snapshot.config,
-      timeOfDay: normalizeTimeOfDay(timeOfDay),
-    },
-  };
+  const nextConfig = { ...snapshot.config, timeOfDay: normalizeTimeOfDay(timeOfDay) };
+  const actorRects = actors.flatMap((actor) => actor.render({ nowMs: snapshot.nowMs, config: nextConfig, layout }));
+  snapshot = { ...snapshot, config: nextConfig, actorRects };
   emit();
 }
 

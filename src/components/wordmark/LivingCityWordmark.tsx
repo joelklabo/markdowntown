@@ -23,7 +23,7 @@ export function LivingCityWordmark({ className }: LivingCityWordmarkProps) {
       seed={sim.config.seed}
       timeOfDay={sim.config.timeOfDay}
       nowMs={sim.nowMs}
+      actorRects={sim.actorRects}
     />
   );
 }
-
