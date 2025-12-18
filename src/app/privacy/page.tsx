@@ -7,8 +7,8 @@ import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
-  title: "Privacy | MarkdownTown",
-  description: "Learn how MarkdownTown handles data in this preview environment.",
+  title: "Privacy | mark downtown",
+  description: "Learn how mark downtown handles data in this preview environment.",
 };
 
 export default function PrivacyPage() {
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             <Text size="caption" tone="muted">Privacy</Text>
             <Heading level="display" leading="tight">How we handle your data</Heading>
             <Text tone="muted">
-              MarkdownTown is running in a local/demo environment. We store minimal data and you can remove it anytime.
+              mark downtown is running in a local/demo environment. We store minimal data and you can remove it anytime.
             </Text>
           </Stack>
 

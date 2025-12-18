@@ -7,8 +7,8 @@ import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
-  title: "Terms | MarkdownTown",
-  description: "Terms of use for the MarkdownTown demo environment.",
+  title: "Terms | mark downtown",
+  description: "Terms of use for the mark downtown demo environment.",
 };
 
 export default function TermsPage() {
@@ -18,9 +18,9 @@ export default function TermsPage() {
         <Stack gap={6}>
           <Stack gap={2}>
             <Text size="caption" tone="muted">Terms</Text>
-            <Heading level="display" leading="tight">MarkdownTown terms of use</Heading>
+            <Heading level="display" leading="tight">mark downtown terms of use</Heading>
             <Text tone="muted">
-              These lightweight terms cover using the local/demo version of MarkdownTown.
+              These lightweight terms cover using the local/demo version of mark downtown.
             </Text>
           </Stack>
 

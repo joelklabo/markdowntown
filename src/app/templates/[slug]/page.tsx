@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<TemplatePar
   const item = await getPublicTemplate(slug);
   if (!item) return { title: "Template not found" };
   return {
-    title: `${item.title} | MarkdownTown`,
+    title: `${item.title} | mark downtown`,
     description: item.description ?? "",
   };
 }

@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<SnippetPara
   const section = await getPublicSection(slug);
   if (section) {
     return {
-      title: `${section.title} | MarkdownTown`,
+      title: `${section.title} | mark downtown`,
       description: section.content.slice(0, 160) || "Markdown snippet",
     };
   }

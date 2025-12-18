@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
-  title: "Builder | MarkdownTown",
+  title: "Builder | mark downtown",
   description: "Assemble snippets and templates into a single agents.md and export without signing in.",
 };
 

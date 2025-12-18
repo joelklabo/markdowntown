@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Tags | MarkdownTown",
+  title: "Tags | mark downtown",
   description: "Explore tags to find snippets, templates, and agents.md files by topic.",
 };
 

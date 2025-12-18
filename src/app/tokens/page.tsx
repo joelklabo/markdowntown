@@ -30,7 +30,7 @@ const radii = [
 ];
 
 export const metadata: Metadata = {
-  title: "Design tokens · MarkdownTown",
+  title: "Design tokens · mark downtown",
   description: "Audit view for Option A design tokens (colors, shadows, radii, typography).",
 };
 

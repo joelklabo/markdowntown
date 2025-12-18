@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
 export const metadata = {
-  title: "Not found · MarkdownTown",
+  title: "Not found · mark downtown",
 };
 
 export default function NotFound() {

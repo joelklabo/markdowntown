@@ -17,7 +17,7 @@ import { Text } from "@/components/ui/Text";
 import { Input } from "@/components/ui/Input";
 
 export const metadata: Metadata = {
-  title: "MarkdownTown | Compose, remix, and ship agents.md fast",
+  title: "mark downtown | Compose, remix, and ship agents.md fast",
   description: "Copy battle-tested snippets and templates, preview in the builder, and export agents.md with confidence.",
 };
 

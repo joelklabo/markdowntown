@@ -10,7 +10,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 
 export const metadata = {
-  title: "Sign in · MarkdownTown",
+  title: "Sign in · mark downtown",
 };
 
 const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET);

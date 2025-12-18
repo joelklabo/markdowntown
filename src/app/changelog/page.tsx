@@ -9,8 +9,8 @@ import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
-  title: "Changelog | MarkdownTown",
-  description: "Release notes and history for MarkdownTown.",
+  title: "Changelog | mark downtown",
+  description: "Release notes and history for mark downtown.",
 };
 
 async function loadChangelogExcerpt() {
@@ -33,7 +33,7 @@ export default async function ChangelogPage() {
         <Stack gap={6}>
           <Stack gap={2}>
             <Text size="caption" tone="muted">Changelog</Text>
-            <Heading level="display" leading="tight">What\u2019s new in MarkdownTown</Heading>
+            <Heading level="display" leading="tight">What\u2019s new in mark downtown</Heading>
             <Text tone="muted">
               Recent releases and fixes. View the complete history on GitHub.
             </Text>

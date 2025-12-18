@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: { params: Promise<FileParams>
   const item = await getPublicFile(id);
   if (!item) return { title: "agents.md not found" };
   return {
-    title: `${item.title} | MarkdownTown`,
-    description: item.description ?? "", 
+    title: `${item.title} | mark downtown`,
+    description: item.description ?? "",
   };
 }
 

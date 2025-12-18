@@ -7,8 +7,8 @@ import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 
 export const metadata: Metadata = {
-  title: "Docs | MarkdownTown",
-  description: "Documentation and guides for MarkdownTown, agents.md workflows, and agents plugins.",
+  title: "Docs | mark downtown",
+  description: "Documentation and guides for mark downtown, agents.md workflows, and agents plugins.",
 };
 
 const repoBase = "https://github.com/joelklabo/markdowntown/blob/main";
@@ -26,7 +26,7 @@ export default function DocsPage() {
         <Stack gap={6}>
           <Stack gap={2}>
             <Text size="caption" tone="muted">Docs</Text>
-            <Heading level="display" leading="tight">MarkdownTown documentation</Heading>
+            <Heading level="display" leading="tight">mark downtown documentation</Heading>
             <Text tone="muted">
               Quick links to the guides already in this repo. More to come as the public library ships.
             </Text>

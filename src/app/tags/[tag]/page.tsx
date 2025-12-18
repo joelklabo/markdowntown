@@ -15,7 +15,7 @@ type TagParams = { tag: string };
 
 export async function generateMetadata({ params }: { params: Promise<TagParams> }): Promise<Metadata> {
   const { tag } = await params;
-  const title = `#${tag} snippets & templates | MarkdownTown`;
+  const title = `#${tag} snippets & templates | mark downtown`;
   return { title, description: `Browse snippets, templates, and files tagged #${tag}.` };
 }
 
