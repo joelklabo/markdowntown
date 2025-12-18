@@ -30,7 +30,7 @@ describe("SiteNav", () => {
       }) as unknown as MediaQueryList;
   });
 
-  it("renders the BlockTown wordmark", () => {
+  it("renders the mark downtown wordmark", () => {
     render(
       <ThemeProvider>
         <DensityProvider>
@@ -38,7 +38,7 @@ describe("SiteNav", () => {
         </DensityProvider>
       </ThemeProvider>
     );
-    expect(screen.getByRole("link", { name: "BlockTown" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "mark downtown" })).toBeInTheDocument();
   });
 
   it("focuses desktop search on / without opening the mobile sheet", () => {
