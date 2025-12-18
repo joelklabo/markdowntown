@@ -6,6 +6,10 @@ export function clamp01(value: number): number {
   return clamp(value, 0, 1);
 }
 
+export function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
 export function invLerp(a: number, b: number, value: number): number {
   if (a === b) return 0;
   return (value - a) / (b - a);

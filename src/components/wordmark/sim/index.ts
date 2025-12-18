@@ -6,3 +6,5 @@ export * from "./easing";
 export * from "./time";
 export * from "./glyphs";
 export * from "./layout";
+export * from "./color";
+export * from "./palette";
