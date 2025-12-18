@@ -10,6 +10,7 @@ import { cn, interactiveBase } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useWorkbenchStore } from "@/hooks/useWorkbenchStore";
+import { emitCityWordmarkEvent } from "@/components/wordmark/sim/bridge";
 
 export const COMMAND_PALETTE_OPEN_EVENT = "mdt:command-palette-open";
 
@@ -51,10 +52,12 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
   useEffect(() => {
     function handleOpen(event: Event) {
       const detail = (event as CustomEvent<{ origin?: string }>).detail;
+      const origin = detail?.origin ?? "entry_point";
       setOpen(true);
       setHighlight(0);
       setQuery("");
-      track("command_palette_open", { origin: detail?.origin ?? "entry_point" });
+      track("command_palette_open", { origin });
+      emitCityWordmarkEvent({ type: "command_palette_open", origin });
     }
 
     window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpen as EventListener);
@@ -133,6 +136,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
       {
         label: "Create new artifact",
         action: () => {
+          emitCityWordmarkEvent({ type: "publish", kind: "artifact" });
           resetDraft();
           router.push("/workbench");
         },
@@ -140,7 +144,10 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
       },
       {
         label: "Export zip",
-        action: () => router.push("/workbench"),
+        action: () => {
+          emitCityWordmarkEvent({ type: "publish", kind: "file" });
+          router.push("/workbench");
+        },
         group: "Actions",
         hint: "⌘⇧E",
       },
@@ -175,6 +182,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         setHighlight(0);
         setQuery("");
         track("command_palette_open", { origin: "keyboard" });
+        emitCityWordmarkEvent({ type: "command_palette_open", origin: "keyboard" });
         return;
       }
 

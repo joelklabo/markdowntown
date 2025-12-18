@@ -13,6 +13,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { DensityToggle } from "./DensityToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
 import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, TranslateIcon, WorkbenchIcon, type NavIconProps } from "./icons/NavIcons";
+import { emitCityWordmarkEvent } from "./wordmark/sim/bridge";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
@@ -111,6 +112,7 @@ export function SiteNav({ user }: { user?: User }) {
     const q = query.trim();
     persistRecent(q);
     track("nav_search_submit", { q });
+    if (q) emitCityWordmarkEvent({ type: "search", query: q });
     router.push(buildBrowseHref());
     setShowMobileSearch(false);
     setShowOverflowSheet(false);
@@ -290,7 +292,13 @@ export function SiteNav({ user }: { user?: User }) {
                   </Link>
                 </Button>
                 <Button size="xs" className="whitespace-nowrap" asChild>
-                  <Link href={ctaHref} onClick={() => track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" })}>
+                  <Link
+                    href={ctaHref}
+                    onClick={() => {
+                      track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" });
+                      emitCityWordmarkEvent({ type: "publish", kind: "template" });
+                    }}
+                  >
                     Use a template
                   </Link>
                 </Button>
