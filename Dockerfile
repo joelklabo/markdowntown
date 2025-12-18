@@ -1,10 +1,14 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:20-bullseye-slim AS base
+FROM node:20-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 WORKDIR /app
-RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/* && corepack enable
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && corepack enable
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
@@ -15,6 +19,7 @@ FROM deps AS builder
 COPY . .
 RUN pnpm prisma generate
 RUN pnpm build
+RUN pnpm prune --prod
 
 FROM base AS runner
 ENV NODE_ENV=production
