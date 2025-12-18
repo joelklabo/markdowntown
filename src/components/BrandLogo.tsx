@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Wordmark, type WordmarkProps } from "@/components/Wordmark";
 
 type BrandLogoProps = {
   showWordmark?: boolean;
@@ -8,20 +9,13 @@ type BrandLogoProps = {
 };
 
 export function BrandLogo({ showWordmark = true, size = 40, asLink = true }: BrandLogoProps) {
+  const wordmarkSize: NonNullable<WordmarkProps["size"]> =
+    size <= 28 ? "sm" : size <= 44 ? "md" : "lg";
+
   const content = (
     <>
-      <Image
-        src="/markdown-town-icon.svg"
-        alt="MarkdownTown logo"
-        width={size}
-        height={size}
-        priority
-      />
-      {showWordmark && (
-        <span className="text-[1.15rem] font-semibold tracking-[0.02em] text-mdt-blue">
-          MarkdownTown
-        </span>
-      )}
+      <Image src="/markdown-town-icon.svg" alt="mark downtown logo" width={size} height={size} priority />
+      {showWordmark && <Wordmark asLink={false} size={wordmarkSize} />}
     </>
   );
 
