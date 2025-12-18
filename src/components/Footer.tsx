@@ -8,7 +8,7 @@ export function Footer() {
       <Container as="div" padding="sm" className="flex flex-col gap-mdt-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-mdt-1">
           <Text as="p" weight="semibold" tone="default">
-            BlockTown
+            mark downtown
           </Text>
           <Text as="p" tone="muted" className="max-w-xl">
             Compose, remix, and preview reusable markdown sections for your AI agents.
