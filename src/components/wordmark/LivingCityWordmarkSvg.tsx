@@ -1,12 +1,10 @@
 'use client';
 
 import type { ReactElement } from "react";
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import { cn } from "@/lib/cn";
-import { featureFlags } from "@/lib/flags";
 import { clamp01 } from "./sim/easing";
 import { CITY_WORDMARK_GLYPH_ROWS } from "./sim/glyphs";
-import { getCityWordmarkEngineNowMs, subscribeCityWordmarkEngine } from "./sim/engine";
 import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/layout";
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
@@ -20,13 +18,11 @@ type LivingCityWordmarkSvgProps = {
   seed?: string;
   /** Normalized time-of-day (0..1). */
   timeOfDay?: number;
+  nowMs?: number;
 };
 
 const ACCESSIBLE_TITLE = "mark downtown";
 const VISUAL_WORD = "MARKDOWNTOWN";
-
-const subscribeNoop = () => () => {};
-const getZero = () => 0;
 
 function renderCelestialBodyRects(
   x: number,
@@ -54,14 +50,9 @@ export function LivingCityWordmarkSvg({
   className,
   seed = "markdowntown",
   timeOfDay = 0.78,
+  nowMs = 0,
 }: LivingCityWordmarkSvgProps) {
   const layout = useMemo(() => createCityWordmarkLayout(), []);
-  const shouldAnimate = featureFlags.wordmarkAnimV1;
-  const nowMs = useSyncExternalStore(
-    shouldAnimate ? subscribeCityWordmarkEngine : subscribeNoop,
-    shouldAnimate ? getCityWordmarkEngineNowMs : getZero,
-    getZero
-  );
 
   const palette = getCityWordmarkPalette(timeOfDay);
   const { daylight } = getTimeOfDayPhase(timeOfDay);

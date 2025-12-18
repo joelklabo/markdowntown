@@ -48,11 +48,6 @@ export function getDefaultCityWordmarkConfig(): CityWordmarkConfig {
   return configSchema.parse({});
 }
 
-export function parseCityWordmarkConfig(input: unknown): CityWordmarkConfig {
-  if (input == null) return getDefaultCityWordmarkConfig();
-  return configSchema.parse(input);
-}
-
 export function mergeCityWordmarkConfig(base: CityWordmarkConfig, overrides: unknown): CityWordmarkConfig {
   if (overrides == null) return base;
   const parsedOverrides = configOverridesSchema.parse(overrides);

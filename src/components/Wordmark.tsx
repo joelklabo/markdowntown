@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { useId } from "react";
 import { cn } from "@/lib/cn";
 import { featureFlags } from "@/lib/flags";
-import { LivingCityWordmarkSvg } from "./wordmark/LivingCityWordmarkSvg";
+import { LivingCityWordmark } from "./wordmark/LivingCityWordmark";
 
 type WordmarkSize = "sm" | "md" | "lg";
 
@@ -20,10 +19,6 @@ const sizeClasses: Record<WordmarkSize, { root: string; svg: string }> = {
 };
 
 export function Wordmark({ asLink = true, href = "/", size = "md", className }: WordmarkProps) {
-  const id = useId();
-  const titleId = `${id}-title`;
-  const descId = `${id}-desc`;
-
   const classes = cn(
     "inline-flex items-center whitespace-nowrap select-none",
     sizeClasses[size].root,
@@ -31,9 +26,7 @@ export function Wordmark({ asLink = true, href = "/", size = "md", className }: 
   );
 
   const content = (
-    <LivingCityWordmarkSvg
-      titleId={titleId}
-      descId={descId}
+    <LivingCityWordmark
       className={cn(
         "mdt-wordmark w-auto shrink-0",
         featureFlags.wordmarkAnimV1 && "mdt-wordmark--animated",
