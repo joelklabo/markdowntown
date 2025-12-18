@@ -94,6 +94,9 @@ jobs:
       - name: Knip (unused deps/exports)
         run: pnpm lint:knip
 
+      - name: Circular dependency check
+        run: pnpm lint:cycles
+
       - name: Type check
         run: pnpm type-check
 
