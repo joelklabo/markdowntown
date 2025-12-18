@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
 import { featureFlags } from "@/lib/flags";
-import { MarkDowntownCityscapeSvg } from "./wordmark/MarkDowntownCityscapeSvg";
+import { LivingCityWordmarkSvg } from "./wordmark/LivingCityWordmarkSvg";
 
 type WordmarkSize = "sm" | "md" | "lg";
 
@@ -31,7 +31,7 @@ export function Wordmark({ asLink = true, href = "/", size = "md", className }: 
   );
 
   const content = (
-    <MarkDowntownCityscapeSvg
+    <LivingCityWordmarkSvg
       titleId={titleId}
       descId={descId}
       className={cn(
