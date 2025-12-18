@@ -9,7 +9,7 @@
   <rect x="80" y="80" width="1040" height="470" rx="32" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="3" />
   <g transform="translate(140 140)">
     <rect x="0" y="0" width="80" height="80" rx="20" fill="#0057D9" opacity="0.1" />
-    <text x="100" y="32" fill="#0F172A" font-family="'Inter', 'Segoe UI', sans-serif" font-size="44" font-weight="700">MarkdownTown</text>
+    <text x="100" y="32" fill="#0F172A" font-family="'Inter', 'Segoe UI', sans-serif" font-size="44" font-weight="700">mark downtown</text>
     <text x="100" y="76" fill="#6B7280" font-family="'Inter', 'Segoe UI', sans-serif" font-size="28" font-weight="500">Compose, remix, and preview markdown sections.</text>
   </g>
   <g transform="translate(140 240)">
