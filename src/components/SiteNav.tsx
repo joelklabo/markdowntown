@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { Wordmark } from "./Wordmark";
 import { NavActiveIndicator } from "./nav/NavActiveIndicator";
 import { Button } from "./ui/Button";
@@ -12,6 +12,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/Sheet";
 import { ThemeToggle } from "./ThemeToggle";
 import { DensityToggle } from "./DensityToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
+import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, TranslateIcon, WorkbenchIcon, type NavIconProps } from "./icons/NavIcons";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
@@ -142,12 +143,17 @@ export function SiteNav({ user }: { user?: User }) {
     }
   }, [hydrated]);
 
-  const bottomNavItems = [
-    { href: "/library", label: "Library", icon: "📚", type: "link" as const },
-    { href: "/workbench", label: "Workbench", icon: "🛠️", type: "link" as const },
-    { href: "/translate", label: "Translate", icon: "🌐", type: "link" as const },
-    { href: "/atlas", label: "Atlas", icon: "🧭", type: "link" as const },
-    { label: "Search", icon: "⌘K", type: "search" as const },
+  type BottomNavIcon = ComponentType<NavIconProps>;
+  type BottomNavItem =
+    | { href: string; label: string; icon: BottomNavIcon; type: "link" }
+    | { label: string; icon: BottomNavIcon; type: "search" };
+
+  const bottomNavItems: BottomNavItem[] = [
+    { href: "/library", label: "Library", icon: LibraryIcon, type: "link" },
+    { href: "/workbench", label: "Workbench", icon: WorkbenchIcon, type: "link" },
+    { href: "/translate", label: "Translate", icon: TranslateIcon, type: "link" },
+    { href: "/atlas", label: "Atlas", icon: AtlasIcon, type: "link" },
+    { label: "Search", icon: SearchIcon, type: "search" },
   ];
 
   const quickFilters: Array<{ label: string; params: Record<string, string> }> = [
@@ -297,19 +303,7 @@ export function SiteNav({ user }: { user?: User }) {
                 aria-expanded={showMobileSearch}
                 aria-keyshortcuts="/"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                </svg>
+                <SearchIcon width={18} height={18} />
               </button>
               <button
                 type="button"
@@ -321,7 +315,7 @@ export function SiteNav({ user }: { user?: User }) {
                 aria-label="Open menu"
                 onClick={(e) => openOverflowMenu(e.currentTarget)}
               >
-                <span aria-hidden="true">⋯</span>
+                <MenuIcon width={18} height={18} />
               </button>
             </div>
           </div>
@@ -337,6 +331,7 @@ export function SiteNav({ user }: { user?: User }) {
       >
         {bottomNavItems.map((item) => {
           const active = item.type === "link" ? isActive(item.href ?? "") : false;
+          const Icon = item.icon;
           return (
             <div key={item.label} className="flex-1">
               {item.type === "link" ? (
@@ -348,8 +343,8 @@ export function SiteNav({ user }: { user?: User }) {
                   onClick={() => track("nav_click", { href: item.href, placement: "bottom" })}
                   aria-current={active ? "page" : undefined}
                 >
-                  <span className="text-lg leading-none" aria-hidden>
-                    {item.icon}
+                  <span className="flex h-6 w-6 items-center justify-center" aria-hidden>
+                    <Icon className="h-5 w-5" />
                   </span>
                   <span className="text-[12px] leading-tight">{item.label}</span>
                   {active && <span className="mt-1 h-1 w-8 rounded-full bg-mdt-primary" aria-hidden />}
@@ -364,8 +359,8 @@ export function SiteNav({ user }: { user?: User }) {
                   aria-label="Open search"
                   aria-keyshortcuts="/"
                 >
-                  <span className="text-xs font-mono" aria-hidden>
-                    {item.icon}
+                  <span className="flex h-6 w-6 items-center justify-center" aria-hidden>
+                    <Icon className="h-5 w-5" />
                   </span>
                   <span className="text-[12px] leading-tight">{item.label}</span>
                 </button>
