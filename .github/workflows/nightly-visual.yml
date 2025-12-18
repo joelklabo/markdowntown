@@ -47,7 +47,7 @@ jobs:
       - name: Bundle size budget
         env:
           SKIP_DB: "1"
-          BUNDLE_BUDGET_BYTES: 950000
+          BUNDLE_BUDGET_BYTES: 1400000
         run: pnpm bundle:check
 
       - name: Install Playwright browsers

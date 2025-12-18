@@ -18,15 +18,6 @@ function baseProps(props: NavIconProps): NavIconProps {
   };
 }
 
-export function HomeIcon(props: NavIconProps) {
-  return (
-    <svg {...baseProps(props)}>
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 10v11a1 1 0 0 0 1 1h4v-7h4v7h4a1 1 0 0 0 1-1V10" />
-    </svg>
-  );
-}
-
 export function LibraryIcon(props: NavIconProps) {
   return (
     <svg {...baseProps(props)}>
@@ -86,4 +77,3 @@ export function MenuIcon(props: NavIconProps) {
     </svg>
   );
 }
-
