@@ -25,7 +25,9 @@ Open http://localhost:3000 and sign in with GitHub to access the composer.
 
 ## Scripts
 - `pnpm dev` – run locally
-- `pnpm lint` – ESLint (core web vitals rules)
+- `pnpm lint` – ESLint (max warnings=0) + style guards
+- `pnpm lint:knip` – unused deps/exports
+- `pnpm lint:cycles` – circular dependency check
 - `pnpm type-check` – TypeScript without emit
 - `pnpm test` – Vitest (jsdom + node envs)
 - `pnpm build` – production build

@@ -41,11 +41,13 @@ export function SectionComposer() {
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
 
   useEffect(() => {
-    import("remark-gfm").then((mod) => {
-      const plugin =
-        (mod as { default?: Pluggable }).default ?? (mod as unknown as Pluggable);
-      setRemarkGfm(plugin);
-    });
+    void import("remark-gfm")
+      .then((mod) => {
+        const plugin =
+          (mod as { default?: Pluggable }).default ?? (mod as unknown as Pluggable);
+        setRemarkGfm(plugin);
+      })
+      .catch(() => setRemarkGfm(null));
     import("rehype-sanitize")
       .then((mod) => setRehypeSanitize((mod as { default?: Pluggable }).default ?? (mod as unknown as Pluggable)))
       .catch(() => setRehypeSanitize(null));

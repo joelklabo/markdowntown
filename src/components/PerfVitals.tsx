@@ -80,27 +80,29 @@ export function PerfVitals() {
       });
     }
 
-    import("web-vitals").then(({ onFCP, onLCP, onCLS, onINP, onTTFB }) => {
-      if (cancelled) return;
-      const budget = budgetFor(pathname ?? "/");
-      onFCP((metric) => emit("web_vital_fcp", { ...context, value: Math.round(metric.value) }));
-      onLCP((metric) => {
-        const value = Math.round(metric.value);
-        emit("web_vital_lcp", { ...context, value });
-        if (value > budget.lcp) emit("perf_budget_violation", { ...context, metric: "lcp", value, budget: budget.lcp });
-      });
-      onCLS((metric) => {
-        const value = Number(metric.value.toFixed(4));
-        emit("web_vital_cls", { ...context, value });
-        if (value > budget.cls) emit("perf_budget_violation", { ...context, metric: "cls", value, budget: budget.cls });
-      });
-      onINP((metric) => emit("web_vital_inp", { ...context, value: Math.round(metric.value) }));
-      onTTFB((metric) => {
-        const entry = metric?.entries?.[0] as PerformanceNavigationTiming | undefined;
-        const cache = entry?.serverTiming?.find?.((t) => t.name === "cache")?.description ?? null;
-        emit("web_vital_ttfb", { ...context, value: Math.round(metric.value), cache });
-      });
-    });
+    void import("web-vitals")
+      .then(({ onFCP, onLCP, onCLS, onINP, onTTFB }) => {
+        if (cancelled) return;
+        const budget = budgetFor(pathname ?? "/");
+        onFCP((metric) => emit("web_vital_fcp", { ...context, value: Math.round(metric.value) }));
+        onLCP((metric) => {
+          const value = Math.round(metric.value);
+          emit("web_vital_lcp", { ...context, value });
+          if (value > budget.lcp) emit("perf_budget_violation", { ...context, metric: "lcp", value, budget: budget.lcp });
+        });
+        onCLS((metric) => {
+          const value = Number(metric.value.toFixed(4));
+          emit("web_vital_cls", { ...context, value });
+          if (value > budget.cls) emit("perf_budget_violation", { ...context, metric: "cls", value, budget: budget.cls });
+        });
+        onINP((metric) => emit("web_vital_inp", { ...context, value: Math.round(metric.value) }));
+        onTTFB((metric) => {
+          const entry = metric?.entries?.[0] as PerformanceNavigationTiming | undefined;
+          const cache = entry?.serverTiming?.find?.((t) => t.name === "cache")?.description ?? null;
+          emit("web_vital_ttfb", { ...context, value: Math.round(metric.value), cache });
+        });
+      })
+      .catch(() => {});
 
     // Approximate SPA nav timing (time to idle after route change)
     const idle = window.requestIdleCallback || ((cb: () => void) => window.setTimeout(cb, 0));
