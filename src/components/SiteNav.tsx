@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { BrandLogo } from "./BrandLogo";
+import { Wordmark } from "./Wordmark";
 import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
 import { ThemeToggle } from "./ThemeToggle";
@@ -90,8 +90,14 @@ export function SiteNav({ user }: { user?: User }) {
     function onKey(e: KeyboardEvent) {
       if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
         e.preventDefault();
-        setShowMobileSearch(true);
-        inputRef.current?.focus();
+        const isDesktop = window.matchMedia?.("(min-width: 768px)")?.matches ?? false;
+        if (isDesktop) {
+          inputRef.current?.focus();
+          inputRef.current?.select();
+        } else {
+          setShowMobileSearch(true);
+          setTimeout(() => inputRef.current?.focus(), 10);
+        }
       }
       if (e.key === "Escape") {
         if (showMobileSearch) {
@@ -165,33 +171,10 @@ export function SiteNav({ user }: { user?: User }) {
         <Container
           as="div"
           padding="sm"
-          className="grid grid-cols-[auto,1fr,auto] items-center gap-mdt-2 py-mdt-3 md:grid-cols-[auto,auto,1fr] md:gap-mdt-4"
+          className="grid h-14 grid-cols-[auto,1fr,auto] items-center gap-mdt-3 md:h-16 md:gap-mdt-4"
         >
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2" aria-label="MarkdownTown home">
-              <BrandLogo asLink={false} />
-            </Link>
-            <button
-              type="button"
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text md:hidden",
-                interactiveBase,
-                focusRing
-              )}
-              onClick={() => {
-                setShowMobileSearch(true);
-                track("nav_search_open", { source: "mobile_top" });
-                setTimeout(() => inputRef.current?.focus(), 10);
-              }}
-              aria-label="Search"
-              aria-expanded={showMobileSearch}
-              aria-keyshortcuts="/"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="16.65" y1="16.65" x2="21" y2="21" />
-              </svg>
-            </button>
+          <div className="flex items-center">
+            <Wordmark size="sm" className="md:text-[1.15rem]" />
           </div>
 
           <nav className="hidden items-center justify-center gap-mdt-3 text-body-sm font-medium text-mdt-muted md:flex" aria-label="Primary">
@@ -218,11 +201,11 @@ export function SiteNav({ user }: { user?: User }) {
             })}
           </nav>
 
-          <div className="flex items-center justify-end gap-2 flex-nowrap">
+          <div className="flex min-w-0 items-center justify-end gap-2 flex-nowrap">
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden min-w-[240px] max-w-[360px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex"
+              className="hidden w-[260px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex lg:w-[360px]"
             >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
@@ -254,22 +237,31 @@ export function SiteNav({ user }: { user?: User }) {
               <ThemeToggle />
             </div>
             {user ? (
-              <div className="flex items-center gap-2 rounded-mdt-pill bg-mdt-surface-subtle px-3 py-1 text-sm font-medium text-mdt-muted">
+              <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill bg-mdt-surface-subtle px-3 py-1 text-sm font-medium text-mdt-muted md:flex">
                 {user.image && (
-                  <Image src={user.image} alt={user.name ?? "avatar"} width={28} height={28} className="rounded-full" />
+                  <Image
+                    src={user.image}
+                    alt={user.name ?? "avatar"}
+                    width={28}
+                    height={28}
+                    className="shrink-0 rounded-full"
+                  />
                 )}
-                <span className="hidden sm:inline whitespace-nowrap text-mdt-text">
+                <span
+                  className="hidden max-w-[180px] min-w-0 truncate whitespace-nowrap text-mdt-text md:inline"
+                  title={user.username ?? user.name ?? user.email ?? "Signed in"}
+                >
                   {user.username ?? user.name ?? user.email ?? "Signed in"}
                 </span>
                 <form action="/api/auth/signout" method="post">
-                  <Button variant="ghost" size="sm" type="submit">
+                  <Button variant="ghost" size="xs" type="submit">
                     Sign out
                   </Button>
                 </form>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="hidden md:inline-flex whitespace-nowrap" asChild>
+              <div className="hidden items-center gap-2 md:flex">
+                <Button variant="ghost" size="xs" className="whitespace-nowrap" asChild>
                   <Link
                     href={`/signin?callbackUrl=${encodeURIComponent(pathname || "/")}`}
                     onClick={() => track("nav_click", { href: "signin", placement: "desktop" })}
@@ -277,25 +269,57 @@ export function SiteNav({ user }: { user?: User }) {
                     Sign in
                   </Link>
                 </Button>
-                <Button size="sm" className="whitespace-nowrap" asChild>
+                <Button size="xs" className="whitespace-nowrap" asChild>
                   <Link href={ctaHref} onClick={() => track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" })}>
                     Use a template
                   </Link>
                 </Button>
               </div>
             )}
-            <button
-              type="button"
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text md:hidden",
-                interactiveBase,
-                focusRing
-              )}
-              aria-label="Open menu"
-              onClick={() => setShowOverflowSheet(true)}
-            >
-              <span aria-hidden="true">⋯</span>
-            </button>
+            <div className="flex items-center gap-2 md:hidden">
+              <button
+                type="button"
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text",
+                  interactiveBase,
+                  focusRing
+                )}
+                onClick={() => {
+                  setShowMobileSearch(true);
+                  track("nav_search_open", { source: "mobile_top" });
+                  setTimeout(() => inputRef.current?.focus(), 10);
+                }}
+                aria-label="Search"
+                aria-expanded={showMobileSearch}
+                aria-keyshortcuts="/"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text",
+                  interactiveBase,
+                  focusRing
+                )}
+                aria-label="Open menu"
+                onClick={() => setShowOverflowSheet(true)}
+              >
+                <span aria-hidden="true">⋯</span>
+              </button>
+            </div>
           </div>
         </Container>
       </header>
