@@ -3,10 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Wordmark } from "./Wordmark";
 import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
+import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/Sheet";
 import { ThemeToggle } from "./ThemeToggle";
 import { DensityToggle } from "./DensityToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
@@ -31,6 +32,8 @@ export function SiteNav({ user }: { user?: User }) {
   const [showOverflowSheet, setShowOverflowSheet] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchReturnFocusRef = useRef<HTMLElement | null>(null);
+  const overflowReturnFocusRef = useRef<HTMLElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const ctaHref = pathname === "/" ? "#templates" : "/templates";
@@ -41,6 +44,21 @@ export function SiteNav({ user }: { user?: User }) {
       window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_OPEN_EVENT, { detail: { origin } }));
     }
   }
+
+  const openMobileSearch = useCallback((source: string, trigger?: HTMLElement | null) => {
+    mobileSearchReturnFocusRef.current =
+      trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setShowOverflowSheet(false);
+    setShowMobileSearch(true);
+    track("nav_search_open", { source });
+  }, []);
+
+  const openOverflowMenu = useCallback((trigger?: HTMLElement | null) => {
+    overflowReturnFocusRef.current =
+      trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setShowMobileSearch(false);
+    setShowOverflowSheet(true);
+  }, []);
 
   function persistRecent(term: string) {
     const trimmed = term.trim();
@@ -84,6 +102,7 @@ export function SiteNav({ user }: { user?: User }) {
     track("nav_search_submit", { q });
     router.push(buildBrowseHref());
     setShowMobileSearch(false);
+    setShowOverflowSheet(false);
   }
 
   useEffect(() => {
@@ -95,25 +114,14 @@ export function SiteNav({ user }: { user?: User }) {
           inputRef.current?.focus();
           inputRef.current?.select();
         } else {
-          setShowMobileSearch(true);
-          setTimeout(() => inputRef.current?.focus(), 10);
-        }
-      }
-      if (e.key === "Escape") {
-        if (showMobileSearch) {
-          e.preventDefault();
-          setShowMobileSearch(false);
-        }
-        if (showOverflowSheet) {
-          e.preventDefault();
-          setShowOverflowSheet(false);
+          openMobileSearch("slash");
         }
       }
     }
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [showMobileSearch, showOverflowSheet]);
+  }, [openMobileSearch]);
 
   const [hydrated, setHydrated] = useState(false);
 
@@ -131,16 +139,6 @@ export function SiteNav({ user }: { user?: User }) {
       setHydrated(true);
     }
   }, [hydrated]);
-
-  useEffect(() => {
-    if (showMobileSearch || showOverflowSheet) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = prev;
-      };
-    }
-  }, [showMobileSearch, showOverflowSheet]);
 
   const bottomNavItems = [
     { href: "/library", label: "Library", icon: "📚", type: "link" as const },
@@ -285,9 +283,7 @@ export function SiteNav({ user }: { user?: User }) {
                   focusRing
                 )}
                 onClick={() => {
-                  setShowMobileSearch(true);
-                  track("nav_search_open", { source: "mobile_top" });
-                  setTimeout(() => inputRef.current?.focus(), 10);
+                  openMobileSearch("mobile_top");
                 }}
                 aria-label="Search"
                 aria-expanded={showMobileSearch}
@@ -315,7 +311,7 @@ export function SiteNav({ user }: { user?: User }) {
                   focusRing
                 )}
                 aria-label="Open menu"
-                onClick={() => setShowOverflowSheet(true)}
+                onClick={(e) => openOverflowMenu(e.currentTarget)}
               >
                 <span aria-hidden="true">⋯</span>
               </button>
@@ -354,9 +350,7 @@ export function SiteNav({ user }: { user?: User }) {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowMobileSearch(true);
-                    setTimeout(() => inputRef.current?.focus(), 10);
-                    track("nav_search_open", { source: "bottom_nav" });
+                    openMobileSearch("bottom_nav");
                   }}
                   className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text transition hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   aria-label="Open search"
@@ -373,167 +367,157 @@ export function SiteNav({ user }: { user?: User }) {
         })}
       </nav>
 
-      {/* Mobile search modal */}
-      {showMobileSearch && (
-        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm md:hidden" role="dialog" aria-modal="true" aria-label="Search">
-          <div className="absolute inset-x-3 top-16 rounded-2xl border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-mdt-text">Search</p>
-              <button
-                onClick={() => setShowMobileSearch(false)}
-                className="text-sm text-mdt-muted hover:text-mdt-text"
-                aria-label="Close search"
-              >
-                Esc
+      <Sheet open={showMobileSearch} onOpenChange={(open) => setShowMobileSearch(open)}>
+        <SheetContent
+          side="top"
+          className="md:hidden p-4 rounded-b-2xl"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            requestAnimationFrame(() => inputRef.current?.focus());
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            mobileSearchReturnFocusRef.current?.focus();
+          }}
+        >
+          <SheetTitle className="sr-only">Search</SheetTitle>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-mdt-text">Search</p>
+            <SheetClose asChild>
+              <button className="text-sm text-mdt-muted hover:text-mdt-text" aria-label="Close search">
+                Close
               </button>
+            </SheetClose>
+          </div>
+          <form
+            role="search"
+            onSubmit={onSearch}
+            className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm"
+          >
+            <input
+              ref={inputRef}
+              className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
+              placeholder="Search snippets, templates…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search"
+              aria-keyshortcuts="/"
+            />
+            <div className="flex items-center justify-end">
+              <Button type="submit" size="sm">
+                Search
+              </Button>
             </div>
-            <form
-              role="search"
-              onSubmit={onSearch}
-              className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm"
-            >
-              <input
-                ref={inputRef}
-                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
-                placeholder="Search snippets, templates…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                aria-label="Search"
-                aria-keyshortcuts="/"
-              />
-              <div className="flex items-center justify-end">
-                <Button type="submit" size="sm">
-                  Search
-                </Button>
-              </div>
-            </form>
+          </form>
 
-            <div className="mt-3 space-y-2">
-              <p className="text-xs font-semibold text-mdt-muted">Quick filters</p>
-              <div className="flex flex-wrap gap-2">
-                {quickFilters.map((filter) => (
-                  <Button
-                    key={filter.label}
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="rounded-mdt-pill"
-                    onClick={() => applyQuickFilter(filter.params, "mobile_search_filter")}
-                  >
-                    {filter.label}
-                  </Button>
-                ))}
+          <div className="mt-3 space-y-2">
+            <p className="text-xs font-semibold text-mdt-muted">Quick filters</p>
+            <div className="flex flex-wrap gap-2">
+              {quickFilters.map((filter) => (
+                <Button
+                  key={filter.label}
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="rounded-mdt-pill"
+                  onClick={() => applyQuickFilter(filter.params, "mobile_search_filter")}
+                >
+                  {filter.label}
+                </Button>
+              ))}
+              <SheetClose asChild>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   className="rounded-mdt-pill"
-                  onClick={() => {
-                    setShowMobileSearch(false);
-                    openCommandPalette("mobile_search_sheet");
-                  }}
+                  onClick={() => openCommandPalette("mobile_search_sheet")}
                 >
                   Command palette
                 </Button>
+              </SheetClose>
+            </div>
+          </div>
+
+          {recentSearches.length > 0 && (
+            <div className="mt-3 space-y-2">
+              <div>
+                <p className="text-xs font-semibold text-mdt-muted">Recent</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {recentSearches.map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      className="rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text hover:bg-mdt-surface-subtle"
+                      onClick={() => {
+                        setQuery(term);
+                        requestAnimationFrame(() => inputRef.current?.focus());
+                        track("nav_search_suggestion_click", { term, source: "recent" });
+                      }}
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
-            {(recentSearches.length > 0) && (
-              <div className="mt-3 space-y-2">
-                {recentSearches.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-mdt-muted">Recent</p>
-                    <div className="mt-1 flex flex-wrap gap-2">
-                      {recentSearches.map((term) => (
-                        <button
-                          key={term}
-                          type="button"
-                          className="rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text hover:bg-mdt-surface-subtle"
-                          onClick={() => {
-                            setQuery(term);
-                            setTimeout(() => inputRef.current?.focus(), 10);
-                            track("nav_search_suggestion_click", { term, source: "recent" });
-                          }}
-                        >
-                          {term}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showOverflowSheet && (
-        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm md:hidden" role="dialog" aria-modal="true" aria-label="More">
-          <button
-            type="button"
-            className="absolute inset-0"
-            aria-label="Close menu overlay"
-            onClick={() => setShowOverflowSheet(false)}
-          />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border border-mdt-border bg-mdt-surface p-4 shadow-mdt-lg">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="h-1.5 w-12 rounded-full bg-mdt-border" aria-hidden />
-              <button
-                type="button"
-                className="text-sm text-mdt-muted hover:text-mdt-text"
-                onClick={() => setShowOverflowSheet(false)}
-                aria-expanded={showOverflowSheet}
-              >
+      <Sheet open={showOverflowSheet} onOpenChange={(open) => setShowOverflowSheet(open)}>
+        <SheetContent
+          side="bottom"
+          className="md:hidden rounded-t-2xl p-4"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            overflowReturnFocusRef.current?.focus();
+          }}
+        >
+          <SheetTitle className="sr-only">More</SheetTitle>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="h-1.5 w-12 rounded-full bg-mdt-border" aria-hidden />
+            <SheetClose asChild>
+              <button type="button" className="text-sm text-mdt-muted hover:text-mdt-text" aria-expanded={showOverflowSheet}>
                 Close
               </button>
-            </div>
-            <div className="mb-3 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  setShowOverflowSheet(false);
-                  openCommandPalette("mobile_overflow");
-                }}
-              >
+            </SheetClose>
+          </div>
+          <div className="mb-3 flex flex-wrap gap-2">
+            <SheetClose asChild>
+              <Button type="button" variant="secondary" size="sm" onClick={() => openCommandPalette("mobile_overflow")}>
                 Command palette
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
+            </SheetClose>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => openMobileSearch("overflow", overflowReturnFocusRef.current)}
+            >
+              Search
+            </Button>
+            <DensityToggle />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {overflowLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
+                className="rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-surface-subtle"
                 onClick={() => {
                   setShowOverflowSheet(false);
-                  setShowMobileSearch(true);
-                  setTimeout(() => inputRef.current?.focus(), 10);
-                  track("nav_search_open", { source: "overflow" });
+                  track("nav_click", { href: link.href, placement: "overflow" });
                 }}
               >
-                Search
-              </Button>
-              <DensityToggle />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {overflowLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  target={link.external ? "_blank" : undefined}
-                  rel={link.external ? "noreferrer" : undefined}
-                  className="rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-surface-subtle"
-                  onClick={() => {
-                    setShowOverflowSheet(false);
-                    track("nav_click", { href: link.href, placement: "overflow" });
-                  }}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+                {link.label}
+              </Link>
+            ))}
           </div>
-        </div>
-      )}
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SiteNav } from "@/components/SiteNav";
 import { DensityProvider } from "@/providers/DensityProvider";
@@ -54,5 +55,73 @@ describe("SiteNav", () => {
 
     const input = screen.getByPlaceholderText("Search library…");
     expect(document.activeElement).toBe(input);
+  });
+
+  it("opens and closes the mobile search sheet with focus restore", async () => {
+    (window.matchMedia as unknown as (query: string) => MediaQueryList) = (query: string) =>
+      ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList;
+
+    render(
+      <ThemeProvider>
+        <DensityProvider>
+          <SiteNav />
+        </DensityProvider>
+      </ThemeProvider>
+    );
+
+    const trigger = screen.getByRole("button", { name: "Search", expanded: false });
+    await userEvent.click(trigger);
+
+    expect(screen.getByRole("dialog", { name: "Search" })).toBeInTheDocument();
+
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "Search" })).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("opens the overflow sheet and switches to search", async () => {
+    (window.matchMedia as unknown as (query: string) => MediaQueryList) = (query: string) =>
+      ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList;
+
+    render(
+      <ThemeProvider>
+        <DensityProvider>
+          <SiteNav />
+        </DensityProvider>
+      </ThemeProvider>
+    );
+
+    const menuTrigger = screen.getByRole("button", { name: "Open menu" });
+    await userEvent.click(menuTrigger);
+
+    const menuDialog = screen.getByRole("dialog", { name: "More" });
+    expect(menuDialog).toBeInTheDocument();
+
+    await userEvent.click(within(menuDialog).getByRole("button", { name: "Search" }));
+
+    expect(screen.queryByRole("dialog", { name: "More" })).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Search" })).toBeInTheDocument();
+
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "Search" })).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(menuTrigger);
   });
 });
