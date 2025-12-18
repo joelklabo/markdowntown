@@ -52,5 +52,3 @@ class PrismaSectionsRepo implements SectionsRepo {
 export function createPrismaSectionsRepo(): SectionsRepo {
   return new PrismaSectionsRepo();
 }
-
-export const sectionsRepo: SectionsRepo = createPrismaSectionsRepo();

@@ -50,7 +50,7 @@ function isValidGlobPattern(pattern: string): boolean {
   return !escaping && !inClass && braceDepth === 0;
 }
 
-export const UamMetaV1Schema = z.object({
+const UamMetaV1Schema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
 });
@@ -80,9 +80,9 @@ export const UamScopeV1Schema = z.discriminatedUnion('kind', [
   }),
 ]);
 
-export const UamBlockKindV1Schema = z.enum(['markdown', 'checklist', 'commands', 'dos-donts', 'files']);
+const UamBlockKindV1Schema = z.enum(['markdown', 'checklist', 'commands', 'dos-donts', 'files']);
 
-export const UamBlockV1Schema = z.object({
+const UamBlockV1Schema = z.object({
   id: z.string().min(1),
   scopeId: z.string().min(1),
   kind: UamBlockKindV1Schema,
@@ -90,7 +90,7 @@ export const UamBlockV1Schema = z.object({
   body: z.string(),
 });
 
-export const UamCapabilityV1Schema = z.object({
+const UamCapabilityV1Schema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).optional(),
   description: z.string().optional(),
@@ -149,4 +149,3 @@ export function parseUamV1(input: unknown): UamV1 {
 export function safeParseUamV1(input: unknown) {
   return UamV1Schema.safeParse(input);
 }
-

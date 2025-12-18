@@ -5,7 +5,7 @@ type NormalizeResult = { ok: true; tag: string } | { ok: false; error: string };
 
 const RAW_TAG_PATTERN = /^[a-zA-Z0-9 _-]+$/;
 
-export function normalizeTag(raw: string): NormalizeResult {
+function normalizeTag(raw: string): NormalizeResult {
   if (typeof raw !== "string") {
     return { ok: false, error: "Tags must be strings" };
   }

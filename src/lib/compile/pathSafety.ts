@@ -1,4 +1,4 @@
-export function normalizeZipEntryPath(input: string): string {
+function normalizeZipEntryPath(input: string): string {
   return input
     .replace(/\\/g, '/')
     .trim()
@@ -7,7 +7,7 @@ export function normalizeZipEntryPath(input: string): string {
     .replace(/\/+$/, '');
 }
 
-export function validateZipEntryPath(input: string): { ok: true; normalized: string } | { ok: false; error: string } {
+function validateZipEntryPath(input: string): { ok: true; normalized: string } | { ok: false; error: string } {
   if (input.length === 0) return { ok: false, error: 'path is empty' };
   if (input.includes('\0')) return { ok: false, error: 'path contains NUL byte' };
 
@@ -30,4 +30,3 @@ export function assertSafeZipEntryPath(input: string): string {
   }
   return result.normalized;
 }
-

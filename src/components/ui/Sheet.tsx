@@ -7,9 +7,8 @@ export const Sheet = DialogPrimitive.Root;
 export const SheetTrigger = DialogPrimitive.Trigger;
 export const SheetClose = DialogPrimitive.Close;
 export const SheetTitle = DialogPrimitive.Title;
-export const SheetDescription = DialogPrimitive.Description;
 
-export function SheetOverlay(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>) {
+function SheetOverlay(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
       {...props}
@@ -64,4 +63,3 @@ export function SheetContent({
     </DialogPrimitive.Portal>
   );
 }
-

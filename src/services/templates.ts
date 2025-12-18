@@ -81,5 +81,3 @@ class PrismaTemplatesRepo implements TemplatesRepo {
 export function createPrismaTemplatesRepo(): TemplatesRepo {
   return new PrismaTemplatesRepo();
 }
-
-export const templatesRepo: TemplatesRepo = createPrismaTemplatesRepo();

@@ -48,23 +48,9 @@ adapterRegistry.register(geminiCliAdapter);
 adapterRegistry.register(cursorRulesAdapter);
 adapterRegistry.register(windsurfRulesAdapter);
 
-export function registerAdapter(adapter: Adapter) {
-  adapterRegistry.register(adapter);
-}
-
 export function resolveAdapter(targetId: string, adapterVersion: string) {
   return adapterRegistry.resolve(targetId, adapterVersion);
 }
 
-export function listAdapters(targetId?: string) {
-  return adapterRegistry.list(targetId);
-}
-
 export type { Adapter } from './types';
 export type { CompileResult, CompiledFile } from './types';
-export { agentsMdCodexAdapter } from './agentsMdCodex';
-export { githubCopilotAdapter } from './githubCopilot';
-export { claudeCodeAdapter } from './claudeCode';
-export { geminiCliAdapter } from './geminiCli';
-export { cursorRulesAdapter } from './cursorRules';
-export { windsurfRulesAdapter } from './windsurfRules';

@@ -4,7 +4,7 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 export const Drawer = DialogPrimitive.Root;
 export const DrawerTrigger = DialogPrimitive.Trigger;
 
-export function DrawerOverlay(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>) {
+function DrawerOverlay(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
       {...props}
@@ -49,8 +49,7 @@ export function DrawerHeader({ className, children }: { className?: string; chil
 }
 
 export const DrawerTitle = DialogPrimitive.Title;
-export const DrawerDescription = DialogPrimitive.Description;
-export const DrawerClose = DialogPrimitive.Close;
+const DrawerClose = DialogPrimitive.Close;
 
 export function DrawerCloseButton() {
   return (

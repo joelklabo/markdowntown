@@ -22,7 +22,7 @@ export type AtlasSearchIndex = {
   items: AtlasSearchItem[];
 };
 
-export function loadAtlasSearchIndex(): AtlasSearchIndex {
+function loadAtlasSearchIndex(): AtlasSearchIndex {
   return index as AtlasSearchIndex;
 }
 

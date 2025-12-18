@@ -91,6 +91,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Knip (unused deps/exports)
+        run: pnpm lint:knip
+
       - name: Type check
         run: pnpm type-check
 

@@ -11,11 +11,11 @@ export const AtlasPlatformIdSchema = z.enum([
   'windsurf',
 ]);
 
-export const ArtifactKindSchema = z.string().min(1);
+const ArtifactKindSchema = z.string().min(1);
 
-export const FeatureSupportLevelSchema = z.enum(['yes', 'partial', 'no']);
+const FeatureSupportLevelSchema = z.enum(['yes', 'partial', 'no']);
 
-export const EvidenceSchema = z.object({
+const EvidenceSchema = z.object({
   url: z
     .string()
     .url()
@@ -26,9 +26,9 @@ export const EvidenceSchema = z.object({
   title: z.string().min(1).optional(),
 });
 
-export const ClaimConfidenceSchema = z.enum(['high', 'medium', 'low']);
+const ClaimConfidenceSchema = z.enum(['high', 'medium', 'low']);
 
-export const ClaimSchema = z.object({
+const ClaimSchema = z.object({
   id: z.string().min(1),
   statement: z.string().min(1),
   confidence: ClaimConfidenceSchema,
@@ -37,7 +37,7 @@ export const ClaimSchema = z.object({
   artifacts: z.array(ArtifactKindSchema).optional(),
 });
 
-export const ArtifactSpecSchema = z.object({
+const ArtifactSpecSchema = z.object({
   kind: ArtifactKindSchema,
   label: z.string().min(1),
   description: z.string().optional(),

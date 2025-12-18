@@ -14,19 +14,11 @@ export type AtlasFeatureId = AtlasFeature['id'];
 
 const ATLAS_FEATURE_ID_SET: ReadonlySet<string> = new Set(ATLAS_FEATURES.map(feature => feature.id));
 
-const ATLAS_FEATURE_LABEL_BY_ID = Object.fromEntries(
-  ATLAS_FEATURES.map(feature => [feature.id, feature.label]),
-) as Record<AtlasFeatureId, string>;
-
 export function isAtlasFeatureId(value: string): value is AtlasFeatureId {
   return ATLAS_FEATURE_ID_SET.has(value);
 }
 
-export function getAtlasFeatureLabel(featureId: AtlasFeatureId): string {
-  return ATLAS_FEATURE_LABEL_BY_ID[featureId];
-}
-
-export const ATLAS_CROSSWALK_SCHEMA_VERSION = 1 as const;
+const ATLAS_CROSSWALK_SCHEMA_VERSION = 1 as const;
 
 export type AtlasCrosswalkSchemaVersion = typeof ATLAS_CROSSWALK_SCHEMA_VERSION;
 
@@ -44,7 +36,7 @@ const AtlasPlatformIdKeySchema = z.string().refine(
   { message: 'Unknown Atlas platform id' },
 );
 
-export const AtlasCrosswalkSchema: z.ZodType<AtlasCrosswalk> = z
+const AtlasCrosswalkSchema: z.ZodType<AtlasCrosswalk> = z
   .object({
     schemaVersion: z.literal(ATLAS_CROSSWALK_SCHEMA_VERSION),
     crosswalk: z.record(
@@ -56,8 +48,4 @@ export const AtlasCrosswalkSchema: z.ZodType<AtlasCrosswalk> = z
 
 export function parseAtlasCrosswalk(input: unknown): AtlasCrosswalk {
   return AtlasCrosswalkSchema.parse(input);
-}
-
-export function safeParseAtlasCrosswalk(input: unknown) {
-  return AtlasCrosswalkSchema.safeParse(input);
 }

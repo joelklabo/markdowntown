@@ -4,7 +4,7 @@ import { ZodError, z } from "zod";
 import { parse as parseYaml } from "yaml";
 import { AtlasPlatformIdSchema } from "./schema.ts";
 
-export const ATLAS_SOURCES_SCHEMA_VERSION = 1 as const;
+const ATLAS_SOURCES_SCHEMA_VERSION = 1 as const;
 
 export type AtlasSourcesSchemaVersion = typeof ATLAS_SOURCES_SCHEMA_VERSION;
 
@@ -26,7 +26,7 @@ function formatZodError(error: ZodError): string {
     .join("\n");
 }
 
-export const AtlasSourceSchema = z
+const AtlasSourceSchema = z
   .object({
     id: z
       .string()
@@ -51,14 +51,14 @@ export const AtlasSourceSchema = z
 
 export type AtlasSource = z.infer<typeof AtlasSourceSchema>;
 
-export const AtlasSourcesFileSchema = z.object({
+const AtlasSourcesFileSchema = z.object({
   schemaVersion: z.literal(ATLAS_SOURCES_SCHEMA_VERSION),
   sources: z.array(AtlasSourceSchema).default(() => []),
 });
 
 export type AtlasSourcesFile = z.infer<typeof AtlasSourcesFileSchema>;
 
-export function parseAtlasSourcesFile(input: unknown): AtlasSourcesFile {
+function parseAtlasSourcesFile(input: unknown): AtlasSourcesFile {
   return AtlasSourcesFileSchema.parse(input);
 }
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const UAMMetadataSchema = z.object({
+const UAMMetadataSchema = z.object({
   name: z.string().min(1),
   version: z.string().min(1),
   description: z.string().optional(),
@@ -10,17 +10,17 @@ export const UAMMetadataSchema = z.object({
   license: z.string().optional(),
 });
 
-export const UAMScopeSchema = z.string();
+const UAMScopeSchema = z.string();
 
-export const UAMCapabilitySchema = z.object({
+const UAMCapabilitySchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   params: z.record(z.string(), z.unknown()).optional(),
 });
 
-export const UAMBlockTypeSchema = z.enum(['instruction', 'prompt', 'code', 'context', 'unknown']);
+const UAMBlockTypeSchema = z.enum(['instruction', 'prompt', 'code', 'context', 'unknown']);
 
-export const UAMBlockSchema = z.object({
+const UAMBlockSchema = z.object({
   id: z.string().min(1),
   type: UAMBlockTypeSchema,
   content: z.string(),
@@ -28,7 +28,7 @@ export const UAMBlockSchema = z.object({
   scopes: z.array(UAMScopeSchema).optional(),
 });
 
-export const UAMTargetSchema = z.object({
+const UAMTargetSchema = z.object({
   platform: z.string().min(1),
   minVersion: z.string().optional(),
 });
