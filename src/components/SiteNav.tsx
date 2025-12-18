@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Wordmark } from "./Wordmark";
+import { NavActiveIndicator } from "./nav/NavActiveIndicator";
 import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
 import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/Sheet";
@@ -34,6 +35,7 @@ export function SiteNav({ user }: { user?: User }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchReturnFocusRef = useRef<HTMLElement | null>(null);
   const overflowReturnFocusRef = useRef<HTMLElement | null>(null);
+  const desktopNavRef = useRef<HTMLElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const ctaHref = pathname === "/" ? "#templates" : "/templates";
@@ -175,7 +177,12 @@ export function SiteNav({ user }: { user?: User }) {
             <Wordmark size="sm" className="md:text-[1.15rem]" />
           </div>
 
-          <nav className="hidden items-center justify-center gap-mdt-3 text-body-sm font-medium text-mdt-muted md:flex" aria-label="Primary">
+          <nav
+            ref={desktopNavRef}
+            className="relative hidden items-center justify-center gap-mdt-3 text-body-sm font-medium text-mdt-muted md:flex"
+            aria-label="Primary"
+          >
+            <NavActiveIndicator containerRef={desktopNavRef} activeKey={pathname} />
             {links.map((link) => {
               const active = isActive(link.href);
               return (
@@ -190,6 +197,7 @@ export function SiteNav({ user }: { user?: User }) {
                       ? "bg-mdt-surface-subtle text-mdt-text shadow-mdt-sm"
                       : "hover:text-mdt-text"
                   )}
+                  data-nav-active={active ? "true" : undefined}
                   onClick={() => track("nav_click", { href: link.href, placement: "desktop" })}
                   aria-current={active ? "page" : undefined}
                 >
