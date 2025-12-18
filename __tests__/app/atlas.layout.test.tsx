@@ -54,6 +54,7 @@ describe("AtlasLayout", () => {
     expect(screen.getByRole("link", { name: "Concepts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Recipes" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Compare" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Simulator" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Changelog" })).toBeInTheDocument();
 
     expect(screen.getByRole("searchbox", { name: "Search Atlas" })).toBeInTheDocument();

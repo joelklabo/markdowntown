@@ -6,6 +6,7 @@ const navItems = [
   { href: "/atlas/concepts", label: "Concepts" },
   { href: "/atlas/recipes", label: "Recipes" },
   { href: "/atlas/compare", label: "Compare" },
+  { href: "/atlas/simulator", label: "Simulator" },
   { href: "/atlas/changelog", label: "Changelog" },
 ];
 
@@ -38,4 +39,3 @@ export function AtlasSidebar() {
     </nav>
   );
 }
-

@@ -1,0 +1,162 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Heading } from "@/components/ui/Heading";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Stack } from "@/components/ui/Stack";
+import { Text } from "@/components/ui/Text";
+import { TextArea } from "@/components/ui/TextArea";
+import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
+import type { RepoTree, SimulationResult, SimulatorToolId } from "@/lib/atlas/simulators/types";
+
+const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
+  { id: "github-copilot", label: "GitHub Copilot" },
+  { id: "claude-code", label: "Claude Code" },
+  { id: "gemini-cli", label: "Gemini CLI" },
+  { id: "codex-cli", label: "Codex CLI" },
+];
+
+const DEFAULT_REPO_TREE = [
+  ".github/copilot-instructions.md",
+  "CLAUDE.md",
+  "GEMINI.md",
+  "AGENTS.md",
+  "AGENTS.override.md",
+  ".cursor/rules/general.mdc",
+].join("\n");
+
+function parseRepoPaths(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !line.startsWith("#") && !line.startsWith("//"));
+}
+
+function toRepoTree(paths: string[]): RepoTree {
+  return {
+    files: paths.map((path) => ({ path, content: "" })),
+  };
+}
+
+function runSimulation(tool: SimulatorToolId, cwd: string, repoText: string): SimulationResult {
+  return simulateContextResolution({
+    tool,
+    cwd,
+    tree: toRepoTree(parseRepoPaths(repoText)),
+  });
+}
+
+export function ContextSimulator() {
+  const [tool, setTool] = useState<SimulatorToolId>("github-copilot");
+  const [cwd, setCwd] = useState("");
+  const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
+  const [result, setResult] = useState<SimulationResult>(() => runSimulation("github-copilot", "", DEFAULT_REPO_TREE));
+
+  const repoFileCount = useMemo(() => parseRepoPaths(repoText).length, [repoText]);
+
+  return (
+    <div className="grid gap-mdt-6 lg:grid-cols-[360px,1fr]">
+      <Card className="p-mdt-4">
+        <Stack gap={4}>
+          <Stack gap={1}>
+            <Heading level="h2">Inputs</Heading>
+            <Text tone="muted">Select a tool, a repo tree, and a working directory.</Text>
+          </Stack>
+
+          <div className="space-y-2">
+            <label htmlFor="sim-tool" className="text-body-sm font-semibold text-mdt-text">
+              Tool
+            </label>
+            <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+              {TOOL_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="sim-cwd" className="text-body-sm font-semibold text-mdt-text">
+              Current directory (cwd)
+            </label>
+            <Input
+              id="sim-cwd"
+              placeholder="e.g. src/app"
+              value={cwd}
+              onChange={(e) => setCwd(e.target.value)}
+            />
+            <Text tone="muted" size="bodySm">
+              Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
+            </Text>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="sim-tree" className="text-body-sm font-semibold text-mdt-text">
+              Repo tree (paths)
+            </label>
+            <TextArea
+              id="sim-tree"
+              rows={10}
+              value={repoText}
+              onChange={(e) => setRepoText(e.target.value)}
+              placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+            />
+            <Text tone="muted" size="bodySm">
+              {repoFileCount} file(s). Lines starting with `#` or `//` are ignored.
+            </Text>
+          </div>
+
+          <Button type="button" onClick={() => setResult(runSimulation(tool, cwd, repoText))}>
+            Simulate
+          </Button>
+        </Stack>
+      </Card>
+
+      <Card className="p-mdt-4">
+        <Stack gap={4}>
+          <Stack gap={1}>
+            <Heading level="h2">Result</Heading>
+            <Text tone="muted">Ordered files loaded and any warnings from heuristics.</Text>
+          </Stack>
+
+          <Stack gap={2}>
+            <Heading level="h3">Loaded files</Heading>
+            {result.loaded.length === 0 ? (
+              <Text tone="muted">No files would be loaded for this input.</Text>
+            ) : (
+              <ul className="space-y-2" aria-label="Loaded files">
+                {result.loaded.map((file) => (
+                  <li key={file.path} className="rounded-md border border-mdt-border bg-mdt-surface px-3 py-2">
+                    <div className="font-mono text-body-sm text-mdt-text">{file.path}</div>
+                    <div className="text-body-xs text-mdt-muted">{file.reason}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Stack>
+
+          <Stack gap={2}>
+            <Heading level="h3">Warnings</Heading>
+            {result.warnings.length === 0 ? (
+              <Text tone="muted">No warnings.</Text>
+            ) : (
+              <ul className="space-y-2" aria-label="Warnings">
+                {result.warnings.map((warning) => (
+                  <li key={warning.code} className="rounded-md border border-mdt-border bg-mdt-surface px-3 py-2">
+                    <div className="text-body-sm font-semibold text-mdt-text">{warning.code}</div>
+                    <div className="text-body-xs text-mdt-muted">{warning.message}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Stack>
+        </Stack>
+      </Card>
+    </div>
+  );
+}
