@@ -185,10 +185,10 @@ export function SiteNav({ user }: { user?: User }) {
         <Container
           as="div"
           padding="sm"
-          className="grid h-14 grid-cols-[auto,1fr,auto] items-center gap-mdt-3 md:h-16 md:gap-mdt-4"
+          className="grid min-h-14 grid-cols-[auto,1fr,auto] items-center gap-mdt-3 py-mdt-2 md:min-h-16 md:gap-mdt-4 md:py-mdt-3"
         >
           <div className="flex items-center">
-            <Wordmark size="sm" className="md:text-[1.15rem]" />
+            <Wordmark size="md" />
           </div>
 
           <nav
