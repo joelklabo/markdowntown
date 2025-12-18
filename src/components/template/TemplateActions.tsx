@@ -47,7 +47,7 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
 
   async function share() {
     const url = typeof window !== "undefined" ? window.location.origin + detailHref : detailHref;
-    const shareTitle = `${title} | MarkdownTown`;
+    const shareTitle = `${title} | mark downtown`;
     try {
       if (navigator.share) {
         await navigator.share({ title: shareTitle, url });

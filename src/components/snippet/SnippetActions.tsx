@@ -27,7 +27,7 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
 
   async function share() {
     const url = typeof window !== "undefined" ? window.location.origin + href : href;
-    const titleText = `${title} | MarkdownTown`;
+    const titleText = `${title} | mark downtown`;
     try {
       if (navigator.share) {
         await navigator.share({ title: titleText, url });

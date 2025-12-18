@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 type MarkDowntownCityscapeSvgProps = {
   titleId: string;
   descId: string;
@@ -30,8 +32,8 @@ const GLYPH_ADVANCE = GRID_COLS * CELL + 2;
 const SPACE_ADVANCE = 10;
 const TOP_MARGIN = 7;
 
-function renderGlyphRects(glyph: Glyph, xOffset: number, yOffset: number): Array<JSX.Element> {
-  const rects: Array<JSX.Element> = [];
+function renderGlyphRects(glyph: Glyph, xOffset: number, yOffset: number): Array<ReactElement> {
+  const rects: Array<ReactElement> = [];
   for (let row = 0; row < GRID_ROWS; row++) {
     const line = glyph[row] ?? "";
     for (let col = 0; col < GRID_COLS; col++) {
@@ -90,7 +92,7 @@ export function MarkDowntownCityscapeSvg({ titleId, descId, className }: MarkDow
   const moon = { x: Math.round(width * 0.5), y: 1 };
 
   let xCursor = 0;
-  const blocks: Array<JSX.Element> = [];
+  const blocks: Array<ReactElement> = [];
 
   for (const ch of WORDMARK_TEXT) {
     if (ch === " ") {
