@@ -1,5 +1,8 @@
 # MarkdownTown Design Refresh – December 2025
 
+> Note: Current product name is **“mark downtown”** (repo: `markdowntown`, domain: `markdown.town`).  
+> Wordmark spec: `docs/design/wordmark-voxel-cityscape.md`.
+
 ## User stories (top)
 - New visitor: understand value and trust in <10s; see a credible example; try building without sign-in.
 - Returning pro: jump to last project, use keyboard/palette, export confidently.
