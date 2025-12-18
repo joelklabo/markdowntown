@@ -571,11 +571,13 @@
     fill: var(--mdt-wordmark-moon);
   }
 
-  .mdt-wordmark [data-mtw-anim="twinkle"] {
+  .mdt-wordmark.mdt-wordmark--animated [data-mtw-anim="twinkle"] {
     animation: mdt-wordmark-twinkle 8s ease-in-out infinite;
+    will-change: opacity;
   }
-  .mdt-wordmark [data-mtw-anim="shimmer"] {
+  .mdt-wordmark.mdt-wordmark--animated [data-mtw-anim="shimmer"] {
     animation: mdt-wordmark-shimmer 12s ease-in-out infinite;
+    will-change: opacity;
   }
 }
 
@@ -716,12 +718,10 @@
 @keyframes mdt-wordmark-shimmer {
   0%,
   100% {
-    opacity: 0.75;
-    transform: scale(1);
+    opacity: 0.6;
   }
   50% {
     opacity: 1;
-    transform: scale(1.06);
   }
 }
 
@@ -739,6 +739,11 @@
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  .mdt-wordmark--animated [data-mtw-anim] {
+    animation: none !important;
+    transform: none !important;
   }
 }
 

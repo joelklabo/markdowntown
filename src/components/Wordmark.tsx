@@ -33,7 +33,7 @@ export function Wordmark({ asLink = true, href = "/", size = "md", className }: 
     <MarkDowntownCityscapeSvg
       titleId={titleId}
       descId={descId}
-      className={cn("mdt-wordmark w-auto shrink-0", sizeClasses[size].svg)}
+      className={cn("mdt-wordmark mdt-wordmark--animated w-auto shrink-0", sizeClasses[size].svg)}
     />
   );
 

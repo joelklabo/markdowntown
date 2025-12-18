@@ -57,7 +57,12 @@ function renderGlyphRects(glyph: Glyph, xOffset: number, yOffset: number): Array
         continue;
       }
 
-      const tone = (row + col) % 4 === 0 ? "building-muted" : "building";
+      const canWindow = row >= 2 && row <= 5 && col >= 1 && col <= 3;
+      const windowRoll = canWindow ? (row * 19 + col * 7 + xOffset) % 29 : -1;
+      const windowTone = windowRoll === 0 || windowRoll === 1 ? "window" : null;
+      const shouldTwinkle = windowRoll === 0;
+
+      const tone = windowTone ?? ((row + col) % 4 === 0 ? "building-muted" : "building");
       rects.push(
         <rect
           key={`b-${xOffset}-${row}-${col}`}
@@ -66,6 +71,8 @@ function renderGlyphRects(glyph: Glyph, xOffset: number, yOffset: number): Array
           width={BLOCK}
           height={BLOCK}
           data-mtw={tone}
+          data-mtw-anim={shouldTwinkle ? "twinkle" : undefined}
+          style={shouldTwinkle ? { animationDelay: `-${((row * 2 + col * 3 + xOffset) % 8)}s` } : undefined}
         />
       );
     }
@@ -119,8 +126,17 @@ export function MarkDowntownCityscapeSvg({ titleId, descId, className }: MarkDow
       <title id={titleId}>{WORDMARK_TEXT}</title>
       <desc id={descId}>Voxel/cityscape wordmark spelling “{WORDMARK_TEXT}”.</desc>
 
-      {stars.map((star) => (
-        <rect key={`${star.x}-${star.y}`} x={star.x} y={star.y} width={1} height={1} data-mtw="star" />
+      {stars.map((star, index) => (
+        <rect
+          key={`${star.x}-${star.y}`}
+          x={star.x}
+          y={star.y}
+          width={1}
+          height={1}
+          data-mtw="star"
+          data-mtw-anim="shimmer"
+          style={{ animationDelay: `-${index * 1.9}s` }}
+        />
       ))}
 
       <g data-mtw="moon">
