@@ -2,8 +2,11 @@ import type { CityWordmarkConfig } from "./types";
 import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "./config";
 import type { CityWordmarkActor, CityWordmarkActorRect } from "./actors/types";
 import { spawnCarActors } from "./actors/car";
+import { spawnAmbulanceActor } from "./actors/ambulance";
 import { createCityWordmarkLayout } from "./layout";
 import { normalizeTimeOfDay } from "./time";
+import { listenCityWordmarkEvents } from "./events";
+import type { CityWordmarkEvent } from "./types";
 
 export type CityWordmarkEngineListener = () => void;
 
@@ -41,6 +44,8 @@ type FrameHandle = number | ReturnType<typeof setTimeout>;
 let handle: FrameHandle | null = null;
 let lastFrameMs: number | null = null;
 let accumulatorMs = 0;
+let unsubscribeEvents: (() => void) | null = null;
+let ambulanceTriggerIndex = 0;
 
 function emit() {
   for (const listener of listeners) listener();
@@ -81,6 +86,36 @@ function maybeStop() {
   stop();
 }
 
+function ensureEventListener() {
+  if (unsubscribeEvents) return;
+  unsubscribeEvents = listenCityWordmarkEvents(onCityWordmarkEvent);
+}
+
+function maybeStopEventListener() {
+  if (!unsubscribeEvents) return;
+  if (listeners.size !== 0) return;
+  unsubscribeEvents();
+  unsubscribeEvents = null;
+}
+
+function onCityWordmarkEvent(event: CityWordmarkEvent) {
+  if (event.type !== "alert" || event.kind !== "ambulance") return;
+  if (!snapshot.config.actors.ambulance) return;
+
+  const actor = spawnAmbulanceActor({
+    config: snapshot.config,
+    layout,
+    nowMs: snapshot.nowMs,
+    triggerIndex: ambulanceTriggerIndex++,
+  });
+  if (!actor) return;
+
+  actors = [...actors.filter((a) => a.kind !== "ambulance"), actor];
+  const actorRects = actors.flatMap((a) => a.render({ nowMs: snapshot.nowMs, config: snapshot.config, layout }));
+  snapshot = { ...snapshot, actorRects };
+  emit();
+}
+
 function advance(stepMs: number) {
   const nextNowMs = snapshot.nowMs + stepMs;
   const nextTimeOfDay = normalizeTimeOfDay(
@@ -93,7 +128,7 @@ function advance(stepMs: number) {
   };
 
   const updateCtx = { nowMs: nextNowMs, dtMs: stepMs, config: nextConfig, layout };
-  actors = actors.map((actor) => actor.update(updateCtx));
+  actors = actors.map((actor) => actor.update(updateCtx)).filter((actor) => !actor.done);
   const actorRects = actors.flatMap((actor) => actor.render({ nowMs: nextNowMs, config: nextConfig, layout }));
 
   snapshot = {
@@ -132,10 +167,12 @@ export function getCityWordmarkEngineSnapshot(): CityWordmarkEngineSnapshot {
 
 export function subscribeCityWordmarkEngine(listener: CityWordmarkEngineListener): () => void {
   listeners.add(listener);
+  ensureEventListener();
   maybeStart();
   return () => {
     listeners.delete(listener);
     maybeStop();
+    maybeStopEventListener();
   };
 }
 
@@ -152,6 +189,7 @@ export function setCityWordmarkEnginePlaying(playing: boolean) {
 
 export function setCityWordmarkEngineConfig(overrides: unknown) {
   const nextConfig = mergeCityWordmarkConfig(snapshot.config, overrides);
+  ambulanceTriggerIndex = 0;
   actors = spawnCarActors({ config: nextConfig, layout });
   const actorRects = actors.flatMap((actor) => actor.render({ nowMs: snapshot.nowMs, config: nextConfig, layout }));
   snapshot = { ...snapshot, config: nextConfig, actorRects };

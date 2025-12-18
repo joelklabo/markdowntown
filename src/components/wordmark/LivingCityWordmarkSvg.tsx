@@ -9,6 +9,7 @@ import { CITY_WORDMARK_GLYPH_ROWS } from "./sim/glyphs";
 import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/layout";
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
+import type { Rgb } from "./sim/color";
 import { rgbToCss } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
 
@@ -25,6 +26,8 @@ type LivingCityWordmarkSvgProps = {
 
 const ACCESSIBLE_TITLE = "mark downtown";
 const VISUAL_WORD = "MARKDOWNTOWN";
+const SIREN_RED: Rgb = [255, 84, 84];
+const SIREN_BLUE: Rgb = [84, 148, 255];
 
 function renderCelestialBodyRects(
   x: number,
@@ -186,9 +189,17 @@ export function LivingCityWordmarkSvg({
       {actorRects.length > 0 && (
         <g>
           {actorRects.map((r, idx) => {
-            const fill = r.tone === "headlight" ? palette.window : palette.buildingMuted;
+            let fill: Rgb;
+            if (r.tone === "headlight") fill = palette.window;
+            else if (r.tone === "ambulance") fill = palette.building;
+            else if (r.tone === "sirenRed") fill = SIREN_RED;
+            else if (r.tone === "sirenBlue") fill = SIREN_BLUE;
+            else fill = palette.buildingMuted;
+
             const baseOpacity = r.opacity ?? 1;
-            const opacity = r.tone === "headlight" ? baseOpacity * clamp01(nightness * 1.25) : baseOpacity;
+            let opacity = baseOpacity;
+            if (r.tone === "headlight") opacity *= clamp01(nightness * 1.25);
+            if (r.tone === "sirenRed" || r.tone === "sirenBlue") opacity *= clamp01(0.65 + nightness * 0.65);
             return (
               <rect
                 key={`actor-${idx}-${r.tone}-${r.x}-${r.y}-${r.width}-${r.height}`}

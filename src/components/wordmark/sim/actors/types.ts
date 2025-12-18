@@ -1,7 +1,7 @@
 import type { CityWordmarkLayout, CityWordmarkVoxelRect } from "../layout";
 import type { CityWordmarkConfig } from "../types";
 
-export type CityWordmarkActorTone = "car" | "headlight";
+export type CityWordmarkActorTone = "car" | "ambulance" | "headlight" | "sirenRed" | "sirenBlue";
 
 export type CityWordmarkActorRect = CityWordmarkVoxelRect & {
   tone: CityWordmarkActorTone;
@@ -24,7 +24,7 @@ export type CityWordmarkActorRenderContext = CityWordmarkActorContext & {
 
 export type CityWordmarkActor = {
   kind: string;
+  done?: boolean;
   update: (ctx: CityWordmarkActorUpdateContext) => CityWordmarkActor;
   render: (ctx: CityWordmarkActorRenderContext) => CityWordmarkActorRect[];
 };
-

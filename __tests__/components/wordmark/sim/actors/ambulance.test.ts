@@ -1,0 +1,43 @@
+import { describe, expect, it } from "vitest";
+import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "@/components/wordmark/sim/config";
+import { createCityWordmarkLayout } from "@/components/wordmark/sim/layout";
+import { spawnAmbulanceActor } from "@/components/wordmark/sim/actors/ambulance";
+
+describe("spawnAmbulanceActor", () => {
+  it("spawns deterministically for a given seed + triggerIndex", () => {
+    const layout = createCityWordmarkLayout();
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), { seed: "seed", density: "normal" });
+
+    const a = spawnAmbulanceActor({ config, layout, nowMs: 1000, triggerIndex: 0 })?.render({ nowMs: 1234, config, layout });
+    const b = spawnAmbulanceActor({ config, layout, nowMs: 1000, triggerIndex: 0 })?.render({ nowMs: 1234, config, layout });
+    expect(a).toEqual(b);
+    expect(a?.length ?? 0).toBeGreaterThan(0);
+  });
+
+  it("flashes siren lights over time", () => {
+    const layout = createCityWordmarkLayout();
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), { seed: "seed", density: "normal" });
+    const actor = spawnAmbulanceActor({ config, layout, nowMs: 0, triggerIndex: 0 });
+    expect(actor).not.toBeNull();
+    if (!actor) return;
+
+    const a = actor.render({ nowMs: 0, config, layout });
+    const b = actor.render({ nowMs: 250, config, layout });
+
+    const aRed = a.find((r) => r.tone === "sirenRed");
+    const aBlue = a.find((r) => r.tone === "sirenBlue");
+    const bRed = b.find((r) => r.tone === "sirenRed");
+    const bBlue = b.find((r) => r.tone === "sirenBlue");
+
+    expect(aRed?.opacity ?? 0).toBeGreaterThan(aBlue?.opacity ?? 0);
+    expect(bBlue?.opacity ?? 0).toBeGreaterThan(bRed?.opacity ?? 0);
+  });
+
+  it("respects config.actors.ambulance", () => {
+    const layout = createCityWordmarkLayout();
+    const config = getDefaultCityWordmarkConfig();
+    const disabled = { ...config, actors: { ...config.actors, ambulance: false } };
+    expect(spawnAmbulanceActor({ config: disabled, layout, nowMs: 0, triggerIndex: 0 })).toBeNull();
+  });
+});
+
