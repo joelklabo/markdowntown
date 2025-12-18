@@ -35,7 +35,7 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://markdown.town"),
-  title: "MarkdownTown",
+  title: "BlockTown",
   description: "Compose, remix, and preview reusable markdown sections for your AI agents.",
   keywords: [
     "markdown",
@@ -47,16 +47,16 @@ export const metadata: Metadata = {
     "sections",
   ],
   openGraph: {
-    title: "MarkdownTown",
+    title: "BlockTown",
     description: "Compose, remix, and preview reusable markdown sections for your AI agents.",
     url: "https://markdown.town",
-    siteName: "MarkdownTown",
+    siteName: "BlockTown",
     images: [
       {
         url: "/markdown-town-icon.svg",
         width: 256,
         height: 256,
-        alt: "MarkdownTown logo",
+        alt: "BlockTown logo",
       },
     ],
     locale: "en_US",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MarkdownTown",
+    title: "BlockTown",
     description: "Compose, remix, and preview reusable markdown sections for your AI agents.",
     images: ["/markdown-town-icon.svg"],
   },
