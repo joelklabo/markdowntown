@@ -1,25 +1,18 @@
-import type { Meta, StoryObj } from "@storybook/react";
+'use client';
+
 import { useId } from "react";
 import { Card } from "@/components/ui/Card";
 import { CityLogoControls } from "@/components/wordmark/CityLogoControls";
 import { LivingCityWordmarkSvg } from "@/components/wordmark/LivingCityWordmarkSvg";
 import { useCityWordmarkSim } from "@/components/wordmark/sim/useCityWordmarkSim";
 
-const meta: Meta = {
-  title: "Wordmark/CityLogoLab",
-  parameters: { layout: "fullscreen" },
-};
-
-export default meta;
-type Story = StoryObj;
-
-function CityLogoLab() {
+export function CityLogoLabClient() {
   const sim = useCityWordmarkSim({ enabled: true });
   const id = useId();
 
   return (
     <div className="p-mdt-6 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-mdt-6">
-      <CityLogoControls sim={sim} eventOrigin="storybook" />
+      <CityLogoControls sim={sim} eventOrigin="labs" />
 
       <div className="space-y-mdt-4">
         <Card className="p-mdt-6">
@@ -61,6 +54,3 @@ function CityLogoLab() {
   );
 }
 
-export const Playground: Story = {
-  render: () => <CityLogoLab />,
-};
