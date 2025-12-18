@@ -36,6 +36,8 @@ export function SiteNav({ user }: { user?: User }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchReturnFocusRef = useRef<HTMLElement | null>(null);
   const overflowReturnFocusRef = useRef<HTMLElement | null>(null);
+  const suppressMobileSearchRestoreRef = useRef(false);
+  const suppressOverflowRestoreRef = useRef(false);
   const desktopNavRef = useRef<HTMLElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
@@ -51,7 +53,10 @@ export function SiteNav({ user }: { user?: User }) {
   const openMobileSearch = useCallback((source: string, trigger?: HTMLElement | null) => {
     mobileSearchReturnFocusRef.current =
       trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    setShowOverflowSheet(false);
+    setShowOverflowSheet((wasOpen) => {
+      if (wasOpen) suppressOverflowRestoreRef.current = true;
+      return false;
+    });
     setShowMobileSearch(true);
     track("nav_search_open", { source });
   }, []);
@@ -59,7 +64,10 @@ export function SiteNav({ user }: { user?: User }) {
   const openOverflowMenu = useCallback((trigger?: HTMLElement | null) => {
     overflowReturnFocusRef.current =
       trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    setShowMobileSearch(false);
+    setShowMobileSearch((wasOpen) => {
+      if (wasOpen) suppressMobileSearchRestoreRef.current = true;
+      return false;
+    });
     setShowOverflowSheet(true);
   }, []);
 
@@ -380,7 +388,11 @@ export function SiteNav({ user }: { user?: User }) {
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            mobileSearchReturnFocusRef.current?.focus();
+            const shouldSuppress = suppressMobileSearchRestoreRef.current;
+            suppressMobileSearchRestoreRef.current = false;
+            if (!shouldSuppress) {
+              mobileSearchReturnFocusRef.current?.focus();
+            }
           }}
         >
           <SheetTitle className="sr-only">Search</SheetTitle>
@@ -434,7 +446,10 @@ export function SiteNav({ user }: { user?: User }) {
                   variant="ghost"
                   size="sm"
                   className="rounded-mdt-pill"
-                  onClick={() => openCommandPalette("mobile_search_sheet")}
+                  onClick={() => {
+                    suppressMobileSearchRestoreRef.current = true;
+                    openCommandPalette("mobile_search_sheet");
+                  }}
                 >
                   Command palette
                 </Button>
@@ -474,7 +489,11 @@ export function SiteNav({ user }: { user?: User }) {
           className="md:hidden rounded-t-2xl p-4"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            overflowReturnFocusRef.current?.focus();
+            const shouldSuppress = suppressOverflowRestoreRef.current;
+            suppressOverflowRestoreRef.current = false;
+            if (!shouldSuppress) {
+              overflowReturnFocusRef.current?.focus();
+            }
           }}
         >
           <SheetTitle className="sr-only">More</SheetTitle>
@@ -488,7 +507,15 @@ export function SiteNav({ user }: { user?: User }) {
           </div>
           <div className="mb-3 flex flex-wrap gap-2">
             <SheetClose asChild>
-              <Button type="button" variant="secondary" size="sm" onClick={() => openCommandPalette("mobile_overflow")}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  suppressOverflowRestoreRef.current = true;
+                  openCommandPalette("mobile_overflow");
+                }}
+              >
                 Command palette
               </Button>
             </SheetClose>

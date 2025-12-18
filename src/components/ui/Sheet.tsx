@@ -49,6 +49,8 @@ export function SheetContent({
   ...props
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { side?: SheetSide }) {
   const styles = sideStyles[side];
+  const safeTop = side === "top" || side === "right";
+  const safeBottom = side === "bottom" || side === "right";
 
   return (
     <DialogPrimitive.Portal>
@@ -58,7 +60,9 @@ export function SheetContent({
         aria-describedby={ariaDescribedBy ?? undefined}
         className={cn(styles.motion, styles.panel, className)}
       >
+        {safeTop && <div aria-hidden className="h-[env(safe-area-inset-top)]" />}
         {children}
+        {safeBottom && <div aria-hidden className="h-[env(safe-area-inset-bottom)]" />}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   );
