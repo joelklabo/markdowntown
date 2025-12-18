@@ -217,7 +217,7 @@ export function SiteNav({ user }: { user?: User }) {
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden w-[260px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex lg:w-[360px]"
+              className="hidden w-[220px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex lg:w-[360px]"
             >
               <input
                 className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
@@ -236,13 +236,13 @@ export function SiteNav({ user }: { user?: User }) {
               type="button"
               variant="secondary"
               size="xs"
-              className="hidden whitespace-nowrap md:inline-flex"
+              className="hidden whitespace-nowrap lg:inline-flex"
               onClick={() => openCommandPalette("desktop_nav_button")}
               aria-keyshortcuts="Meta+K,Control+K"
             >
               Command <span className="text-caption text-mdt-muted">⌘K</span>
             </Button>
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <DensityToggle mode="icon" />
             </div>
             <div className="hidden md:block">

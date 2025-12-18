@@ -13,7 +13,7 @@ export type WordmarkProps = {
 };
 
 const sizeClasses: Record<WordmarkSize, { root: string; svg: string }> = {
-  sm: { root: "text-body-sm", svg: "h-6" },
+  sm: { root: "text-body-sm", svg: "h-5" },
   md: { root: "text-[1.15rem]", svg: "h-7" },
   lg: { root: "text-h3", svg: "h-10" },
 };
