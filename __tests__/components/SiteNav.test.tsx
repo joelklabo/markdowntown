@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { COMMAND_PALETTE_OPEN_EVENT } from "@/components/CommandPalette";
 import { SiteNav } from "@/components/SiteNav";
 import { DensityProvider } from "@/providers/DensityProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -55,6 +56,44 @@ describe("SiteNav", () => {
 
     const input = screen.getByPlaceholderText("Search library…");
     expect(document.activeElement).toBe(input);
+  });
+
+  it("marks the active desktop nav link with aria-current", () => {
+    render(
+      <ThemeProvider>
+        <DensityProvider>
+          <SiteNav />
+        </DensityProvider>
+      </ThemeProvider>
+    );
+
+    const [desktopNav] = screen.getAllByRole("navigation", { name: "Primary" });
+    const desktopLibrary = within(desktopNav).getByRole("link", { name: "Library" });
+    const desktopWorkbench = within(desktopNav).getByRole("link", { name: "Workbench" });
+
+    expect(desktopLibrary).toHaveAttribute("aria-current", "page");
+    expect(desktopWorkbench).not.toHaveAttribute("aria-current");
+  });
+
+  it("dispatches the command palette open event from the desktop trigger", async () => {
+    const handler = vi.fn();
+    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, handler as EventListener);
+
+    render(
+      <ThemeProvider>
+        <DensityProvider>
+          <SiteNav />
+        </DensityProvider>
+      </ThemeProvider>
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /command/i }));
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    const event = handler.mock.calls[0]?.[0] as CustomEvent<{ origin?: string }>;
+    expect(event.detail?.origin).toBe("desktop_nav_button");
+
+    window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, handler as EventListener);
   });
 
   it("opens and closes the mobile search sheet with focus restore", async () => {
