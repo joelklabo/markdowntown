@@ -4,3 +4,5 @@ export * from "./events";
 export * from "./rng";
 export * from "./easing";
 export * from "./time";
+export * from "./glyphs";
+export * from "./layout";
