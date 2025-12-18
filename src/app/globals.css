@@ -191,6 +191,14 @@
   --mdt-data-7: hsl(280 60% 58%);
   --mdt-data-8: hsl(120 55% 42%);
 
+  /* Wordmark (theme-inverted): light theme renders “night city” */
+  --mdt-wordmark-building: hsl(222 52% 14%);
+  --mdt-wordmark-building-muted: hsl(222 34% 24%);
+  --mdt-wordmark-window: hsl(40 96% 54%);
+  --mdt-wordmark-window-glow: hsl(45 100% 70% / 0.4);
+  --mdt-wordmark-star: hsl(222 24% 32% / 0.35);
+  --mdt-wordmark-moon: hsl(50 92% 78% / 0.55);
+
   /* Typography tokens (sizes are CSS vars for runtime theming) */
   --mdt-font-weight-regular: 400;
   --mdt-font-weight-medium: 500;
@@ -378,6 +386,14 @@
   --mdt-data-7: hsl(280 70% 65%);
   --mdt-data-8: hsl(120 60% 52%);
 
+  /* Wordmark (theme-inverted): dark theme renders “lit city” */
+  --mdt-wordmark-building: hsl(210 22% 86%);
+  --mdt-wordmark-building-muted: hsl(210 18% 72%);
+  --mdt-wordmark-window: hsl(44 100% 72%);
+  --mdt-wordmark-window-glow: hsl(44 100% 72% / 0.55);
+  --mdt-wordmark-star: hsl(210 40% 90% / 0.45);
+  --mdt-wordmark-moon: hsl(52 100% 86% / 0.55);
+
   --mdt-shadow-sm: 0 1px 2px hsl(220 33% 3% / 0.6);
   --mdt-shadow-md: 0 2px 6px hsl(220 33% 3% / 0.7);
   --mdt-shadow-lg: 0 6px 16px hsl(220 33% 3% / 0.8);
@@ -534,6 +550,33 @@
   .mdt-radix-panel-slide-right[data-state="closed"] {
     animation: mdt-radix-panel-slide-right-out var(--mdt-motion-exit) var(--mdt-motion-ease-standard) both;
   }
+
+  .mdt-wordmark {
+    shape-rendering: crispEdges;
+  }
+
+  .mdt-wordmark [data-mtw="building"] {
+    fill: var(--mdt-wordmark-building);
+  }
+  .mdt-wordmark [data-mtw="building-muted"] {
+    fill: var(--mdt-wordmark-building-muted);
+  }
+  .mdt-wordmark [data-mtw="window"] {
+    fill: var(--mdt-wordmark-window);
+  }
+  .mdt-wordmark [data-mtw="star"] {
+    fill: var(--mdt-wordmark-star);
+  }
+  .mdt-wordmark [data-mtw="moon"] {
+    fill: var(--mdt-wordmark-moon);
+  }
+
+  .mdt-wordmark [data-mtw-anim="twinkle"] {
+    animation: mdt-wordmark-twinkle 8s ease-in-out infinite;
+  }
+  .mdt-wordmark [data-mtw-anim="shimmer"] {
+    animation: mdt-wordmark-shimmer 12s ease-in-out infinite;
+  }
 }
 
 @keyframes mdt-fade-in {
@@ -657,6 +700,28 @@
   }
   100% {
     background-position: -200% 0;
+  }
+}
+
+@keyframes mdt-wordmark-twinkle {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes mdt-wordmark-shimmer {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
   }
 }
 
