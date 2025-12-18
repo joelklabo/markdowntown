@@ -1,11 +1,17 @@
+'use client';
+
 import type { ReactElement } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { cn } from "@/lib/cn";
+import { featureFlags } from "@/lib/flags";
 import { clamp01 } from "./sim/easing";
 import { CITY_WORDMARK_GLYPH_ROWS } from "./sim/glyphs";
+import { getCityWordmarkEngineNowMs, subscribeCityWordmarkEngine } from "./sim/engine";
 import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/layout";
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import { rgbToCss } from "./sim/renderSvg";
+import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
 
 type LivingCityWordmarkSvgProps = {
   titleId: string;
@@ -18,6 +24,9 @@ type LivingCityWordmarkSvgProps = {
 
 const ACCESSIBLE_TITLE = "mark downtown";
 const VISUAL_WORD = "MARKDOWNTOWN";
+
+const subscribeNoop = () => () => {};
+const getZero = () => 0;
 
 function renderCelestialBodyRects(
   x: number,
@@ -46,7 +55,14 @@ export function LivingCityWordmarkSvg({
   seed = "markdowntown",
   timeOfDay = 0.78,
 }: LivingCityWordmarkSvgProps) {
-  const layout = createCityWordmarkLayout();
+  const layout = useMemo(() => createCityWordmarkLayout(), []);
+  const shouldAnimate = featureFlags.wordmarkAnimV1;
+  const nowMs = useSyncExternalStore(
+    shouldAnimate ? subscribeCityWordmarkEngine : subscribeNoop,
+    shouldAnimate ? getCityWordmarkEngineNowMs : getZero,
+    getZero
+  );
+
   const palette = getCityWordmarkPalette(timeOfDay);
   const { daylight } = getTimeOfDayPhase(timeOfDay);
   const nightness = clamp01(1 - daylight);
@@ -67,7 +83,16 @@ export function LivingCityWordmarkSvg({
     { x: Math.round(width * 0.78), y: 5 * SCALE },
   ];
 
-  const skyline = createCityWordmarkSkylineMask({ width: layout.width, baselineY: layout.baselineY, seed });
+  const skyline = useMemo(
+    () => createCityWordmarkSkylineMask({ width: layout.width, baselineY: layout.baselineY, seed }),
+    [layout.baselineY, layout.width, seed]
+  );
+
+  const windows = useMemo(() => createCityWordmarkWindows({ seed }), [seed]);
+  const windowState = useMemo(
+    () => getCityWordmarkWindowLights(windows, { nowMs, timeOfDay }),
+    [nowMs, timeOfDay, windows]
+  );
 
   const bodySize = 2 * SCALE;
   const skyMaxX = Math.max(0, width - bodySize);
@@ -138,6 +163,19 @@ export function LivingCityWordmarkSvg({
             y={r.y * SCALE}
             width={r.width * SCALE}
             height={r.height * SCALE}
+          />
+        ))}
+      </g>
+
+      <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
+        {windows.map((w, idx) => (
+          <rect
+            key={`win-${w.x}-${w.y}`}
+            x={w.x * SCALE}
+            y={w.y * SCALE}
+            width={SCALE}
+            height={SCALE}
+            opacity={windowState[idx] ? 1 : 0}
           />
         ))}
       </g>
