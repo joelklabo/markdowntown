@@ -26,3 +26,41 @@ export function voxelRectsToPath(rects: readonly CityWordmarkVoxelRect[], scale:
   for (const rect of rects) appendRectPath(d, rect, s);
   return d.join("");
 }
+
+export type VoxelRectsPathBatch<M> = {
+  key: string;
+  meta: M;
+  d: string;
+};
+
+export function batchVoxelRectsToPaths<T extends CityWordmarkVoxelRect, M>(
+  rects: readonly T[],
+  options: {
+    scale?: number;
+    getGroup: (rect: T) => { key: string; meta: M } | null;
+  }
+): VoxelRectsPathBatch<M>[] {
+  if (!rects || rects.length === 0) return [];
+
+  const s = normalizeVoxelScale(options.scale ?? 1);
+  const batches = new Map<string, { meta: M; d: string[] }>();
+
+  for (const rect of rects) {
+    const group = options.getGroup(rect);
+    if (!group) continue;
+    let batch = batches.get(group.key);
+    if (!batch) {
+      batch = { meta: group.meta, d: [] };
+      batches.set(group.key, batch);
+    }
+    appendRectPath(batch.d, rect, s);
+  }
+
+  const out: VoxelRectsPathBatch<M>[] = [];
+  for (const [key, batch] of batches) {
+    const d = batch.d.join("");
+    if (!d) continue;
+    out.push({ key, meta: batch.meta, d });
+  }
+  return out;
+}

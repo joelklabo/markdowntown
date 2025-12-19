@@ -10,7 +10,7 @@ import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/l
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import type { Rgb } from "./sim/color";
-import { normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
+import { batchVoxelRectsToPaths, normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
 import type { CityWordmarkScheme, CityWordmarkSkylineConfig } from "./sim/types";
 
@@ -127,6 +127,37 @@ export function LivingCityWordmarkSvg({
   const moonX = Math.round(skyMaxX * celestial.moon.x);
   const moonY = Math.round(skyMaxY * (1 - clamp01(celestial.moon.altitude)));
 
+  const actorBatches = useMemo(
+    () =>
+      batchVoxelRectsToPaths(actorRects, {
+        scale: voxelScale,
+        getGroup: (rect) => {
+          let fill: Rgb;
+          if (rect.tone === "headlight") fill = palette.window;
+          else if (rect.tone === "car") fill = palette.car;
+          else if (rect.tone === "ambulance") fill = palette.building;
+          else if (rect.tone === "pedestrian") fill = palette.building;
+          else if (rect.tone === "dog") fill = palette.buildingMuted;
+          else if (rect.tone === "sirenRed") fill = SIREN_RED;
+          else if (rect.tone === "sirenBlue") fill = SIREN_BLUE;
+          else fill = palette.buildingMuted;
+
+          const baseOpacity = rect.opacity ?? 1;
+          let opacity = baseOpacity;
+          if (rect.tone === "headlight") opacity *= clamp01(nightness * 1.25);
+          if (rect.tone === "sirenRed" || rect.tone === "sirenBlue") opacity *= clamp01(0.65 + nightness * 0.65);
+          if (!Number.isFinite(opacity) || opacity <= 0) return null;
+
+          const fillCss = rgbToCss(fill);
+          return {
+            key: `${rect.tone}-${fillCss}-${opacity}`,
+            meta: { fillCss, opacity },
+          };
+        },
+      }),
+    [actorRects, nightness, palette, voxelScale]
+  );
+
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
@@ -190,35 +221,11 @@ export function LivingCityWordmarkSvg({
         </g>
       )}
 
-      {actorRects.length > 0 && (
+      {actorBatches.length > 0 && (
         <g>
-          {actorRects.map((r, idx) => {
-            let fill: Rgb;
-            if (r.tone === "headlight") fill = palette.window;
-            else if (r.tone === "car") fill = palette.car;
-            else if (r.tone === "ambulance") fill = palette.building;
-            else if (r.tone === "pedestrian") fill = palette.building;
-            else if (r.tone === "dog") fill = palette.buildingMuted;
-            else if (r.tone === "sirenRed") fill = SIREN_RED;
-            else if (r.tone === "sirenBlue") fill = SIREN_BLUE;
-            else fill = palette.buildingMuted;
-
-            const baseOpacity = r.opacity ?? 1;
-            let opacity = baseOpacity;
-            if (r.tone === "headlight") opacity *= clamp01(nightness * 1.25);
-            if (r.tone === "sirenRed" || r.tone === "sirenBlue") opacity *= clamp01(0.65 + nightness * 0.65);
-            return (
-              <rect
-                key={`actor-${idx}-${r.tone}-${r.x}-${r.y}-${r.width}-${r.height}`}
-                x={r.x * voxelScale}
-                y={r.y * voxelScale}
-                width={r.width * voxelScale}
-                height={r.height * voxelScale}
-                fill={rgbToCss(fill)}
-                opacity={opacity}
-              />
-            );
-          })}
+          {actorBatches.map((batch) => (
+            <path key={batch.key} d={batch.d} fill={batch.meta.fillCss} opacity={batch.meta.opacity} />
+          ))}
         </g>
       )}
     </svg>
