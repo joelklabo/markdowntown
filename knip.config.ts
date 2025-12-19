@@ -32,7 +32,8 @@ const config = {
   ],
 
   // Used via child_process spawn in scripts/lint-markdown.js (not detectable via static imports).
-  ignoreDependencies: ["markdownlint-cli2"],
+  // Also required as top-level deps so Turbopack can externalize Sentry/OTel instrumentation packages.
+  ignoreDependencies: ["markdownlint-cli2", "import-in-the-middle", "require-in-the-middle"],
 
   // Enable ecosystem plugins so knip understands tool entrypoints/config.
   next: true,

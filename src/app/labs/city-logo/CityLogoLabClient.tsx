@@ -138,7 +138,7 @@ export function CityLogoLabClient({
             <LivingCityWordmarkSvg
               titleId={`${id}-title`}
               descId={`${id}-desc`}
-              className={previewWidthMode === "full" ? "w-full h-auto" : "w-auto max-w-full h-auto"}
+              className={previewWidthMode === "full" ? "w-full h-auto" : "w-auto max-w-[1100px] h-auto"}
               seed={sim.config.seed}
               timeOfDay={sim.config.timeOfDay}
               scheme={sim.config.scheme}
