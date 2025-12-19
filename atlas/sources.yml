@@ -10,63 +10,73 @@ sources:
   - id: github-copilot-repo-instructions
     platformId: github-copilot
     kind: docs
-    url: https://example.com/github-copilot/repo-instructions
+    url: https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions
     cadence: monthly
     expectedPhrases:
       - .github/copilot-instructions.md
+      - .github/instructions
+      - applyTo
     trust: official
 
   - id: claude-code-claude-md
     platformId: claude-code
     kind: docs
-    url: https://example.com/claude-code/claude-md
+    url: https://code.claude.com/docs/en/memory
     cadence: monthly
     expectedPhrases:
       - CLAUDE.md
+      - project memory
     trust: official
 
   - id: gemini-cli-gemini-md
     platformId: gemini-cli
     kind: docs
-    url: https://example.com/gemini-cli/gemini-md
+    url: https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/gemini-md.md
     cadence: monthly
     expectedPhrases:
       - GEMINI.md
+      - .geminiignore
     trust: official
 
   - id: cursor-cursorrules
     platformId: cursor
     kind: docs
-    url: https://example.com/cursor/cursorrules
+    url: https://cursor.com/en-US/docs/context/rules
     cadence: monthly
     expectedPhrases:
-      - .cursorrules
+      - .cursor/rules
+      - globs
+      - alwaysApply
     trust: official
 
   - id: windsurf-windsurfrules
     platformId: windsurf
     kind: docs
-    url: https://example.com/windsurf/windsurfrules
+    url: https://docs.windsurf.com/context-awareness/windsurf-ignore
     cadence: monthly
     expectedPhrases:
-      - .windsurfrules
+      - AGENTS.md
+      - directory-scoped
+      - .codeiumignore
     trust: official
 
   - id: codex-cli-agents-md
     platformId: codex-cli
     kind: docs
-    url: https://example.com/codex-cli/agents-md
+    url: https://raw.githubusercontent.com/openai/codex/main/docs/agents_md.md
     cadence: monthly
     expectedPhrases:
       - AGENTS.md
-    trust: medium
+      - AGENTS.override.md
+    trust: official
 
   - id: copilot-cli-agents-md
     platformId: copilot-cli
     kind: docs
-    url: https://example.com/copilot-cli/agents-md
+    url: https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli
     cadence: monthly
     expectedPhrases:
-      - AGENTS.md
-    trust: medium
-
+      - .github/copilot-instructions.md
+      - .github/copilot-instructions/**/*.instructions.md
+      - ~/.copilot/agents
+    trust: official

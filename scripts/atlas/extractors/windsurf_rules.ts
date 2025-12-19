@@ -4,8 +4,11 @@ import type { Claim, FeatureSupportLevel } from "../../../src/lib/atlas/types.ts
 
 function normalizeText(html: string): string {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    // Windsurf Docs uses Next.js RSC; the page content is serialized into inline scripts.
+    // Keep script *contents* while removing script tags so we can match docs text reliably.
+    .replace(/<script\b[^>]*>/gi, " ")
+    .replace(/<\/script>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -84,7 +87,7 @@ export const windsurfRulesDocsExtractor: AtlasExtractor = {
           confidence: "medium",
           evidenceUrl: source.url,
           evidenceTitle,
-          excerpt: "Subdirectories",
+          excerpt: "directory-scoped",
           features: ["path-scoping"],
         })
       );
@@ -110,4 +113,3 @@ export const windsurfRulesDocsExtractor: AtlasExtractor = {
     return { claims, featureSupport };
   },
 };
-

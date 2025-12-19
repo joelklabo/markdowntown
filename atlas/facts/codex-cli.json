@@ -3,7 +3,7 @@
   "platformId": "codex-cli",
   "name": "Codex CLI",
   "retrievedAt": "2025-12-17T00:00:00Z",
-  "lastVerified": "2025-12-17T00:00:00Z",
+  "lastVerified": "2025-12-19T07:46:22.869Z",
   "artifacts": [],
   "claims": [
     {
@@ -12,9 +12,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/codex-cli/agents-md",
-          "excerpt": "subdirectories",
-          "title": "Codex CLI documentation"
+          "url": "https://raw.githubusercontent.com/openai/codex/main/docs/agents_md.md",
+          "title": "Codex CLI documentation",
+          "excerpt": "subdirectories"
         }
       ],
       "features": [
@@ -27,9 +27,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/codex-cli/agents-md",
-          "excerpt": "AGENTS.override.md",
-          "title": "Codex CLI documentation"
+          "url": "https://raw.githubusercontent.com/openai/codex/main/docs/agents_md.md",
+          "title": "Codex CLI documentation",
+          "excerpt": "AGENTS.override.md"
         }
       ],
       "features": [
@@ -42,9 +42,9 @@
       "confidence": "high",
       "evidence": [
         {
-          "url": "https://example.com/codex-cli/agents-md",
-          "excerpt": "AGENTS.md",
-          "title": "Codex CLI documentation"
+          "url": "https://raw.githubusercontent.com/openai/codex/main/docs/agents_md.md",
+          "title": "Codex CLI documentation",
+          "excerpt": "AGENTS.md"
         }
       ],
       "features": [

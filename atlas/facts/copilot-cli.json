@@ -3,7 +3,7 @@
   "platformId": "copilot-cli",
   "name": "Copilot CLI",
   "retrievedAt": "2025-12-17T00:00:00Z",
-  "lastVerified": "2025-12-17T00:00:00Z",
+  "lastVerified": "2025-12-19T07:46:22.869Z",
   "artifacts": [],
   "claims": [
     {
@@ -12,9 +12,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": ".github-private",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": ".github-private"
         }
       ]
     },
@@ -24,9 +24,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": "naming conflicts",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": "naming conflicts"
         }
       ]
     },
@@ -36,9 +36,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": ".github/agents",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": ".github/agents"
         }
       ]
     },
@@ -48,9 +48,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": "~/.copilot/agents",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": "~/.copilot/agents"
         }
       ]
     },
@@ -60,9 +60,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": ".instructions.md",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": ".instructions.md"
         }
       ],
       "features": [
@@ -75,9 +75,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": "AGENTS.md",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": "AGENTS.md"
         }
       ],
       "features": [
@@ -90,9 +90,9 @@
       "confidence": "high",
       "evidence": [
         {
-          "url": "https://example.com/copilot-cli/agents-md",
-          "excerpt": ".github/copilot-instructions.md",
-          "title": "GitHub Copilot CLI documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+          "title": "GitHub Copilot CLI documentation",
+          "excerpt": ".github/copilot-instructions.md"
         }
       ],
       "features": [

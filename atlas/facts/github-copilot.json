@@ -3,7 +3,7 @@
   "platformId": "github-copilot",
   "name": "GitHub Copilot",
   "retrievedAt": "2025-12-17T00:00:00Z",
-  "lastVerified": "2025-12-17T00:00:00Z",
+  "lastVerified": "2025-12-19T07:46:22.869Z",
   "artifacts": [],
   "claims": [
     {
@@ -12,9 +12,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/github-copilot/repo-instructions",
-          "excerpt": "applyTo",
-          "title": "GitHub Copilot documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
+          "title": "GitHub Copilot documentation",
+          "excerpt": "applyTo"
         }
       ],
       "features": [
@@ -27,9 +27,9 @@
       "confidence": "medium",
       "evidence": [
         {
-          "url": "https://example.com/github-copilot/repo-instructions",
-          "excerpt": "precedence",
-          "title": "GitHub Copilot documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
+          "title": "GitHub Copilot documentation",
+          "excerpt": "precedence"
         }
       ],
       "features": [
@@ -42,9 +42,9 @@
       "confidence": "high",
       "evidence": [
         {
-          "url": "https://example.com/github-copilot/repo-instructions",
-          "excerpt": ".github/copilot-instructions.md",
-          "title": "GitHub Copilot documentation"
+          "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
+          "title": "GitHub Copilot documentation",
+          "excerpt": ".github/copilot-instructions.md"
         }
       ],
       "features": [

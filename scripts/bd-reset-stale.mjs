@@ -63,6 +63,9 @@ if (!Number.isFinite(minutes) || minutes <= 0) {
 const thresholdMs = minutes * 60 * 1000;
 const nowMs = Date.now();
 
+// This repo uses git worktrees. Always use direct/no-daemon mode for bd commands.
+const BD = "npx bd --no-daemon";
+
 function execBdJson(cmd) {
   return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 }
@@ -70,13 +73,13 @@ function execBdJson(cmd) {
 /** @type {Array<{id: string, status?: string, updated_at?: string, updatedAt?: string, title?: string}>} */
 let issuesRaw = "";
 try {
-  issuesRaw = execBdJson("bd list --status in_progress --json");
+  issuesRaw = execBdJson(`${BD} list --status in_progress --json`);
 } catch (err) {
   const stderr = String(err?.stderr ?? err?.output?.[2] ?? err?.message ?? "");
   if (stderr.includes("Database out of sync with JSONL")) {
     console.log("bd database out of sync; running `bd sync --import-only`…");
-    execSync("bd sync --import-only", { stdio: "inherit" });
-    issuesRaw = execBdJson("bd list --status in_progress --json");
+    execSync(`${BD} sync --import-only --json`, { stdio: "inherit" });
+    issuesRaw = execBdJson(`${BD} list --status in_progress --json`);
   } else {
     throw err;
   }
@@ -111,5 +114,5 @@ if (args.dryRun) {
 for (const { issue, ageMs } of stale) {
   const hoursAgo = (ageMs / (60 * 60 * 1000)).toFixed(2);
   console.log(`Reopening ${issue.id} (${hoursAgo}h ago)…`);
-  execSync(`bd update ${issue.id} --status open`, { stdio: "inherit" });
+  execSync(`${BD} update ${issue.id} --status open --json`, { stdio: "inherit" });
 }

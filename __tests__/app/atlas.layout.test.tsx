@@ -2,6 +2,26 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  const isAtlasChangelog = (filePath: unknown) =>
+    typeof filePath === "string" && filePath.replace(/\\/g, "/").endsWith("/atlas/changelog.json");
+
+  const mockFs = {
+    ...actual,
+    existsSync: (filePath: unknown) => (isAtlasChangelog(filePath) ? true : actual.existsSync(filePath as never)),
+    readFileSync: (filePath: unknown, ...rest: unknown[]) =>
+      isAtlasChangelog(filePath)
+        ? JSON.stringify({ lastUpdated: "2025-12-17T00:00:00Z", entries: [] })
+        : (actual.readFileSync as (...args: unknown[]) => unknown)(filePath as never, ...rest),
+  };
+
+  return {
+    ...mockFs,
+    default: mockFs,
+  };
+});
+
 const { listAtlasPlatforms, loadAtlasFacts } = vi.hoisted(() => ({
   listAtlasPlatforms: vi.fn(),
   loadAtlasFacts: vi.fn(),

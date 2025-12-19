@@ -4,9 +4,6 @@ import type { Claim, FeatureSupportLevel } from "../../../src/lib/atlas/types.ts
 
 function normalizeText(html: string): string {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -49,7 +46,7 @@ export const cursorRulesDocsExtractor: AtlasExtractor = {
     const text = normalizeText(html);
     const evidenceTitle = "Cursor documentation";
 
-    const hasRulesDirectory = /\B\.cursor\/rules\/\*\.mdc\b/i.test(text) || /\B\.cursor\/rules\/[^\s]+\.mdc\b/i.test(text);
+    const hasRulesDirectory = text.includes(".cursor/rules") && text.includes(".mdc");
     const hasGlobs = /\bglobs\b/i.test(text) || /\bglob\b/i.test(text);
     const hasAlwaysApply = /\balwaysApply\b/i.test(text);
     const hasPrecedence = /\bprecedence\b/i.test(text) || /\bmore specific\b/i.test(text) || /\bpriority\b/i.test(text);
@@ -123,4 +120,3 @@ export const cursorRulesDocsExtractor: AtlasExtractor = {
     return { claims, featureSupport };
   },
 };
-
