@@ -30,6 +30,9 @@
 /crawl-output*.jsonl
 /crawl-*.jsonl
 
+# atlas fetch artifacts
+/atlas/snapshots/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
