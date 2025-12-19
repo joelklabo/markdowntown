@@ -3,7 +3,9 @@ import { ChangelogDiff } from "@/components/atlas/ChangelogDiff";
 import { Heading } from "@/components/ui/Heading";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
+import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import { loadAtlasChangelogEntry, loadAtlasFacts } from "@/lib/atlas/load";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -72,7 +74,16 @@ export default async function AtlasChangelogEntryPage({ params }: { params: Prom
                         <span className="font-mono">{item.claimId}</span>
                       </div>
                     </div>
-                    <div className="text-caption text-mdt-muted">{item.platformName}</div>
+                    <Link
+                      href={`/atlas/platforms/${item.platformId}`}
+                      className={cn(
+                        "text-caption text-mdt-muted underline decoration-mdt-border underline-offset-2 hover:text-mdt-text",
+                        interactiveBase,
+                        focusRing
+                      )}
+                    >
+                      {item.platformName}
+                    </Link>
                   </div>
 
                   {item.claim ? (

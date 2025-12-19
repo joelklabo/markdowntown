@@ -35,7 +35,7 @@ describe("Atlas simulator flow", () => {
       expect(copilotText.trim().length).toBeGreaterThan(0);
 
       // Switch to Codex CLI and re-run simulation.
-      await page.getByLabel("Tool").selectOption("codex-cli");
+      await page.getByLabel("Tool", { exact: true }).selectOption("codex-cli");
       await simulate.click();
       await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
