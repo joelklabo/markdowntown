@@ -125,6 +125,13 @@ export function CityLogoLabClient({
 
   return (
     <div className="p-mdt-6 space-y-mdt-6">
+      <CityLogoControls
+        sim={sim}
+        eventOrigin="labs"
+        preview={{ widthMode: previewWidthMode, setWidthMode: setPreviewWidthMode }}
+        share={{ onCopyLink: copyLink, onShareTimeOfDay: setShareTimeOfDay }}
+      />
+
       <Card className="p-mdt-6">
         <div data-testid="city-logo-preview" className="flex items-center justify-center pb-px md:pb-0">
           <LivingCityWordmarkSvg
@@ -162,13 +169,6 @@ export function CityLogoLabClient({
           </div>
         </div>
       </Card>
-
-      <CityLogoControls
-        sim={sim}
-        eventOrigin="labs"
-        preview={{ widthMode: previewWidthMode, setWidthMode: setPreviewWidthMode }}
-        share={{ onCopyLink: copyLink, onShareTimeOfDay: setShareTimeOfDay }}
-      />
     </div>
   );
 }
