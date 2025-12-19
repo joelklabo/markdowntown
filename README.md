@@ -22,6 +22,7 @@ pnpm prisma migrate dev --name init # seeds the local sqlite db
 pnpm dev
 ```
 Open http://localhost:3000 and sign in with GitHub to access the composer.
+Labs: http://localhost:3000/labs/city-logo
 
 ## Scripts
 - `pnpm dev` – run locally
