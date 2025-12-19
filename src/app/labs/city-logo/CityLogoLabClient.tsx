@@ -1,14 +1,34 @@
 'use client';
 
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Card } from "@/components/ui/Card";
 import { CityLogoControls } from "@/components/wordmark/CityLogoControls";
 import { LivingCityWordmarkSvg } from "@/components/wordmark/LivingCityWordmarkSvg";
+import { dispatchCityWordmarkEvent } from "@/components/wordmark/sim/events";
+import { setCityWordmarkEnginePlaying, setCityWordmarkEngineTimeOfDay } from "@/components/wordmark/sim/engine";
 import { useCityWordmarkSim } from "@/components/wordmark/sim/useCityWordmarkSim";
 
-export function CityLogoLabClient() {
+export type CityLogoLabClientProps = {
+  snapshotMode?: boolean;
+  initialTimeOfDay?: number;
+  initialEvent?: "ambulance";
+};
+
+export function CityLogoLabClient({ snapshotMode = false, initialTimeOfDay, initialEvent }: CityLogoLabClientProps) {
+  const initRef = useRef<true | null>(null);
+  if (initRef.current == null) {
+    if (snapshotMode) setCityWordmarkEnginePlaying(false);
+    if (typeof initialTimeOfDay === "number") setCityWordmarkEngineTimeOfDay(initialTimeOfDay);
+    initRef.current = true;
+  }
+
   const sim = useCityWordmarkSim({ enabled: true });
   const id = useId();
+
+  useEffect(() => {
+    if (initialEvent !== "ambulance") return;
+    dispatchCityWordmarkEvent({ type: "alert", kind: "ambulance", ts: Date.now() });
+  }, [initialEvent]);
 
   return (
     <div className="p-mdt-6 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-mdt-6">
@@ -16,7 +36,7 @@ export function CityLogoLabClient() {
 
       <div className="space-y-mdt-4">
         <Card className="p-mdt-6">
-          <div className="flex items-center justify-center">
+          <div data-testid="city-logo-preview" className="flex items-center justify-center">
             <LivingCityWordmarkSvg
               titleId={`${id}-title`}
               descId={`${id}-desc`}
@@ -53,4 +73,3 @@ export function CityLogoLabClient() {
     </div>
   );
 }
-

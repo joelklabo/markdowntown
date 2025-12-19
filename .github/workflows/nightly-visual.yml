@@ -41,6 +41,7 @@ jobs:
       - name: Build (sample data)
         env:
           SKIP_DB: "1"
+          NEXT_PUBLIC_WORDMARK_ANIM_V1: "false"
           NEXTAUTH_SECRET: "nightly-secret"
           NEXTAUTH_URL: "http://localhost:3000"
           GITHUB_CLIENT_ID: "nightly-placeholder"
@@ -56,6 +57,7 @@ jobs:
       - name: Start app
         env:
           SKIP_DB: "1"
+          LABS_CITY_LOGO: "1"
           NEXTAUTH_SECRET: "nightly-secret"
           NEXTAUTH_URL: "http://localhost:3000"
           GITHUB_CLIENT_ID: "nightly-placeholder"
