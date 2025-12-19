@@ -1,6 +1,7 @@
 'use client';
 
 import { useId } from "react";
+import { usePathname } from "next/navigation";
 import { featureFlags } from "@/lib/flags";
 import { LivingCityWordmarkSvg } from "./LivingCityWordmarkSvg";
 import { useCityWordmarkSim } from "./sim/useCityWordmarkSim";
@@ -13,7 +14,9 @@ export function LivingCityWordmark({ className }: LivingCityWordmarkProps) {
   const id = useId();
   const titleId = `${id}-title`;
   const descId = `${id}-desc`;
-  const sim = useCityWordmarkSim({ enabled: featureFlags.wordmarkAnimV1 });
+  const pathname = usePathname();
+  const enabled = featureFlags.wordmarkAnimV1 && pathname !== "/labs/city-logo";
+  const sim = useCityWordmarkSim({ enabled });
 
   return (
     <LivingCityWordmarkSvg

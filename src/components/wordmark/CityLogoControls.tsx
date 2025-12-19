@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { getDefaultCityWordmarkConfig } from "./sim/config";
-import { getCityWordmarkEngineSnapshot } from "./sim/engine";
 import { CITY_WORDMARK_EVENT, dispatchCityWordmarkEvent, listenCityWordmarkEvents } from "./sim/events";
 import { CITY_WORDMARK_SCHEME_OPTIONS } from "./sim/palette";
 import type { CityWordmarkDensity, CityWordmarkScheme } from "./sim/types";
@@ -179,7 +178,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
               variant="ghost"
               onClick={() => {
                 sim.step(1);
-                share?.onShareTimeOfDay?.(getCityWordmarkEngineSnapshot().config.timeOfDay);
+                share?.onShareTimeOfDay?.(sim.peek().config.timeOfDay);
               }}
               disabled={sim.playing}
             >
@@ -198,15 +197,16 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
             <div className="text-caption text-mdt-muted">Time of day</div>
             <div className="text-caption text-mdt-text tabular-nums">{timeLabel}</div>
           </div>
-          <input
-            aria-label="Time of day"
-            className="w-full accent-[color:var(--mdt-color-primary)]"
-            type="range"
-            min={0}
-            max={1}
-            step={0.001}
-            value={sim.config.timeOfDay}
-            onChange={(e) => {
+	          <input
+	            aria-label="Time of day"
+	            className="w-full accent-[color:var(--mdt-color-primary)]"
+	            type="range"
+	            name="timeOfDay"
+	            min={0}
+	            max={1}
+	            step={0.001}
+	            value={sim.config.timeOfDay}
+	            onChange={(e) => {
               const next = clamp(Number(e.target.value), 0, 1);
               sim.setTimeOfDay(next);
               share?.onShareTimeOfDay?.(next);
@@ -216,24 +216,27 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
 
         <div className="grid grid-cols-2 gap-mdt-3">
           <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Seed</div>
-            <Input
-              value={seedDraft}
-              onChange={(e) => {
-                const next = e.target.value;
-                setSeedDraft(next);
-                if (next.trim().length > 0) sim.setConfig({ seed: next.trim() });
+	            <div className="text-caption text-mdt-muted">Seed</div>
+	            <Input
+	              id="city-logo-seed"
+	              name="seed"
+	              value={seedDraft}
+	              onChange={(e) => {
+	                const next = e.target.value;
+	                setSeedDraft(next);
+	                if (next.trim().length > 0) sim.setConfig({ seed: next.trim() });
               }}
             />
           </div>
           <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Density</div>
-            <Select
-              value={sim.config.density}
-              onChange={(e) => sim.setConfig({ density: e.target.value as CityWordmarkDensity })}
-            >
-              <option value="sparse">Sparse</option>
-              <option value="normal">Normal</option>
+	            <div className="text-caption text-mdt-muted">Density</div>
+	            <Select
+	              name="density"
+	              value={sim.config.density}
+	              onChange={(e) => sim.setConfig({ density: e.target.value as CityWordmarkDensity })}
+	            >
+	              <option value="sparse">Sparse</option>
+	              <option value="normal">Normal</option>
               <option value="dense">Dense</option>
             </Select>
           </div>
@@ -241,14 +244,15 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
 
         <div className="grid grid-cols-2 gap-mdt-3">
           <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Time scale</div>
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0.1}
-              step={0.1}
-              value={timeScaleDraft}
-              onChange={(e) => {
+	            <div className="text-caption text-mdt-muted">Time scale</div>
+	            <Input
+	              type="number"
+	              inputMode="decimal"
+	              name="timeScale"
+	              min={0.1}
+	              step={0.1}
+	              value={timeScaleDraft}
+	              onChange={(e) => {
                 const next = e.target.value;
                 setTimeScaleDraft(next);
                 const parsed = Number(next);
@@ -260,32 +264,47 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
             <div className="space-y-mdt-1">
             <div className="text-caption text-mdt-muted">Actors</div>
             <div className="grid grid-cols-2 gap-x-mdt-3 gap-y-mdt-2">
-              <Checkbox checked={sim.config.actors.cars} onChange={(e) => sim.setConfig({ actors: { cars: e.target.checked } })}>
-                Cars
-              </Checkbox>
-              <Checkbox checked={sim.config.actors.trucks} onChange={(e) => sim.setConfig({ actors: { trucks: e.target.checked } })}>
-                Trucks
-              </Checkbox>
-              <Checkbox
-                checked={sim.config.actors.streetlights}
-                onChange={(e) => sim.setConfig({ actors: { streetlights: e.target.checked } })}
-              >
-                Lights
-              </Checkbox>
-              <Checkbox
-                checked={sim.config.actors.pedestrians}
-                onChange={(e) => sim.setConfig({ actors: { pedestrians: e.target.checked } })}
-              >
-                People
-              </Checkbox>
-              <Checkbox checked={sim.config.actors.dogs} onChange={(e) => sim.setConfig({ actors: { dogs: e.target.checked } })}>
-                Dogs
-              </Checkbox>
-              <Checkbox
-                checked={sim.config.actors.ambulance}
-                onChange={(e) => sim.setConfig({ actors: { ambulance: e.target.checked } })}
-              >
-                Ambulance
+	              <Checkbox
+	                name="actorsCars"
+	                checked={sim.config.actors.cars}
+	                onChange={(e) => sim.setConfig({ actors: { cars: e.target.checked } })}
+	              >
+	                Cars
+	              </Checkbox>
+	              <Checkbox
+	                name="actorsTrucks"
+	                checked={sim.config.actors.trucks}
+	                onChange={(e) => sim.setConfig({ actors: { trucks: e.target.checked } })}
+	              >
+	                Trucks
+	              </Checkbox>
+	              <Checkbox
+	                name="actorsStreetlights"
+	                checked={sim.config.actors.streetlights}
+	                onChange={(e) => sim.setConfig({ actors: { streetlights: e.target.checked } })}
+	              >
+	                Lights
+	              </Checkbox>
+	              <Checkbox
+	                name="actorsPedestrians"
+	                checked={sim.config.actors.pedestrians}
+	                onChange={(e) => sim.setConfig({ actors: { pedestrians: e.target.checked } })}
+	              >
+	                People
+	              </Checkbox>
+	              <Checkbox
+	                name="actorsDogs"
+	                checked={sim.config.actors.dogs}
+	                onChange={(e) => sim.setConfig({ actors: { dogs: e.target.checked } })}
+	              >
+	                Dogs
+	              </Checkbox>
+	              <Checkbox
+	                name="actorsAmbulance"
+	                checked={sim.config.actors.ambulance}
+	                onChange={(e) => sim.setConfig({ actors: { ambulance: e.target.checked } })}
+	              >
+	                Ambulance
               </Checkbox>
             </div>
           </div>
@@ -335,15 +354,16 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
         <div className="text-body-sm font-medium text-mdt-text">Renderer</div>
         <div className="grid grid-cols-2 gap-mdt-3">
           <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Voxel scale</div>
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={32}
-              step={1}
-              value={voxelScaleDraft}
-              onChange={(e) => {
+	            <div className="text-caption text-mdt-muted">Voxel scale</div>
+	            <Input
+	              type="number"
+	              inputMode="numeric"
+	              name="voxelScale"
+	              min={1}
+	              max={32}
+	              step={1}
+	              value={voxelScaleDraft}
+	              onChange={(e) => {
                 const next = e.target.value;
                 setVoxelScaleDraft(next);
                 const parsed = Math.floor(Number(next));
@@ -353,26 +373,31 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
             />
           </div>
 
-          <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Scheme</div>
-            <Select value={sim.config.scheme} onChange={(e) => sim.setConfig({ scheme: e.target.value as CityWordmarkScheme })}>
-              {CITY_WORDMARK_SCHEME_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
+	          <div className="space-y-mdt-1">
+	            <div className="text-caption text-mdt-muted">Scheme</div>
+	            <Select
+	              name="scheme"
+	              value={sim.config.scheme}
+	              onChange={(e) => sim.setConfig({ scheme: e.target.value as CityWordmarkScheme })}
+	            >
+	              {CITY_WORDMARK_SCHEME_OPTIONS.map((option) => (
+	                <option key={option.value} value={option.value}>
+	                  {option.label}
+	                </option>
+	              ))}
+	            </Select>
           </div>
 
-          {preview ? (
-            <div className="space-y-mdt-1">
-              <div className="text-caption text-mdt-muted">Preview width</div>
-              <Select
-                value={preview.widthMode}
-                onChange={(e) => preview.setWidthMode(e.target.value as CityLogoPreviewWidthMode)}
-              >
-                <option value="fixed">Fixed</option>
-                <option value="full">Full width</option>
+	          {preview ? (
+	            <div className="space-y-mdt-1">
+	              <div className="text-caption text-mdt-muted">Preview width</div>
+	              <Select
+	                name="previewWidth"
+	                value={preview.widthMode}
+	                onChange={(e) => preview.setWidthMode(e.target.value as CityLogoPreviewWidthMode)}
+	              >
+	                <option value="fixed">Fixed</option>
+	                <option value="full">Full width</option>
               </Select>
             </div>
           ) : (
@@ -384,16 +409,17 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
       <Card className="p-mdt-4 space-y-mdt-3">
         <div className="text-body-sm font-medium text-mdt-text">Skyline</div>
         <div className="grid grid-cols-2 gap-mdt-3">
-          <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Min height</div>
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={32}
-              step={1}
-              value={skylineMinHeightDraft}
-              onChange={(e) => {
+	          <div className="space-y-mdt-1">
+	            <div className="text-caption text-mdt-muted">Min height</div>
+	            <Input
+	              type="number"
+	              inputMode="numeric"
+	              name="skyMinH"
+	              min={1}
+	              max={32}
+	              step={1}
+	              value={skylineMinHeightDraft}
+	              onChange={(e) => {
                 const next = e.target.value;
                 setSkylineMinHeightDraft(next);
                 const parsed = Math.floor(Number(next));
@@ -407,16 +433,17 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
             />
           </div>
 
-          <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Max height</div>
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={64}
-              step={1}
-              value={skylineMaxHeightDraft}
-              onChange={(e) => {
+	          <div className="space-y-mdt-1">
+	            <div className="text-caption text-mdt-muted">Max height</div>
+	            <Input
+	              type="number"
+	              inputMode="numeric"
+	              name="skyMaxH"
+	              min={1}
+	              max={64}
+	              step={1}
+	              value={skylineMaxHeightDraft}
+	              onChange={(e) => {
                 const next = e.target.value;
                 setSkylineMaxHeightDraft(next);
                 const parsed = Math.floor(Number(next));
@@ -430,16 +457,17 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
             />
           </div>
 
-          <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Min segment width</div>
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={64}
-              step={1}
-              value={skylineMinSegmentWidthDraft}
-              onChange={(e) => {
+	          <div className="space-y-mdt-1">
+	            <div className="text-caption text-mdt-muted">Min segment width</div>
+	            <Input
+	              type="number"
+	              inputMode="numeric"
+	              name="skyMinW"
+	              min={1}
+	              max={64}
+	              step={1}
+	              value={skylineMinSegmentWidthDraft}
+	              onChange={(e) => {
                 const next = e.target.value;
                 setSkylineMinSegmentWidthDraft(next);
                 const parsed = Math.floor(Number(next));
@@ -453,16 +481,17 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
             />
           </div>
 
-          <div className="space-y-mdt-1">
-            <div className="text-caption text-mdt-muted">Max segment width</div>
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={128}
-              step={1}
-              value={skylineMaxSegmentWidthDraft}
-              onChange={(e) => {
+	          <div className="space-y-mdt-1">
+	            <div className="text-caption text-mdt-muted">Max segment width</div>
+	            <Input
+	              type="number"
+	              inputMode="numeric"
+	              name="skyMaxW"
+	              min={1}
+	              max={128}
+	              step={1}
+	              value={skylineMaxSegmentWidthDraft}
+	              onChange={(e) => {
                 const next = e.target.value;
                 setSkylineMaxSegmentWidthDraft(next);
                 const parsed = Math.floor(Number(next));

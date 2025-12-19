@@ -1,7 +1,7 @@
 import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "@/components/wordmark/sim/config";
 import type { CityWordmarkConfig, CityWordmarkDensity, CityWordmarkScheme } from "@/components/wordmark/sim/types";
 import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_SCHEMES } from "@/components/wordmark/sim/types";
-import { CityLogoLabClient } from "./CityLogoLabClient";
+import { CityLogoLabClientNoSSR } from "./CityLogoLabClientNoSSR";
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +134,7 @@ export default async function CityLogoLabPage(props: { searchParams: Promise<Sea
   const play = parseBool(firstString(searchParams.play));
 
   return (
-    <CityLogoLabClient
+    <CityLogoLabClientNoSSR
       snapshotMode={snapshotMode}
       initialConfig={parseInitialConfig(searchParams)}
       initialPreviewWidthMode={previewWidthMode}

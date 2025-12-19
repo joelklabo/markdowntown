@@ -4,28 +4,21 @@ import { useCallback, useMemo, useSyncExternalStore } from "react";
 import type { CityWordmarkConfig } from "./types";
 import type { CityWordmarkActorRect } from "./actors/types";
 import {
-  getCityWordmarkEngineSnapshot,
-  setCityWordmarkEngineConfig,
-  setCityWordmarkEnginePlaying,
-  setCityWordmarkEngineTimeOfDay,
-  stepCityWordmarkEngine,
-  subscribeCityWordmarkEngine,
+  defaultCityWordmarkEngine,
+  type CityWordmarkEngine,
+  type CityWordmarkEngineSnapshot,
 } from "./engine";
-
-type CityWordmarkSimSnapshot = ReturnType<typeof getCityWordmarkEngineSnapshot>;
 
 const subscribeNoop = () => () => {};
 
-const frozenDefaults: CityWordmarkSimSnapshot = {
-  ...getCityWordmarkEngineSnapshot(),
-  playing: false,
-};
+type CityWordmarkSimSnapshot = CityWordmarkEngineSnapshot;
 
 export type CityWordmarkSim = {
   nowMs: number;
   playing: boolean;
   config: CityWordmarkConfig;
   actorRects: readonly CityWordmarkActorRect[];
+  peek: () => CityWordmarkSimSnapshot;
   setPlaying: (playing: boolean) => void;
   togglePlaying: () => void;
   setTimeOfDay: (timeOfDay: number) => void;
@@ -33,50 +26,56 @@ export type CityWordmarkSim = {
   setConfig: (overrides: unknown) => void;
 };
 
-export function useCityWordmarkSim(options: { enabled?: boolean } = {}): CityWordmarkSim {
+export function useCityWordmarkSim(options: { enabled?: boolean; engine?: CityWordmarkEngine } = {}): CityWordmarkSim {
   const enabled = options.enabled ?? true;
+  const engine = options.engine ?? defaultCityWordmarkEngine;
+  const frozenDefaults = useMemo<CityWordmarkSimSnapshot>(() => {
+    return { ...engine.getSnapshot(), playing: false };
+  }, [engine]);
 
   const snapshot = useSyncExternalStore(
-    enabled ? subscribeCityWordmarkEngine : subscribeNoop,
-    enabled ? getCityWordmarkEngineSnapshot : () => frozenDefaults,
+    enabled ? engine.subscribe : subscribeNoop,
+    enabled ? engine.getSnapshot : () => frozenDefaults,
     () => frozenDefaults
   );
+
+  const peek = useCallback(() => engine.getSnapshot(), [engine]);
 
   const setPlaying = useCallback(
     (playing: boolean) => {
       if (!enabled) return;
-      setCityWordmarkEnginePlaying(playing);
+      engine.setPlaying(playing);
     },
-    [enabled]
+    [enabled, engine]
   );
 
   const togglePlaying = useCallback(() => {
     if (!enabled) return;
-    setCityWordmarkEnginePlaying(!getCityWordmarkEngineSnapshot().playing);
-  }, [enabled]);
+    engine.setPlaying(!engine.getSnapshot().playing);
+  }, [enabled, engine]);
 
   const setTimeOfDay = useCallback(
     (timeOfDay: number) => {
       if (!enabled) return;
-      setCityWordmarkEngineTimeOfDay(timeOfDay);
+      engine.setTimeOfDay(timeOfDay);
     },
-    [enabled]
+    [enabled, engine]
   );
 
   const step = useCallback(
     (steps: number = 1) => {
       if (!enabled) return;
-      stepCityWordmarkEngine(steps);
+      engine.step(steps);
     },
-    [enabled]
+    [enabled, engine]
   );
 
   const setConfig = useCallback(
     (overrides: unknown) => {
       if (!enabled) return;
-      setCityWordmarkEngineConfig(overrides);
+      engine.setConfig(overrides);
     },
-    [enabled]
+    [enabled, engine]
   );
 
   return useMemo(
@@ -85,6 +84,7 @@ export function useCityWordmarkSim(options: { enabled?: boolean } = {}): CityWor
       playing: snapshot.playing,
       config: snapshot.config,
       actorRects: snapshot.actorRects,
+      peek,
       setPlaying,
       togglePlaying,
       setTimeOfDay,
@@ -92,6 +92,7 @@ export function useCityWordmarkSim(options: { enabled?: boolean } = {}): CityWor
       setConfig,
     }),
     [
+      peek,
       setConfig,
       setPlaying,
       setTimeOfDay,

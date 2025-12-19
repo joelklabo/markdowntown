@@ -1,12 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { CityLogoControls, type CityLogoPreviewWidthMode } from "@/components/wordmark/CityLogoControls";
 import { LivingCityWordmarkSvg } from "@/components/wordmark/LivingCityWordmarkSvg";
 import { getDefaultCityWordmarkConfig } from "@/components/wordmark/sim/config";
 import { dispatchCityWordmarkEvent } from "@/components/wordmark/sim/events";
-import { setCityWordmarkEngineConfig, setCityWordmarkEnginePlaying } from "@/components/wordmark/sim/engine";
+import { createCityWordmarkEngine } from "@/components/wordmark/sim/engine";
 import type { CityWordmarkConfig } from "@/components/wordmark/sim/types";
 import { useCityWordmarkSim } from "@/components/wordmark/sim/useCityWordmarkSim";
 
@@ -74,15 +74,14 @@ export function CityLogoLabClient({
   initialPlaying,
   initialEvent,
 }: CityLogoLabClientProps) {
-  const initRef = useRef<true | null>(null);
-  if (initRef.current == null) {
-    if (snapshotMode) setCityWordmarkEnginePlaying(false);
-    setCityWordmarkEngineConfig(initialConfig);
-    if (!snapshotMode) setCityWordmarkEnginePlaying(initialPlaying ?? true);
-    initRef.current = true;
-  }
+  const [engine] = useState(() =>
+    createCityWordmarkEngine({
+      initialConfig,
+      initialPlaying: snapshotMode ? false : (initialPlaying ?? true),
+    })
+  );
 
-  const sim = useCityWordmarkSim({ enabled: true });
+  const sim = useCityWordmarkSim({ enabled: true, engine });
   const id = useId();
   const [previewWidthMode, setPreviewWidthMode] = useState<CityLogoPreviewWidthMode>(initialPreviewWidthMode ?? "fixed");
   const [shareTimeOfDay, setShareTimeOfDay] = useState(() => initialConfig.timeOfDay);

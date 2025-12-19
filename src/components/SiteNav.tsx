@@ -229,12 +229,13 @@ export function SiteNav({ user }: { user?: User }) {
               onSubmit={onSearch}
               className="hidden w-[220px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex lg:w-[360px]"
             >
-              <input
-                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
-                placeholder="Search library…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                aria-label="Search"
+	              <input
+	                name="q"
+	                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
+	                placeholder="Search library…"
+	                value={query}
+	                onChange={(e) => setQuery(e.target.value)}
+	                aria-label="Search"
                 ref={inputRef}
                 aria-keyshortcuts="/"
               />
