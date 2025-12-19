@@ -7,9 +7,10 @@ import type {
   CityWordmarkScheme,
   CityWordmarkSkylineConfig,
 } from "./types";
+import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_SCHEMES } from "./types";
 
-const densitySchema = z.enum(["sparse", "normal", "dense"]) satisfies z.ZodType<CityWordmarkDensity>;
-const schemeSchema = z.enum(["classic", "noir", "neon"]) satisfies z.ZodType<CityWordmarkScheme>;
+const densitySchema = z.enum(CITY_WORDMARK_DENSITIES) satisfies z.ZodType<CityWordmarkDensity>;
+const schemeSchema = z.enum(CITY_WORDMARK_SCHEMES) satisfies z.ZodType<CityWordmarkScheme>;
 
 const defaultActors: CityWordmarkActorsConfig = {
   cars: true,

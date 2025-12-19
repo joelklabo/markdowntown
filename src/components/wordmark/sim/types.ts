@@ -1,6 +1,8 @@
-export type CityWordmarkDensity = "sparse" | "normal" | "dense";
+export const CITY_WORDMARK_DENSITIES = ["sparse", "normal", "dense"] as const;
+export type CityWordmarkDensity = (typeof CITY_WORDMARK_DENSITIES)[number];
 
-export type CityWordmarkScheme = "classic" | "noir" | "neon";
+export const CITY_WORDMARK_SCHEMES = ["classic", "noir", "neon"] as const;
+export type CityWordmarkScheme = (typeof CITY_WORDMARK_SCHEMES)[number];
 
 export type CityWordmarkRenderConfig = {
   /** Integer pixel scale for each voxel (crisp edges). */

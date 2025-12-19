@@ -12,7 +12,7 @@ import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import type { Rgb } from "./sim/color";
 import { normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
-import type { CityWordmarkSkylineConfig } from "./sim/types";
+import type { CityWordmarkScheme, CityWordmarkSkylineConfig } from "./sim/types";
 
 type LivingCityWordmarkSvgProps = {
   titleId: string;
@@ -21,6 +21,7 @@ type LivingCityWordmarkSvgProps = {
   seed?: string;
   /** Normalized time-of-day (0..1). */
   timeOfDay?: number;
+  scheme?: CityWordmarkScheme;
   nowMs?: number;
   actorRects?: readonly CityWordmarkActorRect[];
   /** Integer pixel scale for each voxel (crisp edges). */
@@ -59,6 +60,7 @@ export function LivingCityWordmarkSvg({
   className,
   seed = "markdowntown",
   timeOfDay = 0.78,
+  scheme = "classic",
   nowMs = 0,
   actorRects = [],
   voxelScale: voxelScaleProp,
@@ -66,7 +68,7 @@ export function LivingCityWordmarkSvg({
 }: LivingCityWordmarkSvgProps) {
   const layout = useMemo(() => createCityWordmarkLayout(), []);
 
-  const palette = getCityWordmarkPalette(timeOfDay);
+  const palette = getCityWordmarkPalette(timeOfDay, scheme);
   const { daylight } = getTimeOfDayPhase(timeOfDay);
   const nightness = clamp01(1 - daylight);
   const celestial = getCelestialPositions(timeOfDay);
@@ -193,6 +195,7 @@ export function LivingCityWordmarkSvg({
           {actorRects.map((r, idx) => {
             let fill: Rgb;
             if (r.tone === "headlight") fill = palette.window;
+            else if (r.tone === "car") fill = palette.car;
             else if (r.tone === "ambulance") fill = palette.building;
             else if (r.tone === "pedestrian") fill = palette.building;
             else if (r.tone === "dog") fill = palette.buildingMuted;

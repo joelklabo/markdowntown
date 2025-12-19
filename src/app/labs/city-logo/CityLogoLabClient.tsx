@@ -48,6 +48,7 @@ export function CityLogoLabClient({ snapshotMode = false, initialTimeOfDay, init
               className={previewWidthMode === "full" ? "w-full h-auto" : "w-full max-w-[1100px] h-auto"}
               seed={sim.config.seed}
               timeOfDay={sim.config.timeOfDay}
+              scheme={sim.config.scheme}
               nowMs={sim.nowMs}
               actorRects={sim.actorRects}
               voxelScale={sim.config.render.voxelScale}

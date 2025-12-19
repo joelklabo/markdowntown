@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { getDefaultCityWordmarkConfig } from "./sim/config";
 import { CITY_WORDMARK_EVENT, dispatchCityWordmarkEvent, listenCityWordmarkEvents } from "./sim/events";
-import type { CityWordmarkDensity } from "./sim/types";
+import { CITY_WORDMARK_SCHEME_OPTIONS } from "./sim/palette";
+import type { CityWordmarkDensity, CityWordmarkScheme } from "./sim/types";
 import type { CityWordmarkSim } from "./sim/useCityWordmarkSim";
 
 export type CityLogoPreviewWidthMode = "fixed" | "full";
@@ -251,6 +252,17 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
                 sim.setConfig({ render: { voxelScale: parsed } });
               }}
             />
+          </div>
+
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Scheme</div>
+            <Select value={sim.config.scheme} onChange={(e) => sim.setConfig({ scheme: e.target.value as CityWordmarkScheme })}>
+              {CITY_WORDMARK_SCHEME_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
           </div>
 
           {preview ? (
