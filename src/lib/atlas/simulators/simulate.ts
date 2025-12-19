@@ -1,5 +1,6 @@
 import type { LoadedFile, RepoTree, SimulationInput, SimulationResult, SimulationWarning } from './types.ts';
 import { simulateClaudeCode } from './tools/claudeCode.ts';
+import { simulateCopilotCli } from './tools/copilotCli.ts';
 import { simulateCodexCli } from './tools/codexCli.ts';
 import { simulateGeminiCli } from './tools/geminiCli.ts';
 import { simulateGitHubCopilot } from './tools/githubCopilot.ts';
@@ -68,6 +69,7 @@ export function simulateContextResolution({ tool, tree, cwd }: SimulationInput):
 
   const loaded = (() => {
     if (tool === 'github-copilot') return simulateGitHubCopilot(indexed);
+    if (tool === 'copilot-cli') return simulateCopilotCli(indexed);
     if (tool === 'claude-code') return simulateClaudeCode(indexed, cwd);
     if (tool === 'gemini-cli') return simulateGeminiCli(indexed, cwd);
     if (tool === 'codex-cli') return simulateCodexCli(indexed, cwd);

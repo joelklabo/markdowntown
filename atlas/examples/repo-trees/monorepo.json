@@ -16,6 +16,14 @@
       "content": "---\napplyTo: \"apps/web/**\"\n---\n\n# Web instructions\n\n- Prefer changes in apps/web.\n- Keep components small and reusable.\n"
     },
     {
+      "path": ".github/copilot-instructions/apps-web.instructions.md",
+      "content": "---\napplyTo: \"apps/web/**\"\n---\n\n# Copilot CLI scoped instructions\n\n- Prefer changes in apps/web.\n"
+    },
+    {
+      "path": ".github/agents/release.agent.md",
+      "content": "# Release Helper\n\n- Draft release notes.\n- Group changes by impact.\n"
+    },
+    {
       "path": "AGENTS.md",
       "content": "# AGENTS.md (root)\n\n## Scopes\n- apps/web/**: frontend conventions\n- apps/api/**: backend conventions\n"
     },

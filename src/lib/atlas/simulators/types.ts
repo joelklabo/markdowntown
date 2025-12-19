@@ -1,4 +1,4 @@
-export type SimulatorToolId = 'github-copilot' | 'claude-code' | 'gemini-cli' | 'codex-cli';
+export type SimulatorToolId = 'github-copilot' | 'copilot-cli' | 'claude-code' | 'gemini-cli' | 'codex-cli';
 
 export type RepoTreeFile = {
   path: string;

@@ -21,6 +21,26 @@ describe("ContextSimulator", () => {
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
   });
 
+  it("simulates loaded files for Copilot CLI", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.selectOptions(screen.getByLabelText("Tool"), "copilot-cli");
+
+    await userEvent.clear(screen.getByLabelText("Repo tree (paths)"));
+    await userEvent.type(
+      screen.getByLabelText("Repo tree (paths)"),
+      ".github/copilot-instructions.md\n.github/copilot-instructions/apps-web.instructions.md\n.github/agents/release.agent.md\nAGENTS.md\n"
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Simulate" }));
+
+    const loadedList = screen.getByRole("list", { name: "Loaded files" });
+    expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
+    expect(within(loadedList).getByText(".github/copilot-instructions/apps-web.instructions.md")).toBeInTheDocument();
+    expect(within(loadedList).getByText(".github/agents/release.agent.md")).toBeInTheDocument();
+    expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
+  });
+
   it("simulates ordered loaded files for Codex CLI with cwd ancestry", async () => {
     render(<ContextSimulator />);
 

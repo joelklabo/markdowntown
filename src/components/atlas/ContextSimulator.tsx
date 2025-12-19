@@ -17,6 +17,7 @@ import type { RepoTree, SimulationResult, SimulatorToolId } from "@/lib/atlas/si
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
   { id: "github-copilot", label: "GitHub Copilot" },
+  { id: "copilot-cli", label: "Copilot CLI" },
   { id: "claude-code", label: "Claude Code" },
   { id: "gemini-cli", label: "Gemini CLI" },
   { id: "codex-cli", label: "Codex CLI" },
