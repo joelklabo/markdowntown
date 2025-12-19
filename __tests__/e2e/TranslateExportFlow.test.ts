@@ -68,8 +68,8 @@ This is a test export.
         );
         await compile.click();
 
-        await page.getByText("AGENTS.md").waitFor({ state: "visible" });
-        await page.getByText(".github/copilot-instructions.md").waitFor({ state: "visible" });
+        await page.locator("div.font-mono", { hasText: "AGENTS.md" }).waitFor({ state: "visible" });
+        await page.locator("div.font-mono", { hasText: ".github/copilot-instructions.md" }).waitFor({ state: "visible" });
 
         const [download] = await Promise.all([
           page.waitForEvent("download"),
