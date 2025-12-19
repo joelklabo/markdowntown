@@ -60,11 +60,18 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
     setSkylineMaxSegmentWidthDraft(String(next.skyline.maxSegmentWidth));
   }
 
-  function applyPreset(preset: "day" | "night" | "rush" | "calm") {
+  function applyPreset(preset: "day" | "night" | "rush" | "calm" | "noirNight" | "neonNight") {
     const base = getDefaultCityWordmarkConfig();
+    const currentScheme = sim.config.scheme;
 
     if (preset === "day") {
-      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.55, density: "normal", timeScale: 1 };
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = {
+        ...base,
+        scheme: currentScheme,
+        timeOfDay: 0.55,
+        density: "normal",
+        timeScale: 1,
+      };
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
@@ -72,7 +79,13 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
     }
 
     if (preset === "night") {
-      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.04, density: "normal", timeScale: 1 };
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = {
+        ...base,
+        scheme: currentScheme,
+        timeOfDay: 0.04,
+        density: "normal",
+        timeScale: 1,
+      };
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
@@ -80,14 +93,54 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
     }
 
     if (preset === "rush") {
-      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.72, density: "dense", timeScale: 1.6 };
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = {
+        ...base,
+        scheme: currentScheme,
+        timeOfDay: 0.72,
+        density: "dense",
+        timeScale: 1.6,
+      };
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
       return;
     }
 
-    const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.62, density: "sparse", timeScale: 0.7 };
+    if (preset === "calm") {
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = {
+        ...base,
+        scheme: currentScheme,
+        timeOfDay: 0.62,
+        density: "sparse",
+        timeScale: 0.7,
+      };
+      sim.setConfig(next);
+      syncDrafts(next);
+      sim.setPlaying(true);
+      return;
+    }
+
+    if (preset === "noirNight") {
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = {
+        ...base,
+        scheme: "noir",
+        timeOfDay: 0.04,
+        density: "normal",
+        timeScale: 1,
+      };
+      sim.setConfig(next);
+      syncDrafts(next);
+      sim.setPlaying(true);
+      return;
+    }
+
+    const next: ReturnType<typeof getDefaultCityWordmarkConfig> = {
+      ...base,
+      scheme: "neon",
+      timeOfDay: 0.04,
+      density: "normal",
+      timeScale: 1,
+    };
     sim.setConfig(next);
     syncDrafts(next);
     sim.setPlaying(true);
@@ -214,6 +267,12 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
           </Button>
           <Button variant="secondary" onClick={() => applyPreset("calm")}>
             Calm
+          </Button>
+          <Button variant="secondary" onClick={() => applyPreset("noirNight")}>
+            Noir night
+          </Button>
+          <Button variant="secondary" onClick={() => applyPreset("neonNight")}>
+            Neon night
           </Button>
         </div>
         <div className="flex items-center justify-between gap-mdt-2">
