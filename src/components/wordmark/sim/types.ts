@@ -1,7 +1,22 @@
 export type CityWordmarkDensity = "sparse" | "normal" | "dense";
 
+export type CityWordmarkScheme = "classic" | "noir" | "neon";
+
+export type CityWordmarkRenderConfig = {
+  /** Integer pixel scale for each voxel (crisp edges). */
+  voxelScale: number;
+};
+
+export type CityWordmarkSkylineConfig = {
+  minHeight: number;
+  maxHeight: number;
+  minSegmentWidth: number;
+  maxSegmentWidth: number;
+};
+
 export type CityWordmarkActorsConfig = {
   cars: boolean;
+  trucks: boolean;
   streetlights: boolean;
   pedestrians: boolean;
   dogs: boolean;
@@ -26,6 +41,12 @@ export type CityWordmarkConfig = {
   timeScale: number;
   /** Density preset used for actor spawn rates, window density, etc. */
   density: CityWordmarkDensity;
+  /** Curated color scheme preset. */
+  scheme: CityWordmarkScheme;
+  /** Render tuning knobs (scale, etc). */
+  render: CityWordmarkRenderConfig;
+  /** Skyline silhouette tuning. */
+  skyline: CityWordmarkSkylineConfig;
   /** Actor toggles. */
   actors: CityWordmarkActorsConfig;
 };
