@@ -8,9 +8,11 @@ import { useCityWordmarkSim } from "./sim/useCityWordmarkSim";
 
 type LivingCityWordmarkProps = {
   className?: string;
+  bannerScale?: number;
+  preserveAspectRatio?: string;
 };
 
-export function LivingCityWordmark({ className }: LivingCityWordmarkProps) {
+export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio }: LivingCityWordmarkProps) {
   const [mounted, setMounted] = useState(false);
   const id = useId();
   const titleId = `${id}-title`;
@@ -36,6 +38,8 @@ export function LivingCityWordmark({ className }: LivingCityWordmarkProps) {
       nowMs={sim.nowMs}
       actorRects={sim.actorRects}
       voxelScale={sim.config.render.voxelScale}
+      bannerScale={bannerScale}
+      preserveAspectRatio={preserveAspectRatio}
       skyline={sim.config.skyline}
     />
   );

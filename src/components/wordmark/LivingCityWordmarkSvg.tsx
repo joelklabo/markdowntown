@@ -26,6 +26,9 @@ type LivingCityWordmarkSvgProps = {
   actorRects?: readonly CityWordmarkActorRect[];
   /** Resolution multiplier (higher = smaller voxels). */
   voxelScale?: number;
+  /** Multiplier for extra skyline width in voxels. */
+  bannerScale?: number;
+  preserveAspectRatio?: string;
   skyline?: Partial<CityWordmarkSkylineConfig>;
 };
 
@@ -65,6 +68,8 @@ export function LivingCityWordmarkSvg({
   nowMs = 0,
   actorRects = [],
   voxelScale: voxelScaleProp,
+  bannerScale: bannerScaleProp,
+  preserveAspectRatio,
   skyline: skylineOverrides,
 }: LivingCityWordmarkSvgProps) {
   const layout = useMemo(() => createCityWordmarkLayout(), []);
@@ -75,9 +80,11 @@ export function LivingCityWordmarkSvg({
   const celestial = getCelestialPositions(timeOfDay);
 
   const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
-  const viewWidth = layout.width * resolution;
+  const bannerScale = normalizeVoxelScale(bannerScaleProp ?? 1);
+  const frameWidth = layout.width * bannerScale;
+  const viewWidth = frameWidth * resolution;
   const viewHeight = layout.height * resolution;
-  const pixelWidth = layout.width * BASE_VOXEL_PIXEL_SCALE;
+  const pixelWidth = frameWidth * BASE_VOXEL_PIXEL_SCALE;
   const pixelHeight = layout.height * BASE_VOXEL_PIXEL_SCALE;
 
   const topPadding = layout.baselineY - CITY_WORDMARK_GLYPH_ROWS;
@@ -94,12 +101,12 @@ export function LivingCityWordmarkSvg({
   const skyline = useMemo(
     () =>
       createCityWordmarkSkylineMask({
-        width: layout.width,
+        width: frameWidth,
         baselineY: layout.baselineY,
         seed,
         ...skylineOverrides,
       }),
-    [layout.baselineY, layout.width, seed, skylineOverrides]
+    [frameWidth, layout.baselineY, seed, skylineOverrides]
   );
   const skylinePath = useMemo(() => voxelRectsToPath(skyline, resolution), [skyline, resolution]);
 
@@ -170,6 +177,7 @@ export function LivingCityWordmarkSvg({
       role="img"
       aria-labelledby={titleId}
       aria-describedby={descId}
+      preserveAspectRatio={preserveAspectRatio}
       focusable="false"
       xmlns="http://www.w3.org/2000/svg"
       shapeRendering="crispEdges"
