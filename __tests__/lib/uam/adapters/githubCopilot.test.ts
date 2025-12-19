@@ -14,14 +14,14 @@ describe('GitHub Copilot Adapter', () => {
     };
 
     const result = await githubCopilotAdapter.compile(def);
-    
+
     expect(result.files).toHaveLength(1);
     expect(result.files[0].path).toBe('.github/copilot-instructions.md');
     expect(result.files[0].content).toContain('Global instruction.');
     expect(result.warnings).toHaveLength(0);
   });
 
-  it('formats scoped blocks with glob patterns', async () => {
+  it('writes scoped blocks to .github/instructions/*.instructions.md', async () => {
     const def: UniversalAgentDefinition = {
       kind: 'UniversalAgent',
       apiVersion: 'v1',
@@ -32,8 +32,10 @@ describe('GitHub Copilot Adapter', () => {
     };
 
     const result = await githubCopilotAdapter.compile(def);
-    
-    expect(result.files[0].content).toContain('For files matching `**/*.ts`:');
+
+    expect(result.files).toHaveLength(1);
+    expect(result.files[0].path).toMatch(/^\.github\/instructions\/.+\.instructions\.md$/);
+    expect(result.files[0].content).toContain('applyTo: "**/*.ts"');
     expect(result.files[0].content).toContain('TS rules');
     expect(result.warnings).toHaveLength(0);
   });
@@ -49,10 +51,13 @@ describe('GitHub Copilot Adapter', () => {
     };
 
     const result = await githubCopilotAdapter.compile(def);
-    
+
     expect(result.warnings).toHaveLength(1);
     expect(result.warnings[0]).toContain('not a glob pattern');
     // It should still include the content
-    expect(result.files[0].content).toContain('For files matching `src/`:');
+    expect(result.files).toHaveLength(1);
+    expect(result.files[0].path).toMatch(/^\.github\/instructions\/.+\.instructions\.md$/);
+    expect(result.files[0].content).toContain('applyTo: "src/"');
+    expect(result.files[0].content).toContain('Src rules');
   });
 });
