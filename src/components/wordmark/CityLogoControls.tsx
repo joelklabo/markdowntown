@@ -37,6 +37,10 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
   const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
+  const [skylineMinHeightDraft, setSkylineMinHeightDraft] = useState(String(sim.config.skyline.minHeight));
+  const [skylineMaxHeightDraft, setSkylineMaxHeightDraft] = useState(String(sim.config.skyline.maxHeight));
+  const [skylineMinSegmentWidthDraft, setSkylineMinSegmentWidthDraft] = useState(String(sim.config.skyline.minSegmentWidth));
+  const [skylineMaxSegmentWidthDraft, setSkylineMaxSegmentWidthDraft] = useState(String(sim.config.skyline.maxSegmentWidth));
   const [lastEvent, setLastEvent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,44 +49,46 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
 
   const timeLabel = useMemo(() => formatTimeOfDay(sim.config.timeOfDay), [sim.config.timeOfDay]);
 
+  function syncDrafts(next: ReturnType<typeof getDefaultCityWordmarkConfig>) {
+    setSeedDraft(next.seed);
+    setTimeScaleDraft(String(next.timeScale));
+    setVoxelScaleDraft(String(next.render.voxelScale));
+    setSkylineMinHeightDraft(String(next.skyline.minHeight));
+    setSkylineMaxHeightDraft(String(next.skyline.maxHeight));
+    setSkylineMinSegmentWidthDraft(String(next.skyline.minSegmentWidth));
+    setSkylineMaxSegmentWidthDraft(String(next.skyline.maxSegmentWidth));
+  }
+
   function applyPreset(preset: "day" | "night" | "rush" | "calm") {
     const base = getDefaultCityWordmarkConfig();
 
     if (preset === "day") {
-      const next = { ...base, timeOfDay: 0.55, density: "normal", timeScale: 1 };
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.55, density: "normal", timeScale: 1 };
       sim.setConfig(next);
-      setSeedDraft(next.seed);
-      setTimeScaleDraft(String(next.timeScale));
-      setVoxelScaleDraft(String(next.render.voxelScale));
+      syncDrafts(next);
       sim.setPlaying(true);
       return;
     }
 
     if (preset === "night") {
-      const next = { ...base, timeOfDay: 0.04, density: "normal", timeScale: 1 };
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.04, density: "normal", timeScale: 1 };
       sim.setConfig(next);
-      setSeedDraft(next.seed);
-      setTimeScaleDraft(String(next.timeScale));
-      setVoxelScaleDraft(String(next.render.voxelScale));
+      syncDrafts(next);
       sim.setPlaying(true);
       return;
     }
 
     if (preset === "rush") {
-      const next = { ...base, timeOfDay: 0.72, density: "dense", timeScale: 1.6 };
+      const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.72, density: "dense", timeScale: 1.6 };
       sim.setConfig(next);
-      setSeedDraft(next.seed);
-      setTimeScaleDraft(String(next.timeScale));
-      setVoxelScaleDraft(String(next.render.voxelScale));
+      syncDrafts(next);
       sim.setPlaying(true);
       return;
     }
 
-    const next = { ...base, timeOfDay: 0.62, density: "sparse", timeScale: 0.7 };
+    const next: ReturnType<typeof getDefaultCityWordmarkConfig> = { ...base, timeOfDay: 0.62, density: "sparse", timeScale: 0.7 };
     sim.setConfig(next);
-    setSeedDraft(next.seed);
-    setTimeScaleDraft(String(next.timeScale));
-    setVoxelScaleDraft(String(next.render.voxelScale));
+    syncDrafts(next);
     sim.setPlaying(true);
   }
 
@@ -216,9 +222,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
             onClick={() => {
               const next = getDefaultCityWordmarkConfig();
               sim.setConfig(next);
-              setSeedDraft(next.seed);
-              setTimeScaleDraft(String(next.timeScale));
-              setVoxelScaleDraft(String(next.render.voxelScale));
+              syncDrafts(next);
             }}
           >
             Reset
@@ -243,7 +247,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
                 const next = e.target.value;
                 setVoxelScaleDraft(next);
                 const parsed = Math.floor(Number(next));
-                if (!Number.isFinite(parsed) || parsed <= 0) return;
+                if (!Number.isFinite(parsed) || parsed < 1 || parsed > 32) return;
                 sim.setConfig({ render: { voxelScale: parsed } });
               }}
             />
@@ -263,6 +267,103 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
           ) : (
             <div />
           )}
+        </div>
+      </Card>
+
+      <Card className="p-mdt-4 space-y-mdt-3">
+        <div className="text-body-sm font-medium text-mdt-text">Skyline</div>
+        <div className="grid grid-cols-2 gap-mdt-3">
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Min height</div>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={32}
+              step={1}
+              value={skylineMinHeightDraft}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSkylineMinHeightDraft(next);
+                const parsed = Math.floor(Number(next));
+                if (!Number.isFinite(parsed) || parsed < 1 || parsed > 32) return;
+                const nextMaxHeight = Math.max(parsed, sim.config.skyline.maxHeight);
+                sim.setConfig({ skyline: { minHeight: parsed, maxHeight: nextMaxHeight } });
+                if (nextMaxHeight !== sim.config.skyline.maxHeight) {
+                  setSkylineMaxHeightDraft(String(nextMaxHeight));
+                }
+              }}
+            />
+          </div>
+
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Max height</div>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={64}
+              step={1}
+              value={skylineMaxHeightDraft}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSkylineMaxHeightDraft(next);
+                const parsed = Math.floor(Number(next));
+                if (!Number.isFinite(parsed) || parsed < 1 || parsed > 64) return;
+                const nextMinHeight = Math.min(parsed, sim.config.skyline.minHeight);
+                sim.setConfig({ skyline: { maxHeight: parsed, minHeight: nextMinHeight } });
+                if (nextMinHeight !== sim.config.skyline.minHeight) {
+                  setSkylineMinHeightDraft(String(nextMinHeight));
+                }
+              }}
+            />
+          </div>
+
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Min segment width</div>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={64}
+              step={1}
+              value={skylineMinSegmentWidthDraft}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSkylineMinSegmentWidthDraft(next);
+                const parsed = Math.floor(Number(next));
+                if (!Number.isFinite(parsed) || parsed < 1 || parsed > 64) return;
+                const nextMaxWidth = Math.max(parsed, sim.config.skyline.maxSegmentWidth);
+                sim.setConfig({ skyline: { minSegmentWidth: parsed, maxSegmentWidth: nextMaxWidth } });
+                if (nextMaxWidth !== sim.config.skyline.maxSegmentWidth) {
+                  setSkylineMaxSegmentWidthDraft(String(nextMaxWidth));
+                }
+              }}
+            />
+          </div>
+
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Max segment width</div>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={128}
+              step={1}
+              value={skylineMaxSegmentWidthDraft}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSkylineMaxSegmentWidthDraft(next);
+                const parsed = Math.floor(Number(next));
+                if (!Number.isFinite(parsed) || parsed < 1 || parsed > 128) return;
+                const nextMinWidth = Math.min(parsed, sim.config.skyline.minSegmentWidth);
+                sim.setConfig({ skyline: { maxSegmentWidth: parsed, minSegmentWidth: nextMinWidth } });
+                if (nextMinWidth !== sim.config.skyline.minSegmentWidth) {
+                  setSkylineMinSegmentWidthDraft(String(nextMinWidth));
+                }
+              }}
+            />
+          </div>
         </div>
       </Card>
 
