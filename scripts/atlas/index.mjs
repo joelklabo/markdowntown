@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { generateAtlasSearchIndex } from "./generate-index.ts";
 
 const atlasDir = path.join(process.cwd(), "atlas");
 
@@ -8,5 +9,6 @@ if (!fs.existsSync(atlasDir)) {
   process.exit(0);
 }
 
-console.log("[atlas:index] OK (placeholder)");
-
+const result = generateAtlasSearchIndex({ atlasDir });
+const relOutFile = path.relative(process.cwd(), result.outFile);
+console.log(`[atlas:index] Wrote ${result.index.items.length} items to ${relOutFile}`);
