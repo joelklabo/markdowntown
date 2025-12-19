@@ -1,6 +1,6 @@
 {
   "id": "2025-12-19-cursor",
-  "date": "2025-12-19T07:46:23.840Z",
+  "date": "2025-12-19T08:36:56.308Z",
   "summary": "cursor facts updated (~4)",
   "diffs": [
     {
@@ -20,7 +20,7 @@
             "confidence": "medium",
             "evidence": [
               {
-                "url": "https://example.com/cursor/cursorrules",
+                "url": "https://cursor.com/en-US/docs/context/rules",
                 "title": "Cursor documentation",
                 "excerpt": "alwaysApply"
               }
@@ -34,7 +34,7 @@
             "confidence": "medium",
             "evidence": [
               {
-                "url": "https://example.com/cursor/cursorrules",
+                "url": "https://cursor.com/en-US/docs/context/rules",
                 "title": "Cursor documentation",
                 "excerpt": "globs"
               }
@@ -48,7 +48,7 @@
             "confidence": "medium",
             "evidence": [
               {
-                "url": "https://example.com/cursor/cursorrules",
+                "url": "https://cursor.com/en-US/docs/context/rules",
                 "title": "Cursor documentation",
                 "excerpt": "precedence"
               }
@@ -62,7 +62,7 @@
             "confidence": "high",
             "evidence": [
               {
-                "url": "https://example.com/cursor/cursorrules",
+                "url": "https://cursor.com/en-US/docs/context/rules",
                 "title": "Cursor documentation",
                 "excerpt": ".cursor/rules/*.mdc"
               }
@@ -88,7 +88,7 @@
             "confidence": "medium",
             "evidence": [
               {
-                "url": "https://cursor.com/en-US/docs/context/rules",
+                "url": "https://cursor.com/docs/context/rules.md",
                 "title": "Cursor documentation",
                 "excerpt": "alwaysApply"
               }
@@ -102,7 +102,7 @@
             "confidence": "medium",
             "evidence": [
               {
-                "url": "https://cursor.com/en-US/docs/context/rules",
+                "url": "https://cursor.com/docs/context/rules.md",
                 "title": "Cursor documentation",
                 "excerpt": "globs"
               }
@@ -116,7 +116,7 @@
             "confidence": "medium",
             "evidence": [
               {
-                "url": "https://cursor.com/en-US/docs/context/rules",
+                "url": "https://cursor.com/docs/context/rules.md",
                 "title": "Cursor documentation",
                 "excerpt": "precedence"
               }
@@ -130,7 +130,7 @@
             "confidence": "high",
             "evidence": [
               {
-                "url": "https://cursor.com/en-US/docs/context/rules",
+                "url": "https://cursor.com/docs/context/rules.md",
                 "title": "Cursor documentation",
                 "excerpt": ".cursor/rules/*.mdc"
               }

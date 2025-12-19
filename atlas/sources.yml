@@ -10,7 +10,7 @@ sources:
   - id: github-copilot-repo-instructions
     platformId: github-copilot
     kind: docs
-    url: https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions
+    url: https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions
     cadence: monthly
     expectedPhrases:
       - .github/copilot-instructions.md
@@ -73,7 +73,7 @@ sources:
   - id: copilot-cli-agents-md
     platformId: copilot-cli
     kind: docs
-    url: https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli
+    url: https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli
     cadence: monthly
     expectedPhrases:
       - .github/copilot-instructions.md

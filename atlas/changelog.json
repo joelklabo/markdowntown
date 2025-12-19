@@ -1,65 +1,14 @@
 {
-  "lastUpdated": "2025-12-19T07:46:23.840Z",
+  "lastUpdated": "2025-12-19T08:36:56.308Z",
   "entries": [
     {
       "id": "2025-12-19-windsurf",
-      "date": "2025-12-19T07:46:23.840Z",
-      "summary": "windsurf facts updated (~3)",
+      "date": "2025-12-19T08:36:56.308Z",
+      "summary": "windsurf facts updated (~2)",
       "diffs": [
         {
           "platformId": "windsurf",
           "before": {
-            "platformId": "windsurf",
-            "name": "Windsurf",
-            "artifacts": [],
-            "featureSupport": {
-              "imports": "no",
-              "path-scoping": "yes",
-              "repo-instructions": "yes"
-            },
-            "claims": {
-              "windsurf.ignore-file.codeiumignore": {
-                "statement": "Windsurf Indexing supports ignoring files via a .codeiumignore file.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/windsurf/windsurfrules",
-                    "title": "Windsurf documentation",
-                    "excerpt": ".codeiumignore"
-                  }
-                ]
-              },
-              "windsurf.path-scoping.hierarchy": {
-                "statement": "Windsurf Cascade applies subdirectory AGENTS.md instructions to files within that directory and its subdirectories.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/windsurf/windsurfrules",
-                    "title": "Windsurf documentation",
-                    "excerpt": "Subdirectories"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "windsurf.repo-instructions.file": {
-                "statement": "Windsurf Cascade supports directory-scoped instructions via AGENTS.md files.",
-                "confidence": "high",
-                "evidence": [
-                  {
-                    "url": "https://example.com/windsurf/windsurfrules",
-                    "title": "Windsurf documentation",
-                    "excerpt": "AGENTS.md"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              }
-            }
-          },
-          "after": {
             "platformId": "windsurf",
             "name": "Windsurf",
             "artifacts": [],
@@ -109,14 +58,61 @@
                 ]
               }
             }
+          },
+          "after": {
+            "platformId": "windsurf",
+            "name": "Windsurf",
+            "artifacts": [],
+            "featureSupport": {
+              "imports": "no",
+              "path-scoping": "yes",
+              "repo-instructions": "yes"
+            },
+            "claims": {
+              "windsurf.ignore-file.codeiumignore": {
+                "statement": "Windsurf Indexing supports ignoring files via a .codeiumignore file.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.windsurf.com/context-awareness/windsurf-ignore",
+                    "title": "Windsurf documentation",
+                    "excerpt": ".codeiumignore"
+                  }
+                ]
+              },
+              "windsurf.path-scoping.hierarchy": {
+                "statement": "Windsurf Cascade applies subdirectory AGENTS.md instructions to files within that directory and its subdirectories.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.windsurf.com/windsurf/cascade/agents-md.md",
+                    "title": "Windsurf documentation",
+                    "excerpt": "directory-scoped"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "windsurf.repo-instructions.file": {
+                "statement": "Windsurf Cascade supports directory-scoped instructions via AGENTS.md files.",
+                "confidence": "high",
+                "evidence": [
+                  {
+                    "url": "https://docs.windsurf.com/windsurf/cascade/agents-md.md",
+                    "title": "Windsurf documentation",
+                    "excerpt": "AGENTS.md"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              }
+            }
           }
         }
       ],
       "impactedClaims": [
-        {
-          "platformId": "windsurf",
-          "claimId": "windsurf.ignore-file.codeiumignore"
-        },
         {
           "platformId": "windsurf",
           "claimId": "windsurf.path-scoping.hierarchy"
@@ -129,7 +125,7 @@
     },
     {
       "id": "2025-12-19-github-copilot",
-      "date": "2025-12-19T07:46:23.840Z",
+      "date": "2025-12-19T08:36:56.308Z",
       "summary": "github-copilot facts updated (~3)",
       "diffs": [
         {
@@ -149,7 +145,7 @@
                 "confidence": "medium",
                 "evidence": [
                   {
-                    "url": "https://example.com/github-copilot/repo-instructions",
+                    "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
                     "title": "GitHub Copilot documentation",
                     "excerpt": "applyTo"
                   }
@@ -163,7 +159,7 @@
                 "confidence": "medium",
                 "evidence": [
                   {
-                    "url": "https://example.com/github-copilot/repo-instructions",
+                    "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
                     "title": "GitHub Copilot documentation",
                     "excerpt": "precedence"
                   }
@@ -177,7 +173,7 @@
                 "confidence": "high",
                 "evidence": [
                   {
-                    "url": "https://example.com/github-copilot/repo-instructions",
+                    "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
                     "title": "GitHub Copilot documentation",
                     "excerpt": ".github/copilot-instructions.md"
                   }
@@ -203,7 +199,7 @@
                 "confidence": "medium",
                 "evidence": [
                   {
-                    "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
                     "title": "GitHub Copilot documentation",
                     "excerpt": "applyTo"
                   }
@@ -217,7 +213,7 @@
                 "confidence": "medium",
                 "evidence": [
                   {
-                    "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
                     "title": "GitHub Copilot documentation",
                     "excerpt": "precedence"
                   }
@@ -231,7 +227,7 @@
                 "confidence": "high",
                 "evidence": [
                   {
-                    "url": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
                     "title": "GitHub Copilot documentation",
                     "excerpt": ".github/copilot-instructions.md"
                   }
@@ -256,6 +252,406 @@
         {
           "platformId": "github-copilot",
           "claimId": "github-copilot.repo-instructions.file"
+        }
+      ]
+    },
+    {
+      "id": "2025-12-19-cursor",
+      "date": "2025-12-19T08:36:56.308Z",
+      "summary": "cursor facts updated (~4)",
+      "diffs": [
+        {
+          "platformId": "cursor",
+          "before": {
+            "platformId": "cursor",
+            "name": "Cursor",
+            "artifacts": [],
+            "featureSupport": {
+              "imports": "no",
+              "path-scoping": "yes",
+              "repo-instructions": "yes"
+            },
+            "claims": {
+              "cursor.path-scoping.alwaysapply": {
+                "statement": "Cursor supports alwaysApply to apply a rule regardless of globs scope.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/en-US/docs/context/rules",
+                    "title": "Cursor documentation",
+                    "excerpt": "alwaysApply"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "cursor.path-scoping.globs": {
+                "statement": "Cursor supports scoping rules to file globs using a globs field in rule frontmatter.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/en-US/docs/context/rules",
+                    "title": "Cursor documentation",
+                    "excerpt": "globs"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "cursor.path-scoping.precedence": {
+                "statement": "When multiple Cursor rules match, more specific scoped rules take precedence.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/en-US/docs/context/rules",
+                    "title": "Cursor documentation",
+                    "excerpt": "precedence"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "cursor.repo-instructions.rules-files": {
+                "statement": "Cursor supports repository instructions via .cursor/rules/*.mdc rule files.",
+                "confidence": "high",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/en-US/docs/context/rules",
+                    "title": "Cursor documentation",
+                    "excerpt": ".cursor/rules/*.mdc"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              }
+            }
+          },
+          "after": {
+            "platformId": "cursor",
+            "name": "Cursor",
+            "artifacts": [],
+            "featureSupport": {
+              "imports": "no",
+              "path-scoping": "yes",
+              "repo-instructions": "yes"
+            },
+            "claims": {
+              "cursor.path-scoping.alwaysapply": {
+                "statement": "Cursor supports alwaysApply to apply a rule regardless of globs scope.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/docs/context/rules.md",
+                    "title": "Cursor documentation",
+                    "excerpt": "alwaysApply"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "cursor.path-scoping.globs": {
+                "statement": "Cursor supports scoping rules to file globs using a globs field in rule frontmatter.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/docs/context/rules.md",
+                    "title": "Cursor documentation",
+                    "excerpt": "globs"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "cursor.path-scoping.precedence": {
+                "statement": "When multiple Cursor rules match, more specific scoped rules take precedence.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/docs/context/rules.md",
+                    "title": "Cursor documentation",
+                    "excerpt": "precedence"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "cursor.repo-instructions.rules-files": {
+                "statement": "Cursor supports repository instructions via .cursor/rules/*.mdc rule files.",
+                "confidence": "high",
+                "evidence": [
+                  {
+                    "url": "https://cursor.com/docs/context/rules.md",
+                    "title": "Cursor documentation",
+                    "excerpt": ".cursor/rules/*.mdc"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "impactedClaims": [
+        {
+          "platformId": "cursor",
+          "claimId": "cursor.path-scoping.alwaysapply"
+        },
+        {
+          "platformId": "cursor",
+          "claimId": "cursor.path-scoping.globs"
+        },
+        {
+          "platformId": "cursor",
+          "claimId": "cursor.path-scoping.precedence"
+        },
+        {
+          "platformId": "cursor",
+          "claimId": "cursor.repo-instructions.rules-files"
+        }
+      ]
+    },
+    {
+      "id": "2025-12-19-copilot-cli",
+      "date": "2025-12-19T08:36:56.308Z",
+      "summary": "copilot-cli facts updated (~7)",
+      "diffs": [
+        {
+          "platformId": "copilot-cli",
+          "before": {
+            "platformId": "copilot-cli",
+            "name": "Copilot CLI",
+            "artifacts": [],
+            "featureSupport": {
+              "imports": "no",
+              "path-scoping": "yes",
+              "repo-instructions": "yes"
+            },
+            "claims": {
+              "copilot-cli.custom-agents.org-dir": {
+                "statement": "GitHub Copilot CLI can load organization-level custom agent profiles from /agents in an organization .github-private repository.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".github-private"
+                  }
+                ]
+              },
+              "copilot-cli.custom-agents.precedence": {
+                "statement": "When custom agent names conflict, Copilot CLI prefers higher-precedence agent scopes over lower-precedence ones.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": "naming conflicts"
+                  }
+                ]
+              },
+              "copilot-cli.custom-agents.repo-dir": {
+                "statement": "GitHub Copilot CLI can load repository-level custom agent profiles from .github/agents.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".github/agents"
+                  }
+                ]
+              },
+              "copilot-cli.custom-agents.user-dir": {
+                "statement": "GitHub Copilot CLI can load user-level custom agent profiles from ~/.copilot/agents.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": "~/.copilot/agents"
+                  }
+                ]
+              },
+              "copilot-cli.path-scoping.instructions-files": {
+                "statement": "GitHub Copilot CLI supports path-scoped instructions via .github/copilot-instructions/**/*.instructions.md files.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".instructions.md"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "copilot-cli.repo-instructions.agents-file": {
+                "statement": "GitHub Copilot CLI supports agent files such as AGENTS.md.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": "AGENTS.md"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              },
+              "copilot-cli.repo-instructions.file": {
+                "statement": "GitHub Copilot CLI supports repository-wide instructions via .github/copilot-instructions.md.",
+                "confidence": "high",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".github/copilot-instructions.md"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              }
+            }
+          },
+          "after": {
+            "platformId": "copilot-cli",
+            "name": "Copilot CLI",
+            "artifacts": [],
+            "featureSupport": {
+              "imports": "no",
+              "path-scoping": "yes",
+              "repo-instructions": "yes"
+            },
+            "claims": {
+              "copilot-cli.custom-agents.org-dir": {
+                "statement": "GitHub Copilot CLI can load organization-level custom agent profiles from /agents in an organization .github-private repository.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".github-private"
+                  }
+                ]
+              },
+              "copilot-cli.custom-agents.precedence": {
+                "statement": "When custom agent names conflict, Copilot CLI prefers higher-precedence agent scopes over lower-precedence ones.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": "naming conflicts"
+                  }
+                ]
+              },
+              "copilot-cli.custom-agents.repo-dir": {
+                "statement": "GitHub Copilot CLI can load repository-level custom agent profiles from .github/agents.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".github/agents"
+                  }
+                ]
+              },
+              "copilot-cli.custom-agents.user-dir": {
+                "statement": "GitHub Copilot CLI can load user-level custom agent profiles from ~/.copilot/agents.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": "~/.copilot/agents"
+                  }
+                ]
+              },
+              "copilot-cli.path-scoping.instructions-files": {
+                "statement": "GitHub Copilot CLI supports path-scoped instructions via .github/copilot-instructions/**/*.instructions.md files.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".instructions.md"
+                  }
+                ],
+                "features": [
+                  "path-scoping"
+                ]
+              },
+              "copilot-cli.repo-instructions.agents-file": {
+                "statement": "GitHub Copilot CLI supports agent files such as AGENTS.md.",
+                "confidence": "medium",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": "AGENTS.md"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              },
+              "copilot-cli.repo-instructions.file": {
+                "statement": "GitHub Copilot CLI supports repository-wide instructions via .github/copilot-instructions.md.",
+                "confidence": "high",
+                "evidence": [
+                  {
+                    "url": "https://docs.github.com/api/article/body?pathname=/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
+                    "title": "GitHub Copilot CLI documentation",
+                    "excerpt": ".github/copilot-instructions.md"
+                  }
+                ],
+                "features": [
+                  "repo-instructions"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "impactedClaims": [
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.custom-agents.org-dir"
+        },
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.custom-agents.precedence"
+        },
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.custom-agents.repo-dir"
+        },
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.custom-agents.user-dir"
+        },
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.path-scoping.instructions-files"
+        },
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.repo-instructions.agents-file"
+        },
+        {
+          "platformId": "copilot-cli",
+          "claimId": "copilot-cli.repo-instructions.file"
         }
       ]
     },
@@ -350,406 +746,6 @@
         {
           "platformId": "gemini-cli",
           "claimId": "gemini-cli.repo-instructions.file"
-        }
-      ]
-    },
-    {
-      "id": "2025-12-19-cursor",
-      "date": "2025-12-19T07:46:23.840Z",
-      "summary": "cursor facts updated (~4)",
-      "diffs": [
-        {
-          "platformId": "cursor",
-          "before": {
-            "platformId": "cursor",
-            "name": "Cursor",
-            "artifacts": [],
-            "featureSupport": {
-              "imports": "no",
-              "path-scoping": "yes",
-              "repo-instructions": "yes"
-            },
-            "claims": {
-              "cursor.path-scoping.alwaysapply": {
-                "statement": "Cursor supports alwaysApply to apply a rule regardless of globs scope.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/cursor/cursorrules",
-                    "title": "Cursor documentation",
-                    "excerpt": "alwaysApply"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "cursor.path-scoping.globs": {
-                "statement": "Cursor supports scoping rules to file globs using a globs field in rule frontmatter.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/cursor/cursorrules",
-                    "title": "Cursor documentation",
-                    "excerpt": "globs"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "cursor.path-scoping.precedence": {
-                "statement": "When multiple Cursor rules match, more specific scoped rules take precedence.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/cursor/cursorrules",
-                    "title": "Cursor documentation",
-                    "excerpt": "precedence"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "cursor.repo-instructions.rules-files": {
-                "statement": "Cursor supports repository instructions via .cursor/rules/*.mdc rule files.",
-                "confidence": "high",
-                "evidence": [
-                  {
-                    "url": "https://example.com/cursor/cursorrules",
-                    "title": "Cursor documentation",
-                    "excerpt": ".cursor/rules/*.mdc"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              }
-            }
-          },
-          "after": {
-            "platformId": "cursor",
-            "name": "Cursor",
-            "artifacts": [],
-            "featureSupport": {
-              "imports": "no",
-              "path-scoping": "yes",
-              "repo-instructions": "yes"
-            },
-            "claims": {
-              "cursor.path-scoping.alwaysapply": {
-                "statement": "Cursor supports alwaysApply to apply a rule regardless of globs scope.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://cursor.com/en-US/docs/context/rules",
-                    "title": "Cursor documentation",
-                    "excerpt": "alwaysApply"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "cursor.path-scoping.globs": {
-                "statement": "Cursor supports scoping rules to file globs using a globs field in rule frontmatter.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://cursor.com/en-US/docs/context/rules",
-                    "title": "Cursor documentation",
-                    "excerpt": "globs"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "cursor.path-scoping.precedence": {
-                "statement": "When multiple Cursor rules match, more specific scoped rules take precedence.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://cursor.com/en-US/docs/context/rules",
-                    "title": "Cursor documentation",
-                    "excerpt": "precedence"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "cursor.repo-instructions.rules-files": {
-                "statement": "Cursor supports repository instructions via .cursor/rules/*.mdc rule files.",
-                "confidence": "high",
-                "evidence": [
-                  {
-                    "url": "https://cursor.com/en-US/docs/context/rules",
-                    "title": "Cursor documentation",
-                    "excerpt": ".cursor/rules/*.mdc"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "impactedClaims": [
-        {
-          "platformId": "cursor",
-          "claimId": "cursor.path-scoping.alwaysapply"
-        },
-        {
-          "platformId": "cursor",
-          "claimId": "cursor.path-scoping.globs"
-        },
-        {
-          "platformId": "cursor",
-          "claimId": "cursor.path-scoping.precedence"
-        },
-        {
-          "platformId": "cursor",
-          "claimId": "cursor.repo-instructions.rules-files"
-        }
-      ]
-    },
-    {
-      "id": "2025-12-19-copilot-cli",
-      "date": "2025-12-19T07:46:23.840Z",
-      "summary": "copilot-cli facts updated (~7)",
-      "diffs": [
-        {
-          "platformId": "copilot-cli",
-          "before": {
-            "platformId": "copilot-cli",
-            "name": "Copilot CLI",
-            "artifacts": [],
-            "featureSupport": {
-              "imports": "no",
-              "path-scoping": "yes",
-              "repo-instructions": "yes"
-            },
-            "claims": {
-              "copilot-cli.custom-agents.org-dir": {
-                "statement": "GitHub Copilot CLI can load organization-level custom agent profiles from /agents in an organization .github-private repository.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".github-private"
-                  }
-                ]
-              },
-              "copilot-cli.custom-agents.precedence": {
-                "statement": "When custom agent names conflict, Copilot CLI prefers higher-precedence agent scopes over lower-precedence ones.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": "naming conflicts"
-                  }
-                ]
-              },
-              "copilot-cli.custom-agents.repo-dir": {
-                "statement": "GitHub Copilot CLI can load repository-level custom agent profiles from .github/agents.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".github/agents"
-                  }
-                ]
-              },
-              "copilot-cli.custom-agents.user-dir": {
-                "statement": "GitHub Copilot CLI can load user-level custom agent profiles from ~/.copilot/agents.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": "~/.copilot/agents"
-                  }
-                ]
-              },
-              "copilot-cli.path-scoping.instructions-files": {
-                "statement": "GitHub Copilot CLI supports path-scoped instructions via .github/copilot-instructions/**/*.instructions.md files.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".instructions.md"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "copilot-cli.repo-instructions.agents-file": {
-                "statement": "GitHub Copilot CLI supports agent files such as AGENTS.md.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": "AGENTS.md"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              },
-              "copilot-cli.repo-instructions.file": {
-                "statement": "GitHub Copilot CLI supports repository-wide instructions via .github/copilot-instructions.md.",
-                "confidence": "high",
-                "evidence": [
-                  {
-                    "url": "https://example.com/copilot-cli/agents-md",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".github/copilot-instructions.md"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              }
-            }
-          },
-          "after": {
-            "platformId": "copilot-cli",
-            "name": "Copilot CLI",
-            "artifacts": [],
-            "featureSupport": {
-              "imports": "no",
-              "path-scoping": "yes",
-              "repo-instructions": "yes"
-            },
-            "claims": {
-              "copilot-cli.custom-agents.org-dir": {
-                "statement": "GitHub Copilot CLI can load organization-level custom agent profiles from /agents in an organization .github-private repository.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".github-private"
-                  }
-                ]
-              },
-              "copilot-cli.custom-agents.precedence": {
-                "statement": "When custom agent names conflict, Copilot CLI prefers higher-precedence agent scopes over lower-precedence ones.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": "naming conflicts"
-                  }
-                ]
-              },
-              "copilot-cli.custom-agents.repo-dir": {
-                "statement": "GitHub Copilot CLI can load repository-level custom agent profiles from .github/agents.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".github/agents"
-                  }
-                ]
-              },
-              "copilot-cli.custom-agents.user-dir": {
-                "statement": "GitHub Copilot CLI can load user-level custom agent profiles from ~/.copilot/agents.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": "~/.copilot/agents"
-                  }
-                ]
-              },
-              "copilot-cli.path-scoping.instructions-files": {
-                "statement": "GitHub Copilot CLI supports path-scoped instructions via .github/copilot-instructions/**/*.instructions.md files.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".instructions.md"
-                  }
-                ],
-                "features": [
-                  "path-scoping"
-                ]
-              },
-              "copilot-cli.repo-instructions.agents-file": {
-                "statement": "GitHub Copilot CLI supports agent files such as AGENTS.md.",
-                "confidence": "medium",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": "AGENTS.md"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              },
-              "copilot-cli.repo-instructions.file": {
-                "statement": "GitHub Copilot CLI supports repository-wide instructions via .github/copilot-instructions.md.",
-                "confidence": "high",
-                "evidence": [
-                  {
-                    "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli",
-                    "title": "GitHub Copilot CLI documentation",
-                    "excerpt": ".github/copilot-instructions.md"
-                  }
-                ],
-                "features": [
-                  "repo-instructions"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "impactedClaims": [
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.custom-agents.org-dir"
-        },
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.custom-agents.precedence"
-        },
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.custom-agents.repo-dir"
-        },
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.custom-agents.user-dir"
-        },
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.path-scoping.instructions-files"
-        },
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.repo-instructions.agents-file"
-        },
-        {
-          "platformId": "copilot-cli",
-          "claimId": "copilot-cli.repo-instructions.file"
         }
       ]
     },
