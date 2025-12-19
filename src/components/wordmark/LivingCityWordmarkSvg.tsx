@@ -10,6 +10,7 @@ import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/l
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import type { Rgb } from "./sim/color";
+import { lerpRgb } from "./sim/color";
 import { batchVoxelRectsToPaths, normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
 import type { CityWordmarkScheme, CityWordmarkSkylineConfig } from "./sim/types";
@@ -78,7 +79,15 @@ export function LivingCityWordmarkSvg({
   const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
   const layout = useMemo(() => createCityWordmarkLayout({ resolution }), [resolution]);
 
-  const palette = getCityWordmarkPalette(timeOfDay, scheme);
+  const palette = useMemo(() => getCityWordmarkPalette(timeOfDay, scheme), [scheme, timeOfDay]);
+  const gridBuilding = useMemo(
+    () => lerpRgb(palette.building, palette.buildingMuted, 0.4),
+    [palette]
+  );
+  const gridBuildingMuted = useMemo(
+    () => lerpRgb(palette.buildingMuted, palette.sky, 0.3),
+    [palette]
+  );
   const { daylight } = getTimeOfDayPhase(timeOfDay);
   const nightness = clamp01(1 - daylight);
   const celestial = getCelestialPositions(timeOfDay);
@@ -198,6 +207,31 @@ export function LivingCityWordmarkSvg({
       xmlns="http://www.w3.org/2000/svg"
       shapeRendering="crispEdges"
     >
+      <defs>
+        {resolution > 1 && (
+          <>
+            <pattern
+              id={`${titleId}-building-grid`}
+              patternUnits="userSpaceOnUse"
+              width="1"
+              height="1"
+            >
+              <rect x={0} y={0} width={1} height={1} fill={rgbToCss(gridBuilding)} />
+              <rect x={0.08} y={0.08} width={0.84} height={0.84} fill={rgbToCss(palette.building)} />
+            </pattern>
+            <pattern
+              id={`${titleId}-building-muted-grid`}
+              patternUnits="userSpaceOnUse"
+              width="1"
+              height="1"
+            >
+              <rect x={0} y={0} width={1} height={1} fill={rgbToCss(gridBuildingMuted)} />
+              <rect x={0.08} y={0.08} width={0.84} height={0.84} fill={rgbToCss(palette.buildingMuted)} />
+            </pattern>
+          </>
+        )}
+      </defs>
+
       <title id={titleId}>{ACCESSIBLE_TITLE}</title>
       <desc id={descId}>Living voxel/cityscape wordmark spelling “{VISUAL_WORD}”.</desc>
 
@@ -227,11 +261,14 @@ export function LivingCityWordmarkSvg({
         />
       ))}
 
-      <g fill={rgbToCss(palette.buildingMuted)} opacity={0.9}>
+      <g
+        fill={resolution > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
+        opacity={0.9}
+      >
         <path d={skylinePath} />
       </g>
 
-      <g fill={rgbToCss(palette.building)}>
+      <g fill={resolution > 1 ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
         <path d={wordmarkPath} />
       </g>
 
