@@ -5,7 +5,7 @@ export const CITY_WORDMARK_SCHEMES = ["classic", "noir", "neon"] as const;
 export type CityWordmarkScheme = (typeof CITY_WORDMARK_SCHEMES)[number];
 
 export type CityWordmarkRenderConfig = {
-  /** Integer pixel scale for each voxel (crisp edges). */
+  /** Resolution multiplier (higher = smaller voxels). */
   voxelScale: number;
 };
 

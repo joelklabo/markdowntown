@@ -24,7 +24,7 @@ type LivingCityWordmarkSvgProps = {
   scheme?: CityWordmarkScheme;
   nowMs?: number;
   actorRects?: readonly CityWordmarkActorRect[];
-  /** Integer pixel scale for each voxel (crisp edges). */
+  /** Resolution multiplier (higher = smaller voxels). */
   voxelScale?: number;
   skyline?: Partial<CityWordmarkSkylineConfig>;
 };
@@ -33,6 +33,7 @@ const ACCESSIBLE_TITLE = "mark downtown";
 const VISUAL_WORD = "MARKDOWNTOWN";
 const SIREN_RED: Rgb = [255, 84, 84];
 const SIREN_BLUE: Rgb = [84, 148, 255];
+const BASE_VOXEL_PIXEL_SCALE = 3;
 
 function renderCelestialBodyRects(
   x: number,
@@ -73,19 +74,21 @@ export function LivingCityWordmarkSvg({
   const nightness = clamp01(1 - daylight);
   const celestial = getCelestialPositions(timeOfDay);
 
-  const voxelScale = normalizeVoxelScale(voxelScaleProp ?? 3);
-  const width = layout.width * voxelScale;
-  const height = layout.height * voxelScale;
+  const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
+  const viewWidth = layout.width * resolution;
+  const viewHeight = layout.height * resolution;
+  const pixelWidth = layout.width * BASE_VOXEL_PIXEL_SCALE;
+  const pixelHeight = layout.height * BASE_VOXEL_PIXEL_SCALE;
 
   const topPadding = layout.baselineY - CITY_WORDMARK_GLYPH_ROWS;
-  const skyHeight = Math.max(1, topPadding) * voxelScale;
+  const skyHeight = Math.max(1, topPadding) * resolution;
 
   const starOpacity = clamp01(nightness * 1.1);
   const stars = [
-    { x: Math.round(width * 0.18), y: 2 * voxelScale },
-    { x: Math.round(width * 0.34), y: 4 * voxelScale },
-    { x: Math.round(width * 0.62), y: 3 * voxelScale },
-    { x: Math.round(width * 0.78), y: 5 * voxelScale },
+    { x: Math.round(viewWidth * 0.18), y: 2 * resolution },
+    { x: Math.round(viewWidth * 0.34), y: 4 * resolution },
+    { x: Math.round(viewWidth * 0.62), y: 3 * resolution },
+    { x: Math.round(viewWidth * 0.78), y: 5 * resolution },
   ];
 
   const skyline = useMemo(
@@ -98,9 +101,9 @@ export function LivingCityWordmarkSvg({
       }),
     [layout.baselineY, layout.width, seed, skylineOverrides]
   );
-  const skylinePath = useMemo(() => voxelRectsToPath(skyline, voxelScale), [skyline, voxelScale]);
+  const skylinePath = useMemo(() => voxelRectsToPath(skyline, resolution), [skyline, resolution]);
 
-  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, voxelScale), [layout.rects, voxelScale]);
+  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, resolution), [layout.rects, resolution]);
 
   const windows = useMemo(() => createCityWordmarkWindows({ seed }), [seed]);
   const windowState = useMemo(
@@ -115,11 +118,11 @@ export function LivingCityWordmarkSvg({
       if (!w) continue;
       lit.push({ x: w.x, y: w.y, width: 1, height: 1 });
     }
-    return voxelRectsToPath(lit, voxelScale);
-  }, [voxelScale, windowState, windows]);
+    return voxelRectsToPath(lit, resolution);
+  }, [resolution, windowState, windows]);
 
-  const bodySize = 2 * voxelScale;
-  const skyMaxX = Math.max(0, width - bodySize);
+  const bodySize = 2 * resolution;
+  const skyMaxX = Math.max(0, viewWidth - bodySize);
   const skyMaxY = Math.max(0, skyHeight - bodySize);
 
   const sunX = Math.round(skyMaxX * celestial.sun.x);
@@ -130,7 +133,7 @@ export function LivingCityWordmarkSvg({
   const actorBatches = useMemo(
     () =>
       batchVoxelRectsToPaths(actorRects, {
-        scale: voxelScale,
+        scale: resolution,
         getGroup: (rect) => {
           let fill: Rgb;
           if (rect.tone === "headlight") fill = palette.window;
@@ -155,15 +158,15 @@ export function LivingCityWordmarkSvg({
           };
         },
       }),
-    [actorRects, nightness, palette, voxelScale]
+    [actorRects, nightness, palette, resolution]
   );
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 ${viewWidth} ${viewHeight}`}
       className={cn("select-none", className)}
-      width={width}
-      height={height}
+      width={pixelWidth}
+      height={pixelHeight}
       role="img"
       aria-labelledby={titleId}
       aria-describedby={descId}
@@ -174,7 +177,7 @@ export function LivingCityWordmarkSvg({
       <title id={titleId}>{ACCESSIBLE_TITLE}</title>
       <desc id={descId}>Living voxel/cityscape wordmark spelling “{VISUAL_WORD}”.</desc>
 
-      <rect x={0} y={0} width={width} height={height} fill={rgbToCss(palette.sky)} />
+      <rect x={0} y={0} width={viewWidth} height={viewHeight} fill={rgbToCss(palette.sky)} />
 
       {celestial.sun.visible && (
         <g fill={rgbToCss(palette.sun)} opacity={clamp01(daylight * 1.1)}>
@@ -193,8 +196,8 @@ export function LivingCityWordmarkSvg({
           key={`${star.x}-${star.y}`}
           x={star.x}
           y={star.y}
-          width={voxelScale}
-          height={voxelScale}
+          width={resolution}
+          height={resolution}
           fill={rgbToCss(palette.star)}
           opacity={starOpacity}
         />
@@ -210,9 +213,9 @@ export function LivingCityWordmarkSvg({
 
       <rect
         x={0}
-        y={(layout.baselineY - 1) * voxelScale}
-        width={width}
-        height={voxelScale}
+        y={(layout.baselineY - 1) * resolution}
+        width={viewWidth}
+        height={resolution}
         fill={rgbToCss(palette.buildingMuted)}
         opacity={0.25}
       />
