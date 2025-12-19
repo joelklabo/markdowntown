@@ -10,7 +10,7 @@ import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/l
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import type { Rgb } from "./sim/color";
-import { rgbToCss } from "./sim/renderSvg";
+import { rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
 
 type LivingCityWordmarkSvgProps = {
@@ -84,12 +84,25 @@ export function LivingCityWordmarkSvg({
     () => createCityWordmarkSkylineMask({ width: layout.width, baselineY: layout.baselineY, seed }),
     [layout.baselineY, layout.width, seed]
   );
+  const skylinePath = useMemo(() => voxelRectsToPath(skyline, SCALE), [skyline]);
+
+  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, SCALE), [layout.rects]);
 
   const windows = useMemo(() => createCityWordmarkWindows({ seed }), [seed]);
   const windowState = useMemo(
     () => getCityWordmarkWindowLights(windows, { nowMs, timeOfDay }),
     [nowMs, timeOfDay, windows]
   );
+  const windowsPath = useMemo(() => {
+    const lit: Array<{ x: number; y: number; width: number; height: number }> = [];
+    for (let i = 0; i < windows.length; i++) {
+      if (!windowState[i]) continue;
+      const w = windows[i];
+      if (!w) continue;
+      lit.push({ x: w.x, y: w.y, width: 1, height: 1 });
+    }
+    return voxelRectsToPath(lit, SCALE);
+  }, [SCALE, windowState, windows]);
 
   const bodySize = 2 * SCALE;
   const skyMaxX = Math.max(0, width - bodySize);
@@ -141,27 +154,11 @@ export function LivingCityWordmarkSvg({
       ))}
 
       <g fill={rgbToCss(palette.buildingMuted)} opacity={0.9}>
-        {skyline.map((r) => (
-          <rect
-            key={`skyline-${r.x}-${r.y}-${r.width}-${r.height}`}
-            x={r.x * SCALE}
-            y={r.y * SCALE}
-            width={r.width * SCALE}
-            height={r.height * SCALE}
-          />
-        ))}
+        <path d={skylinePath} />
       </g>
 
       <g fill={rgbToCss(palette.building)}>
-        {layout.rects.map((r) => (
-          <rect
-            key={`wm-${r.x}-${r.y}-${r.width}-${r.height}`}
-            x={r.x * SCALE}
-            y={r.y * SCALE}
-            width={r.width * SCALE}
-            height={r.height * SCALE}
-          />
-        ))}
+        <path d={wordmarkPath} />
       </g>
 
       <rect
@@ -173,18 +170,11 @@ export function LivingCityWordmarkSvg({
         opacity={0.25}
       />
 
-      <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
-        {windows.map((w, idx) => (
-          <rect
-            key={`win-${w.x}-${w.y}`}
-            x={w.x * SCALE}
-            y={w.y * SCALE}
-            width={SCALE}
-            height={SCALE}
-            opacity={windowState[idx] ? 1 : 0}
-          />
-        ))}
-      </g>
+      {windowsPath.length > 0 && (
+        <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
+          <path d={windowsPath} />
+        </g>
+      )}
 
       {actorRects.length > 0 && (
         <g>
