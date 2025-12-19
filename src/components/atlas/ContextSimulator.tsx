@@ -32,6 +32,17 @@ const DEFAULT_REPO_TREE = [
   ".cursor/rules/general.mdc",
 ].join("\n");
 
+type RepoSignals = {
+  hasGitHubCopilotRoot: boolean;
+  hasGitHubCopilotScoped: boolean;
+  hasCopilotCliScoped: boolean;
+  hasCopilotAgents: boolean;
+  hasAgentsAny: boolean;
+  hasAgentsOverrideAny: boolean;
+  hasClaudeAny: boolean;
+  hasGeminiAny: boolean;
+};
+
 function parseRepoPaths(text: string): string[] {
   return text
     .split("\n")
@@ -44,6 +55,64 @@ function toRepoTree(paths: string[]): RepoTree {
   return {
     files: paths.map((path) => ({ path, content: "" })),
   };
+}
+
+function normalizePath(value: string): string {
+  const normalized = value.replace(/\\/g, "/").replace(/^\.\/+/, "").replace(/\/+$/, "");
+  if (!normalized || normalized === ".") return "";
+  return normalized;
+}
+
+function analyzeRepo(paths: string[]): RepoSignals {
+  const signals: RepoSignals = {
+    hasGitHubCopilotRoot: false,
+    hasGitHubCopilotScoped: false,
+    hasCopilotCliScoped: false,
+    hasCopilotAgents: false,
+    hasAgentsAny: false,
+    hasAgentsOverrideAny: false,
+    hasClaudeAny: false,
+    hasGeminiAny: false,
+  };
+
+  for (const rawPath of paths) {
+    const path = normalizePath(rawPath);
+    if (!path) continue;
+    if (path === ".github/copilot-instructions.md") {
+      signals.hasGitHubCopilotRoot = true;
+      continue;
+    }
+    if (path.startsWith(".github/instructions/") && path.endsWith(".instructions.md")) {
+      signals.hasGitHubCopilotScoped = true;
+      continue;
+    }
+    if (path.startsWith(".github/copilot-instructions/") && path.endsWith(".instructions.md")) {
+      signals.hasCopilotCliScoped = true;
+      continue;
+    }
+    if (path.startsWith(".github/agents/")) {
+      signals.hasCopilotAgents = true;
+      continue;
+    }
+    if (path === "AGENTS.md" || path.endsWith("/AGENTS.md")) {
+      signals.hasAgentsAny = true;
+      continue;
+    }
+    if (path === "AGENTS.override.md" || path.endsWith("/AGENTS.override.md")) {
+      signals.hasAgentsOverrideAny = true;
+      continue;
+    }
+    if (path === "CLAUDE.md" || path.endsWith("/CLAUDE.md")) {
+      signals.hasClaudeAny = true;
+      continue;
+    }
+    if (path === "GEMINI.md" || path.endsWith("/GEMINI.md")) {
+      signals.hasGeminiAny = true;
+      continue;
+    }
+  }
+
+  return signals;
 }
 
 function runSimulation(tool: SimulatorToolId, cwd: string, repoText: string): SimulationResult {
@@ -69,6 +138,11 @@ export function ContextSimulator() {
 
   const manualPaths = useMemo(() => parseRepoPaths(repoText), [repoText]);
   const repoFileCount = repoSource === "folder" ? scannedTree?.files.length ?? 0 : manualPaths.length;
+  const repoPaths = useMemo(
+    () => (repoSource === "folder" ? (scannedTree?.files ?? []).map((file) => file.path) : manualPaths),
+    [manualPaths, repoSource, scannedTree],
+  );
+  const repoSignals = useMemo(() => analyzeRepo(repoPaths), [repoPaths]);
 
   const scannedPreview = useMemo(() => {
     const paths = (scannedTree?.files ?? []).map((file) => file.path);
@@ -77,6 +151,63 @@ export function ContextSimulator() {
     const suffix = paths.length > limit ? `\n… (${paths.length - limit} more)` : "";
     return head.join("\n") + suffix;
   }, [scannedTree]);
+
+  const emptyStateHint = useMemo(() => {
+    if (repoSource === "folder" && !scannedTree) {
+      return "Choose a folder to scan, then click Simulate.";
+    }
+
+    if (repoSource === "manual" && manualPaths.length === 0) {
+      return "Add repo paths above to simulate instruction loading.";
+    }
+
+    if (tool === "github-copilot") {
+      if (!repoSignals.hasGitHubCopilotRoot && !repoSignals.hasGitHubCopilotScoped) {
+        return repoSource === "manual"
+          ? "No Copilot instruction files in the list. Add .github/copilot-instructions.md or .github/instructions/*.instructions.md."
+          : "No Copilot instruction files found. Add .github/copilot-instructions.md or .github/instructions/*.instructions.md.";
+      }
+    }
+
+    if (tool === "copilot-cli") {
+      if (!repoSignals.hasGitHubCopilotRoot && !repoSignals.hasCopilotCliScoped && !repoSignals.hasCopilotAgents) {
+        return repoSource === "manual"
+          ? "No Copilot CLI instruction files in the list. Add .github/copilot-instructions.md, .github/copilot-instructions/**/*.instructions.md, or .github/agents/*."
+          : "No Copilot CLI instruction files found. Add .github/copilot-instructions.md, .github/copilot-instructions/**/*.instructions.md, or .github/agents/*.";
+      }
+    }
+
+    if (tool === "codex-cli") {
+      if (!repoSignals.hasAgentsAny && !repoSignals.hasAgentsOverrideAny) {
+        return repoSource === "manual"
+          ? "No AGENTS.md files in the list. Add AGENTS.md or AGENTS.override.md."
+          : "No AGENTS.md files found. Add AGENTS.md or AGENTS.override.md.";
+      }
+      if (!cwd) {
+        return "Set cwd to a directory inside the repo so ancestor scans can find AGENTS.md.";
+      }
+    }
+
+    if (tool === "claude-code") {
+      if (!repoSignals.hasClaudeAny) {
+        return repoSource === "manual" ? "No CLAUDE.md files in the list." : "No CLAUDE.md files found.";
+      }
+      if (!cwd) {
+        return "Set cwd to a directory inside the repo so ancestor scans can find CLAUDE.md.";
+      }
+    }
+
+    if (tool === "gemini-cli") {
+      if (!repoSignals.hasGeminiAny) {
+        return repoSource === "manual" ? "No GEMINI.md files in the list." : "No GEMINI.md files found.";
+      }
+      if (!cwd) {
+        return "Set cwd to a directory inside the repo so ancestor scans can find GEMINI.md.";
+      }
+    }
+
+    return "If you expected files, double-check the repo tree and current directory.";
+  }, [cwd, manualPaths.length, repoSignals, repoSource, scannedTree, tool]);
 
   return (
     <div className="grid gap-mdt-6 lg:grid-cols-[360px,1fr]">
@@ -163,6 +294,7 @@ export function ContextSimulator() {
                       const { tree, totalFiles, truncated } = await scanRepoTree(handle as FileSystemDirectoryHandleLike);
                       setScannedTree(tree);
                       setScanMeta({ totalFiles, truncated, rootName: (handle as { name?: string }).name });
+                      setResult(simulateContextResolution({ tool, cwd, tree }));
                     } catch (err) {
                       if (err instanceof DOMException && err.name === "AbortError") {
                         return;
@@ -230,7 +362,14 @@ export function ContextSimulator() {
           <Stack gap={2}>
             <Heading level="h3">Loaded files</Heading>
             {result.loaded.length === 0 ? (
-              <Text tone="muted">No files would be loaded for this input.</Text>
+              <Stack gap={1}>
+                <Text tone="muted">No files would be loaded for this input.</Text>
+                {emptyStateHint ? (
+                  <Text tone="muted" size="bodySm">
+                    {emptyStateHint}
+                  </Text>
+                ) : null}
+              </Stack>
             ) : (
               <ul className="space-y-2" aria-label="Loaded files">
                 {result.loaded.map((file) => (
