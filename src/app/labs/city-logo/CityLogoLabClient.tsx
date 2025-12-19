@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Card } from "@/components/ui/Card";
-import { CityLogoControls } from "@/components/wordmark/CityLogoControls";
+import { CityLogoControls, type CityLogoPreviewWidthMode } from "@/components/wordmark/CityLogoControls";
 import { LivingCityWordmarkSvg } from "@/components/wordmark/LivingCityWordmarkSvg";
 import { dispatchCityWordmarkEvent } from "@/components/wordmark/sim/events";
 import { setCityWordmarkEnginePlaying, setCityWordmarkEngineTimeOfDay } from "@/components/wordmark/sim/engine";
@@ -24,6 +24,7 @@ export function CityLogoLabClient({ snapshotMode = false, initialTimeOfDay, init
 
   const sim = useCityWordmarkSim({ enabled: true });
   const id = useId();
+  const [previewWidthMode, setPreviewWidthMode] = useState<CityLogoPreviewWidthMode>("fixed");
 
   useEffect(() => {
     if (initialEvent !== "ambulance") return;
@@ -32,15 +33,19 @@ export function CityLogoLabClient({ snapshotMode = false, initialTimeOfDay, init
 
   return (
     <div className="p-mdt-6 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-mdt-6">
-      <CityLogoControls sim={sim} eventOrigin="labs" />
+      <CityLogoControls
+        sim={sim}
+        eventOrigin="labs"
+        preview={{ widthMode: previewWidthMode, setWidthMode: setPreviewWidthMode }}
+      />
 
       <div className="space-y-mdt-4">
         <Card className="p-mdt-6">
-          <div data-testid="city-logo-preview" className="flex items-center justify-center">
+          <div data-testid="city-logo-preview" className="flex items-center justify-center pb-px md:pb-0">
             <LivingCityWordmarkSvg
               titleId={`${id}-title`}
               descId={`${id}-desc`}
-              className="w-full max-w-[1100px] h-auto"
+              className={previewWidthMode === "full" ? "w-full h-auto" : "w-full max-w-[1100px] h-auto"}
               seed={sim.config.seed}
               timeOfDay={sim.config.timeOfDay}
               nowMs={sim.nowMs}

@@ -11,6 +11,8 @@ import { CITY_WORDMARK_EVENT, dispatchCityWordmarkEvent, listenCityWordmarkEvent
 import type { CityWordmarkDensity } from "./sim/types";
 import type { CityWordmarkSim } from "./sim/useCityWordmarkSim";
 
+export type CityLogoPreviewWidthMode = "fixed" | "full";
+
 function formatTimeOfDay(timeOfDay: number): string {
   const totalMinutes = Math.round(timeOfDay * 24 * 60) % (24 * 60);
   const hours = Math.floor(totalMinutes / 60);
@@ -25,11 +27,16 @@ function clamp(value: number, min: number, max: number) {
 export type CityLogoControlsProps = {
   sim: CityWordmarkSim;
   eventOrigin?: string;
+  preview?: {
+    widthMode: CityLogoPreviewWidthMode;
+    setWidthMode: (mode: CityLogoPreviewWidthMode) => void;
+  };
 };
 
-export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControlsProps) {
+export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLogoControlsProps) {
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
+  const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
   const [lastEvent, setLastEvent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -46,6 +53,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
       sim.setConfig(next);
       setSeedDraft(next.seed);
       setTimeScaleDraft(String(next.timeScale));
+      setVoxelScaleDraft(String(next.render.voxelScale));
       sim.setPlaying(true);
       return;
     }
@@ -55,6 +63,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
       sim.setConfig(next);
       setSeedDraft(next.seed);
       setTimeScaleDraft(String(next.timeScale));
+      setVoxelScaleDraft(String(next.render.voxelScale));
       sim.setPlaying(true);
       return;
     }
@@ -64,6 +73,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
       sim.setConfig(next);
       setSeedDraft(next.seed);
       setTimeScaleDraft(String(next.timeScale));
+      setVoxelScaleDraft(String(next.render.voxelScale));
       sim.setPlaying(true);
       return;
     }
@@ -72,6 +82,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
     sim.setConfig(next);
     setSeedDraft(next.seed);
     setTimeScaleDraft(String(next.timeScale));
+    setVoxelScaleDraft(String(next.render.voxelScale));
     sim.setPlaying(true);
   }
 
@@ -207,11 +218,51 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
               sim.setConfig(next);
               setSeedDraft(next.seed);
               setTimeScaleDraft(String(next.timeScale));
+              setVoxelScaleDraft(String(next.render.voxelScale));
             }}
           >
             Reset
           </Button>
           <div className="text-caption text-mdt-muted tabular-nums">nowMs: {Math.round(sim.nowMs)}</div>
+        </div>
+      </Card>
+
+      <Card className="p-mdt-4 space-y-mdt-3">
+        <div className="text-body-sm font-medium text-mdt-text">Renderer</div>
+        <div className="grid grid-cols-2 gap-mdt-3">
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Voxel scale</div>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={32}
+              step={1}
+              value={voxelScaleDraft}
+              onChange={(e) => {
+                const next = e.target.value;
+                setVoxelScaleDraft(next);
+                const parsed = Math.floor(Number(next));
+                if (!Number.isFinite(parsed) || parsed <= 0) return;
+                sim.setConfig({ render: { voxelScale: parsed } });
+              }}
+            />
+          </div>
+
+          {preview ? (
+            <div className="space-y-mdt-1">
+              <div className="text-caption text-mdt-muted">Preview width</div>
+              <Select
+                value={preview.widthMode}
+                onChange={(e) => preview.setWidthMode(e.target.value as CityLogoPreviewWidthMode)}
+              >
+                <option value="fixed">Fixed</option>
+                <option value="full">Full width</option>
+              </Select>
+            </div>
+          ) : (
+            <div />
+          )}
         </div>
       </Card>
 
