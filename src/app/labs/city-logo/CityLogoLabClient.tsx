@@ -124,53 +124,51 @@ export function CityLogoLabClient({
   }, [initialEvent]);
 
   return (
-    <div className="p-mdt-6 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-mdt-6">
+    <div className="p-mdt-6 space-y-mdt-6">
+      <Card className="p-mdt-6">
+        <div data-testid="city-logo-preview" className="flex items-center justify-center pb-px md:pb-0">
+          <LivingCityWordmarkSvg
+            titleId={`${id}-title`}
+            descId={`${id}-desc`}
+            className={previewWidthMode === "full" ? "w-full h-auto" : "max-w-[1100px] h-auto !w-auto"}
+            seed={sim.config.seed}
+            timeOfDay={sim.config.timeOfDay}
+            scheme={sim.config.scheme}
+            nowMs={sim.nowMs}
+            actorRects={sim.actorRects}
+            voxelScale={sim.config.render.voxelScale}
+            skyline={sim.config.skyline}
+          />
+        </div>
+      </Card>
+
+      <Card className="p-mdt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-mdt-3 text-caption text-mdt-muted">
+          <div className="space-y-1">
+            <div className="text-mdt-muted">Seed</div>
+            <div className="text-mdt-text font-mono break-all">{sim.config.seed}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-mdt-muted">Density</div>
+            <div className="text-mdt-text">{sim.config.density}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-mdt-muted">Time scale</div>
+            <div className="text-mdt-text tabular-nums">{sim.config.timeScale.toFixed(2)}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-mdt-muted">Actor rects</div>
+            <div className="text-mdt-text tabular-nums">{sim.actorRects.length}</div>
+          </div>
+        </div>
+      </Card>
+
       <CityLogoControls
         sim={sim}
         eventOrigin="labs"
         preview={{ widthMode: previewWidthMode, setWidthMode: setPreviewWidthMode }}
         share={{ onCopyLink: copyLink, onShareTimeOfDay: setShareTimeOfDay }}
       />
-
-      <div className="space-y-mdt-4">
-        <Card className="p-mdt-6">
-          <div data-testid="city-logo-preview" className="flex items-center justify-center pb-px md:pb-0">
-            <LivingCityWordmarkSvg
-              titleId={`${id}-title`}
-              descId={`${id}-desc`}
-              className={previewWidthMode === "full" ? "w-full h-auto" : "max-w-[1100px] h-auto !w-auto"}
-              seed={sim.config.seed}
-              timeOfDay={sim.config.timeOfDay}
-              scheme={sim.config.scheme}
-              nowMs={sim.nowMs}
-              actorRects={sim.actorRects}
-              voxelScale={sim.config.render.voxelScale}
-              skyline={sim.config.skyline}
-            />
-          </div>
-        </Card>
-
-        <Card className="p-mdt-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-mdt-3 text-caption text-mdt-muted">
-            <div className="space-y-1">
-              <div className="text-mdt-muted">Seed</div>
-              <div className="text-mdt-text font-mono break-all">{sim.config.seed}</div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-mdt-muted">Density</div>
-              <div className="text-mdt-text">{sim.config.density}</div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-mdt-muted">Time scale</div>
-              <div className="text-mdt-text tabular-nums">{sim.config.timeScale.toFixed(2)}</div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-mdt-muted">Actor rects</div>
-              <div className="text-mdt-text tabular-nums">{sim.actorRects.length}</div>
-            </div>
-          </div>
-        </Card>
-      </div>
     </div>
   );
 }

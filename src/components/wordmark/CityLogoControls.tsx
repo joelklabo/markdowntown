@@ -157,7 +157,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
   }
 
   return (
-    <div className="space-y-mdt-4">
+    <div className="grid items-start gap-mdt-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       <Card className="p-mdt-4 space-y-mdt-3">
         <div className="flex items-center justify-between gap-mdt-2">
           <div className="text-body-sm font-medium text-mdt-text">Controls</div>
