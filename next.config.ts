@@ -6,6 +6,11 @@ const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+const staticAssetCacheControl =
+  process.env.NODE_ENV === "development"
+    ? "no-store"
+    : "public, max-age=31536000, immutable";
+
 const scriptSrcDirective =
   process.env.NODE_ENV === "development"
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
@@ -45,19 +50,19 @@ const nextConfig: NextConfig = {
       {
         source: "/_next/static/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: staticAssetCacheControl },
         ],
       },
       {
         source: "/:path*.svg",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: staticAssetCacheControl },
         ],
       },
       {
         source: "/:path*.ico",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: staticAssetCacheControl },
         ],
       },
       {
