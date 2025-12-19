@@ -66,5 +66,6 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - Port 3000 in use: stop the other process or set `PORT=3001 pnpm dev`.
 - Prisma errors with Postgres: ensure your IP is allowed in the DB firewall and `sslmode=require` is present.
 - OAuth callback mismatch: set `NEXTAUTH_URL` to your running URL and update GitHub OAuth callback accordingly.
+- UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
 
 Happy shipping! 🎉
