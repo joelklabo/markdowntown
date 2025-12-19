@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { usePathname } from "next/navigation";
 import { featureFlags } from "@/lib/flags";
 import { LivingCityWordmarkSvg } from "./LivingCityWordmarkSvg";
@@ -11,11 +11,18 @@ type LivingCityWordmarkProps = {
 };
 
 export function LivingCityWordmark({ className }: LivingCityWordmarkProps) {
+  const [mounted, setMounted] = useState(false);
   const id = useId();
   const titleId = `${id}-title`;
   const descId = `${id}-desc`;
   const pathname = usePathname();
-  const enabled = featureFlags.wordmarkAnimV1 && pathname !== "/labs/city-logo";
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  const enabled = mounted && featureFlags.wordmarkAnimV1 && pathname !== "/labs/city-logo";
   const sim = useCityWordmarkSim({ enabled });
 
   return (
