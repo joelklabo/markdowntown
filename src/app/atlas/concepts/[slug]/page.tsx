@@ -29,7 +29,12 @@ export default async function AtlasConceptPage({ params }: { params: Promise<Con
 
   if (!mdx) return notFound();
 
-  const content = await renderMdx(mdx);
+  let content: React.ReactElement;
+  try {
+    content = await renderMdx(mdx);
+  } catch {
+    return notFound();
+  }
 
   return (
     <main className="py-mdt-2">
@@ -37,4 +42,3 @@ export default async function AtlasConceptPage({ params }: { params: Promise<Con
     </main>
   );
 }
-
