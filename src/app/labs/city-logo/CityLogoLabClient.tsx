@@ -45,6 +45,7 @@ export function CityLogoLabClient({ snapshotMode = false, initialTimeOfDay, init
               timeOfDay={sim.config.timeOfDay}
               nowMs={sim.nowMs}
               actorRects={sim.actorRects}
+              voxelScale={sim.config.render.voxelScale}
             />
           </div>
         </Card>

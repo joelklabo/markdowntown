@@ -32,6 +32,7 @@ function CityLogoLab() {
               timeOfDay={sim.config.timeOfDay}
               nowMs={sim.nowMs}
               actorRects={sim.actorRects}
+              voxelScale={sim.config.render.voxelScale}
             />
           </div>
         </Card>

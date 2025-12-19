@@ -10,7 +10,7 @@ import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/l
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import type { Rgb } from "./sim/color";
-import { rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
+import { normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
 
 type LivingCityWordmarkSvgProps = {
@@ -22,6 +22,8 @@ type LivingCityWordmarkSvgProps = {
   timeOfDay?: number;
   nowMs?: number;
   actorRects?: readonly CityWordmarkActorRect[];
+  /** Integer pixel scale for each voxel (crisp edges). */
+  voxelScale?: number;
 };
 
 const ACCESSIBLE_TITLE = "mark downtown";
@@ -57,6 +59,7 @@ export function LivingCityWordmarkSvg({
   timeOfDay = 0.78,
   nowMs = 0,
   actorRects = [],
+  voxelScale: voxelScaleProp,
 }: LivingCityWordmarkSvgProps) {
   const layout = useMemo(() => createCityWordmarkLayout(), []);
 
@@ -65,28 +68,28 @@ export function LivingCityWordmarkSvg({
   const nightness = clamp01(1 - daylight);
   const celestial = getCelestialPositions(timeOfDay);
 
-  const SCALE = 3;
-  const width = layout.width * SCALE;
-  const height = layout.height * SCALE;
+  const voxelScale = normalizeVoxelScale(voxelScaleProp ?? 3);
+  const width = layout.width * voxelScale;
+  const height = layout.height * voxelScale;
 
   const topPadding = layout.baselineY - CITY_WORDMARK_GLYPH_ROWS;
-  const skyHeight = Math.max(1, topPadding) * SCALE;
+  const skyHeight = Math.max(1, topPadding) * voxelScale;
 
   const starOpacity = clamp01(nightness * 1.1);
   const stars = [
-    { x: Math.round(width * 0.18), y: 2 * SCALE },
-    { x: Math.round(width * 0.34), y: 4 * SCALE },
-    { x: Math.round(width * 0.62), y: 3 * SCALE },
-    { x: Math.round(width * 0.78), y: 5 * SCALE },
+    { x: Math.round(width * 0.18), y: 2 * voxelScale },
+    { x: Math.round(width * 0.34), y: 4 * voxelScale },
+    { x: Math.round(width * 0.62), y: 3 * voxelScale },
+    { x: Math.round(width * 0.78), y: 5 * voxelScale },
   ];
 
   const skyline = useMemo(
     () => createCityWordmarkSkylineMask({ width: layout.width, baselineY: layout.baselineY, seed }),
     [layout.baselineY, layout.width, seed]
   );
-  const skylinePath = useMemo(() => voxelRectsToPath(skyline, SCALE), [skyline]);
+  const skylinePath = useMemo(() => voxelRectsToPath(skyline, voxelScale), [skyline, voxelScale]);
 
-  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, SCALE), [layout.rects]);
+  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, voxelScale), [layout.rects, voxelScale]);
 
   const windows = useMemo(() => createCityWordmarkWindows({ seed }), [seed]);
   const windowState = useMemo(
@@ -101,10 +104,10 @@ export function LivingCityWordmarkSvg({
       if (!w) continue;
       lit.push({ x: w.x, y: w.y, width: 1, height: 1 });
     }
-    return voxelRectsToPath(lit, SCALE);
-  }, [SCALE, windowState, windows]);
+    return voxelRectsToPath(lit, voxelScale);
+  }, [voxelScale, windowState, windows]);
 
-  const bodySize = 2 * SCALE;
+  const bodySize = 2 * voxelScale;
   const skyMaxX = Math.max(0, width - bodySize);
   const skyMaxY = Math.max(0, skyHeight - bodySize);
 
@@ -146,8 +149,8 @@ export function LivingCityWordmarkSvg({
           key={`${star.x}-${star.y}`}
           x={star.x}
           y={star.y}
-          width={SCALE}
-          height={SCALE}
+          width={voxelScale}
+          height={voxelScale}
           fill={rgbToCss(palette.star)}
           opacity={starOpacity}
         />
@@ -163,9 +166,9 @@ export function LivingCityWordmarkSvg({
 
       <rect
         x={0}
-        y={(layout.baselineY - 1) * SCALE}
+        y={(layout.baselineY - 1) * voxelScale}
         width={width}
-        height={SCALE}
+        height={voxelScale}
         fill={rgbToCss(palette.buildingMuted)}
         opacity={0.25}
       />
@@ -195,10 +198,10 @@ export function LivingCityWordmarkSvg({
             return (
               <rect
                 key={`actor-${idx}-${r.tone}-${r.x}-${r.y}-${r.width}-${r.height}`}
-                x={r.x * SCALE}
-                y={r.y * SCALE}
-                width={r.width * SCALE}
-                height={r.height * SCALE}
+                x={r.x * voxelScale}
+                y={r.y * voxelScale}
+                width={r.width * voxelScale}
+                height={r.height * voxelScale}
                 fill={rgbToCss(fill)}
                 opacity={opacity}
               />
