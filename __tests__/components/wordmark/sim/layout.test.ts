@@ -32,6 +32,27 @@ describe("createCityWordmarkSkylineMask", () => {
     const b = createCityWordmarkSkylineMask({ width: layout.width, baselineY: layout.baselineY, seed: "seed" });
     expect(a).toEqual(b);
   });
+
+  it("respects height and segment width ranges", () => {
+    const layout = createCityWordmarkLayout();
+
+    const rects = createCityWordmarkSkylineMask({
+      width: layout.width,
+      baselineY: layout.baselineY,
+      seed: "seed",
+      minHeight: 4,
+      maxHeight: 4,
+      minSegmentWidth: 1,
+      maxSegmentWidth: 1,
+    });
+
+    expect(rects.length).toBe(layout.width);
+    for (const r of rects) {
+      expect(r.height).toBe(4);
+      expect(r.width).toBe(1);
+      expect(r.y).toBe(layout.baselineY - 4);
+    }
+  });
 });
 
 describe("getIntegerScaleToFitHeight", () => {

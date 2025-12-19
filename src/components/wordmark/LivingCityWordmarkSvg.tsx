@@ -12,6 +12,7 @@ import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
 import type { Rgb } from "./sim/color";
 import { normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
+import type { CityWordmarkSkylineConfig } from "./sim/types";
 
 type LivingCityWordmarkSvgProps = {
   titleId: string;
@@ -24,6 +25,7 @@ type LivingCityWordmarkSvgProps = {
   actorRects?: readonly CityWordmarkActorRect[];
   /** Integer pixel scale for each voxel (crisp edges). */
   voxelScale?: number;
+  skyline?: Partial<CityWordmarkSkylineConfig>;
 };
 
 const ACCESSIBLE_TITLE = "mark downtown";
@@ -60,6 +62,7 @@ export function LivingCityWordmarkSvg({
   nowMs = 0,
   actorRects = [],
   voxelScale: voxelScaleProp,
+  skyline: skylineOverrides,
 }: LivingCityWordmarkSvgProps) {
   const layout = useMemo(() => createCityWordmarkLayout(), []);
 
@@ -84,8 +87,14 @@ export function LivingCityWordmarkSvg({
   ];
 
   const skyline = useMemo(
-    () => createCityWordmarkSkylineMask({ width: layout.width, baselineY: layout.baselineY, seed }),
-    [layout.baselineY, layout.width, seed]
+    () =>
+      createCityWordmarkSkylineMask({
+        width: layout.width,
+        baselineY: layout.baselineY,
+        seed,
+        ...skylineOverrides,
+      }),
+    [layout.baselineY, layout.width, seed, skylineOverrides]
   );
   const skylinePath = useMemo(() => voxelRectsToPath(skyline, voxelScale), [skyline, voxelScale]);
 

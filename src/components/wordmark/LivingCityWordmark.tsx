@@ -25,6 +25,7 @@ export function LivingCityWordmark({ className }: LivingCityWordmarkProps) {
       nowMs={sim.nowMs}
       actorRects={sim.actorRects}
       voxelScale={sim.config.render.voxelScale}
+      skyline={sim.config.skyline}
     />
   );
 }

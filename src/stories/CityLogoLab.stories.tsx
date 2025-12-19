@@ -33,6 +33,7 @@ function CityLogoLab() {
               nowMs={sim.nowMs}
               actorRects={sim.actorRects}
               voxelScale={sim.config.render.voxelScale}
+              skyline={sim.config.skyline}
             />
           </div>
         </Card>
