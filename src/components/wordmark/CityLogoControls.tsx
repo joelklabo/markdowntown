@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { getDefaultCityWordmarkConfig } from "./sim/config";
+import { getCityWordmarkEngineSnapshot } from "./sim/engine";
 import { CITY_WORDMARK_EVENT, dispatchCityWordmarkEvent, listenCityWordmarkEvents } from "./sim/events";
 import { CITY_WORDMARK_SCHEME_OPTIONS } from "./sim/palette";
 import type { CityWordmarkDensity, CityWordmarkScheme } from "./sim/types";
@@ -32,9 +33,13 @@ export type CityLogoControlsProps = {
     widthMode: CityLogoPreviewWidthMode;
     setWidthMode: (mode: CityLogoPreviewWidthMode) => void;
   };
+  share?: {
+    onCopyLink?: () => void;
+    onShareTimeOfDay?: (timeOfDay: number) => void;
+  };
 };
 
-export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLogoControlsProps) {
+export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: CityLogoControlsProps) {
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
   const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
@@ -75,6 +80,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
+      share?.onShareTimeOfDay?.(next.timeOfDay);
       return;
     }
 
@@ -89,6 +95,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
+      share?.onShareTimeOfDay?.(next.timeOfDay);
       return;
     }
 
@@ -103,6 +110,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
+      share?.onShareTimeOfDay?.(next.timeOfDay);
       return;
     }
 
@@ -117,6 +125,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
+      share?.onShareTimeOfDay?.(next.timeOfDay);
       return;
     }
 
@@ -131,6 +140,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
       sim.setConfig(next);
       syncDrafts(next);
       sim.setPlaying(true);
+      share?.onShareTimeOfDay?.(next.timeOfDay);
       return;
     }
 
@@ -144,6 +154,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
     sim.setConfig(next);
     syncDrafts(next);
     sim.setPlaying(true);
+    share?.onShareTimeOfDay?.(next.timeOfDay);
   }
 
   return (
@@ -152,12 +163,33 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
         <div className="flex items-center justify-between gap-mdt-2">
           <div className="text-body-sm font-medium text-mdt-text">Controls</div>
           <div className="flex items-center gap-mdt-2">
-            <Button size="xs" variant="secondary" onClick={() => sim.setPlaying(!sim.playing)}>
+            <Button
+              size="xs"
+              variant="secondary"
+              onClick={() => {
+                const next = !sim.playing;
+                sim.setPlaying(next);
+                if (!next) share?.onShareTimeOfDay?.(sim.config.timeOfDay);
+              }}
+            >
               {sim.playing ? "Pause" : "Play"}
             </Button>
-            <Button size="xs" variant="ghost" onClick={() => sim.step(1)} disabled={sim.playing}>
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={() => {
+                sim.step(1);
+                share?.onShareTimeOfDay?.(getCityWordmarkEngineSnapshot().config.timeOfDay);
+              }}
+              disabled={sim.playing}
+            >
               Step
             </Button>
+            {share?.onCopyLink ? (
+              <Button size="xs" variant="ghost" onClick={share.onCopyLink}>
+                Copy link
+              </Button>
+            ) : null}
           </div>
         </div>
 
@@ -174,7 +206,11 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
             max={1}
             step={0.001}
             value={sim.config.timeOfDay}
-            onChange={(e) => sim.setTimeOfDay(clamp(Number(e.target.value), 0, 1))}
+            onChange={(e) => {
+              const next = clamp(Number(e.target.value), 0, 1);
+              sim.setTimeOfDay(next);
+              share?.onShareTimeOfDay?.(next);
+            }}
           />
         </div>
 
@@ -286,6 +322,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
               const next = getDefaultCityWordmarkConfig();
               sim.setConfig(next);
               syncDrafts(next);
+              share?.onShareTimeOfDay?.(next.timeOfDay);
             }}
           >
             Reset
