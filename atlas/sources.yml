@@ -1,7 +1,7 @@
 # Atlas sources registry (schemaVersion: 1)
 #
 # Notes:
-# - urls are placeholders until the fetch pipeline is wired up.
+# - URLs must be stable and non-redirecting (safeFetch blocks 3xx redirects).
 # - expectedPhrases are cheap assertions to detect major doc changes.
 
 schemaVersion: 1
@@ -41,7 +41,7 @@ sources:
   - id: cursor-cursorrules
     platformId: cursor
     kind: docs
-    url: https://cursor.com/en-US/docs/context/rules
+    url: https://cursor.com/docs/context/rules.md
     cadence: monthly
     expectedPhrases:
       - .cursor/rules
@@ -52,12 +52,12 @@ sources:
   - id: windsurf-windsurfrules
     platformId: windsurf
     kind: docs
-    url: https://docs.windsurf.com/context-awareness/windsurf-ignore
+    url: https://docs.windsurf.com/windsurf/cascade/agents-md.md
     cadence: monthly
     expectedPhrases:
       - AGENTS.md
       - directory-scoped
-      - .codeiumignore
+      - Subdirectories
     trust: official
 
   - id: codex-cli-agents-md
