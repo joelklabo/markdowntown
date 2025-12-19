@@ -185,18 +185,14 @@ export function SiteNav({ user }: { user?: User }) {
     <>
       <header className="sticky top-0 z-30 border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]/90 backdrop-blur-lg shadow-mdt-md">
         <div className="border-b border-mdt-border/60">
-          <Container
-            as="div"
-            padding="sm"
-            size="full"
-            className="py-mdt-2 md:py-mdt-3"
-          >
+          <div className="w-full overflow-hidden">
             <LivingCityWordmark
               className="block h-14 w-full md:h-16"
-              bannerScale={4}
-              preserveAspectRatio="xMinYMid meet"
+              bannerScale={12}
+              sizeMode="fluid"
+              preserveAspectRatio="xMinYMid slice"
             />
-          </Container>
+          </div>
         </div>
         <Container
           as="div"

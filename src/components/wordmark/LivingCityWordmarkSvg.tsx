@@ -28,6 +28,8 @@ type LivingCityWordmarkSvgProps = {
   voxelScale?: number;
   /** Multiplier for extra skyline width in voxels. */
   bannerScale?: number;
+  /** Force width/height to follow CSS sizing. */
+  sizeMode?: "fixed" | "fluid";
   preserveAspectRatio?: string;
   skyline?: Partial<CityWordmarkSkylineConfig>;
 };
@@ -69,6 +71,7 @@ export function LivingCityWordmarkSvg({
   actorRects = [],
   voxelScale: voxelScaleProp,
   bannerScale: bannerScaleProp,
+  sizeMode = "fixed",
   preserveAspectRatio,
   skyline: skylineOverrides,
 }: LivingCityWordmarkSvgProps) {
@@ -185,8 +188,8 @@ export function LivingCityWordmarkSvg({
     <svg
       viewBox={`0 0 ${viewWidth} ${viewHeight}`}
       className={cn("select-none", className)}
-      width={pixelWidth}
-      height={pixelHeight}
+      width={sizeMode === "fluid" ? "100%" : pixelWidth}
+      height={sizeMode === "fluid" ? "100%" : pixelHeight}
       role="img"
       aria-labelledby={titleId}
       aria-describedby={descId}

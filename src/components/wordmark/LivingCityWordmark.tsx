@@ -10,9 +10,10 @@ type LivingCityWordmarkProps = {
   className?: string;
   bannerScale?: number;
   preserveAspectRatio?: string;
+  sizeMode?: "fixed" | "fluid";
 };
 
-export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio }: LivingCityWordmarkProps) {
+export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio, sizeMode }: LivingCityWordmarkProps) {
   const [mounted, setMounted] = useState(false);
   const id = useId();
   const titleId = `${id}-title`;
@@ -39,6 +40,7 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
       actorRects={sim.actorRects}
       voxelScale={sim.config.render.voxelScale}
       bannerScale={bannerScale}
+      sizeMode={sizeMode}
       preserveAspectRatio={preserveAspectRatio}
       skyline={sim.config.skyline}
     />
