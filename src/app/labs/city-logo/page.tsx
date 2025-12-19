@@ -1,8 +1,6 @@
-import { notFound } from "next/navigation";
 import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "@/components/wordmark/sim/config";
 import type { CityWordmarkConfig, CityWordmarkDensity, CityWordmarkScheme } from "@/components/wordmark/sim/types";
 import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_SCHEMES } from "@/components/wordmark/sim/types";
-import { featureFlags } from "@/lib/flags";
 import { CityLogoLabClient } from "./CityLogoLabClient";
 
 export const dynamic = "force-dynamic";
@@ -129,8 +127,6 @@ function parseInitialConfig(searchParams: SearchParams): CityWordmarkConfig {
 }
 
 export default async function CityLogoLabPage(props: { searchParams: Promise<SearchParams> }) {
-  if (!featureFlags.labsCityLogo) notFound();
-
   const searchParams = await props.searchParams;
   const snapshotMode = firstString(searchParams.snapshot) === "1";
   const event = firstString(searchParams.event);
