@@ -27,7 +27,7 @@ function CityLogoLab() {
             <LivingCityWordmarkSvg
               titleId={`${id}-title`}
               descId={`${id}-desc`}
-              className="w-full max-w-[1100px] h-auto"
+              className="w-auto max-w-full h-auto"
               seed={sim.config.seed}
               timeOfDay={sim.config.timeOfDay}
               nowMs={sim.nowMs}

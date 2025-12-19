@@ -162,6 +162,8 @@ export function LivingCityWordmarkSvg({
     <svg
       viewBox={`0 0 ${width} ${height}`}
       className={cn("select-none", className)}
+      width={width}
+      height={height}
       role="img"
       aria-labelledby={titleId}
       aria-describedby={descId}
