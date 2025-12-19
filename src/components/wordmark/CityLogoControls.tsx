@@ -221,11 +221,14 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview }: CityLog
               }}
             />
           </div>
-          <div className="space-y-mdt-1">
+            <div className="space-y-mdt-1">
             <div className="text-caption text-mdt-muted">Actors</div>
             <div className="grid grid-cols-2 gap-x-mdt-3 gap-y-mdt-2">
               <Checkbox checked={sim.config.actors.cars} onChange={(e) => sim.setConfig({ actors: { cars: e.target.checked } })}>
                 Cars
+              </Checkbox>
+              <Checkbox checked={sim.config.actors.trucks} onChange={(e) => sim.setConfig({ actors: { trucks: e.target.checked } })}>
+                Trucks
               </Checkbox>
               <Checkbox
                 checked={sim.config.actors.streetlights}

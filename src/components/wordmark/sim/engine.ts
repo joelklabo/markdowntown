@@ -2,6 +2,7 @@ import type { CityWordmarkConfig } from "./types";
 import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "./config";
 import type { CityWordmarkActor, CityWordmarkActorRect } from "./actors/types";
 import { spawnCarActors } from "./actors/car";
+import { spawnTruckActors } from "./actors/truck";
 import { spawnAmbulanceActor } from "./actors/ambulance";
 import { spawnStreetlightActors } from "./actors/streetlight";
 import { spawnPedestrianActors } from "./actors/pedestrian";
@@ -37,6 +38,7 @@ let snapshot: CityWordmarkEngineSnapshot = {
 
 actors = [
   ...spawnCarActors({ config: snapshot.config, layout }),
+  ...spawnTruckActors({ config: snapshot.config, layout }),
   ...spawnStreetlightActors({ config: snapshot.config, layout }),
   ...spawnPedestrianActors({ config: snapshot.config, layout }),
 ];
@@ -198,6 +200,7 @@ export function setCityWordmarkEngineConfig(overrides: unknown) {
   ambulanceTriggerIndex = 0;
   actors = [
     ...spawnCarActors({ config: nextConfig, layout }),
+    ...spawnTruckActors({ config: nextConfig, layout }),
     ...spawnStreetlightActors({ config: nextConfig, layout }),
     ...spawnPedestrianActors({ config: nextConfig, layout }),
   ];
