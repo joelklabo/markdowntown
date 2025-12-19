@@ -21,21 +21,42 @@ export type CityWordmarkLayoutOptions = {
   letterSpacing?: number;
   /** Rows of padding above the glyphs (in voxel units). */
   topPadding?: number;
+  /** Resolution multiplier for expanding the glyph grid. */
+  resolution?: number;
 };
 
 const DEFAULT_LAYOUT: Required<CityWordmarkLayoutOptions> = {
   text: CITY_WORDMARK_TEXT,
   letterSpacing: 1,
   topPadding: 4,
+  resolution: 1,
 };
 
 export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}): CityWordmarkLayout {
   const text = options.text ?? DEFAULT_LAYOUT.text;
-  const letterSpacing = options.letterSpacing ?? DEFAULT_LAYOUT.letterSpacing;
-  const topPadding = options.topPadding ?? DEFAULT_LAYOUT.topPadding;
+  const letterSpacingBase = options.letterSpacing ?? DEFAULT_LAYOUT.letterSpacing;
+  const topPaddingBase = options.topPadding ?? DEFAULT_LAYOUT.topPadding;
+  const resolution = Math.max(1, Math.floor(options.resolution ?? DEFAULT_LAYOUT.resolution));
+  const letterSpacing = letterSpacingBase * resolution;
+  const topPadding = topPaddingBase * resolution;
+  const glyphRows = CITY_WORDMARK_GLYPH_ROWS * resolution;
+  const glyphCols = CITY_WORDMARK_GLYPH_COLS * resolution;
 
   let xCursor = 0;
   const rects: CityWordmarkVoxelRect[] = [];
+
+  const expandGlyph = (glyph: string[]): string[] => {
+    if (resolution === 1) return glyph;
+    const out: string[] = [];
+    for (const row of glyph) {
+      const expandedRow = row
+        .split("")
+        .map((cell) => cell.repeat(resolution))
+        .join("");
+      for (let r = 0; r < resolution; r++) out.push(expandedRow);
+    }
+    return out;
+  };
 
   for (const rawChar of text) {
     if (rawChar === " ") {
@@ -43,13 +64,13 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
       continue;
     }
 
-    const glyph = getCityWordmarkGlyph(rawChar);
+    const glyph = expandGlyph([...getCityWordmarkGlyph(rawChar)]);
 
-    for (let row = 0; row < CITY_WORDMARK_GLYPH_ROWS; row++) {
+    for (let row = 0; row < glyphRows; row++) {
       const line = glyph[row] ?? "";
 
       let col = 0;
-      while (col < CITY_WORDMARK_GLYPH_COLS) {
+      while (col < glyphCols) {
         const cell = line[col] ?? ".";
         if (cell === ".") {
           col++;
@@ -57,18 +78,18 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
         }
 
         const start = col;
-        while (col < CITY_WORDMARK_GLYPH_COLS && (line[col] ?? ".") !== ".") col++;
+        while (col < glyphCols && (line[col] ?? ".") !== ".") col++;
         const run = col - start;
 
         rects.push({ x: xCursor + start, y: topPadding + row, width: run, height: 1 });
       }
     }
 
-    xCursor += CITY_WORDMARK_GLYPH_COLS + letterSpacing;
+    xCursor += glyphCols + letterSpacing;
   }
 
   const width = Math.max(0, xCursor - (text.length > 0 ? letterSpacing : 0));
-  const baselineY = topPadding + CITY_WORDMARK_GLYPH_ROWS;
+  const baselineY = topPadding + glyphRows;
   const height = baselineY;
 
   return { width, height, rects, baselineY };
@@ -127,4 +148,3 @@ export function getIntegerScaleToFitHeight(targetHeightPx: number, layoutHeight:
   if (!Number.isFinite(layoutHeight) || layoutHeight <= 0) return 1;
   return Math.max(1, Math.floor(targetHeightPx / layoutHeight));
 }
-

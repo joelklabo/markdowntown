@@ -17,6 +17,7 @@ export type CityWordmarkWindowLayoutOptions = {
   text?: string;
   topPadding?: number;
   letterSpacing?: number;
+  resolution?: number;
   windowChance?: number;
   minCycleMs?: number;
   maxCycleMs?: number;
@@ -33,6 +34,7 @@ const DEFAULTS = {
   seed: "markdowntown",
   topPadding: 4,
   letterSpacing: 1,
+  resolution: 1,
   windowChance: 0.35,
   minCycleMs: 1400,
   maxCycleMs: 5200,
@@ -41,9 +43,13 @@ const DEFAULTS = {
 export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptions = {}): CityWordmarkWindow[] {
   const seed = options.seed ?? DEFAULTS.seed;
   const text = options.text ?? CITY_WORDMARK_TEXT;
-  const topPadding = options.topPadding ?? DEFAULTS.topPadding;
-  const letterSpacing = options.letterSpacing ?? DEFAULTS.letterSpacing;
-  const windowChance = options.windowChance ?? DEFAULTS.windowChance;
+  const topPaddingBase = options.topPadding ?? DEFAULTS.topPadding;
+  const letterSpacingBase = options.letterSpacing ?? DEFAULTS.letterSpacing;
+  const resolution = Math.max(1, Math.floor(options.resolution ?? DEFAULTS.resolution));
+  const topPadding = topPaddingBase * resolution;
+  const letterSpacing = letterSpacingBase * resolution;
+  const windowChanceBase = options.windowChance ?? DEFAULTS.windowChance;
+  const windowChance = clamp01(windowChanceBase / resolution);
   const minCycleMs = options.minCycleMs ?? DEFAULTS.minCycleMs;
   const maxCycleMs = options.maxCycleMs ?? DEFAULTS.maxCycleMs;
 
@@ -59,6 +65,18 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
   const windows: CityWordmarkWindow[] = [];
 
   let xCursor = 0;
+  const expandGlyph = (glyph: string[]): string[] => {
+    if (resolution === 1) return glyph;
+    const out: string[] = [];
+    for (const row of glyph) {
+      const expandedRow = row
+        .split("")
+        .map((cell) => cell.repeat(resolution))
+        .join("");
+      for (let r = 0; r < resolution; r++) out.push(expandedRow);
+    }
+    return out;
+  };
 
   for (const rawChar of text) {
     if (rawChar === " ") {
@@ -66,11 +84,15 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
       continue;
     }
 
-    const glyph = getCityWordmarkGlyph(rawChar);
+    const glyph = expandGlyph([...getCityWordmarkGlyph(rawChar)]);
+    const rowStart = 2 * resolution;
+    const rowEnd = 5 * resolution + (resolution - 1);
+    const colStart = 1 * resolution;
+    const colEnd = 3 * resolution + (resolution - 1);
 
-    for (let row = 2; row <= 5; row++) {
+    for (let row = rowStart; row <= rowEnd; row++) {
       const line = glyph[row] ?? "";
-      for (let col = 1; col <= 3; col++) {
+      for (let col = colStart; col <= colEnd; col++) {
         const cell = line[col] ?? ".";
         if (cell === ".") continue;
         if (rng.nextFloat() >= windowChance) continue;
@@ -83,7 +105,7 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
       }
     }
 
-    xCursor += CITY_WORDMARK_GLYPH_COLS + letterSpacing;
+    xCursor += CITY_WORDMARK_GLYPH_COLS * resolution + letterSpacing;
   }
 
   return windows;

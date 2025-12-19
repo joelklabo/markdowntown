@@ -72,23 +72,25 @@ export function LivingCityWordmarkSvg({
   preserveAspectRatio,
   skyline: skylineOverrides,
 }: LivingCityWordmarkSvgProps) {
-  const layout = useMemo(() => createCityWordmarkLayout(), []);
+  const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
+  const layout = useMemo(() => createCityWordmarkLayout({ resolution }), [resolution]);
 
   const palette = getCityWordmarkPalette(timeOfDay, scheme);
   const { daylight } = getTimeOfDayPhase(timeOfDay);
   const nightness = clamp01(1 - daylight);
   const celestial = getCelestialPositions(timeOfDay);
 
-  const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
   const bannerScale = normalizeVoxelScale(bannerScaleProp ?? 1);
   const frameWidth = layout.width * bannerScale;
-  const viewWidth = frameWidth * resolution;
-  const viewHeight = layout.height * resolution;
-  const pixelWidth = frameWidth * BASE_VOXEL_PIXEL_SCALE;
-  const pixelHeight = layout.height * BASE_VOXEL_PIXEL_SCALE;
+  const viewWidth = frameWidth;
+  const viewHeight = layout.height;
+  const baseWidth = frameWidth / resolution;
+  const baseHeight = layout.height / resolution;
+  const pixelWidth = baseWidth * BASE_VOXEL_PIXEL_SCALE;
+  const pixelHeight = baseHeight * BASE_VOXEL_PIXEL_SCALE;
 
-  const topPadding = layout.baselineY - CITY_WORDMARK_GLYPH_ROWS;
-  const skyHeight = Math.max(1, topPadding) * resolution;
+  const topPadding = layout.baselineY - CITY_WORDMARK_GLYPH_ROWS * resolution;
+  const skyHeight = Math.max(1, topPadding);
 
   const starOpacity = clamp01(nightness * 1.1);
   const stars = [
@@ -99,20 +101,31 @@ export function LivingCityWordmarkSvg({
   ];
 
   const skyline = useMemo(
-    () =>
-      createCityWordmarkSkylineMask({
+    () => {
+      const minHeight = (skylineOverrides?.minHeight ?? 2) * resolution;
+      const maxHeight = (skylineOverrides?.maxHeight ?? 6) * resolution;
+      const options = {
         width: frameWidth,
         baselineY: layout.baselineY,
         seed,
-        ...skylineOverrides,
-      }),
-    [frameWidth, layout.baselineY, seed, skylineOverrides]
+        minHeight,
+        maxHeight,
+        ...(skylineOverrides?.minSegmentWidth != null
+          ? { minSegmentWidth: skylineOverrides.minSegmentWidth }
+          : {}),
+        ...(skylineOverrides?.maxSegmentWidth != null
+          ? { maxSegmentWidth: skylineOverrides.maxSegmentWidth }
+          : {}),
+      };
+      return createCityWordmarkSkylineMask(options);
+    },
+    [frameWidth, layout.baselineY, resolution, seed, skylineOverrides]
   );
-  const skylinePath = useMemo(() => voxelRectsToPath(skyline, resolution), [skyline, resolution]);
+  const skylinePath = useMemo(() => voxelRectsToPath(skyline, 1), [skyline]);
 
-  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, resolution), [layout.rects, resolution]);
+  const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, 1), [layout.rects]);
 
-  const windows = useMemo(() => createCityWordmarkWindows({ seed }), [seed]);
+  const windows = useMemo(() => createCityWordmarkWindows({ seed, resolution }), [resolution, seed]);
   const windowState = useMemo(
     () => getCityWordmarkWindowLights(windows, { nowMs, timeOfDay }),
     [nowMs, timeOfDay, windows]
@@ -125,8 +138,8 @@ export function LivingCityWordmarkSvg({
       if (!w) continue;
       lit.push({ x: w.x, y: w.y, width: 1, height: 1 });
     }
-    return voxelRectsToPath(lit, resolution);
-  }, [resolution, windowState, windows]);
+    return voxelRectsToPath(lit, 1);
+  }, [windowState, windows]);
 
   const bodySize = 2 * resolution;
   const skyMaxX = Math.max(0, viewWidth - bodySize);
@@ -221,7 +234,7 @@ export function LivingCityWordmarkSvg({
 
       <rect
         x={0}
-        y={(layout.baselineY - 1) * resolution}
+        y={layout.baselineY - resolution}
         width={viewWidth}
         height={resolution}
         fill={rgbToCss(palette.buildingMuted)}
