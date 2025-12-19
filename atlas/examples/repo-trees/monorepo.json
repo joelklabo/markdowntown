@@ -12,6 +12,10 @@
       "content": "---\napplyTo: \"apps/**\"\n---\n\n# Copilot instructions\n\n- Prefer changes inside the current app.\n- Keep shared packages stable.\n"
     },
     {
+      "path": ".github/instructions/apps-web.instructions.md",
+      "content": "---\napplyTo: \"apps/web/**\"\n---\n\n# Web instructions\n\n- Prefer changes in apps/web.\n- Keep components small and reusable.\n"
+    },
+    {
       "path": "AGENTS.md",
       "content": "# AGENTS.md (root)\n\n## Scopes\n- apps/web/**: frontend conventions\n- apps/api/**: backend conventions\n"
     },

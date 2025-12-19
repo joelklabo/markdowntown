@@ -21,7 +21,7 @@ describe('atlas/simulators/simulate', () => {
 
     expect(
       simulateContextResolution({ tool: 'github-copilot', tree, cwd: fixture.defaultCwd }).loaded.map(x => x.path),
-    ).toEqual(['.github/copilot-instructions.md']);
+    ).toEqual(['.github/copilot-instructions.md', '.github/instructions/apps-web.instructions.md']);
 
     expect(
       simulateContextResolution({ tool: 'claude-code', tree, cwd: fixture.defaultCwd }).loaded.map(x => x.path),

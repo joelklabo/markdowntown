@@ -10,13 +10,14 @@ describe("ContextSimulator", () => {
     await userEvent.clear(screen.getByLabelText("Repo tree (paths)"));
     await userEvent.type(
       screen.getByLabelText("Repo tree (paths)"),
-      ".github/copilot-instructions.md\nAGENTS.md\n"
+      ".github/copilot-instructions.md\n.github/instructions/apps-web.instructions.md\nAGENTS.md\n"
     );
 
     await userEvent.click(screen.getByRole("button", { name: "Simulate" }));
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
+    expect(within(loadedList).getByText(".github/instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
   });
 
@@ -44,4 +45,3 @@ describe("ContextSimulator", () => {
     ]);
   });
 });
-
