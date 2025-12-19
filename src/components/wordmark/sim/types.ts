@@ -4,6 +4,7 @@ export type CityWordmarkActorsConfig = {
   cars: boolean;
   streetlights: boolean;
   pedestrians: boolean;
+  dogs: boolean;
   ambulance: boolean;
 };
 
@@ -39,4 +40,3 @@ export type CityWordmarkEvent =
   | ({ type: "command_palette_open"; origin?: string } & CityWordmarkEventBase)
   | ({ type: "publish"; kind?: "artifact" | "template" | "snippet" | "file" } & CityWordmarkEventBase)
   | ({ type: "alert"; kind: "ambulance" } & CityWordmarkEventBase);
-

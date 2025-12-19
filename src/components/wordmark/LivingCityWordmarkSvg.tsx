@@ -192,6 +192,8 @@ export function LivingCityWordmarkSvg({
             let fill: Rgb;
             if (r.tone === "headlight") fill = palette.window;
             else if (r.tone === "ambulance") fill = palette.building;
+            else if (r.tone === "pedestrian") fill = palette.building;
+            else if (r.tone === "dog") fill = palette.buildingMuted;
             else if (r.tone === "sirenRed") fill = SIREN_RED;
             else if (r.tone === "sirenBlue") fill = SIREN_BLUE;
             else fill = palette.buildingMuted;

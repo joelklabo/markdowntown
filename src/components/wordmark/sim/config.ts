@@ -7,6 +7,7 @@ const defaultActors: CityWordmarkActorsConfig = {
   cars: true,
   streetlights: true,
   pedestrians: true,
+  dogs: false,
   ambulance: true,
 };
 
@@ -14,6 +15,7 @@ const actorsSchema = z.object({
   cars: z.boolean().default(defaultActors.cars),
   streetlights: z.boolean().default(defaultActors.streetlights),
   pedestrians: z.boolean().default(defaultActors.pedestrians),
+  dogs: z.boolean().default(defaultActors.dogs),
   ambulance: z.boolean().default(defaultActors.ambulance),
 });
 
@@ -22,6 +24,7 @@ const actorsOverridesSchema = z
     cars: z.boolean().optional(),
     streetlights: z.boolean().optional(),
     pedestrians: z.boolean().optional(),
+    dogs: z.boolean().optional(),
     ambulance: z.boolean().optional(),
   })
   .strict();

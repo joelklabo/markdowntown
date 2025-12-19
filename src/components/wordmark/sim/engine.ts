@@ -4,6 +4,7 @@ import type { CityWordmarkActor, CityWordmarkActorRect } from "./actors/types";
 import { spawnCarActors } from "./actors/car";
 import { spawnAmbulanceActor } from "./actors/ambulance";
 import { spawnStreetlightActors } from "./actors/streetlight";
+import { spawnPedestrianActors } from "./actors/pedestrian";
 import { createCityWordmarkLayout } from "./layout";
 import { normalizeTimeOfDay } from "./time";
 import { listenCityWordmarkEvents } from "./events";
@@ -34,7 +35,11 @@ let snapshot: CityWordmarkEngineSnapshot = {
   actorRects: [],
 };
 
-actors = [...spawnCarActors({ config: snapshot.config, layout }), ...spawnStreetlightActors({ config: snapshot.config, layout })];
+actors = [
+  ...spawnCarActors({ config: snapshot.config, layout }),
+  ...spawnStreetlightActors({ config: snapshot.config, layout }),
+  ...spawnPedestrianActors({ config: snapshot.config, layout }),
+];
 snapshot = {
   ...snapshot,
   actorRects: actors.flatMap((actor) => actor.render({ nowMs: snapshot.nowMs, config: snapshot.config, layout })),
@@ -191,7 +196,11 @@ export function setCityWordmarkEnginePlaying(playing: boolean) {
 export function setCityWordmarkEngineConfig(overrides: unknown) {
   const nextConfig = mergeCityWordmarkConfig(snapshot.config, overrides);
   ambulanceTriggerIndex = 0;
-  actors = [...spawnCarActors({ config: nextConfig, layout }), ...spawnStreetlightActors({ config: nextConfig, layout })];
+  actors = [
+    ...spawnCarActors({ config: nextConfig, layout }),
+    ...spawnStreetlightActors({ config: nextConfig, layout }),
+    ...spawnPedestrianActors({ config: nextConfig, layout }),
+  ];
   const actorRects = actors.flatMap((actor) => actor.render({ nowMs: snapshot.nowMs, config: nextConfig, layout }));
   snapshot = { ...snapshot, config: nextConfig, actorRects };
   emit();

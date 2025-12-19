@@ -168,6 +168,9 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
               >
                 People
               </Checkbox>
+              <Checkbox checked={sim.config.actors.dogs} onChange={(e) => sim.setConfig({ actors: { dogs: e.target.checked } })}>
+                Dogs
+              </Checkbox>
               <Checkbox
                 checked={sim.config.actors.ambulance}
                 onChange={(e) => sim.setConfig({ actors: { ambulance: e.target.checked } })}
@@ -244,4 +247,3 @@ export function CityLogoControls({ sim, eventOrigin = "labs" }: CityLogoControls
     </div>
   );
 }
-
