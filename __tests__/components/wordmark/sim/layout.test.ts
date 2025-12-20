@@ -31,6 +31,19 @@ describe("createCityWordmarkLayout", () => {
     expect(expanded.sceneWidth).toBe(base.width * 3);
   });
 
+  it("tracks resolution and grid scale", () => {
+    const layout = createCityWordmarkLayout({ resolution: 3, detail: "hd" });
+    expect(layout.resolution).toBe(3);
+    expect(layout.gridScale).toBe(layout.resolution * layout.detailScale);
+  });
+
+  it("scales layout dimensions with resolution", () => {
+    const base = createCityWordmarkLayout({ resolution: 1, detail: "standard" });
+    const scaled = createCityWordmarkLayout({ resolution: 3, detail: "standard" });
+    expect(scaled.width).toBe(base.width * 3);
+    expect(scaled.height).toBe(base.height * 3);
+  });
+
   it("includes all glyphs needed for MARKDOWNTOWN", () => {
     const required = ["M", "A", "R", "K", "D", "O", "W", "N", "T"] as const;
     for (const ch of required) {

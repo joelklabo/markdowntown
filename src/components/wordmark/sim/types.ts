@@ -8,7 +8,7 @@ export const CITY_WORDMARK_RENDER_DETAILS = ["standard", "hd"] as const;
 export type CityWordmarkRenderDetail = (typeof CITY_WORDMARK_RENDER_DETAILS)[number];
 
 export type CityWordmarkRenderConfig = {
-  /** Resolution multiplier (higher = smaller voxels). */
+  /** Resolution multiplier for the full scene (higher = smaller voxels). */
   voxelScale: number;
   /** Multiplier for full-width banner rendering. */
   bannerScale: number;

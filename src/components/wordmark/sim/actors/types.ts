@@ -30,7 +30,7 @@ export type CityWordmarkActor = {
 };
 
 export function getActorScale(layout: CityWordmarkLayout): number {
-  return Math.max(1, Math.floor(layout.detailScale));
+  return Math.max(1, Math.floor(layout.gridScale));
 }
 
 export function getActorLaneY(layout: CityWordmarkLayout, rows: number): number {

@@ -62,4 +62,24 @@ describe("spawnAmbulanceActor", () => {
     const hdHeight = Math.max(...hdRects.map((r) => r.y + r.height)) - Math.min(...hdRects.map((r) => r.y));
     expect(hdHeight).toBeGreaterThan(standardHeight);
   });
+
+  it("scales geometry with voxel resolution", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), { seed: "seed", density: "normal" });
+    const baseLayout = createCityWordmarkLayout({ resolution: 1 });
+    const scaledLayout = createCityWordmarkLayout({ resolution: 3 });
+
+    const baseActor = spawnAmbulanceActor({ config, layout: baseLayout, nowMs: 0, triggerIndex: 0 });
+    const scaledActor = spawnAmbulanceActor({ config, layout: scaledLayout, nowMs: 0, triggerIndex: 0 });
+
+    expect(baseActor).not.toBeNull();
+    expect(scaledActor).not.toBeNull();
+    if (!baseActor || !scaledActor) return;
+
+    const baseRects = baseActor.render({ nowMs: 0, config, layout: baseLayout });
+    const scaledRects = scaledActor.render({ nowMs: 0, config, layout: scaledLayout });
+
+    const baseHeight = Math.max(...baseRects.map((r) => r.y + r.height)) - Math.min(...baseRects.map((r) => r.y));
+    const scaledHeight = Math.max(...scaledRects.map((r) => r.y + r.height)) - Math.min(...scaledRects.map((r) => r.y));
+    expect(scaledHeight).toBeGreaterThan(baseHeight);
+  });
 });

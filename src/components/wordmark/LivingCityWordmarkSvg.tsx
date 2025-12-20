@@ -144,7 +144,7 @@ export function LivingCityWordmarkSvg({
   const baseHeight = viewHeight / resolution;
   const pixelWidth = Math.round(baseWidth * BASE_VOXEL_PIXEL_SCALE);
   const pixelHeight = Math.round(baseHeight * BASE_VOXEL_PIXEL_SCALE);
-  const gridScale = resolution * layout.detailScale;
+  const gridScale = layout.gridScale;
 
   const topPadding = layout.topPadding;
   const skyHeight = Math.max(1, topPadding);
@@ -159,8 +159,8 @@ export function LivingCityWordmarkSvg({
 
   const skyline = useMemo(
     () => {
-      const minHeight = (skylineOverrides?.minHeight ?? 2) * resolution * layout.detailScale;
-      const maxHeight = (skylineOverrides?.maxHeight ?? 6) * resolution * layout.detailScale;
+      const minHeight = (skylineOverrides?.minHeight ?? 2) * gridScale;
+      const maxHeight = (skylineOverrides?.maxHeight ?? 6) * gridScale;
       const options = {
         width: sceneWidth,
         baselineY: layout.baselineY,
@@ -176,7 +176,7 @@ export function LivingCityWordmarkSvg({
       };
       return createCityWordmarkSkylineMask(options);
     },
-    [layout.baselineY, layout.detailScale, resolution, sceneWidth, seed, skylineOverrides]
+    [layout.baselineY, gridScale, sceneWidth, seed, skylineOverrides]
   );
   const skylinePath = useMemo(() => voxelRectsToPath(skyline, 1), [skyline]);
 
@@ -198,7 +198,7 @@ export function LivingCityWordmarkSvg({
     return voxelRectsToPath(lit, 1);
   }, [windowState, windows]);
 
-  const bodySize = 2 * resolution * layout.detailScale;
+  const bodySize = 2 * gridScale;
   const skyMaxX = Math.max(0, sceneWidth - bodySize);
   const skyMaxY = Math.max(0, skyHeight - bodySize);
 
@@ -210,7 +210,7 @@ export function LivingCityWordmarkSvg({
   const actorBatches = useMemo(
     () =>
       batchVoxelRectsToPaths(actorRects, {
-        scale: resolution,
+        scale: 1,
         getGroup: (rect) => {
           let fill: Rgb;
           if (rect.tone === "headlight") fill = palette.window;
@@ -235,7 +235,7 @@ export function LivingCityWordmarkSvg({
           };
         },
       }),
-    [actorRects, nightness, palette, resolution]
+    [actorRects, nightness, palette]
   );
 
   return (
@@ -287,13 +287,13 @@ export function LivingCityWordmarkSvg({
 
         {celestial.sun.visible && (
           <g fill={rgbToCss(palette.sun)} opacity={clamp01(daylight * 1.1)}>
-          {renderCelestialBodyRects(sunX, sunY, bodySize, "sun", layout.detailScale)}
+          {renderCelestialBodyRects(sunX, sunY, bodySize, "sun", gridScale)}
         </g>
       )}
 
         {celestial.moon.visible && (
           <g fill={rgbToCss(palette.moon)} opacity={clamp01(nightness * 1.1)}>
-          {renderCelestialBodyRects(moonX, moonY, bodySize, "moon", layout.detailScale)}
+          {renderCelestialBodyRects(moonX, moonY, bodySize, "moon", gridScale)}
         </g>
       )}
 

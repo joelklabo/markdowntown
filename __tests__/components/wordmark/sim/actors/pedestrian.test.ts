@@ -79,4 +79,31 @@ describe("spawnPedestrianActors", () => {
     const hdHeight = Math.max(...hdPed.map((r) => r.y + r.height)) - Math.min(...hdPed.map((r) => r.y));
     expect(hdHeight).toBeGreaterThan(standardHeight);
   });
+
+  it("scales geometry with voxel resolution", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), {
+      seed: "seed",
+      density: "dense",
+      timeOfDay: 0.55,
+    });
+    const baseLayout = createCityWordmarkLayout({ resolution: 1 });
+    const scaledLayout = createCityWordmarkLayout({ resolution: 3 });
+
+    const baseRects = spawnPedestrianActors({ config, layout: baseLayout }).flatMap((actor) =>
+      actor.render({ nowMs: 0, config, layout: baseLayout })
+    );
+    const scaledRects = spawnPedestrianActors({ config, layout: scaledLayout }).flatMap((actor) =>
+      actor.render({ nowMs: 0, config, layout: scaledLayout })
+    );
+
+    const basePed = baseRects.filter((r) => r.tone === "pedestrian");
+    const scaledPed = scaledRects.filter((r) => r.tone === "pedestrian");
+
+    expect(basePed.length).toBeGreaterThan(0);
+    expect(scaledPed.length).toBeGreaterThan(0);
+
+    const baseHeight = Math.max(...basePed.map((r) => r.y + r.height)) - Math.min(...basePed.map((r) => r.y));
+    const scaledHeight = Math.max(...scaledPed.map((r) => r.y + r.height)) - Math.min(...scaledPed.map((r) => r.y));
+    expect(scaledHeight).toBeGreaterThan(baseHeight);
+  });
 });

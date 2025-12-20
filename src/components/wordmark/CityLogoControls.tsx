@@ -400,7 +400,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, le
         <div className="text-body-sm font-medium text-mdt-text">Renderer</div>
         <div className="grid grid-cols-2 gap-mdt-3">
           <div className="space-y-mdt-1">
-	            <div className="text-caption text-mdt-muted">Voxel resolution</div>
+	            <div className="text-caption text-mdt-muted">Voxel resolution (scene detail)</div>
 	            <Input
 	              type="number"
 	              inputMode="numeric"

@@ -61,6 +61,7 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
   let layout = createCityWordmarkLayout({
     sceneScale: initialConfig.render.bannerScale,
     detail: initialConfig.render.detail,
+    resolution: initialConfig.render.voxelScale,
   });
   let actors: CityWordmarkActor[] = [];
 
@@ -324,7 +325,11 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
 
   function setConfig(overrides: unknown) {
     const nextConfig = mergeCityWordmarkConfig(snapshot.config, overrides);
-    layout = createCityWordmarkLayout({ sceneScale: nextConfig.render.bannerScale, detail: nextConfig.render.detail });
+    layout = createCityWordmarkLayout({
+      sceneScale: nextConfig.render.bannerScale,
+      detail: nextConfig.render.detail,
+      resolution: nextConfig.render.voxelScale,
+    });
     ambulanceTriggerIndex = 0;
     eventIndex = 0;
     lastEventAt.clear();

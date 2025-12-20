@@ -72,4 +72,26 @@ describe("spawnTruckActors", () => {
     const hdHeight = Math.max(...hdRects.map((r) => r.y + r.height)) - Math.min(...hdRects.map((r) => r.y));
     expect(hdHeight).toBeGreaterThan(standardHeight);
   });
+
+  it("scales geometry with voxel resolution", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), {
+      seed: "seed",
+      density: "dense",
+      actors: { trucks: true },
+      timeOfDay: 0.9,
+    });
+    const baseLayout = createCityWordmarkLayout({ resolution: 1 });
+    const scaledLayout = createCityWordmarkLayout({ resolution: 3 });
+
+    const baseRects = spawnTruckActors({ config, layout: baseLayout })[0]?.render({ nowMs: 0, config, layout: baseLayout }) ?? [];
+    const scaledRects =
+      spawnTruckActors({ config, layout: scaledLayout })[0]?.render({ nowMs: 0, config, layout: scaledLayout }) ?? [];
+
+    expect(baseRects.length).toBeGreaterThan(0);
+    expect(scaledRects.length).toBeGreaterThan(0);
+
+    const baseHeight = Math.max(...baseRects.map((r) => r.y + r.height)) - Math.min(...baseRects.map((r) => r.y));
+    const scaledHeight = Math.max(...scaledRects.map((r) => r.y + r.height)) - Math.min(...scaledRects.map((r) => r.y));
+    expect(scaledHeight).toBeGreaterThan(baseHeight);
+  });
 });

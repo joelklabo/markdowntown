@@ -19,6 +19,8 @@ export type CityWordmarkLayout = {
   glyphCols: number;
   topPadding: number;
   detailScale: number;
+  resolution: number;
+  gridScale: number;
 };
 
 export type CityWordmarkLayoutOptions = {
@@ -51,8 +53,9 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
   const letterSpacingBase = options.letterSpacing ?? DEFAULT_LAYOUT.letterSpacing;
   const topPaddingBase = options.topPadding ?? DEFAULT_LAYOUT.topPadding;
   const resolution = Math.max(1, Math.floor(options.resolution ?? DEFAULT_LAYOUT.resolution));
-  const letterSpacing = letterSpacingBase * resolution * detailScale;
-  const topPadding = topPaddingBase * resolution * detailScale;
+  const gridScale = resolution * detailScale;
+  const letterSpacing = letterSpacingBase * gridScale;
+  const topPadding = topPaddingBase * gridScale;
   const glyphRows = glyphRowsBase * resolution;
   const glyphCols = glyphColsBase * resolution;
   const sceneScale = Math.max(1, Math.floor(options.sceneScale ?? DEFAULT_LAYOUT.sceneScale));
@@ -108,7 +111,19 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
   const baselineY = topPadding + glyphRows;
   const height = baselineY;
 
-  return { width, sceneWidth, height, rects, baselineY, glyphRows, glyphCols, topPadding, detailScale };
+  return {
+    width,
+    sceneWidth,
+    height,
+    rects,
+    baselineY,
+    glyphRows,
+    glyphCols,
+    topPadding,
+    detailScale,
+    resolution,
+    gridScale,
+  };
 }
 
 export type CityWordmarkSkylineMaskOptions = {
