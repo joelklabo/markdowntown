@@ -21,11 +21,11 @@ export default async function DocumentsPage() {
   });
 
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
-          <Row wrap align="center" justify="between" gap={3}>
-            <Stack gap={1}>
+        <Stack gap={8}>
+          <Row wrap align="center" justify="between" gap={4}>
+            <Stack gap={2}>
               <Text size="caption" tone="muted">Documents</Text>
               <Heading level="display" leading="tight">Your agents.md files</Heading>
             </Stack>
@@ -38,7 +38,7 @@ export default async function DocumentsPage() {
             {docs.map((doc) => {
               const tags = normalizeTags(doc.tags, { strict: false }).tags;
               return (
-                <Card key={doc.id} className="space-y-2 p-4">
+                <Card key={doc.id} className="space-y-mdt-3 p-mdt-5">
                   <Row align="center" justify="between" gap={2}>
                     <Heading level="h3" as="h3">{doc.title}</Heading>
                     <Button variant="secondary" size="xs" asChild>
@@ -56,7 +56,11 @@ export default async function DocumentsPage() {
               );
             })}
             {docs.length === 0 && (
-              <Card className="p-6 text-sm text-mdt-muted">No documents yet. Create your first agents.md.</Card>
+              <Card className="p-mdt-6">
+                <Text size="bodySm" tone="muted">
+                  No documents yet. Create your first agents.md.
+                </Text>
+              </Card>
             )}
           </div>
         </Stack>
