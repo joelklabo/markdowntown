@@ -7,7 +7,14 @@
 
 ## PostHog
 - Set `NEXT_PUBLIC_POSTHOG_KEY` (and `NEXT_PUBLIC_POSTHOG_HOST` if self-hosted).
-- Verify pageviews and key events (sign-in click, section create) in PostHog; add alerts as needed in PostHog insights.
+- Verify pageviews and key events in PostHog; add alerts as needed in PostHog insights.
+- UX telemetry events:
+  - `ui_route_view`, `ui_shell_loaded` (route-level engagement)
+  - `nav_click`, `nav_search_open`, `nav_search_submit`, `nav_search_quick_filter`
+  - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
+- Web vitals / RUM (set `NEXT_PUBLIC_ENABLE_RUM=true`):
+  - `web_vital_lcp`, `web_vital_cls`, `web_vital_inp`, `web_vital_ttfb`, `web_vital_fcp`
+  - `perf_navigation`, `perf_api`, `spa_nav` (see `docs/perf-report.md` for dashboards)
 
 ## Azure Monitor / Container Apps
 - Logs already flow to Log Analytics workspace for env `satoshis-env-stg-west` (via ACA default).

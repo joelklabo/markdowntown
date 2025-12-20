@@ -11,6 +11,7 @@ import { Footer } from "@/components/Footer";
 import { PerfVitalsToggle } from "@/components/PerfVitalsToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { WhatNewBanner } from "@/components/WhatNewBanner";
+import { UxTelemetry } from "@/components/UxTelemetry";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -101,6 +102,7 @@ export default async function RootLayout({
         <DensityProvider>
           <ThemeProvider>
             <PosthogProviderLazy>
+              <UxTelemetry />
               <SiteNav user={user} />
               <WhatNewBanner />
               <CommandPalette />
