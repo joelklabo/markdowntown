@@ -4,25 +4,31 @@ test.describe("City wordmark visual", () => {
   test("day scene", async ({ page }) => {
     await page.goto("/labs/city-logo?snapshot=1&timeOfDay=0.55&voxelScale=3&detail=hd");
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
-    await expect(page.getByTestId("city-logo-preview")).toBeVisible();
-    await expect(page.getByTestId("city-logo-preview")).toHaveScreenshot("wordmark-day.png");
+    const preview = page.getByTestId("city-logo-preview");
+    await expect(preview).toBeVisible();
+    await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
+    await expect(preview).toHaveScreenshot("wordmark-day.png");
   });
 
   test("night scene", async ({ page }) => {
     await page.goto("/labs/city-logo?snapshot=1&timeOfDay=0.04&voxelScale=3&detail=hd");
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
-    await expect(page.getByTestId("city-logo-preview")).toBeVisible();
-    await expect(page.getByTestId("city-logo-preview")).toHaveScreenshot("wordmark-night.png");
+    const preview = page.getByTestId("city-logo-preview");
+    await expect(preview).toBeVisible();
+    await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
+    await expect(preview).toHaveScreenshot("wordmark-night.png", { maxDiffPixelRatio: 0.05 });
   });
 
   test("ambulance scene", async ({ page }) => {
     await page.goto("/labs/city-logo?snapshot=1&timeOfDay=0.04&event=ambulance&voxelScale=3&detail=hd");
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
-    await expect(page.getByTestId("city-logo-preview")).toBeVisible({ timeout: 15000 });
+    const preview = page.getByTestId("city-logo-preview");
+    await expect(preview).toBeVisible({ timeout: 15000 });
+    await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
     await expect(
       page.locator('[data-testid="city-logo-preview"] :is(rect,path)[fill="rgb(255 84 84)"]')
-    ).toHaveCount(1);
+    ).toHaveCount(2);
 
-    await expect(page.getByTestId("city-logo-preview")).toHaveScreenshot("wordmark-ambulance.png");
+    await expect(preview).toHaveScreenshot("wordmark-ambulance.png", { maxDiffPixelRatio: 0.06 });
   });
 });

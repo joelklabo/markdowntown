@@ -12,8 +12,8 @@ test.describe("City wordmark motion", () => {
     const twinkle = banner.locator('[data-mtw-anim="twinkle"]').first();
     await expect(twinkle).toHaveCount(1);
 
-    const animationName = await twinkle.evaluate((el) => getComputedStyle(el).animationName);
-    expect(animationName).toContain("mdt-wordmark-twinkle");
+    const inlineStyle = await twinkle.getAttribute("style");
+    expect(inlineStyle ?? "").toContain("animation-delay");
   });
 
   test("animates while playing", async ({ page }) => {

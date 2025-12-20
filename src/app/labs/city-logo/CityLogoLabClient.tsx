@@ -1,13 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { CityLogoControls, type CityLogoPreviewWidthMode } from "@/components/wordmark/CityLogoControls";
 import { LivingCityWordmarkSvg } from "@/components/wordmark/LivingCityWordmarkSvg";
 import { WordmarkLegend } from "@/components/wordmark/WordmarkLegend";
 import { getDefaultCityWordmarkConfig } from "@/components/wordmark/sim/config";
+import { createCityWordmarkLayout } from "@/components/wordmark/sim/layout";
 import { dispatchCityWordmarkEvent } from "@/components/wordmark/sim/events";
-import { createCityWordmarkEngine } from "@/components/wordmark/sim/engine";
+import { createCityWordmarkEngine, type CityWordmarkEngineSnapshot } from "@/components/wordmark/sim/engine";
+import { normalizeVoxelScale } from "@/components/wordmark/sim/renderSvg";
 import type { CityWordmarkConfig } from "@/components/wordmark/sim/types";
 import { useCityWordmarkSim } from "@/components/wordmark/sim/useCityWordmarkSim";
 
@@ -20,6 +22,7 @@ export type CityLogoLabClientProps = {
 };
 
 const DEFAULT_CONFIG = getDefaultCityWordmarkConfig();
+const SNAPSHOT_BASE_VOXEL_SCALE = 3;
 
 function formatFloat(value: number, digits: number): string {
   return Number(value.toFixed(digits)).toString();
@@ -87,6 +90,11 @@ export function CityLogoLabClient({
   );
 
   const sim = useCityWordmarkSim({ enabled: true, engine });
+  const [snapshotOverride, setSnapshotOverride] = useState<CityWordmarkEngineSnapshot | null>(() => {
+    if (!snapshotMode) return null;
+    if (initialEvent) return null;
+    return engine.getSnapshot();
+  });
   const id = useId();
   const [previewWidthMode, setPreviewWidthMode] = useState<CityLogoPreviewWidthMode>(initialPreviewWidthMode ?? "fixed");
   const [shareTimeOfDay, setShareTimeOfDay] = useState(() => initialConfig.timeOfDay);
@@ -124,29 +132,118 @@ export function CityLogoLabClient({
   }, [shareQuery]);
 
   useEffect(() => {
-    if (!initialEvent) return;
-    const ts = Date.now();
+    if (!snapshotMode && initialEvent) {
+      const ts = Date.now();
+      switch (initialEvent) {
+        case "ambulance":
+          dispatchCityWordmarkEvent({ type: "alert", kind: "ambulance", ts });
+          return;
+        case "search":
+          dispatchCityWordmarkEvent({ type: "search", query: "mark downtown", ts });
+          return;
+        case "publish":
+          dispatchCityWordmarkEvent({ type: "publish", kind: "artifact", ts });
+          return;
+        case "upload":
+          dispatchCityWordmarkEvent({ type: "upload", kind: "file", ts });
+          return;
+        case "login":
+          dispatchCityWordmarkEvent({ type: "login", method: "oauth", ts });
+          return;
+        case "command":
+          dispatchCityWordmarkEvent({ type: "command_palette_open", origin: "labs", ts });
+          return;
+      }
+      return;
+    }
+
+    if (!snapshotMode) return;
+
+    const ts = 42_000;
     switch (initialEvent) {
       case "ambulance":
         dispatchCityWordmarkEvent({ type: "alert", kind: "ambulance", ts });
-        return;
+        break;
       case "search":
         dispatchCityWordmarkEvent({ type: "search", query: "mark downtown", ts });
-        return;
+        break;
       case "publish":
         dispatchCityWordmarkEvent({ type: "publish", kind: "artifact", ts });
-        return;
+        break;
       case "upload":
         dispatchCityWordmarkEvent({ type: "upload", kind: "file", ts });
-        return;
+        break;
       case "login":
         dispatchCityWordmarkEvent({ type: "login", method: "oauth", ts });
-        return;
+        break;
       case "command":
         dispatchCityWordmarkEvent({ type: "command_palette_open", origin: "labs", ts });
-        return;
+        break;
+      default:
+        break;
     }
-  }, [initialEvent]);
+
+    if (initialEvent) {
+      const nextSnapshot = engine.getSnapshot();
+      const schedule =
+        typeof queueMicrotask === "function"
+          ? queueMicrotask
+          : (cb: () => void) => Promise.resolve().then(cb);
+      schedule(() => setSnapshotOverride(nextSnapshot));
+    }
+  }, [engine, initialEvent, snapshotMode]);
+
+  const renderConfig = snapshotOverride?.config ?? sim.config;
+  const renderNowMs = snapshotMode ? 42_000 : (snapshotOverride?.nowMs ?? sim.nowMs);
+  const renderActorRects = snapshotOverride?.actorRects ?? sim.actorRects;
+  const snapshotSize = useMemo(() => {
+    if (!snapshotMode) return null;
+    const resolution = normalizeVoxelScale(renderConfig.render.voxelScale);
+    const bannerScale = normalizeVoxelScale(renderConfig.render.bannerScale);
+    const layout = createCityWordmarkLayout({
+      resolution,
+      sceneScale: bannerScale,
+      detail: renderConfig.render.detail,
+    });
+    const viewWidth = layout.sceneWidth / layout.detailScale;
+    const viewHeight = layout.height / layout.detailScale;
+    const baseWidth = viewWidth / resolution;
+    const baseHeight = viewHeight / resolution;
+    return {
+      width: Math.round(baseWidth * SNAPSHOT_BASE_VOXEL_SCALE),
+      height: Math.round(baseHeight * SNAPSHOT_BASE_VOXEL_SCALE),
+    };
+  }, [renderConfig.render.bannerScale, renderConfig.render.detail, renderConfig.render.voxelScale, snapshotMode]);
+
+  const preview = (
+    <Card className="p-mdt-6">
+      <div
+        data-testid="city-logo-preview"
+        data-snapshot-ready={!snapshotMode || snapshotOverride ? "true" : "false"}
+        className={snapshotMode ? "flex items-center justify-center" : "flex items-center justify-center pb-px md:pb-0"}
+        style={snapshotMode && snapshotSize ? { height: `${snapshotSize.height}px` } : undefined}
+      >
+        <LivingCityWordmarkSvg
+          titleId={`${id}-title`}
+          descId={`${id}-desc`}
+          className={previewWidthMode === "full" ? "w-full h-auto" : "max-w-[1100px] h-auto !w-auto"}
+          seed={renderConfig.seed}
+          timeOfDay={renderConfig.timeOfDay}
+          scheme={renderConfig.scheme}
+          nowMs={renderNowMs}
+          actorRects={renderActorRects}
+          voxelScale={renderConfig.render.voxelScale}
+          renderDetail={renderConfig.render.detail}
+          bannerScale={renderConfig.render.bannerScale}
+          skyline={renderConfig.skyline}
+        />
+      </div>
+    </Card>
+  );
+
+  if (snapshotMode) {
+    return <div className="p-mdt-6">{preview}</div>;
+  }
 
   return (
     <div className="p-mdt-6 space-y-mdt-6">
@@ -158,24 +255,7 @@ export function CityLogoLabClient({
         legend={<WordmarkLegend />}
       />
 
-      <Card className="p-mdt-6">
-        <div data-testid="city-logo-preview" className="flex items-center justify-center pb-px md:pb-0">
-          <LivingCityWordmarkSvg
-            titleId={`${id}-title`}
-            descId={`${id}-desc`}
-            className={previewWidthMode === "full" ? "w-full h-auto" : "max-w-[1100px] h-auto !w-auto"}
-            seed={sim.config.seed}
-            timeOfDay={sim.config.timeOfDay}
-            scheme={sim.config.scheme}
-            nowMs={sim.nowMs}
-            actorRects={sim.actorRects}
-            voxelScale={sim.config.render.voxelScale}
-            renderDetail={sim.config.render.detail}
-            bannerScale={sim.config.render.bannerScale}
-            skyline={sim.config.skyline}
-          />
-        </div>
-      </Card>
+      {preview}
 
       <Card className="p-mdt-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-mdt-3 text-caption text-mdt-muted">
