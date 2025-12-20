@@ -53,7 +53,7 @@ export function WordmarkLegend({ className, defaultOpen = true }: { className?: 
   const contentId = useId();
 
   return (
-    <Card className={cn("p-mdt-4 space-y-mdt-3", className)}>
+    <Card className={cn("p-mdt-4 space-y-mdt-3", className)} role="region" aria-label="Wordmark legend">
       <div className="flex items-center justify-between gap-mdt-2">
         <div className="text-body-sm font-medium text-mdt-text">Legend</div>
         <Button

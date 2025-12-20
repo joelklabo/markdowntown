@@ -248,6 +248,7 @@ export function LivingCityWordmarkSvg({
       role="img"
       aria-labelledby={titleId}
       aria-describedby={descId}
+      aria-roledescription="Animated wordmark"
       preserveAspectRatio={preserveAspectRatio}
       focusable="false"
       xmlns="http://www.w3.org/2000/svg"
