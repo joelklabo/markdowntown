@@ -44,8 +44,8 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
   const selected: Filters = { q, type, tags, targets, hasScopes };
 
   return (
-    <Card className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
+    <Card className="space-y-mdt-4">
+      <div className="flex items-center justify-between gap-mdt-2">
         <Heading level="h3" as="h2">
           Filters
         </Heading>
@@ -54,7 +54,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
         </Button>
       </div>
 
-      <form action="/library" method="get" className="space-y-2">
+      <form action="/library" method="get" className="space-y-mdt-2">
         <Text as="label" htmlFor="library-q" size="caption" tone="muted">
           Search
         </Text>
@@ -74,8 +74,8 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
         </Button>
       </form>
 
-      <Stack gap={3}>
-        <div className="space-y-2">
+      <Stack gap={4}>
+        <div className="space-y-mdt-2">
           <Text size="caption" tone="muted">
             Type
           </Text>
@@ -93,7 +93,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
           </Row>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-mdt-2">
           <Text size="caption" tone="muted">
             Targets
           </Text>
@@ -116,7 +116,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
           </Row>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-mdt-2">
           <Text size="caption" tone="muted">
             Scopes
           </Text>
@@ -129,7 +129,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
           </Row>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-mdt-2">
           <Text size="caption" tone="muted">
             Tags
           </Text>
@@ -155,4 +155,3 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
     </Card>
   );
 }
-

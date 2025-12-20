@@ -39,9 +39,9 @@ describe('WorkbenchPage', () => {
   it('renders tab controls', async () => {
     const jsx = await WorkbenchPage({ searchParams: Promise.resolve({}) });
     render(jsx);
-    expect(screen.getByRole('button', { name: 'Structure' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Editor' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Output' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Structure' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Editor' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Output' })).toBeInTheDocument();
   });
 
   it('loads artifact by id from query params', async () => {

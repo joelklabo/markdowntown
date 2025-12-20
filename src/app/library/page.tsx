@@ -89,14 +89,14 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
   }));
 
   return (
-    <Container className="py-8">
-      <Stack gap={6}>
-        <div>
+    <Container className="py-mdt-10 md:py-mdt-12">
+      <Stack gap={8}>
+        <Stack gap={2}>
           <Heading level="h1">Library</Heading>
           <Text tone="muted">Filter public artifacts and open them in Workbench.</Text>
-        </div>
+        </Stack>
 
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <div className="grid gap-mdt-6 lg:grid-cols-[280px_1fr]">
           <div className="min-w-0">
             <LibraryFilters
               q={q}
@@ -109,20 +109,20 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
             />
           </div>
 
-          <div className="min-w-0 space-y-3">
+          <div className="min-w-0 space-y-mdt-4">
             {rowItems.map((item) => (
               <ArtifactRow key={item.id} item={item} />
             ))}
 
             {rowItems.length === 0 && (
-              <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6">
+              <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6">
                 <Heading level="h3" as="h2">
                   No public items found
                 </Heading>
-                <Text tone="muted" className="mt-1">
+                <Text tone="muted" className="mt-mdt-1">
                   Try clearing filters or check back later.
                 </Text>
-                <div className="mt-4">
+                <div className="mt-mdt-4">
                   <Button variant="secondary" asChild>
                     <Link href="/library">Clear filters</Link>
                   </Button>

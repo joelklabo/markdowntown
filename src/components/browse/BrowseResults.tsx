@@ -128,15 +128,15 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
 
   if (!items.length) {
     return (
-      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-6 text-center text-mdt-muted">
+      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6 text-center text-mdt-muted">
         <p className="text-body">No results yet.</p>
-        <p className="text-body-sm mt-1">Try clearing filters, using fewer tags, or checking “All” types.</p>
+        <p className="text-body-sm mt-mdt-1">Try clearing filters, using fewer tags, or checking “All” types.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-mdt-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-mdt-5">
       {items.map((item) => (
         <LibraryCard
           key={item.id}
@@ -167,9 +167,9 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
       {preview && (
         <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm motion-fade-in">
           <div className="absolute inset-0" onClick={() => setPreview(null)} aria-label="Close preview" />
-          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface p-5 shadow-mdt-lg md:inset-x-1/4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-1">
+          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6 shadow-mdt-lg md:inset-x-1/4">
+            <div className="flex items-center justify-between gap-mdt-3">
+              <div className="space-y-mdt-1">
                 <p className="text-caption text-mdt-muted uppercase tracking-wide">{preview.type}</p>
                 <h2 className="text-h2">{preview.title}</h2>
               </div>
@@ -177,26 +177,26 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
                 Close
               </Button>
             </div>
-            <p className="mt-2 text-body text-mdt-muted">{preview.description}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <p className="mt-mdt-2 text-body text-mdt-muted">{preview.description}</p>
+            <div className="mt-mdt-4 flex flex-wrap gap-mdt-2">
               {preview.tags.map((tag) => (
-                <span key={tag} className="rounded-mdt-pill bg-mdt-surface-subtle px-2 py-1 text-xs text-mdt-text">
+                <span key={tag} className="rounded-mdt-pill bg-mdt-surface-subtle px-mdt-2 py-mdt-1 text-xs text-mdt-text">
                   #{tag}
                 </span>
               ))}
             </div>
-            <div className="mt-4 grid gap-3 text-sm text-mdt-muted sm:grid-cols-3">
+            <div className="mt-mdt-4 grid gap-mdt-3 text-sm text-mdt-muted sm:grid-cols-3">
               <Stat label="Views" value={preview.stats.views} />
               <Stat label="Copies" value={preview.stats.copies} />
               <Stat label="Votes" value={preview.stats.votes} />
             </div>
-            <div className="mt-4 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-4 text-sm text-mdt-text">
-              <Skeleton className="mb-2 h-4 w-1/2" />
-              <Skeleton className="mb-2 h-4 w-3/4" />
-              <Skeleton className="mb-2 h-4 w-full" />
+            <div className="mt-mdt-4 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-4 text-sm text-mdt-text">
+              <Skeleton className="mb-mdt-2 h-4 w-1/2" />
+              <Skeleton className="mb-mdt-2 h-4 w-3/4" />
+              <Skeleton className="mb-mdt-2 h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
             </div>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-mdt-4 flex gap-mdt-2">
               <Button size="sm" onClick={() => setPreview(null)}>
                 Close
               </Button>
@@ -225,7 +225,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-3 py-2">
+    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
       <p className="text-caption text-mdt-muted">{label}</p>
       <p className="text-body font-semibold text-mdt-text">{value.toLocaleString()}</p>
     </div>

@@ -128,7 +128,7 @@ export function LibraryCard({
       )}
       {...rest}
     >
-      <Stack gap={3}>
+      <Stack gap={4}>
         <Row gap={2} align="center" wrap>
           <Pill tone="blue">{typeLabel}</Pill>
           {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
@@ -138,7 +138,7 @@ export function LibraryCard({
               draggable
               onDragStart={onDragStart as React.DragEventHandler<HTMLButtonElement> | undefined}
               onDragEnd={onDragEnd as React.DragEventHandler<HTMLButtonElement> | undefined}
-              className="ml-auto inline-flex cursor-grab select-none items-center rounded-mdt-sm border border-mdt-border bg-mdt-surface px-2 py-[2px] text-caption text-mdt-muted hover:border-mdt-border-strong hover:text-mdt-text active:cursor-grabbing"
+              className="ml-auto inline-flex cursor-grab select-none items-center rounded-mdt-sm border border-mdt-border bg-mdt-surface px-mdt-2 py-[2px] text-caption text-mdt-muted hover:border-mdt-border-strong hover:text-mdt-text active:cursor-grabbing"
               aria-label="Drag card to builder"
               onClick={(e) => e.stopPropagation()}
             >
@@ -147,7 +147,7 @@ export function LibraryCard({
           )}
         </Row>
 
-        <Stack gap={1}>
+        <Stack gap={2}>
           <Heading level="h3" className="leading-tight">
             {item.title}
           </Heading>
@@ -156,7 +156,7 @@ export function LibraryCard({
           </Text>
         </Stack>
 
-        <Row gap={1} wrap>
+        <Row gap={2} wrap>
           {item.tags.map((tag) => (
             <Pill key={tag} tone="gray">
               #{tag}

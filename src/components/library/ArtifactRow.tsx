@@ -47,12 +47,12 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
     <div
       data-testid="artifact-row"
       className={cn(
-        "flex flex-col gap-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-4 shadow-mdt-sm",
+        "flex flex-col gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-4 shadow-mdt-sm",
         "sm:flex-row sm:items-start sm:justify-between"
       )}
     >
-      <div className="min-w-0 flex-1 space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-0 flex-1 space-y-mdt-2">
+        <div className="flex flex-wrap items-center gap-mdt-2">
           <Pill tone="blue">{typeLabel(item.type)}</Pill>
           {item.hasScopes ? <Pill tone="green">Scopes</Pill> : null}
           {item.targets.slice(0, 3).map((t) => (
@@ -62,32 +62,32 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
           ))}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-mdt-1">
           <Link href={detailHref} className="block">
             <div className="text-body font-semibold text-mdt-text truncate">{item.title}</div>
           </Link>
           <div className="text-body-sm text-mdt-muted line-clamp-2">{item.description}</div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-mdt-2">
           {item.tags.slice(0, 6).map((tag) => (
             <span
               key={tag}
-              className="rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-2 py-[2px] text-caption text-mdt-muted"
+              className="rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-[2px] text-caption text-mdt-muted"
             >
               #{tag}
             </span>
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-3 text-caption text-mdt-muted">
+        <div className="flex flex-wrap gap-mdt-3 text-caption text-mdt-muted">
           <span>{item.stats.views.toLocaleString()} views</span>
           <span>{item.stats.copies.toLocaleString()} copies</span>
           <span>{item.stats.votes.toLocaleString()} votes</span>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-mdt-2">
         <PreviewDrawer artifactId={item.id} title={item.title} targets={item.targets} />
         <Button size="xs" variant="secondary" onClick={handleCopy} aria-label={`Copy link for ${item.title}`}>
           {copied ? "Copied" : "Copy"}

@@ -1,25 +1,20 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { SnippetTabs } from "@/components/snippet/SnippetTabs";
 
-const writeText = vi.fn();
-
 describe("SnippetTabs", () => {
-  beforeAll(() => {
-    (navigator as unknown as { clipboard: { writeText: typeof writeText } }).clipboard = { writeText };
-  });
-
-  beforeEach(() => writeText.mockClear());
-
-  it("switches tabs and copies active content", () => {
+  it("switches tabs and copies active content", async () => {
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
     render(<SnippetTabs title="My Snippet" rendered="Rendered body" raw="RAW_CONTENT" />);
 
     expect(screen.getByText("Rendered body")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /raw/i }));
-    expect(screen.getByText("RAW_CONTENT")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: /raw/i }));
+    expect(await screen.findByText("RAW_CONTENT")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /copy raw/i }));
+    await user.click(screen.getByRole("button", { name: /copy raw/i }));
     expect(writeText).toHaveBeenCalledWith("RAW_CONTENT");
   });
 });
