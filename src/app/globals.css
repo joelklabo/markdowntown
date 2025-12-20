@@ -297,10 +297,31 @@
   --space-16: var(--mdt-space-16);
 }
 
+:root[data-theme-refresh="true"] {
+  /* Cooler, calmer surfaces aligned to the Living City header */
+  --mdt-color-bg: hsl(220 28% 98%);
+  --mdt-color-surface: hsl(220 30% 99%);
+  --mdt-color-surface-subtle: hsl(220 24% 96%);
+  --mdt-color-surface-strong: hsl(220 20% 92%);
+  --mdt-color-surface-raised: hsl(220 30% 99%);
+  --mdt-color-border: hsl(220 16% 84%);
+  --mdt-color-border-strong: hsl(220 14% 76%);
+  --mdt-color-ring: hsl(198 85% 52% / 0.45);
+  --mdt-color-primary-soft: hsl(198 90% 94%);
+  --mdt-color-accent-soft: hsl(258 90% 94%);
+
+  /* Slightly airier spacing rhythm */
+  --mdt-density-scale: 1.05;
+}
+
 :root[data-density="compact"] {
   --mdt-density-scale: 0.85;
   --mdt-type-body-lh: 1.45;
   --mdt-type-body-sm-lh: 1.4;
+}
+
+:root[data-theme-refresh="true"][data-density="compact"] {
+  --mdt-density-scale: 0.9;
 }
 
 .dark {
@@ -399,6 +420,19 @@
   --mdt-shadow-lg: 0 6px 16px hsl(220 33% 3% / 0.8);
   --mdt-shadow-glow: 0 0 0 1px hsl(198 88% 65% / 0.18), 0 6px 18px hsl(220 33% 3% / 0.7);
   --mdt-shadow-focus: 0 0 0 3px var(--mdt-color-ring);
+}
+
+.dark[data-theme-refresh="true"] {
+  --mdt-color-bg: hsl(220 20% 7%);
+  --mdt-color-surface: hsl(220 18% 9%);
+  --mdt-color-surface-subtle: hsl(220 16% 12%);
+  --mdt-color-surface-strong: hsl(220 16% 16%);
+  --mdt-color-surface-raised: hsl(220 18% 14%);
+  --mdt-color-border: hsl(220 18% 30%);
+  --mdt-color-border-strong: hsl(220 18% 38%);
+  --mdt-color-ring: hsl(198 88% 65% / 0.4);
+  --mdt-color-primary-soft: hsl(198 80% 20% / 0.6);
+  --mdt-color-accent-soft: hsl(258 80% 24% / 0.6);
 }
 
 @layer base {

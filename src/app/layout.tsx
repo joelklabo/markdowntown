@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { DensityProvider } from "@/providers/DensityProvider";
 import { getSession } from "@/lib/auth";
+import { featureFlags } from "@/lib/flags";
 import { SiteNav } from "@/components/SiteNav";
 import { Footer } from "@/components/Footer";
 import { PerfVitalsToggle } from "@/components/PerfVitalsToggle";
@@ -84,7 +85,11 @@ export default async function RootLayout({
   const user = session?.user ?? null;
 
   return (
-    <html lang="en" className={[inter.variable, display.variable, mono.variable].join(" ")}>
+    <html
+      lang="en"
+      className={[inter.variable, display.variable, mono.variable].join(" ")}
+      data-theme-refresh={featureFlags.themeRefreshV1 ? "true" : undefined}
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
