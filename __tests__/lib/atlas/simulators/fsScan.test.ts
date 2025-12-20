@@ -19,8 +19,15 @@ function dir(name: string, children: FileSystemHandleLike[]): FileSystemDirector
 
 describe('atlas/simulators/fsScan', () => {
   it('walks directories and returns repo-relative paths', async () => {
+    const guardedFile = file('AGENTS.md');
+    Object.defineProperty(guardedFile, 'getFile', {
+      value: () => {
+        throw new Error('should not read');
+      },
+    });
+
     const root = dir('repo', [
-      file('AGENTS.md'),
+      guardedFile,
       dir('node_modules', [file('ignored.txt')]),
       dir('apps', [dir('web', [file('AGENTS.md')])]),
     ]);
@@ -31,6 +38,7 @@ describe('atlas/simulators/fsScan', () => {
     expect(result.totalFiles).toBe(2);
     expect(result.matchedFiles).toBe(2);
     expect(result.tree.files.map(f => f.path)).toEqual(['AGENTS.md', 'apps/web/AGENTS.md']);
+    expect(result.tree.files.every(file => file.content === '')).toBe(true);
   });
 
   it('filters by includeOnly patterns and reports matched counts', async () => {
@@ -45,6 +53,7 @@ describe('atlas/simulators/fsScan', () => {
     expect(result.totalFiles).toBe(3);
     expect(result.matchedFiles).toBe(2);
     expect(result.tree.files.map(f => f.path)).toEqual(['AGENTS.md', 'apps/web/GEMINI.md']);
+    expect(result.tree.files.every(file => file.content === '')).toBe(true);
   });
 
   it('stops scanning when maxFiles is reached', async () => {
@@ -55,5 +64,6 @@ describe('atlas/simulators/fsScan', () => {
     expect(result.totalFiles).toBe(2);
     expect(result.matchedFiles).toBe(2);
     expect(result.tree.files).toHaveLength(2);
+    expect(result.tree.files.every(file => file.content === '')).toBe(true);
   });
 });

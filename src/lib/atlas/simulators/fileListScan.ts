@@ -71,6 +71,7 @@ export function scanFileList(files: FileListLike, options: FileListScanOptions =
       break;
     }
 
+    // Guardrail: only read path metadata, never file contents.
     const path = toRepoPath(file);
     if (!path) continue;
     if (containsIgnoredDir(path, ignoreDirs)) continue;

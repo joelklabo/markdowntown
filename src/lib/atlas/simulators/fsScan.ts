@@ -76,6 +76,7 @@ async function walk(
     }
 
     if (handle.kind === 'file') {
+      // Guardrail: never read file contents; collect paths only.
       totalFiles += 1;
       const path = joinPath(prefix, name);
       if (!includeOnly || includeOnly.some((pattern) => pattern.test(path))) {
