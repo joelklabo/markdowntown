@@ -13,10 +13,10 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
-          <Stack gap={2}>
+        <Stack gap={8}>
+          <Stack gap={3}>
             <Text size="caption" tone="muted">Privacy</Text>
             <Heading level="display" leading="tight">How we handle your data</Heading>
             <Text tone="muted">
@@ -24,18 +24,18 @@ export default function PrivacyPage() {
             </Text>
           </Stack>
 
-          <Surface padding="lg" className="space-y-mdt-2">
+          <Surface padding="lg" className="space-y-mdt-3">
             <Heading level="h3" as="h2">What we collect</Heading>
-            <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
+            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
               <li>Authentication data only when you sign in via GitHub.</li>
               <li>Content you choose to save (snippets, templates, or documents).</li>
               <li>Basic usage telemetry when enabled (anonymized for local dev).</li>
             </ul>
           </Surface>
 
-          <Surface padding="lg" className="space-y-mdt-2">
+          <Surface padding="lg" className="space-y-mdt-3">
             <Heading level="h3" as="h2">Your choices</Heading>
-            <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
+            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
               <li>Use the app without signing in to browse and copy content.</li>
               <li>Delete saved documents from the Documents area when signed in.</li>
               <li>Opt out of telemetry by leaving analytics env vars unset.</li>

@@ -13,10 +13,10 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
-          <Stack gap={2}>
+        <Stack gap={8}>
+          <Stack gap={3}>
             <Text size="caption" tone="muted">Terms</Text>
             <Heading level="display" leading="tight">mark downtown terms of use</Heading>
             <Text tone="muted">
@@ -24,16 +24,16 @@ export default function TermsPage() {
             </Text>
           </Stack>
 
-          <Surface padding="lg" className="space-y-mdt-2">
+          <Surface padding="lg" className="space-y-mdt-3">
             <Heading level="h3" as="h2">Acceptable use</Heading>
-            <ul className="list-disc space-y-1 pl-5 text-sm text-mdt-muted">
+            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
               <li>Use the app for composing, copying, or testing markdown content.</li>
               <li>Avoid uploading sensitive or production data in this demo environment.</li>
               <li>Respect third-party licenses when importing or sharing content.</li>
             </ul>
           </Surface>
 
-          <Surface padding="lg" className="space-y-mdt-2">
+          <Surface padding="lg" className="space-y-mdt-3">
             <Heading level="h3" as="h2">Liability & availability</Heading>
             <Text size="bodySm" tone="muted">
               This preview is provided &quot;as is&quot; with no uptime guarantees. Content may be cleared during development cycles.

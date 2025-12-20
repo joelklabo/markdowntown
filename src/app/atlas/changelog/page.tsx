@@ -10,9 +10,9 @@ export default function AtlasChangelogPage() {
   const changelog = loadAtlasChangelog();
 
   return (
-    <main className="py-mdt-2">
-      <Stack gap={4}>
-        <Stack gap={2}>
+    <main className="py-mdt-4">
+      <Stack gap={6}>
+        <Stack gap={3}>
           <Heading level="h1">Changelog</Heading>
           <Text tone="muted">Updates to facts, examples, and guides.</Text>
         </Stack>

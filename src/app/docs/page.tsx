@@ -21,10 +21,10 @@ const docsLinks = [
 
 export default function DocsPage() {
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
-          <Stack gap={2}>
+        <Stack gap={8}>
+          <Stack gap={3}>
             <Text size="caption" tone="muted">Docs</Text>
             <Heading level="display" leading="tight">mark downtown documentation</Heading>
             <Text tone="muted">
@@ -32,7 +32,7 @@ export default function DocsPage() {
             </Text>
           </Stack>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-mdt-4 sm:grid-cols-2">
             {docsLinks.map((link) => (
               <Card key={link.href} className="flex items-center justify-between">
                 <div>

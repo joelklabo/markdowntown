@@ -28,10 +28,10 @@ export default async function ChangelogPage() {
   const excerpt = await loadChangelogExcerpt();
 
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
-          <Stack gap={2}>
+        <Stack gap={8}>
+          <Stack gap={3}>
             <Text size="caption" tone="muted">Changelog</Text>
             <Heading level="display" leading="tight">What\u2019s new in mark downtown</Heading>
             <Text tone="muted">
@@ -47,10 +47,10 @@ export default async function ChangelogPage() {
             </Link>
           </Stack>
 
-          <Surface padding="lg" className="space-y-mdt-3">
+          <Surface padding="lg" className="space-y-mdt-4">
             <Heading level="h3" as="h2">Latest entries</Heading>
             {excerpt ? (
-              <pre className="whitespace-pre-wrap font-mono text-sm text-mdt-text">{excerpt}</pre>
+              <pre className="whitespace-pre-wrap font-mono text-body-sm text-mdt-text">{excerpt}</pre>
             ) : (
               <Text size="bodySm" tone="muted">
                 Couldn\u2019t load the changelog from the repository. Check the GitHub link above for the latest notes.

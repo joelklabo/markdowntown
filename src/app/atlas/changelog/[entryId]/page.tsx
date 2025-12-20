@@ -36,9 +36,9 @@ export default async function AtlasChangelogEntryPage({ params }: { params: Prom
   });
 
   return (
-    <main className="py-mdt-2">
-      <Stack gap={4}>
-        <Stack gap={2}>
+    <main className="py-mdt-4">
+      <Stack gap={6}>
+        <Stack gap={3}>
           <Heading level="h1">{entry.summary}</Heading>
           <Text tone="muted">
             <span className="font-mono text-mdt-text">{entry.id}</span>
