@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Heading } from '@/components/ui/Heading';
 import { Input } from '@/components/ui/Input';
 import { Stack, Row } from '@/components/ui/Stack';
+import { Surface } from '@/components/ui/Surface';
+import { Text } from '@/components/ui/Text';
 import { TextArea } from '@/components/ui/TextArea';
 import { DEFAULT_ADAPTER_VERSION, type UamTargetV1 } from '@/lib/uam/uamTypes';
 
@@ -55,144 +59,189 @@ export function TranslateOutput({
   }
 
   return (
-    <Stack gap={3} className="h-full">
-      <Row gap={2} align="center" className="justify-between">
-        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Output</div>
-        <div className="text-xs text-gray-500">Detected: {detectedLabel}</div>
-      </Row>
+    <Stack gap={4}>
+      <Surface padding="lg" className="space-y-mdt-4">
+        <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+          <div className="space-y-mdt-1">
+            <Text size="caption" tone="muted">Output</Text>
+            <Heading level="h3" as="h2">Targets & compile</Heading>
+          </div>
+          <Badge tone="info">Detected: {detectedLabel}</Badge>
+        </div>
 
-      <Stack gap={2}>
-        <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Targets</div>
-        <Row gap={4} align="center" className="flex-wrap">
-          <Checkbox checked={byId.has('agents-md')} onChange={() => onToggleTarget('agents-md')}>
-            <span className="inline-flex items-center gap-2">
-              <span>AGENTS.md</span>
-              {byId.get('agents-md') ? (
-                <span aria-hidden className="font-mono text-[11px] text-gray-500">
-                  v{byId.get('agents-md')!.adapterVersion}
-                </span>
-              ) : null}
-            </span>
-          </Checkbox>
-          <Checkbox checked={byId.has('github-copilot')} onChange={() => onToggleTarget('github-copilot')}>
-            <span className="inline-flex items-center gap-2">
-              <span>GitHub Copilot</span>
-              {byId.get('github-copilot') ? (
-                <span aria-hidden className="font-mono text-[11px] text-gray-500">
-                  v{byId.get('github-copilot')!.adapterVersion}
-                </span>
-              ) : null}
-            </span>
-          </Checkbox>
+        <Stack gap={3}>
+          <Text size="caption" tone="muted" className="uppercase tracking-wide">
+            Targets
+          </Text>
+          <Row gap={4} align="center" className="flex-wrap">
+            <Checkbox checked={byId.has('agents-md')} onChange={() => onToggleTarget('agents-md')}>
+              <span className="inline-flex items-center gap-2">
+                <span>AGENTS.md</span>
+                {byId.get('agents-md') ? (
+                  <Text as="span" size="caption" tone="muted" className="font-mono">
+                    v{byId.get('agents-md')!.adapterVersion}
+                  </Text>
+                ) : null}
+              </span>
+            </Checkbox>
+            <Checkbox checked={byId.has('github-copilot')} onChange={() => onToggleTarget('github-copilot')}>
+              <span className="inline-flex items-center gap-2">
+                <span>GitHub Copilot</span>
+                {byId.get('github-copilot') ? (
+                  <Text as="span" size="caption" tone="muted" className="font-mono">
+                    v{byId.get('github-copilot')!.adapterVersion}
+                  </Text>
+                ) : null}
+              </span>
+            </Checkbox>
+          </Row>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start"
+            onClick={() => setShowAdvanced((value) => !value)}
+          >
+            {showAdvanced ? 'Hide advanced options' : 'Advanced options'}
+          </Button>
+
+          {showAdvanced && targets.length > 0 ? (
+            <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+              {targets.map((target) => (
+                <Surface key={target.targetId} padding="md" className="space-y-mdt-3">
+                  <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+                    <Text size="bodySm" weight="semibold" className="font-mono">
+                      {target.targetId}
+                    </Text>
+                    <div className="flex items-center gap-mdt-2">
+                      <Text size="caption" tone="muted">Adapter</Text>
+                      <Input
+                        size="sm"
+                        value={target.adapterVersion}
+                        onChange={(e) => {
+                          const next = e.target.value.trim();
+                          onUpdateTarget(target.targetId, { adapterVersion: next.length > 0 ? next : DEFAULT_ADAPTER_VERSION });
+                        }}
+                        className="w-24 font-mono"
+                        aria-label={`Adapter version for ${target.targetId}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-mdt-2">
+                    <Text size="caption" tone="muted">Options (JSON)</Text>
+                    <TextArea
+                      defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
+                      rows={4}
+                      className="font-mono text-body-sm"
+                      onBlur={(e) => {
+                        const text = e.target.value.trim();
+                        try {
+                          const parsed = text.length === 0 ? {} : JSON.parse(text);
+                          if (!isRecord(parsed)) throw new Error('Options must be an object');
+                          onUpdateTarget(target.targetId, { options: parsed });
+                          setOptionsErrors((prev) => {
+                            const next = { ...prev };
+                            delete next[target.targetId];
+                            return next;
+                          });
+                        } catch {
+                          setOptionsErrors((prev) => ({ ...prev, [target.targetId]: 'Invalid JSON options' }));
+                        }
+                      }}
+                      aria-label={`Options for ${target.targetId}`}
+                    />
+                    {optionsErrors[target.targetId] ? (
+                      <Text size="caption" className="text-[color:var(--mdt-color-danger)]">
+                        {optionsErrors[target.targetId]}
+                      </Text>
+                    ) : null}
+                  </div>
+                </Surface>
+              ))}
+            </Surface>
+          ) : null}
+        </Stack>
+
+        <Row gap={2} align="center" wrap>
+          <Button onClick={onCompile} disabled={disabledCompile || loading || targets.length === 0} size="sm">
+            {loading ? 'Compiling…' : 'Compile'}
+          </Button>
+          <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
+            Download zip
+          </Button>
         </Row>
 
-        <button
-          type="button"
-          className="text-xs text-gray-500 underline underline-offset-4"
-          onClick={() => setShowAdvanced((value) => !value)}
-        >
-          {showAdvanced ? 'Hide advanced' : 'Advanced'}
-        </button>
+        {error && (
+          <div className="rounded-mdt-md border border-[color:var(--mdt-color-danger-soft)] bg-[color:var(--mdt-color-danger-soft)]/40 px-mdt-3 py-mdt-2">
+            <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
+              {error}
+            </Text>
+          </div>
+        )}
+      </Surface>
 
-        {showAdvanced && targets.length > 0 ? (
-          <Stack gap={2} className="rounded border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-3">
-            {targets.map((target) => (
-              <Stack key={target.targetId} gap={2} className="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-3">
-                <Row gap={2} align="center" className="flex-wrap">
-                  <div className="font-mono text-xs text-gray-700 dark:text-gray-300">{target.targetId}</div>
-                  <Row gap={2} align="center">
-                    <div className="text-xs text-gray-500">Adapter</div>
-                    <Input
-                      size="sm"
-                      value={target.adapterVersion}
-                      onChange={(e) => {
-                        const next = e.target.value.trim();
-                        onUpdateTarget(target.targetId, { adapterVersion: next.length > 0 ? next : DEFAULT_ADAPTER_VERSION });
-                      }}
-                      className="w-20 font-mono"
-                      aria-label={`Adapter version for ${target.targetId}`}
-                    />
-                  </Row>
-                </Row>
+      <Surface padding="lg" className="space-y-mdt-4">
+        <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+          <Heading level="h3" as="h2">Results</Heading>
+          {result ? (
+            <Text size="caption" tone="muted">
+              {result.files.length} file{result.files.length === 1 ? '' : 's'}
+            </Text>
+          ) : null}
+        </div>
 
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Options (JSON)</div>
-                  <TextArea
-                    defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
-                    rows={4}
-                    className="font-mono text-xs"
-                    onBlur={(e) => {
-                      const text = e.target.value.trim();
-                      try {
-                        const parsed = text.length === 0 ? {} : JSON.parse(text);
-                        if (!isRecord(parsed)) throw new Error('Options must be an object');
-                        onUpdateTarget(target.targetId, { options: parsed });
-                        setOptionsErrors((prev) => {
-                          const next = { ...prev };
-                          delete next[target.targetId];
-                          return next;
-                        });
-                      } catch {
-                        setOptionsErrors((prev) => ({ ...prev, [target.targetId]: 'Invalid JSON options' }));
-                      }
-                    }}
-                    aria-label={`Options for ${target.targetId}`}
-                  />
-                  {optionsErrors[target.targetId] ? (
-                    <div className="mt-1 text-xs text-red-600">{optionsErrors[target.targetId]}</div>
-                  ) : null}
-                </div>
-              </Stack>
-            ))}
-          </Stack>
-        ) : null}
-      </Stack>
-
-      <Row gap={2} align="center">
-        <Button onClick={onCompile} disabled={disabledCompile || loading || targets.length === 0} size="sm">
-          {loading ? 'Compiling…' : 'Compile'}
-        </Button>
-        <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
-          Download zip
-        </Button>
-        {error && <div className="text-xs text-red-600">{error}</div>}
-      </Row>
-
-      {result && (
-        <div className="flex-1 overflow-auto border border-gray-200 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900">
-          <div className="p-3 space-y-3">
+        {result ? (
+          <Stack gap={3}>
             {result.warnings.length > 0 && (
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
-                <div className="text-xs font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Warnings</div>
-                <ul className="list-disc pl-5 text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
+              <div className="rounded-mdt-md border border-[color:var(--mdt-color-warning-soft)] bg-[color:var(--mdt-color-warning-soft)]/50 p-mdt-3">
+                <Text size="caption" weight="semibold" className="text-[color:var(--mdt-color-warning)]">
+                  Warnings
+                </Text>
+                <ul className="mt-mdt-2 list-disc space-y-mdt-1 pl-mdt-5">
                   {result.warnings.map((w, i) => (
-                    <li key={i}>{w}</li>
+                    <Text as="li" key={i} size="bodySm" className="text-[color:var(--mdt-color-warning)]">
+                      {w}
+                    </Text>
                   ))}
                 </ul>
               </div>
             )}
 
             {result.info.length > 0 && (
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-                <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-2">Info</div>
-                <ul className="list-disc pl-5 text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                  {result.info.map((i, idx) => (
-                    <li key={idx}>{i}</li>
+              <div className="rounded-mdt-md border border-[color:var(--mdt-color-info-soft)] bg-[color:var(--mdt-color-info-soft)]/45 p-mdt-3">
+                <Text size="caption" weight="semibold" className="text-[color:var(--mdt-color-info)]">
+                  Info
+                </Text>
+                <ul className="mt-mdt-2 list-disc space-y-mdt-1 pl-mdt-5">
+                  {result.info.map((infoItem, idx) => (
+                    <Text as="li" key={idx} size="bodySm" className="text-[color:var(--mdt-color-info)]">
+                      {infoItem}
+                    </Text>
                   ))}
                 </ul>
               </div>
             )}
 
             {result.files.length === 0 && result.warnings.length === 0 && (
-              <div className="text-xs text-gray-500 italic">No files generated.</div>
+              <Text size="bodySm" tone="muted">
+                No files generated yet. Adjust your targets or input and compile again.
+              </Text>
             )}
 
             {result.files.map((f) => (
-              <div key={f.path} className="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-                <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-gray-200 dark:border-gray-800">
-                  <div className="font-mono text-xs text-gray-700 dark:text-gray-300">{f.path}</div>
+              <Surface key={f.path} padding="none" className="overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-mdt-2 border-b border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+                  <Text size="caption" tone="muted" className="font-mono">
+                    {f.path}
+                  </Text>
                   <Row gap={2} align="center">
-                    {copiedPath === f.path && <div className="text-[11px] text-gray-500">Copied</div>}
+                    {copiedPath === f.path && (
+                      <Text size="caption" tone="muted">
+                        Copied
+                      </Text>
+                    )}
                     <Button
                       size="sm"
                       variant="secondary"
@@ -210,12 +259,21 @@ export function TranslateOutput({
                     </Button>
                   </Row>
                 </div>
-                <pre className="text-xs overflow-auto p-3 font-mono whitespace-pre-wrap">{f.content}</pre>
-              </div>
+                <pre className="whitespace-pre-wrap px-mdt-3 py-mdt-3 font-mono text-body-sm text-mdt-text">{f.content}</pre>
+              </Surface>
             ))}
+          </Stack>
+        ) : (
+          <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-4">
+            <Text size="bodySm" tone="muted">
+              No output yet.
+            </Text>
+            <Text size="caption" tone="muted">
+              Select targets and press Compile to generate files.
+            </Text>
           </div>
-        </div>
-      )}
+        )}
+      </Surface>
     </Stack>
   );
 }

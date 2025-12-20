@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { Container } from '@/components/ui/Container';
-import { Grid } from '@/components/ui/Grid';
+import { Stack } from '@/components/ui/Stack';
+import { Heading } from '@/components/ui/Heading';
+import { Text } from '@/components/ui/Text';
 import { TranslateInput } from '@/components/translate/TranslateInput';
 import { TranslateOutput, type TranslateCompileResult } from '@/components/translate/TranslateOutput';
 import { safeParseUamV1 } from '@/lib/uam/uamValidate';
@@ -117,21 +119,31 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
 
   return (
     <Container size="xl" padding="lg" className="py-mdt-10 md:py-mdt-12">
-      <Grid columns={2} gap={8} className="h-[calc(100vh-100px)]">
-        <TranslateInput value={input} onChange={setInput} disabled={loading} helperText={helperText} />
-        <TranslateOutput
-          targets={targets}
-          onToggleTarget={toggleTarget}
-          onUpdateTarget={updateTarget}
-          onCompile={handleCompile}
-          onDownloadZip={handleDownload}
-          loading={loading}
-          error={error}
-          detectedLabel={detected.label}
-          disabledCompile={isTooLarge || input.trim().length === 0}
-          result={result}
-        />
-      </Grid>
+      <Stack gap={8}>
+        <Stack gap={3} className="max-w-2xl">
+          <Text size="caption" tone="muted">Translate</Text>
+          <Heading level="display" leading="tight">Translate markdown into agent-ready formats</Heading>
+          <Text tone="muted" leading="relaxed">
+            Paste Markdown or UAM JSON, choose your targets, and compile into ready-to-ship instruction files.
+          </Text>
+        </Stack>
+
+        <div className="grid gap-mdt-8 lg:grid-cols-2">
+          <TranslateInput value={input} onChange={setInput} disabled={loading} helperText={helperText} />
+          <TranslateOutput
+            targets={targets}
+            onToggleTarget={toggleTarget}
+            onUpdateTarget={updateTarget}
+            onCompile={handleCompile}
+            onDownloadZip={handleDownload}
+            loading={loading}
+            error={error}
+            detectedLabel={detected.label}
+            disabledCompile={isTooLarge || input.trim().length === 0}
+            result={result}
+          />
+        </div>
+      </Stack>
     </Container>
   );
 }

@@ -2,8 +2,9 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Surface } from '@/components/ui/Surface';
 import { TextArea } from '@/components/ui/TextArea';
-import { Stack, Row } from '@/components/ui/Stack';
+import { Text } from '@/components/ui/Text';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 
 interface TranslateInputProps {
@@ -38,11 +39,20 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
   );
 
   return (
-    <Stack gap={3} className="h-full">
-      <Row gap={2} align="center" className="justify-between">
-        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Input</div>
-        <div className="flex items-center gap-2">
-          {fileName && <div className="text-xs text-gray-500 truncate max-w-[220px]">{fileName}</div>}
+    <Surface padding="lg" className="space-y-mdt-4">
+      <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+        <div className="space-y-mdt-1">
+          <Text size="caption" tone="muted">Input</Text>
+          <Text size="bodySm" tone="muted">
+            Paste Markdown or UAM v1 JSON. You can also drop a file into this panel.
+          </Text>
+        </div>
+        <div className="flex items-center gap-mdt-2">
+          {fileName && (
+            <Text size="caption" tone="muted" className="max-w-[220px] truncate">
+              {fileName}
+            </Text>
+          )}
           <input
             ref={fileInputRef}
             type="file"
@@ -63,25 +73,30 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
             Choose file
           </Button>
         </div>
-      </Row>
+      </div>
 
       <div
-        className="flex-1 flex flex-col gap-2"
+        className="space-y-mdt-3"
         onDragOver={(e) => e.preventDefault()}
         onDrop={onDrop}
       >
         <TextArea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 font-mono text-sm resize-none h-full"
+          className="min-h-[320px] font-mono text-body-sm resize-none"
           placeholder="Paste Markdown or UAM v1 JSON…"
           disabled={disabled}
+          aria-label="Input content"
         />
-        {helperText && <div className="text-xs text-gray-500">{helperText}</div>}
-        <div className="text-[11px] text-gray-400">
+        {helperText && (
+          <Text size="caption" tone="muted">
+            {helperText}
+          </Text>
+        )}
+        <Text size="caption" tone="muted">
           Tip: drag and drop a single file anywhere in this panel.
-        </div>
+        </Text>
       </div>
-    </Stack>
+    </Surface>
   );
 }
