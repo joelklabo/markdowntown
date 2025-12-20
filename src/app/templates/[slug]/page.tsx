@@ -88,7 +88,7 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
   return (
     <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={8}>
+        <Stack gap={10}>
           <Breadcrumb
             segments={[
               { href: "/", label: "Home" },
@@ -97,28 +97,28 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
             ]}
           />
 
-          <Surface tone="raised" padding="lg" className="space-y-mdt-4 sticky top-16 z-10">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-6 sticky top-16 z-10">
             <DetailWarning visibility={visibility} type="template" />
 
-            <Row wrap gap={4} justify="between" align="start" className="items-start">
-              <Stack gap={2} className="min-w-0">
+            <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr)_auto]">
+              <Stack gap={3} className="min-w-0">
                 <Row wrap gap={2} className="items-center">
                   <Pill tone="blue">Template</Pill>
                   {data.badge && <Pill tone="yellow">{data.badge}</Pill>}
                 </Row>
                 <Heading level="display" leading="tight">{data.title}</Heading>
-                <Text tone="muted" className="max-w-3xl">{data.description}</Text>
+                <Text tone="muted" className="max-w-3xl" leading="relaxed">{data.description}</Text>
                 <Row wrap gap={2}>
                   {tags.map((tag) => (
                     <Pill key={tag} tone="gray">#{tag}</Pill>
                   ))}
                 </Row>
               </Stack>
-              <Stack gap={2} align="end" className="w-full md:w-auto">
+              <Stack gap={3} align="end" className="w-full lg:w-auto">
                 <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
                 <DetailStats views={stats.views} copies={stats.copies} votes={stats.votes} />
               </Stack>
-            </Row>
+            </div>
           </Surface>
 
           <TemplateFormPreview title={data.title} body={body} fields={fields} />

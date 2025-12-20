@@ -68,7 +68,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
   return (
     <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={8}>
+        <Stack gap={10}>
           <Breadcrumb
             segments={[
               { href: "/", label: "Home" },
@@ -77,18 +77,18 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
             ]}
           />
 
-          <Surface tone="raised" padding="lg" className="space-y-mdt-5">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-6">
             <DetailWarning visibility={visibility} type="snippet" />
 
-            <Row wrap gap={4} justify="between" align="start" className="items-start">
-              <Stack gap={3} className="min-w-0">
+            <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr)_auto]">
+              <Stack gap={4} className="min-w-0">
                 <Row wrap gap={2} className="items-center">
                   <Pill tone="blue">Snippet</Pill>
                   {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
                 </Row>
                 <Stack gap={3}>
                   <Heading level="display" leading="tight">{item.title}</Heading>
-                  <Text tone="muted" className="max-w-3xl">{item.description}</Text>
+                  <Text tone="muted" className="max-w-3xl" leading="relaxed">{item.description}</Text>
                 </Stack>
                 <Row wrap gap={2}>
                   {item.tags.map((tag) => (
@@ -96,11 +96,11 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
                   ))}
                 </Row>
               </Stack>
-              <Stack gap={2} align="end" className="w-full md:w-auto">
+              <Stack gap={3} align="end" className="w-full lg:w-auto">
                 <SnippetActions id={item.id} slug={item.slug} title={item.title} content={rawContent} />
                 <DetailStats views={item.stats.views} copies={item.stats.copies} votes={item.stats.votes} />
               </Stack>
-            </Row>
+            </div>
           </Surface>
 
           <SnippetTabs title={item.title} rendered={rawContent} raw={rawContent} />

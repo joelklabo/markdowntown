@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { Pill } from "@/components/ui/Pill";
 import { Row, Stack } from "@/components/ui/Stack";
+import { Surface } from "@/components/ui/Surface";
 import { Text } from "@/components/ui/Text";
 import { getPublicItem } from "@/lib/publicItems";
 import { notFound } from "next/navigation";
@@ -35,69 +36,76 @@ export default async function ArtifactDetailPage({ params }: { params: Promise<{
   const license = extractLicense(item.content) ?? "Unspecified";
 
   return (
-    <Container className="py-8">
-      <Stack gap={6}>
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <Stack gap={2}>
-            <Row gap={2} align="center" className="flex-wrap">
-              <Pill tone="blue">{item.type}</Pill>
-              <Text size="caption" tone="muted">
-                v{item.version}
-              </Text>
-              <Text size="caption" tone="muted">
-                Updated {formatDate(item.updatedAt)}
-              </Text>
-              <Text size="caption" tone="muted">
-                License: {license}
-              </Text>
-            </Row>
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
+      <Container size="md" padding="md">
+        <Stack gap={10}>
+          <Surface tone="raised" padding="lg" className="space-y-mdt-6">
+            <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr)_auto]">
+              <Stack gap={4} className="min-w-0">
+                <Row gap={2} align="center" className="flex-wrap">
+                  <Pill tone="blue">{item.type}</Pill>
+                  <Text size="caption" tone="muted">
+                    v{item.version}
+                  </Text>
+                  <Text size="caption" tone="muted">
+                    Updated {formatDate(item.updatedAt)}
+                  </Text>
+                  <Text size="caption" tone="muted">
+                    License: {license}
+                  </Text>
+                </Row>
 
-            <Heading level="h1">{item.title}</Heading>
+                <Heading level="display" leading="tight">{item.title}</Heading>
 
-            {item.description && item.description.trim().length > 0 && <Text tone="muted">{item.description}</Text>}
+                {item.description && item.description.trim().length > 0 && (
+                  <Text tone="muted" leading="relaxed" className="max-w-3xl">
+                    {item.description}
+                  </Text>
+                )}
 
-            {item.targets.length > 0 && (
-              <Row gap={1} className="flex-wrap">
-                {item.targets.map((t) => (
-                  <Pill key={t} tone="gray">
-                    {t}
-                  </Pill>
-                ))}
-              </Row>
-            )}
+                {item.targets.length > 0 && (
+                  <Row gap={2} className="flex-wrap">
+                    {item.targets.map((t) => (
+                      <Pill key={t} tone="gray">
+                        {t}
+                      </Pill>
+                    ))}
+                  </Row>
+                )}
 
-            <Row gap={1} className="flex-wrap">
-              <Pill tone="green">{item.scopeCount} scopes</Pill>
-              <Pill tone="green">{item.blockCount} blocks</Pill>
-              {item.lintGrade && <Pill tone="yellow">Lint {item.lintGrade}</Pill>}
-              {!item.hasScopes && <Pill tone="gray">Global only</Pill>}
-            </Row>
+                <Row gap={2} className="flex-wrap">
+                  <Pill tone="green">{item.scopeCount} scopes</Pill>
+                  <Pill tone="green">{item.blockCount} blocks</Pill>
+                  {item.lintGrade && <Pill tone="yellow">Lint {item.lintGrade}</Pill>}
+                  {!item.hasScopes && <Pill tone="gray">Global only</Pill>}
+                </Row>
 
-            {item.tags.length > 0 && (
-              <Row gap={1} className="flex-wrap">
-                {item.tags.map((t) => (
-                  <Pill key={t} tone="gray">
-                    #{t}
-                  </Pill>
-                ))}
-              </Row>
-            )}
-          </Stack>
+                {item.tags.length > 0 && (
+                  <Row gap={2} className="flex-wrap">
+                    {item.tags.map((t) => (
+                      <Pill key={t} tone="gray">
+                        #{t}
+                      </Pill>
+                    ))}
+                  </Row>
+                )}
+              </Stack>
 
-          <div className="shrink-0">
-            <ArtifactActions artifactId={item.id} slug={item.slug ?? slug} uam={item.content} targets={item.targets} />
-          </div>
-        </div>
+              <div className="flex w-full flex-col gap-mdt-3 lg:w-auto">
+                <ArtifactActions artifactId={item.id} slug={item.slug ?? slug} uam={item.content} targets={item.targets} />
+              </div>
+            </div>
+          </Surface>
 
-        <ArtifactDetailTabs
-          artifactId={item.id}
-          version={item.version}
-          uam={item.content}
-          targets={item.targets}
-          lintGrade={item.lintGrade}
-        />
-      </Stack>
-    </Container>
+          <ArtifactDetailTabs
+            artifactId={item.id}
+            version={item.version}
+            uam={item.content}
+            targets={item.targets}
+            lintGrade={item.lintGrade}
+          />
+        </Stack>
+      </Container>
+    </main>
   );
 }
-
