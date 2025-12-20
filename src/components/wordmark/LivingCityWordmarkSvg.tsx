@@ -142,8 +142,8 @@ export function LivingCityWordmarkSvg({
   const viewHeight = sceneHeight / layout.detailScale;
   const baseWidth = viewWidth / resolution;
   const baseHeight = viewHeight / resolution;
-  const pixelWidth = baseWidth * BASE_VOXEL_PIXEL_SCALE;
-  const pixelHeight = baseHeight * BASE_VOXEL_PIXEL_SCALE;
+  const pixelWidth = Math.round(baseWidth * BASE_VOXEL_PIXEL_SCALE);
+  const pixelHeight = Math.round(baseHeight * BASE_VOXEL_PIXEL_SCALE);
   const gridScale = resolution * layout.detailScale;
 
   const topPadding = layout.topPadding;

@@ -52,21 +52,21 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
     featureFlags.wordmarkBannerV1 &&
     !prefersReducedMotion &&
     pathname !== "/labs/city-logo";
-  const enabled = mounted && shouldAnimate;
-  const sim = useCityWordmarkSim({ enabled });
+  const canAnimate = mounted && shouldAnimate;
+  const sim = useCityWordmarkSim({ enabled: canAnimate });
   const { peek, setConfig } = sim;
   const resolvedBannerScale = bannerScale ?? sim.config.render.bannerScale;
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!canAnimate) return;
     if (bannerScale == null) return;
     if (bannerScale === peek().config.render.bannerScale) return;
     setConfig({ render: { bannerScale } });
-  }, [bannerScale, enabled, peek, setConfig]);
+  }, [bannerScale, canAnimate, peek, setConfig]);
 
   const mergedClassName = cn(
     "mdt-wordmark",
-    shouldAnimate && "mdt-wordmark--animated",
+    canAnimate && "mdt-wordmark--animated",
     className
   );
 
