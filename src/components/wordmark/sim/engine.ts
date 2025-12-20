@@ -23,6 +23,9 @@ export type CityWordmarkEngineSnapshot = Readonly<{
 const FIXED_STEP_MS = 50;
 const DAY_CYCLE_MS = 240_000;
 const MAX_FRAME_MS = 250;
+const EVENT_COOLDOWN_MS = 900;
+const EVENT_ACTOR_TTL_MS = 7_000;
+const EVENT_ACTOR_LIMIT = 8;
 
 export type CityWordmarkEngine = Readonly<{
   getSnapshot: () => CityWordmarkEngineSnapshot;
@@ -82,6 +85,8 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
   let accumulatorMs = 0;
   let unsubscribeEvents: (() => void) | null = null;
   let ambulanceTriggerIndex = 0;
+  let eventIndex = 0;
+  const lastEventAt = new Map<string, number>();
 
   function emit() {
     for (const listener of listeners) listener();
@@ -119,19 +124,106 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     unsubscribeEvents = null;
   }
 
+  function isEventThrottled(type: string, ts: number): boolean {
+    const last = lastEventAt.get(type);
+    if (last != null && ts - last < EVENT_COOLDOWN_MS) return true;
+    lastEventAt.set(type, ts);
+    return false;
+  }
+
+  function wrapEventActor(actor: CityWordmarkActor, kind: string, startMs: number): CityWordmarkActor {
+    let inner = actor;
+    const wrapper: CityWordmarkActor = {
+      kind,
+      update(ctx) {
+        inner = inner.update(ctx);
+        if (inner.done || ctx.nowMs - startMs >= EVENT_ACTOR_TTL_MS) {
+          wrapper.done = true;
+        }
+        return wrapper;
+      },
+      render(ctx) {
+        if (wrapper.done) return [];
+        return inner.render(ctx);
+      },
+    };
+    return wrapper;
+  }
+
+  function addEventActors(newActors: CityWordmarkActor[]) {
+    if (newActors.length === 0) return;
+    const base = actors.filter((actor) => !actor.kind.startsWith("event:"));
+    const existing = actors.filter((actor) => actor.kind.startsWith("event:"));
+    const merged = [...existing, ...newActors].slice(-EVENT_ACTOR_LIMIT);
+    actors = [...base, ...merged];
+  }
+
+  function spawnEventActorBundle(event: CityWordmarkEvent, ts: number): CityWordmarkActor[] {
+    const seed = `${snapshot.config.seed}:event:${event.type}:${ts}:${eventIndex++}`;
+    const baseConfig = snapshot.config;
+
+    if (event.type === "search") {
+      const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { cars: true } });
+      return spawnCarActors({ config, layout });
+    }
+
+    if (event.type === "command_palette_open") {
+      const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { pedestrians: true } });
+      return spawnPedestrianActors({ config, layout });
+    }
+
+    if (event.type === "publish") {
+      const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { trucks: true } });
+      return spawnTruckActors({ config, layout });
+    }
+
+    if (event.type === "upload") {
+      const config = mergeCityWordmarkConfig(baseConfig, {
+        seed,
+        density: "sparse",
+        actors: { pedestrians: true, dogs: true },
+      });
+      return spawnPedestrianActors({ config, layout });
+    }
+
+    if (event.type === "login") {
+      const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { pedestrians: true } });
+      return spawnPedestrianActors({ config, layout });
+    }
+
+    return [];
+  }
+
   function onCityWordmarkEvent(event: CityWordmarkEvent) {
-    if (event.type !== "alert" || event.kind !== "ambulance") return;
-    if (!snapshot.config.actors.ambulance) return;
+    const ts = event.ts ?? Date.now();
+    if (isEventThrottled(event.type, ts)) return;
 
-    const actor = spawnAmbulanceActor({
-      config: snapshot.config,
-      layout,
-      nowMs: snapshot.nowMs,
-      triggerIndex: ambulanceTriggerIndex++,
-    });
-    if (!actor) return;
+    if (event.type === "alert" && event.kind === "ambulance") {
+      if (!snapshot.config.actors.ambulance) return;
 
-    actors = [...actors.filter((a) => a.kind !== "ambulance"), actor];
+      const actor = spawnAmbulanceActor({
+        config: snapshot.config,
+        layout,
+        nowMs: snapshot.nowMs,
+        triggerIndex: ambulanceTriggerIndex++,
+      });
+      if (!actor) return;
+
+      actors = [...actors.filter((a) => a.kind !== "ambulance"), actor];
+      const actorRects = actors.flatMap((a) => a.render({ nowMs: snapshot.nowMs, config: snapshot.config, layout }));
+      snapshot = { ...snapshot, actorRects };
+      emit();
+      return;
+    }
+
+    const bundle = spawnEventActorBundle(event, ts);
+    if (bundle.length === 0) return;
+    const startMs = snapshot.nowMs;
+    const wrapped = bundle.map((actor, index) =>
+      wrapEventActor(actor, `event:${event.type}:${eventIndex}-${index}`, startMs)
+    );
+
+    addEventActors(wrapped);
     const actorRects = actors.flatMap((a) => a.render({ nowMs: snapshot.nowMs, config: snapshot.config, layout }));
     snapshot = { ...snapshot, actorRects };
     emit();

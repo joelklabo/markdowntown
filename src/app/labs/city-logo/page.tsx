@@ -151,7 +151,16 @@ export default async function CityLogoLabPage(props: { searchParams: Promise<Sea
       initialConfig={parseInitialConfig(searchParams)}
       initialPreviewWidthMode={previewWidthMode}
       initialPlaying={snapshotMode ? false : play}
-      initialEvent={event === "ambulance" ? "ambulance" : undefined}
+      initialEvent={
+        event === "ambulance" ||
+        event === "search" ||
+        event === "publish" ||
+        event === "upload" ||
+        event === "login" ||
+        event === "command"
+          ? event
+          : undefined
+      }
     />
   );
 }

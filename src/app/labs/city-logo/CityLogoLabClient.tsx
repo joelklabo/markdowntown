@@ -15,7 +15,7 @@ export type CityLogoLabClientProps = {
   initialConfig: CityWordmarkConfig;
   initialPreviewWidthMode?: CityLogoPreviewWidthMode;
   initialPlaying?: boolean;
-  initialEvent?: "ambulance";
+  initialEvent?: "ambulance" | "search" | "publish" | "upload" | "login" | "command";
 };
 
 const DEFAULT_CONFIG = getDefaultCityWordmarkConfig();
@@ -120,8 +120,28 @@ export function CityLogoLabClient({
   }, [shareQuery]);
 
   useEffect(() => {
-    if (initialEvent !== "ambulance") return;
-    dispatchCityWordmarkEvent({ type: "alert", kind: "ambulance", ts: Date.now() });
+    if (!initialEvent) return;
+    const ts = Date.now();
+    switch (initialEvent) {
+      case "ambulance":
+        dispatchCityWordmarkEvent({ type: "alert", kind: "ambulance", ts });
+        return;
+      case "search":
+        dispatchCityWordmarkEvent({ type: "search", query: "mark downtown", ts });
+        return;
+      case "publish":
+        dispatchCityWordmarkEvent({ type: "publish", kind: "artifact", ts });
+        return;
+      case "upload":
+        dispatchCityWordmarkEvent({ type: "upload", kind: "file", ts });
+        return;
+      case "login":
+        dispatchCityWordmarkEvent({ type: "login", method: "oauth", ts });
+        return;
+      case "command":
+        dispatchCityWordmarkEvent({ type: "command_palette_open", origin: "labs", ts });
+        return;
+    }
   }, [initialEvent]);
 
   return (

@@ -69,4 +69,6 @@ export type CityWordmarkEvent =
   | ({ type: "search"; query: string } & CityWordmarkEventBase)
   | ({ type: "command_palette_open"; origin?: string } & CityWordmarkEventBase)
   | ({ type: "publish"; kind?: "artifact" | "template" | "snippet" | "file" } & CityWordmarkEventBase)
+  | ({ type: "upload"; kind?: "artifact" | "template" | "snippet" | "file" } & CityWordmarkEventBase)
+  | ({ type: "login"; method?: "oauth" | "password" | "sso" } & CityWordmarkEventBase)
   | ({ type: "alert"; kind: "ambulance" } & CityWordmarkEventBase);

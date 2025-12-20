@@ -540,12 +540,18 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
           <Button variant="secondary" onClick={() => dispatchCityWordmarkEvent({ type: "publish", kind: "artifact", ts: Date.now() })}>
             Publish
           </Button>
+          <Button variant="secondary" onClick={() => dispatchCityWordmarkEvent({ type: "upload", kind: "file", ts: Date.now() })}>
+            Upload
+          </Button>
+          <Button variant="secondary" onClick={() => dispatchCityWordmarkEvent({ type: "login", method: "oauth", ts: Date.now() })}>
+            Login
+          </Button>
           <Button variant="secondary" onClick={() => dispatchCityWordmarkEvent({ type: "alert", kind: "ambulance", ts: Date.now() })}>
             Ambulance
           </Button>
         </div>
         <div className="text-caption text-mdt-muted">
-          Events dispatch to <code className="font-mono">window</code>. Reactions are implemented in follow-up tasks.
+          Events dispatch to <code className="font-mono">window</code>. Watch the banner react to each trigger.
         </div>
         <div className="text-caption text-mdt-muted">
           <div>
