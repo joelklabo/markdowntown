@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { AtlasSearch } from "@/components/atlas/AtlasSearch";
@@ -85,6 +85,10 @@ describe("AtlasSearch", () => {
     await user.click(input);
     await user.type(input, "cop");
 
+    const listbox = screen.getByRole("listbox", { name: /atlas search results/i });
+    expect(listbox).toBeInTheDocument();
+    expect(within(listbox).getAllByRole("option").length).toBeGreaterThan(0);
+
     expect(screen.getByText("GitHub Copilot")).toBeInTheDocument();
     expect(screen.getByText("Supports agents.md")).toBeInTheDocument();
     expect(screen.getByText("Platform")).toBeInTheDocument();
@@ -108,4 +112,3 @@ describe("AtlasSearch", () => {
     expect(screen.getByText("No results.")).toBeInTheDocument();
   });
 });
-

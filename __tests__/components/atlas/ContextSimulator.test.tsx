@@ -28,6 +28,10 @@ function dir(name: string, children: MockHandle[]): MockHandle {
 describe("ContextSimulator", () => {
   it("simulates loaded files for GitHub Copilot", async () => {
     render(<ContextSimulator />);
+    expect(screen.getByRole("heading", { name: "Inputs" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Result" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download report" })).toBeInTheDocument();
 
     await userEvent.clear(screen.getByLabelText("Repo tree (paths)"));
     await userEvent.type(

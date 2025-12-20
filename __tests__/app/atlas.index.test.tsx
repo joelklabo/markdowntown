@@ -63,8 +63,10 @@ describe("Atlas index pages", () => {
     expect(screen.getByRole("link", { name: /Platforms/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Concepts/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Recipes/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Simulator/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Compare/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Changelog/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(6);
   });
 
   it("renders platforms, concepts, and recipes indexes", () => {
