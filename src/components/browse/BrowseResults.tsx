@@ -128,15 +128,17 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
 
   if (!items.length) {
     return (
-      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6 text-center text-mdt-muted">
-        <p className="text-body">No results yet.</p>
-        <p className="text-body-sm mt-mdt-1">Try clearing filters, using fewer tags, or checking “All” types.</p>
+      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-8 text-center shadow-mdt-sm">
+        <p className="text-h3">No results yet.</p>
+        <p className="mt-mdt-2 text-body-sm text-mdt-muted">
+          Try clearing filters, using fewer tags, or checking “All” types.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-mdt-5">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-mdt-6">
       {items.map((item) => (
         <LibraryCard
           key={item.id}
@@ -159,16 +161,16 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
           onDragEnd={handleDragEnd}
         />
       ))}
-      <div className="sm:col-span-2 lg:col-span-3 flex justify-center">
-        <Button variant="secondary" size="sm" onClick={loadMore} disabled={loading}>
+      <div className="col-span-full flex justify-center">
+        <Button variant="secondary" size="md" onClick={loadMore} disabled={loading}>
           {loading ? "Loading…" : "Load more"}
         </Button>
       </div>
       {preview && (
-        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm motion-fade-in">
+        <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm motion-fade-in motion-reduce:animate-none">
           <div className="absolute inset-0" onClick={() => setPreview(null)} aria-label="Close preview" />
-          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6 shadow-mdt-lg md:inset-x-1/4">
-            <div className="flex items-center justify-between gap-mdt-3">
+          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6 shadow-mdt-lg md:inset-x-1/4 motion-reduce:animate-none">
+            <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-mdt-1">
                 <p className="text-caption text-mdt-muted uppercase tracking-wide">{preview.type}</p>
                 <h2 className="text-h2">{preview.title}</h2>
@@ -185,7 +187,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
                 </span>
               ))}
             </div>
-            <div className="mt-mdt-4 grid gap-mdt-3 text-sm text-mdt-muted sm:grid-cols-3">
+            <div className="mt-mdt-4 grid gap-mdt-4 text-sm text-mdt-muted sm:grid-cols-3">
               <Stat label="Views" value={preview.stats.views} />
               <Stat label="Copies" value={preview.stats.copies} />
               <Stat label="Votes" value={preview.stats.votes} />
@@ -196,7 +198,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
               <Skeleton className="mb-mdt-2 h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
             </div>
-            <div className="mt-mdt-4 flex gap-mdt-2">
+            <div className="mt-mdt-4 flex flex-wrap gap-mdt-2">
               <Button size="sm" onClick={() => setPreview(null)}>
                 Close
               </Button>

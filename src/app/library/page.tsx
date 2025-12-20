@@ -92,12 +92,15 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
     <Container className="py-mdt-10 md:py-mdt-12">
       <Stack gap={8}>
         <Stack gap={2}>
+          <Text size="caption" tone="muted">Public library</Text>
           <Heading level="h1">Library</Heading>
-          <Text tone="muted">Filter public artifacts and open them in Workbench.</Text>
+          <Text tone="muted" className="max-w-2xl">
+            Filter public artifacts and open them in Workbench. Stack tags, targets, and scopes to find the right agents.md faster.
+          </Text>
         </Stack>
 
-        <div className="grid gap-mdt-6 lg:grid-cols-[280px_1fr]">
-          <div className="min-w-0">
+        <div className="grid gap-mdt-8 lg:grid-cols-[320px_1fr]">
+          <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
             <LibraryFilters
               q={q}
               type={type}
@@ -109,21 +112,32 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
             />
           </div>
 
-          <div className="min-w-0 space-y-mdt-4">
+          <div className="min-w-0 space-y-mdt-5">
+            <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <Text size="caption" tone="muted">Results</Text>
+                <Heading level="h3" as="h2">
+                  Public artifacts
+                </Heading>
+              </div>
+              <Text size="caption" tone="muted">
+                {rowItems.length} results
+              </Text>
+            </div>
             {rowItems.map((item) => (
               <ArtifactRow key={item.id} item={item} />
             ))}
 
             {rowItems.length === 0 && (
-              <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6">
+              <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-8 shadow-mdt-sm">
                 <Heading level="h3" as="h2">
                   No public items found
                 </Heading>
-                <Text tone="muted" className="mt-mdt-1">
+                <Text tone="muted" className="mt-mdt-2">
                   Try clearing filters or check back later.
                 </Text>
                 <div className="mt-mdt-4">
-                  <Button variant="secondary" asChild>
+                  <Button size="sm" variant="secondary" asChild>
                     <Link href="/library">Clear filters</Link>
                   </Button>
                 </div>

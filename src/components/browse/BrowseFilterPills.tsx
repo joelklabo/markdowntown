@@ -18,76 +18,95 @@ type Props = {
 
 export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activeTags, clearTagsHref }: Props) {
   return (
-    <div className="space-y-mdt-4">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text">Sort</p>
-        <div className="flex flex-wrap gap-2">
+    <div className="space-y-mdt-5">
+      <div className="space-y-mdt-2">
+        <p className="text-caption font-semibold text-mdt-text">Sort</p>
+        <div className="flex flex-wrap gap-mdt-2">
           {sortOptions.map((option) => (
-            <Pill
+            <Link
               key={option.key}
-              tone={option.active ? "blue" : "gray"}
+              href={option.href}
+              onClick={() => track("browse_filter_select", { type: "sort", value: option.key })}
+              className="inline-flex rounded-mdt-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
             >
-              <Link
-                href={option.href}
-                onClick={() => track("browse_filter_select", { type: "sort", value: option.key })}
+              <Pill
+                tone={option.active ? "blue" : "gray"}
+                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 {option.label}
-              </Link>
-            </Pill>
+              </Pill>
+            </Link>
           ))}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text">Types</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-mdt-2">
+        <p className="text-caption font-semibold text-mdt-text">Types</p>
+        <div className="flex flex-wrap gap-mdt-2">
           {typeOptions.map((option) => (
-            <Pill
+            <Link
               key={option.key}
-              tone={option.active ? "blue" : "gray"}
+              href={option.href}
+              onClick={() => track("browse_filter_select", { type: "content_type", value: option.key })}
+              className="inline-flex rounded-mdt-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
             >
-              <Link
-                href={option.href}
-                onClick={() => track("browse_filter_select", { type: "content_type", value: option.key })}
+              <Pill
+                tone={option.active ? "blue" : "gray"}
+                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 {option.label}
-              </Link>
-            </Pill>
+              </Pill>
+            </Link>
           ))}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-mdt-text">Popular tags</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-mdt-2">
+        <p className="text-caption font-semibold text-mdt-text">Popular tags</p>
+        <div className="flex flex-wrap gap-mdt-2">
           {popularTags.map((tag) => (
-            <Pill key={tag.label} tone={tag.active ? "blue" : "gray"}>
-              <Link href={tag.href} onClick={() => track("browse_filter_select", { type: "tag", value: tag.label })}>
+            <Link
+              key={tag.label}
+              href={tag.href}
+              onClick={() => track("browse_filter_select", { type: "tag", value: tag.label })}
+              className="inline-flex rounded-mdt-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
+            >
+              <Pill
+                tone={tag.active ? "blue" : "gray"}
+                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              >
                 #{tag.label}
-              </Link>
-            </Pill>
+              </Pill>
+            </Link>
           ))}
         </div>
       </div>
 
       {activeTags.length > 0 && (
-        <div className="flex flex-wrap gap-2" aria-label="Active tag filters">
-          {activeTags.map((tag) => (
-            <Pill key={tag.label} tone="blue">
-              <span>#{tag.label}</span>
-              <Link
-                href={tag.removeHref}
-                className="ml-1 text-[11px] underline"
-                aria-label={`Remove tag ${tag.label}`}
-                onClick={() => track("browse_filter_remove", { type: "tag", value: tag.label })}
-              >
-                ×
-              </Link>
-            </Pill>
-          ))}
-          <Link href={clearTagsHref} className="text-sm text-indigo-600 underline" onClick={() => track("browse_filter_clear_tags")}>
-            Clear filters
-          </Link>
+        <div className="space-y-mdt-2" aria-label="Active tag filters">
+          <p className="text-caption font-semibold text-mdt-text">Active filters</p>
+          <div className="flex flex-wrap items-center gap-mdt-2">
+            {activeTags.map((tag) => (
+              <Pill key={tag.label} tone="blue" className="gap-mdt-1">
+                <span>#{tag.label}</span>
+                <Link
+                  href={tag.removeHref}
+                  className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-mdt-surface-strong text-[11px] text-mdt-text"
+                  aria-label={`Remove tag ${tag.label}`}
+                  onClick={() => track("browse_filter_remove", { type: "tag", value: tag.label })}
+                >
+                  ×
+                </Link>
+              </Pill>
+            ))}
+            <Link
+              href={clearTagsHref}
+              className="text-caption text-mdt-muted underline"
+              onClick={() => track("browse_filter_clear_tags")}
+            >
+              Clear filters
+            </Link>
+          </div>
         </div>
       )}
     </div>

@@ -45,19 +45,20 @@ export function BrowseSearch({ initialQuery, baseQueryString, debounceMs = 250 }
   }, [value, debounceMs, router, searchParams, baseParams]);
 
   return (
-    <div className="relative flex-1">
+    <div className="relative flex-1 min-w-[220px]">
       <Input
         type="search"
         name="q"
         id="browse-search-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        size="lg"
         placeholder="Search snippets, templates…"
-        className="bg-mdt-surface-subtle pr-14 shadow-inner"
+        className="bg-mdt-surface-subtle pr-16 shadow-inner"
         aria-label="Search library"
       />
       {isPending && (
-        <Text as="span" size="caption" tone="muted" className="absolute right-2 top-2">
+        <Text as="span" size="caption" tone="muted" className="absolute right-3 top-3">
           Updating…
         </Text>
       )}
