@@ -383,22 +383,22 @@ export function ArtifactDetailTabs({ artifactId, version, uam, targets, lintGrad
   return (
     <TabsRoot value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
       <TabsList>
-        <TabsTrigger value="rendered" active={tab === "rendered"}>
+        <TabsTrigger value="rendered">
           Rendered
         </TabsTrigger>
-        <TabsTrigger value="raw" active={tab === "raw"}>
+        <TabsTrigger value="raw">
           Raw
         </TabsTrigger>
-        <TabsTrigger value="files" active={tab === "files"}>
+        <TabsTrigger value="files">
           Files
         </TabsTrigger>
-        <TabsTrigger value="lint" active={tab === "lint"}>
+        <TabsTrigger value="lint">
           Lint
         </TabsTrigger>
-        <TabsTrigger value="diff" active={tab === "diff"}>
+        <TabsTrigger value="diff">
           Diff
         </TabsTrigger>
-        <TabsTrigger value="versions" active={tab === "versions"}>
+        <TabsTrigger value="versions">
           Versions
         </TabsTrigger>
       </TabsList>
