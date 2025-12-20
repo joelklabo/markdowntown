@@ -17,6 +17,14 @@ describe("voxelRectsToPath", () => {
 
     expect(d).toBe("M0 0h3v3h-3ZM6 0h6v3h-6Z");
   });
+
+  it("scales path data when using a higher detail scale", () => {
+    const base = voxelRectsToPath([{ x: 1, y: 1, width: 2, height: 1 }], 1);
+    const hd = voxelRectsToPath([{ x: 1, y: 1, width: 2, height: 1 }], 2);
+
+    expect(base).toBe("M1 1h2v1h-2Z");
+    expect(hd).toBe("M2 2h4v2h-4Z");
+  });
 });
 
 describe("batchVoxelRectsToPaths", () => {

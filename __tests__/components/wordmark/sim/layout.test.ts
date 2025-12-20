@@ -45,6 +45,16 @@ describe("createCityWordmarkLayout", () => {
     expect(hd.detailScale).toBe(CITY_WORDMARK_HD_GLYPH_COLS / CITY_WORDMARK_GLYPH_COLS);
     expect(hd.topPadding).toBeGreaterThanOrEqual(CITY_WORDMARK_GLYPH_ROWS);
   });
+
+  it("scales layout dimensions for HD detail", () => {
+    const standard = createCityWordmarkLayout({ detail: "standard" });
+    const hd = createCityWordmarkLayout({ detail: "hd" });
+
+    expect(hd.glyphCols).toBeGreaterThan(standard.glyphCols);
+    expect(hd.glyphRows).toBeGreaterThan(standard.glyphRows);
+    expect(hd.width).toBeGreaterThan(standard.width);
+    expect(hd.height).toBeGreaterThan(standard.height);
+  });
 });
 
 describe("createCityWordmarkSkylineMask", () => {
@@ -75,6 +85,37 @@ describe("createCityWordmarkSkylineMask", () => {
       expect(r.width).toBe(1);
       expect(r.y).toBe(layout.baselineY - 4);
     }
+  });
+
+  it("supports taller skyline masks when scaled for HD detail", () => {
+    const standard = createCityWordmarkLayout({ detail: "standard" });
+    const hd = createCityWordmarkLayout({ detail: "hd" });
+
+    const standardHeight = 2 * standard.detailScale;
+    const hdHeight = 2 * hd.detailScale;
+
+    const standardMask = createCityWordmarkSkylineMask({
+      width: standard.width,
+      baselineY: standard.baselineY,
+      seed: "seed",
+      minHeight: standardHeight,
+      maxHeight: standardHeight,
+      minSegmentWidth: 1,
+      maxSegmentWidth: 1,
+    });
+    const hdMask = createCityWordmarkSkylineMask({
+      width: hd.width,
+      baselineY: hd.baselineY,
+      seed: "seed",
+      minHeight: hdHeight,
+      maxHeight: hdHeight,
+      minSegmentWidth: 1,
+      maxSegmentWidth: 1,
+    });
+
+    expect(standardMask.length).toBeGreaterThan(0);
+    expect(hdMask.length).toBeGreaterThan(0);
+    expect(Math.max(...hdMask.map((r) => r.height))).toBeGreaterThan(Math.max(...standardMask.map((r) => r.height)));
   });
 });
 
