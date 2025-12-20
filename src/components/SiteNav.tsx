@@ -19,10 +19,10 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import { featureFlags } from "@/lib/flags";
 
 const links = [
-  { href: "/library", label: "Library" },
+  { href: "/atlas/simulator", label: "Scan" },
   { href: "/workbench", label: "Workbench" },
+  { href: "/library", label: "Library" },
   { href: "/translate", label: "Translate" },
-  { href: "/atlas", label: "Atlas" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -171,10 +171,10 @@ export function SiteNav({ user }: { user?: User }) {
     | { label: string; icon: BottomNavIcon; type: "search" };
 
   const bottomNavItems: BottomNavItem[] = [
-    { href: "/library", label: "Library", icon: LibraryIcon, type: "link" },
+    { href: "/atlas/simulator", label: "Scan", icon: AtlasIcon, type: "link" },
     { href: "/workbench", label: "Workbench", icon: WorkbenchIcon, type: "link" },
+    { href: "/library", label: "Library", icon: LibraryIcon, type: "link" },
     { href: "/translate", label: "Translate", icon: TranslateIcon, type: "link" },
-    { href: "/atlas", label: "Atlas", icon: AtlasIcon, type: "link" },
     { label: "Search", icon: SearchIcon, type: "search" },
   ];
 
@@ -187,6 +187,7 @@ export function SiteNav({ user }: { user?: User }) {
 
   const overflowLinks = [
     { href: "/docs", label: "Docs" },
+    { href: "/atlas", label: "Atlas" },
     { href: "/changelog", label: "Changelog" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
