@@ -9,6 +9,16 @@ export type RepoTree = {
   files: RepoTreeFile[];
 };
 
+export type RepoScanMeta = {
+  totalFiles: number;
+  matchedFiles: number;
+  truncated: boolean;
+};
+
+export type RepoScanResult = RepoScanMeta & {
+  tree: RepoTree;
+};
+
 export type SimulationInput = {
   tool: SimulatorToolId;
   tree: RepoTree;
