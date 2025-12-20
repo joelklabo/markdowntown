@@ -33,11 +33,26 @@ export function useCityWordmarkSim(options: { enabled?: boolean; engine?: CityWo
     return { ...engine.getSnapshot(), playing: false };
   }, [engine]);
 
-  const snapshot = useSyncExternalStore(
-    enabled ? engine.subscribe : subscribeNoop,
-    enabled ? engine.getSnapshot : () => frozenDefaults,
-    () => frozenDefaults
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (!enabled) return subscribeNoop();
+      let queued = false;
+      const handle = () => {
+        if (queued) return;
+        queued = true;
+        // Defer notifications to avoid updates firing while another component is rendering.
+        const schedule = typeof queueMicrotask === "function" ? queueMicrotask : (cb: () => void) => Promise.resolve().then(cb);
+        schedule(() => {
+          queued = false;
+          onStoreChange();
+        });
+      };
+      return engine.subscribe(handle);
+    },
+    [enabled, engine]
   );
+
+  const snapshot = useSyncExternalStore(subscribe, enabled ? engine.getSnapshot : () => frozenDefaults, () => frozenDefaults);
 
   const peek = useCallback(() => engine.getSnapshot(), [engine]);
 
