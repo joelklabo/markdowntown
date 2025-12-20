@@ -39,3 +39,17 @@ export type SimulationResult = {
   loaded: LoadedFile[];
   warnings: SimulationWarning[];
 };
+
+export type SimulatorInsightPattern = {
+  id: string;
+  label: string;
+  pattern: string;
+};
+
+export type SimulatorInsights = {
+  tool: SimulatorToolId;
+  expectedPatterns: SimulatorInsightPattern[];
+  foundFiles: string[];
+  missingFiles: SimulatorInsightPattern[];
+  precedenceNotes: string[];
+};
