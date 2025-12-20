@@ -1,0 +1,43 @@
+# Analytics event taxonomy
+
+This file defines canonical event names and properties for the UX and onboarding funnel.
+
+## Naming conventions
+- Use `snake_case`.
+- Prefer stable prefixes: `ui_*`, `atlas_simulator_*`, `workbench_*`, `nav_*`.
+- Keep properties small, numeric where possible.
+
+## Core UX events (implemented)
+- `ui_route_view` — fired on route change.
+  - Properties: `route`
+- `ui_shell_loaded` — fired once per session.
+  - Properties: `route`
+- `nav_click` — navigation clicks.
+  - Properties: `href`, `placement`, optional `cta`
+
+## Onboarding funnel events
+
+### Atlas Simulator (implemented)
+- `atlas_simulator_scan_start`
+  - Properties: `method` (`directory_picker` | `file_input`), `tool`
+- `atlas_simulator_scan_complete`
+  - Properties: `method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`, `rootName`
+- `atlas_simulator_scan_cancel`
+  - Properties: `method`, `tool`
+- `atlas_simulator_scan_error`
+  - Properties: `method`, `tool`, `message` (from error tracking)
+
+### Workbench (partial)
+- `ui_route_view` with `route=/workbench` — use as the entry signal.
+- `workbench_save_artifact` (implemented)
+  - Properties: `id`
+- `workbench_export_download` (recommended)
+  - Properties: `targetIds`, `fileCount`
+- `workbench_export_copy` (recommended)
+  - Properties: `targetId`
+
+## Funnel definition (scan → build → export)
+1. `atlas_simulator_scan_start`
+2. `atlas_simulator_scan_complete`
+3. `ui_route_view` (`route=/workbench`)
+4. `workbench_export_download` or `workbench_export_copy`

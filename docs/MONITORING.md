@@ -12,9 +12,23 @@
   - `ui_route_view`, `ui_shell_loaded` (route-level engagement)
   - `nav_click`, `nav_search_open`, `nav_search_submit`, `nav_search_quick_filter`
   - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
+  - Onboarding funnel events (see `docs/analytics/events.md`):
+    - `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_scan_cancel`, `atlas_simulator_scan_error`
+    - `ui_route_view` with `route=/atlas/simulator` and `route=/workbench`
+    - `workbench_export_download` / `workbench_export_copy` (recommended instrumentation)
 - Web vitals / RUM (set `NEXT_PUBLIC_ENABLE_RUM=true`):
   - `web_vital_lcp`, `web_vital_cls`, `web_vital_inp`, `web_vital_ttfb`, `web_vital_fcp`
   - `perf_navigation`, `perf_api`, `spa_nav` (see `docs/perf-report.md` for dashboards)
+
+## Onboarding funnel (scan → build → export)
+Primary flow KPIs and suggested targets:
+- **Scan completion rate:** `atlas_simulator_scan_complete / atlas_simulator_scan_start` → target 70%+
+- **Workbench entry rate:** `ui_route_view(route=/workbench) / atlas_simulator_scan_complete` → target 40%+
+- **Export rate:** `workbench_export_download or workbench_export_copy / ui_route_view(route=/workbench)` → target 25%+
+- **Median time to export:** time from `atlas_simulator_scan_start` to export → target < 5 minutes
+- **Scan error rate:** `atlas_simulator_scan_error / atlas_simulator_scan_start` → target < 5%
+
+Build the funnel in PostHog once the export events are instrumented (see `docs/analytics/events.md`).
 
 ## Azure Monitor / Container Apps
 - Logs already flow to Log Analytics workspace for env `satoshis-env-stg-west` (via ACA default).
