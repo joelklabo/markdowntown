@@ -14,7 +14,7 @@ type Props = {
 export function TemplateActions({ id, slug, title, rendered, variant = "inline" }: Props) {
   const detailHref = `/templates/${slug ?? id}`;
   const builderHref = `/builder?template=${slug ?? id}`;
-  const actionSize = variant === "bar" ? "sm" : "xs";
+  const actionSize = "sm";
 
   async function copy() {
     try {
@@ -60,19 +60,32 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
     }
   }
 
+  if (variant === "bar") {
+    return (
+      <div className="flex gap-mdt-2">
+        <Button variant="secondary" size={actionSize} onClick={useBuilder} aria-label={`Use ${title} in builder`}>
+          Builder
+        </Button>
+        <Button size={actionSize} onClick={copy}>
+          Copy
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex flex-wrap items-center gap-mdt-2">
       <Button size={actionSize} onClick={copy}>
         Copy
       </Button>
       <Button variant="secondary" size={actionSize} onClick={download}>
         Download
       </Button>
+      <Button variant="secondary" size={actionSize} onClick={useBuilder} aria-label={`Use ${title} in builder`}>
+        Builder
+      </Button>
       <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share ${title}`}>
         Share
-      </Button>
-      <Button variant="ghost" size={actionSize} onClick={useBuilder}>
-        Use in builder
       </Button>
       <Button variant="ghost" size={actionSize} asChild>
         <a href={detailHref}>Open detail</a>

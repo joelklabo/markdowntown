@@ -50,6 +50,9 @@ export function LibraryCard({
   const badge = badgeLabel(item.badge);
   const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : item.type === "agent" ? "Agent" : "File";
   const slug = item.slug ?? item.id;
+  const visibleTags = item.tags.slice(0, 3);
+  const overflowCount = item.tags.length - visibleTags.length;
+  const actionSize = "sm" as const;
   const detailHref =
     item.type === "template"
       ? `/templates/${slug}`
@@ -74,21 +77,21 @@ export function LibraryCard({
   const renderPrimary = () => {
     if (item.type === "snippet" && onCopySnippet) {
       return (
-        <Button size="xs" onClick={() => onCopySnippet(item)} aria-label={`Copy ${item.title}`}>
+        <Button size={actionSize} onClick={() => onCopySnippet(item)} aria-label={`Copy ${item.title}`}>
           {primaryAction.label}
         </Button>
       );
     }
     if (item.type === "template" && onUseTemplate) {
       return (
-        <Button size="xs" onClick={() => onUseTemplate(item)} aria-label={`Use template ${item.title}`}>
+        <Button size={actionSize} onClick={() => onUseTemplate(item)} aria-label={`Use template ${item.title}`}>
           {primaryAction.label}
         </Button>
       );
     }
     if (item.type === "file" && onDownloadFile) {
       return (
-        <Button size="xs" onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
+        <Button size={actionSize} onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
           {primaryAction.label}
         </Button>
       );
@@ -96,7 +99,7 @@ export function LibraryCard({
     // Agent primary action? Maybe "Fork"? Or "View"?
     // For now View.
     return (
-      <Button size="xs" asChild>
+      <Button size={actionSize} asChild>
         <Link href={primaryAction.href}>{primaryAction.label}</Link>
       </Button>
     );
@@ -107,13 +110,13 @@ export function LibraryCard({
     if (!secondaryAction) return null;
     if (onAddToBuilder) {
       return (
-        <Button variant="secondary" size="xs" onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to builder`}>
+        <Button variant="secondary" size={actionSize} onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to builder`}>
           {secondaryAction.label}
         </Button>
       );
     }
     return (
-      <Button variant="secondary" size="xs" asChild>
+      <Button variant="secondary" size={actionSize} asChild>
         <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
       </Button>
     );
@@ -123,22 +126,24 @@ export function LibraryCard({
     <Card
       data-testid="library-card"
       className={cn(
-        "flex h-full flex-col justify-between",
+        "flex h-full flex-col gap-mdt-4 p-mdt-6 motion-reduce:transition-none",
         className
       )}
       {...rest}
     >
       <Stack gap={4}>
-        <Row gap={2} align="center" wrap>
-          <Pill tone="blue">{typeLabel}</Pill>
-          {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
+        <Row gap={2} align="center" justify="between" wrap>
+          <Row gap={2} align="center" wrap>
+            <Pill tone="blue">{typeLabel}</Pill>
+            {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
+          </Row>
           {draggable && (
             <button
               type="button"
               draggable
               onDragStart={onDragStart as React.DragEventHandler<HTMLButtonElement> | undefined}
               onDragEnd={onDragEnd as React.DragEventHandler<HTMLButtonElement> | undefined}
-              className="ml-auto inline-flex cursor-grab select-none items-center rounded-mdt-sm border border-mdt-border bg-mdt-surface px-mdt-2 py-[2px] text-caption text-mdt-muted hover:border-mdt-border-strong hover:text-mdt-text active:cursor-grabbing"
+              className="inline-flex cursor-grab select-none items-center rounded-mdt-pill border border-mdt-border bg-mdt-surface px-mdt-3 py-[4px] text-caption font-medium text-mdt-muted shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:border-mdt-border-strong hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] active:cursor-grabbing motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               aria-label="Drag card to builder"
               onClick={(e) => e.stopPropagation()}
             >
@@ -148,7 +153,7 @@ export function LibraryCard({
         </Row>
 
         <Stack gap={2}>
-          <Heading level="h3" className="leading-tight">
+          <Heading level="h3" className="line-clamp-2 leading-tight">
             {item.title}
           </Heading>
           <Text size="bodySm" tone="muted" className="line-clamp-3">
@@ -157,16 +162,19 @@ export function LibraryCard({
         </Stack>
 
         <Row gap={2} wrap>
-          {item.tags.map((tag) => (
+          {visibleTags.map((tag) => (
             <Pill key={tag} tone="gray">
               #{tag}
             </Pill>
           ))}
+          {overflowCount > 0 && (
+            <Pill tone="gray">+{overflowCount}</Pill>
+          )}
         </Row>
       </Stack>
 
-      <Row gap={2} align="center" justify="between" className="mt-mdt-4 text-caption text-mdt-muted">
-        <Row gap={2} wrap>
+      <div className="mt-auto space-y-mdt-3 border-t border-mdt-border pt-mdt-4">
+        <Row gap={2} wrap className="text-caption text-mdt-muted">
           <Text as="span" size="caption" tone="muted">
             {item.stats.views.toLocaleString()} views
           </Text>
@@ -177,16 +185,16 @@ export function LibraryCard({
             {item.stats.votes.toLocaleString()} votes
           </Text>
         </Row>
-        <Row gap={2} align="center" className="relative z-10">
+        <Row gap={2} align="center" wrap className="relative z-10 w-full justify-start sm:justify-end">
           {onPreview && (
-            <Button variant="ghost" size="xs" onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
+            <Button variant="ghost" size={actionSize} onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
               Preview
             </Button>
           )}
           {renderPrimary()}
           {renderSecondary()}
         </Row>
-      </Row>
+      </div>
     </Card>
   );
 }
