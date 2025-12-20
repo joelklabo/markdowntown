@@ -201,7 +201,7 @@ export function SiteNav({ user }: { user?: User }) {
             {featureFlags.wordmarkBannerV1 ? (
               <LivingCityWordmark
                 className="mdt-wordmark--banner"
-                containerClassName="block h-12 w-full md:h-14"
+                containerClassName="block h-mdt-12 w-full md:h-mdt-14"
                 sizeMode="fluid"
                 preserveAspectRatio="xMinYMid slice"
               />
@@ -213,7 +213,7 @@ export function SiteNav({ user }: { user?: User }) {
                     "text-caption font-semibold uppercase tracking-[0.4em] text-mdt-muted",
                     interactiveBase,
                     focusRing,
-                    "rounded-md px-mdt-2 py-mdt-1 hover:text-mdt-text"
+                    "rounded-mdt-md px-mdt-3 py-mdt-1 hover:text-mdt-text"
                   )}
                   aria-label="mark downtown"
                 >
@@ -226,11 +226,11 @@ export function SiteNav({ user }: { user?: User }) {
         <Container
           as="div"
           padding="sm"
-          className="grid min-h-14 grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 py-mdt-2 md:min-h-16 md:gap-mdt-4 md:py-mdt-3"
+          className="grid min-h-14 grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 py-mdt-3 md:min-h-16 md:gap-mdt-4 md:py-mdt-4"
         >
           <nav
             ref={desktopNavRef}
-            className="relative hidden w-full items-center justify-center gap-mdt-3 text-body-sm font-medium text-mdt-muted md:flex"
+            className="relative hidden w-full items-center justify-center gap-mdt-4 text-body-sm font-medium text-mdt-muted md:flex"
             aria-label="Primary"
           >
             <NavActiveIndicator containerRef={desktopNavRef} activeKey={pathname} />
@@ -241,12 +241,12 @@ export function SiteNav({ user }: { user?: User }) {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "rounded-md px-mdt-3 py-mdt-2",
+                    "rounded-mdt-md px-mdt-4 py-mdt-2",
                     interactiveBase,
                     focusRing,
                     active
-                      ? "bg-mdt-surface-subtle text-mdt-text shadow-mdt-sm"
-                      : "hover:text-mdt-text"
+                      ? "bg-mdt-surface text-mdt-text shadow-mdt-sm"
+                      : "hover:bg-mdt-surface-subtle/80 hover:text-mdt-text"
                   )}
                   data-nav-active={active ? "true" : undefined}
                   onClick={() => track("nav_click", { href: link.href, placement: "desktop" })}
@@ -262,7 +262,7 @@ export function SiteNav({ user }: { user?: User }) {
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden w-[220px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm md:flex lg:w-[360px]"
+              className="hidden w-[240px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:w-[380px]"
             >
 	              <input
 	                name="q"
@@ -274,14 +274,14 @@ export function SiteNav({ user }: { user?: User }) {
                 ref={inputRef}
                 aria-keyshortcuts="/"
               />
-              <Button type="submit" size="xs">
+              <Button type="submit" size="sm">
                 Search
               </Button>
             </form>
             <Button
               type="button"
               variant="secondary"
-              size="xs"
+              size="sm"
               className="hidden whitespace-nowrap lg:inline-flex"
               onClick={() => openCommandPalette("desktop_nav_button")}
               aria-keyshortcuts="Meta+K,Control+K"
@@ -295,7 +295,7 @@ export function SiteNav({ user }: { user?: User }) {
               <ThemeToggle />
             </div>
             {user ? (
-              <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill bg-mdt-surface-subtle px-3 py-1 text-sm font-medium text-mdt-muted md:flex">
+              <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border/70 bg-mdt-surface px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
                 {user.image && (
                   <Image
                     src={user.image}
@@ -347,7 +347,7 @@ export function SiteNav({ user }: { user?: User }) {
               <button
                 type="button"
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text",
+                  "flex h-10 w-10 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -363,7 +363,7 @@ export function SiteNav({ user }: { user?: User }) {
               <button
                 type="button"
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:text-mdt-text",
+                  "flex h-10 w-10 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -379,7 +379,7 @@ export function SiteNav({ user }: { user?: User }) {
 
       {/* Mobile bottom nav */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-mdt-surface/95 px-2 py-2 text-xs font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-mdt-surface/95 px-3 py-3 text-caption font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
         role="navigation"
         aria-label="Primary"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 10px)" }}
@@ -392,8 +392,8 @@ export function SiteNav({ user }: { user?: User }) {
               {item.type === "link" ? (
                 <Link
                   href={item.href!}
-                  className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-md px-2 transition ${
-                    active ? "text-mdt-text" : "hover:text-mdt-text"
+                  className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-mdt-md px-mdt-2 transition duration-mdt-fast ease-mdt-standard ${
+                    active ? "bg-mdt-surface-subtle text-mdt-text" : "hover:bg-mdt-surface-subtle/80 hover:text-mdt-text"
                   } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]`}
                   onClick={() => track("nav_click", { href: item.href, placement: "bottom" })}
                   aria-current={active ? "page" : undefined}
@@ -410,7 +410,7 @@ export function SiteNav({ user }: { user?: User }) {
                   onClick={() => {
                     openMobileSearch("bottom_nav");
                   }}
-                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-md px-2 text-mdt-text transition hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
+                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-mdt-md px-mdt-2 text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-subtle/80 hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   aria-label="Open search"
                   aria-keyshortcuts="/"
                 >
@@ -428,7 +428,7 @@ export function SiteNav({ user }: { user?: User }) {
       <Sheet open={showMobileSearch} onOpenChange={(open) => setShowMobileSearch(open)}>
         <SheetContent
           side="top"
-          className="md:hidden p-4 rounded-b-2xl"
+          className="md:hidden p-mdt-5 rounded-b-2xl"
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             requestAnimationFrame(() => inputRef.current?.focus());
@@ -443,7 +443,7 @@ export function SiteNav({ user }: { user?: User }) {
           }}
         >
           <SheetTitle className="sr-only">Search</SheetTitle>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-mdt-3">
             <p className="text-sm font-semibold text-mdt-text">Search</p>
             <SheetClose asChild>
               <button className="text-sm text-mdt-muted hover:text-mdt-text" aria-label="Close search">
@@ -454,7 +454,7 @@ export function SiteNav({ user }: { user?: User }) {
           <form
             role="search"
             onSubmit={onSearch}
-            className="flex flex-col gap-3 rounded-lg border border-mdt-border bg-mdt-surface px-3 py-2 text-sm shadow-mdt-sm"
+            className="flex flex-col gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3 text-body-sm shadow-mdt-sm"
           >
             <input
               ref={inputRef}
@@ -472,8 +472,8 @@ export function SiteNav({ user }: { user?: User }) {
             </div>
           </form>
 
-          <div className="mt-3 space-y-2">
-            <p className="text-xs font-semibold text-mdt-muted">Quick filters</p>
+          <div className="mt-mdt-3 space-y-2">
+            <p className="text-caption font-semibold text-mdt-muted">Quick filters</p>
             <div className="flex flex-wrap gap-2">
               {quickFilters.map((filter) => (
                 <Button
@@ -505,15 +505,15 @@ export function SiteNav({ user }: { user?: User }) {
           </div>
 
           {recentSearches.length > 0 && (
-            <div className="mt-3 space-y-2">
+            <div className="mt-mdt-3 space-y-2">
               <div>
-                <p className="text-xs font-semibold text-mdt-muted">Recent</p>
+                <p className="text-caption font-semibold text-mdt-muted">Recent</p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {recentSearches.map((term) => (
                     <button
                       key={term}
                       type="button"
-                      className="rounded-md border border-mdt-border px-2 py-1 text-sm text-mdt-text hover:bg-mdt-surface-subtle"
+                      className="rounded-mdt-md border border-mdt-border px-mdt-3 py-mdt-2 text-body-sm text-mdt-text hover:bg-mdt-surface-subtle"
                       onClick={() => {
                         setQuery(term);
                         requestAnimationFrame(() => inputRef.current?.focus());
@@ -533,7 +533,7 @@ export function SiteNav({ user }: { user?: User }) {
       <Sheet open={showOverflowSheet} onOpenChange={(open) => setShowOverflowSheet(open)}>
         <SheetContent
           side="bottom"
-          className="md:hidden rounded-t-2xl p-4"
+          className="md:hidden rounded-t-2xl p-mdt-5"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             const shouldSuppress = suppressOverflowRestoreRef.current;
@@ -544,7 +544,7 @@ export function SiteNav({ user }: { user?: User }) {
           }}
         >
           <SheetTitle className="sr-only">More</SheetTitle>
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-mdt-3 flex items-center justify-between">
             <div className="h-1.5 w-12 rounded-full bg-mdt-border" aria-hidden />
             <SheetClose asChild>
               <button type="button" className="text-sm text-mdt-muted hover:text-mdt-text" aria-expanded={showOverflowSheet}>
@@ -552,7 +552,7 @@ export function SiteNav({ user }: { user?: User }) {
               </button>
             </SheetClose>
           </div>
-          <div className="mb-3 flex flex-wrap gap-2">
+          <div className="mb-mdt-4 flex flex-wrap gap-mdt-2">
             <SheetClose asChild>
               <Button
                 type="button"
@@ -576,14 +576,14 @@ export function SiteNav({ user }: { user?: User }) {
             </Button>
             <DensityToggle />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-mdt-3">
             {overflowLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 target={link.external ? "_blank" : undefined}
                 rel={link.external ? "noreferrer" : undefined}
-                className="rounded-lg border border-mdt-border px-3 py-2 text-sm font-semibold text-mdt-text transition hover:bg-mdt-surface-subtle"
+                className="rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm font-semibold text-mdt-text shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-subtle hover:shadow-mdt-md"
                 onClick={() => {
                   setShowOverflowSheet(false);
                   track("nav_click", { href: link.href, placement: "overflow" });
