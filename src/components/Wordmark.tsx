@@ -27,9 +27,9 @@ export function Wordmark({ asLink = true, href = "/", size = "md", className }: 
   const content = (
     <LivingCityWordmark
       className={cn(
-        "w-auto shrink-0",
-        sizeClasses[size].svg
+        "w-auto shrink-0"
       )}
+      containerClassName={cn("w-auto", sizeClasses[size].svg)}
     />
   );
 

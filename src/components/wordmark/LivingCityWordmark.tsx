@@ -11,13 +11,17 @@ import { trackError } from "@/lib/analytics";
 
 type LivingCityWordmarkProps = {
   className?: string;
+  containerClassName?: string;
   bannerScale?: number;
   preserveAspectRatio?: string;
   sizeMode?: "fixed" | "fluid";
 };
 
 function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
+  const [reduced, setReduced] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -35,7 +39,13 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio, sizeMode }: LivingCityWordmarkProps) {
+export function LivingCityWordmark({
+  className,
+  containerClassName,
+  bannerScale,
+  preserveAspectRatio,
+  sizeMode,
+}: LivingCityWordmarkProps) {
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLSpanElement | null>(null);
   const [autoBannerScale, setAutoBannerScale] = useState<number | null>(null);
@@ -44,6 +54,8 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
   const descId = `${id}-desc`;
   const pathname = usePathname();
   const prefersReducedMotion = usePrefersReducedMotion();
+  const isVisualTest =
+    typeof window !== "undefined" && (window as { __MDT_VISUAL_TEST__?: boolean }).__MDT_VISUAL_TEST__ === true;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -54,6 +66,7 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
     featureFlags.wordmarkAnimV1 &&
     featureFlags.wordmarkBannerV1 &&
     !prefersReducedMotion &&
+    !isVisualTest &&
     pathname !== "/labs/city-logo";
   const canAnimate = mounted && shouldAnimate;
   const sim = useCityWordmarkSim({ enabled: canAnimate });
@@ -113,6 +126,7 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
     canAnimate && "mdt-wordmark--animated",
     className
   );
+  const mergedContainerClassName = cn("block h-full w-full", containerClassName);
 
   const fallback = (
     <span
@@ -133,7 +147,7 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
         trackError("wordmark_banner_error", error, { route: pathname })
       }
     >
-      <span ref={containerRef} className="block h-full w-full">
+      <span ref={containerRef} className={mergedContainerClassName}>
         <LivingCityWordmarkSvg
           titleId={titleId}
           descId={descId}

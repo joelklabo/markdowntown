@@ -200,7 +200,8 @@ export function SiteNav({ user }: { user?: User }) {
           <div className="w-full overflow-hidden">
             {featureFlags.wordmarkBannerV1 ? (
               <LivingCityWordmark
-                className={cn("mdt-wordmark--banner", "block h-12 w-full md:h-14")}
+                className="mdt-wordmark--banner"
+                containerClassName="block h-12 w-full md:h-14"
                 sizeMode="fluid"
                 preserveAspectRatio="xMinYMid slice"
               />

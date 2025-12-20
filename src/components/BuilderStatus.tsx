@@ -11,10 +11,15 @@ type PerfSample = {
 type SaveState = "idle" | "dirty" | "saving" | "saved";
 
 export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState }) {
-  const [perf, setPerf] = useState<PerfSample>({ nav: null, cache: null });
-  const [bundleOk, setBundleOk] = useState(true);
+  const isVisualTest =
+    typeof window !== "undefined" && (window as { __MDT_VISUAL_TEST__?: boolean }).__MDT_VISUAL_TEST__ === true;
+  const [perf, setPerf] = useState<PerfSample>(() =>
+    isVisualTest ? { nav: 120, cache: "hit" } : { nav: null, cache: null }
+  );
+  const [bundleOk, setBundleOk] = useState(() => true);
 
   useEffect(() => {
+    if (isVisualTest) return;
     try {
       const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
       const cache = navEntry?.serverTiming?.find((t) => t.name === "cache")?.description ?? null;
@@ -25,7 +30,7 @@ export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState })
     requestAnimationFrame(() => {
       setBundleOk((window as { __MDT_BUNDLE_OK?: boolean }).__MDT_BUNDLE_OK !== false);
     });
-  }, []);
+  }, [isVisualTest]);
 
   const saveLabel = (() => {
     if (saveState === "saving") return "Saving…";
