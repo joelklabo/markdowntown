@@ -1,5 +1,5 @@
 # UI Layout & Interaction Guardrails
-Date: 2025-12-01
+Date: 2025-12-20
 Owner: markdowntown-5k8
 
 ## Objectives
@@ -7,6 +7,7 @@ Owner: markdowntown-5k8
 - Keep library/browse cards readable (min widths, multi-column) and ensure controls remain usable.
 - Detect regressions automatically via E2E layout checks.
 - Cover critical button/tab interactions so they never go inert.
+- Keep tab pickers consistent in height/spacing and ensure focus visibility in light/dark.
 
 ## Action Plan
 1) **Header resiliency**
@@ -24,7 +25,12 @@ Owner: markdowntown-5k8
    - Add layout guard test (`NavLayout`) to CI (skipped unless `E2E_BASE_URL` provided).
    - Add future mobile viewport run (375px) to ensure bottom nav/search modal focus order.
 
-4) **Visual QA backlog (next steps)**
+4) **Tabs + spacing guardrails**
+   - Tabs/pickers: min height 40px, label does not wrap, active state visually distinct in light/dark.
+   - Spacing: cards use `p-mdt-5` + `space-y-mdt-3`; page sections follow `py-mdt-10 md:py-mdt-12`.
+   - Check focus rings remain visible on active tabs and segmented controls.
+
+5) **Visual QA backlog (next steps)**
    - Integrate percy/playwright screenshots for `/browse`, `/` header, `/builder` at desktop + mobile.
    - Add contract tests for pill overflow (cap to 2 lines, ellipsis) and button labels.
    - Track broken buttons/tabs as individual issues; fix and add regression checks when discovered.

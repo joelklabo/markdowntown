@@ -5,12 +5,18 @@
 - `/browse` (filters, cards, empty state)
 - `/snippets/[slug]` and `/templates/[slug]` (quality strip, tabs, related)
 - `/builder` (3-pane layout)
+- `/documents` (list + empty state)
 - `/tags` (tag grid)
+- `/atlas` (landing + compare widgets)
+- `/docs` (docs landing + detail cards)
+- `/changelog` (list + entry layout)
+- `/privacy` and `/terms` (long-form text layout)
 
 ## Baselines
 - Tool: Playwright screenshot tests per route and breakpoint (1280x720, 390x844).
 - Store baseline images in `__tests__/__screenshots__` (or Playwright default).
 - Update snapshots only via intentional run; review diffs in PRs.
+- Ensure the Living City header band is visible in `/`, `/browse`, `/builder`, `/atlas`, and `/docs` baselines.
 
 ## Smoke interactions
 - Nav: open/close search sheet; theme toggle; command palette open+close.

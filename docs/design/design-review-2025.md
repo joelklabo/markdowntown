@@ -35,6 +35,12 @@
 - Builder/library = Precision Workbench for pro feel.
 - Onboarding/delight = Playful Mentor micro-moments (checklists, confetti-on-copy).
 
+## Living City alignment (Dec 20, 2025)
+- The header wordmark is a full-bleed visual anchor; nav surfaces should float cleanly above it without competing textures.
+- Use semantic tokens to pull subtle accents from the header (primary/soft surfaces) while preserving legibility and professional tone.
+- Page rhythm targets: `py-mdt-10 md:py-mdt-12`, primary stacks `gap={8}`, cards `p-mdt-5` + `space-y-mdt-3`.
+- Tabs and segmented pickers should follow the shared pill pattern (≥ 40px height, clear active state, visible focus ring).
+
 ## Design system 2.0 (light/dark)
 - Tokens: expanded semantic colors, radii, shadows, motion (distance-based), spacing scale; dual themes in `globals.css`.
 - Typography: humanist sans + mono; defined display/h1–h6/body/label/mono styles.
