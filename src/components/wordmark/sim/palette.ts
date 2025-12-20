@@ -30,8 +30,8 @@ const CLASSIC_NIGHT: CityWordmarkPalette = {
 const CLASSIC_DAY: CityWordmarkPalette = {
   sky: [135, 206, 235],
   ground: [68, 140, 88],
-  building: [38, 58, 82],
-  buildingMuted: [100, 152, 192],
+  building: [28, 44, 68],
+  buildingMuted: [82, 122, 162],
   window: [255, 240, 200],
   car: [56, 86, 112],
   star: [228, 240, 255],
@@ -70,8 +70,8 @@ export const CITY_WORDMARK_SCHEME_DEFINITIONS: Record<CityWordmarkScheme, CityWo
     day: {
       sky: [212, 216, 224],
       ground: [124, 128, 132],
-      building: [34, 38, 46],
-      buildingMuted: [162, 168, 182],
+      building: [28, 32, 40],
+      buildingMuted: [132, 140, 156],
       window: [255, 240, 200],
       car: [84, 86, 96],
       star: [228, 240, 255],
@@ -96,8 +96,8 @@ export const CITY_WORDMARK_SCHEME_DEFINITIONS: Record<CityWordmarkScheme, CityWo
     day: {
       sky: [154, 224, 255],
       ground: [98, 200, 168],
-      building: [44, 12, 84],
-      buildingMuted: [108, 58, 160],
+      building: [34, 10, 70],
+      buildingMuted: [90, 40, 130],
       window: [120, 255, 232],
       car: [255, 84, 180],
       star: [228, 240, 255],

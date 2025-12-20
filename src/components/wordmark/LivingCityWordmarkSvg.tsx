@@ -46,20 +46,57 @@ function renderCelestialBodyRects(
   x: number,
   y: number,
   size: number,
-  kind: "sun" | "moon"
+  kind: "sun" | "moon",
+  detailScale: number
 ): Array<ReactElement> {
+  const isHd = detailScale > 1;
+  const ray = Math.max(1, Math.floor(size / 3));
+  const rayOffset = Math.max(0, Math.floor((size - ray) / 2));
+  const diag = Math.max(1, Math.floor(ray / 2));
   if (kind === "sun") {
+    const rays = [
+      <rect key="sun-ray-left" x={x - ray} y={y + rayOffset} width={ray} height={ray} />,
+      <rect key="sun-ray-right" x={x + size} y={y + rayOffset} width={ray} height={ray} />,
+    ];
+    if (isHd) {
+      rays.push(
+        <rect key="sun-ray-top" x={x + rayOffset} y={y - ray} width={ray} height={ray} />,
+        <rect key="sun-ray-bottom" x={x + rayOffset} y={y + size} width={ray} height={ray} />,
+        <rect key="sun-ray-tl" x={x - diag} y={y - diag} width={diag} height={diag} opacity={0.8} />,
+        <rect key="sun-ray-tr" x={x + size} y={y - diag} width={diag} height={diag} opacity={0.8} />,
+        <rect key="sun-ray-bl" x={x - diag} y={y + size} width={diag} height={diag} opacity={0.8} />,
+        <rect key="sun-ray-br" x={x + size} y={y + size} width={diag} height={diag} opacity={0.8} />
+      );
+    }
+
     return [
-      <rect key="sun-core" x={x} y={y} width={size} height={size} rx={size / 3} ry={size / 3} />,
-      <rect key="sun-ray-1" x={x - size} y={y + size / 3} width={size / 2} height={size / 3} />,
-      <rect key="sun-ray-2" x={x + size + size / 2} y={y + size / 3} width={size / 2} height={size / 3} />,
+      <rect key="sun-core" x={x} y={y} width={size} height={size} rx={Math.max(1, size / 3)} ry={Math.max(1, size / 3)} />,
+      ...rays,
     ];
   }
 
+  const cutSize = Math.max(1, Math.floor(size * 0.6));
+  const cutX = x + Math.floor(size * 0.4);
+  const cutY = y + Math.floor(size * 0.2);
+  const crater = Math.max(1, Math.floor(size / 5));
+
   return [
-    <rect key="moon-core" x={x} y={y} width={size} height={size} rx={size / 3} ry={size / 3} />,
-    <rect key="moon-cut" x={x + size / 2} y={y + size / 4} width={size / 2} height={size / 2} opacity={0.35} />,
-  ];
+    <rect key="moon-core" x={x} y={y} width={size} height={size} rx={Math.max(1, size / 3)} ry={Math.max(1, size / 3)} />,
+    <rect key="moon-cut" x={cutX} y={cutY} width={cutSize} height={cutSize} opacity={0.35} />,
+    isHd ? (
+      <rect key="moon-crater-1" x={x + crater} y={y + crater} width={crater} height={crater} opacity={0.25} />
+    ) : null,
+    isHd ? (
+      <rect
+        key="moon-crater-2"
+        x={x + Math.floor(size * 0.65)}
+        y={y + Math.floor(size * 0.55)}
+        width={crater}
+        height={crater}
+        opacity={0.2}
+      />
+    ) : null,
+  ].filter(Boolean) as Array<ReactElement>;
 }
 
 export function LivingCityWordmarkSvg({
@@ -88,11 +125,11 @@ export function LivingCityWordmarkSvg({
 
   const palette = useMemo(() => getCityWordmarkPalette(timeOfDay, scheme), [scheme, timeOfDay]);
   const gridBuilding = useMemo(
-    () => lerpRgb(palette.building, palette.buildingMuted, 0.4),
+    () => lerpRgb(palette.building, palette.buildingMuted, 0.3),
     [palette]
   );
   const gridBuildingMuted = useMemo(
-    () => lerpRgb(palette.buildingMuted, palette.sky, 0.3),
+    () => lerpRgb(palette.buildingMuted, palette.sky, 0.2),
     [palette]
   );
   const { daylight } = getTimeOfDayPhase(timeOfDay);
@@ -161,7 +198,7 @@ export function LivingCityWordmarkSvg({
     return voxelRectsToPath(lit, 1);
   }, [windowState, windows]);
 
-  const bodySize = 2 * resolution;
+  const bodySize = 2 * resolution * layout.detailScale;
   const skyMaxX = Math.max(0, sceneWidth - bodySize);
   const skyMaxY = Math.max(0, skyHeight - bodySize);
 
@@ -249,15 +286,15 @@ export function LivingCityWordmarkSvg({
 
         {celestial.sun.visible && (
           <g fill={rgbToCss(palette.sun)} opacity={clamp01(daylight * 1.1)}>
-            {renderCelestialBodyRects(sunX, sunY, bodySize, "sun")}
-          </g>
-        )}
+          {renderCelestialBodyRects(sunX, sunY, bodySize, "sun", layout.detailScale)}
+        </g>
+      )}
 
         {celestial.moon.visible && (
           <g fill={rgbToCss(palette.moon)} opacity={clamp01(nightness * 1.1)}>
-            {renderCelestialBodyRects(moonX, moonY, bodySize, "moon")}
-          </g>
-        )}
+          {renderCelestialBodyRects(moonX, moonY, bodySize, "moon", layout.detailScale)}
+        </g>
+      )}
 
         {stars.map((star) => (
           <rect
