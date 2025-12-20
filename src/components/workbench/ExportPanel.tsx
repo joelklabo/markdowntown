@@ -8,6 +8,7 @@ import { FileTree } from '@/components/ui/FileTree';
 import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
+import { track } from '@/lib/analytics';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 
@@ -127,6 +128,10 @@ export function ExportPanel() {
     try {
       emitCityWordmarkEvent({ type: 'publish', kind: 'file' });
       const blob = await createZip(result.files);
+      track('workbench_export_download', {
+        targetIds,
+        fileCount: result.files.length,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -290,6 +295,10 @@ export function ExportPanel() {
                         await navigator.clipboard.writeText(f.content);
                         setCopiedPath(f.path);
                         setTimeout(() => setCopiedPath(null), 1000);
+                        track('workbench_export_copy', {
+                          path: f.path,
+                          targetId: uam.targets.length === 1 ? uam.targets[0]?.targetId : undefined,
+                        });
                       } catch {
                         // ignore
                       }

@@ -27,14 +27,14 @@ This file defines canonical event names and properties for the UX and onboarding
 - `atlas_simulator_scan_error`
   - Properties: `method`, `tool`, `message` (from error tracking)
 
-### Workbench (partial)
+### Workbench (implemented)
 - `ui_route_view` with `route=/workbench` — use as the entry signal.
-- `workbench_save_artifact` (implemented)
+- `workbench_save_artifact`
   - Properties: `id`
-- `workbench_export_download` (recommended)
+- `workbench_export_download`
   - Properties: `targetIds`, `fileCount`
-- `workbench_export_copy` (recommended)
-  - Properties: `targetId`
+- `workbench_export_copy`
+  - Properties: `path`, `targetId`
 
 ## Funnel definition (scan → build → export)
 1. `atlas_simulator_scan_start`

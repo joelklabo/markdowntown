@@ -4,9 +4,14 @@ import { ExportPanel } from '@/components/workbench/ExportPanel';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { createUamTargetV1 } from '@/lib/uam/uamTypes';
 import { createZip } from '@/lib/compile/zip';
+import { track } from '@/lib/analytics';
 
 vi.mock('@/lib/compile/zip', () => ({
   createZip: vi.fn().mockResolvedValue(new Blob([])),
+}));
+
+vi.mock('@/lib/analytics', () => ({
+  track: vi.fn(),
 }));
 
 global.URL.createObjectURL = vi.fn(() => 'blob:url');
@@ -23,6 +28,10 @@ describe('ExportPanel', () => {
     });
     vi.clearAllMocks();
     global.fetch = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+      configurable: true,
+    });
   });
 
   it('compiles and downloads a zip', async () => {
@@ -54,6 +63,21 @@ describe('ExportPanel', () => {
       expect(createZip).toHaveBeenCalledTimes(1);
       expect(global.URL.createObjectURL).toHaveBeenCalledTimes(1);
       expect(clickSpy).toHaveBeenCalledTimes(1);
+    });
+
+    const trackMock = vi.mocked(track);
+    expect(trackMock).toHaveBeenCalledWith('workbench_export_download', {
+      targetIds: ['agents-md'],
+      fileCount: 1,
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+
+    await waitFor(() => {
+      expect(trackMock).toHaveBeenCalledWith('workbench_export_copy', {
+        path: 'AGENTS.md',
+        targetId: 'agents-md',
+      });
     });
   });
 
