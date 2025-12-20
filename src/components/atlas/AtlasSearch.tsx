@@ -114,13 +114,14 @@ export function AtlasSearch({ className }: { className?: string }) {
             navigate(result);
           }
         }}
-        className="rounded-mdt-lg bg-mdt-surface shadow-mdt-sm"
+        size="lg"
+        className="rounded-mdt-lg bg-mdt-surface shadow-mdt-sm focus:shadow-mdt-md motion-reduce:transition-none"
       />
 
       {showPanel ? (
         <div
           className={cn(
-            "absolute left-0 right-0 top-full z-30 mt-mdt-2 overflow-hidden rounded-mdt-lg border border-mdt-border bg-mdt-surface-raised shadow-mdt-lg"
+            "absolute left-0 right-0 top-full z-30 mt-mdt-3 overflow-hidden rounded-mdt-lg border border-mdt-border bg-mdt-surface-raised shadow-mdt-lg"
           )}
         >
           {!hasQuery ? (
@@ -128,7 +129,7 @@ export function AtlasSearch({ className }: { className?: string }) {
           ) : results.length === 0 ? (
             <div className="px-mdt-3 py-mdt-3 text-body-sm text-mdt-muted">No results.</div>
           ) : (
-            <ul role="listbox" aria-label="Atlas search results" className="max-h-[320px] overflow-auto py-mdt-1">
+            <ul role="listbox" aria-label="Atlas search results" className="max-h-[360px] overflow-auto px-mdt-1 py-mdt-1">
               {results.map((result, idx) => {
                 const active = idx === activeIndex;
                 const badge = badgeForKind(result.kind);
@@ -141,7 +142,7 @@ export function AtlasSearch({ className }: { className?: string }) {
                       onMouseEnter={() => setHighlight(idx)}
                       onClick={() => navigate(result)}
                       className={cn(
-                        "flex w-full items-center justify-between gap-mdt-3 px-mdt-3 py-mdt-2 text-left",
+                        "flex w-full items-center justify-between gap-mdt-3 rounded-mdt-md px-mdt-3 py-mdt-2 text-left motion-reduce:transition-none",
                         interactiveBase,
                         focusRing,
                         active

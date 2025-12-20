@@ -16,17 +16,17 @@ export function AtlasSidebar() {
       aria-label="Atlas"
       className="rounded-mdt-xl border border-mdt-border bg-mdt-surface shadow-mdt-sm"
     >
-      <div className="px-mdt-4 py-mdt-3 border-b border-mdt-border">
+      <div className="rounded-t-mdt-xl border-b border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3">
         <div className="text-body-sm font-semibold text-mdt-text">Explore</div>
         <div className="text-body-xs text-mdt-muted">Docs-as-data for agent behavior.</div>
       </div>
-      <ul className="p-mdt-2">
+      <ul className="space-y-mdt-1 p-mdt-3">
         {navItems.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
               className={cn(
-                "block rounded-mdt-md px-mdt-3 py-mdt-2 text-body-sm text-mdt-text hover:bg-mdt-surface-raised",
+                "block rounded-mdt-md px-mdt-3 py-mdt-2 text-body-sm text-mdt-text hover:bg-mdt-surface-raised motion-reduce:transition-none",
                 interactiveBase,
                 focusRing
               )}
