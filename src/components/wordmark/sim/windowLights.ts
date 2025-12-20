@@ -53,7 +53,7 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
   const topPadding = topPaddingBase * resolution * detailScale;
   const letterSpacing = letterSpacingBase * resolution * detailScale;
   const windowChanceBase = options.windowChance ?? DEFAULTS.windowChance;
-  const windowChance = clamp01(windowChanceBase / resolution);
+  const windowChance = clamp01(windowChanceBase / (resolution * detailScale));
   const minCycleMs = options.minCycleMs ?? DEFAULTS.minCycleMs;
   const maxCycleMs = options.maxCycleMs ?? DEFAULTS.maxCycleMs;
 

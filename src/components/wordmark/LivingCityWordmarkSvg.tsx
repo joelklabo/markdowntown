@@ -107,6 +107,7 @@ export function LivingCityWordmarkSvg({
   const baseHeight = viewHeight / resolution;
   const pixelWidth = baseWidth * BASE_VOXEL_PIXEL_SCALE;
   const pixelHeight = baseHeight * BASE_VOXEL_PIXEL_SCALE;
+  const gridScale = resolution * layout.detailScale;
 
   const topPadding = layout.topPadding;
   const skyHeight = Math.max(1, topPadding);
@@ -216,7 +217,7 @@ export function LivingCityWordmarkSvg({
       shapeRendering="crispEdges"
     >
       <defs>
-        {resolution > 1 && (
+        {gridScale > 1 && (
           <>
             <pattern
               id={`${titleId}-building-grid`}
@@ -271,13 +272,13 @@ export function LivingCityWordmarkSvg({
         ))}
 
         <g
-          fill={resolution > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
+          fill={gridScale > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
           opacity={0.9}
         >
           <path d={skylinePath} />
         </g>
 
-        <g fill={resolution > 1 ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
+        <g fill={gridScale > 1 ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
           <path d={wordmarkPath} />
         </g>
 

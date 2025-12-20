@@ -35,10 +35,35 @@ describe("windowLights", () => {
     );
   });
 
+  it("expands window grid when detail is hd", () => {
+    const standard = createCityWordmarkWindows({
+      seed: "seed",
+      text: "MARKDOWNTOWN",
+      windowChance: 1,
+      detail: "standard",
+    });
+    const hd = createCityWordmarkWindows({
+      seed: "seed",
+      text: "MARKDOWNTOWN",
+      windowChance: 1,
+      detail: "hd",
+    });
+
+    expect(standard.length).toBeGreaterThan(0);
+    expect(hd.length).toBeGreaterThan(0);
+
+    const maxXStandard = Math.max(...standard.map((w) => w.x));
+    const maxXHd = Math.max(...hd.map((w) => w.x));
+    const maxYStandard = Math.max(...standard.map((w) => w.y));
+    const maxYHd = Math.max(...hd.map((w) => w.y));
+
+    expect(maxXHd).toBeGreaterThan(maxXStandard);
+    expect(maxYHd).toBeGreaterThan(maxYStandard);
+  });
+
   it("respects intensity", () => {
     const windows = createCityWordmarkWindows({ seed: "seed", text: "MARKDOWNTOWN", windowChance: 1 });
     const off = getCityWordmarkWindowLights(windows, { nowMs: 999, timeOfDay: 0.9, intensity: 0 });
     expect(Array.from(off)).toEqual(new Array(windows.length).fill(0));
   });
 });
-
