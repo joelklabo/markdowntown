@@ -9,11 +9,16 @@ import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Docs | mark downtown",
-  description: "Documentation and guides for mark downtown, agents.md workflows, and agents plugins.",
+  description: "Documentation and guides for mark downtown, instruction files, Atlas Simulator, and Workbench.",
 };
 
 const repoBase = "https://github.com/joelklabo/markdowntown/blob/main";
 const docsLinks = [
+  {
+    label: "User guide (Start here)",
+    description: "Scan a folder, review loaded instructions, and export agents.md.",
+    href: `${repoBase}/docs/USER_GUIDE.md`,
+  },
   {
     label: "AGENTS.md",
     description: "Project-specific agent instructions and workflow defaults.",
@@ -26,7 +31,7 @@ const docsLinks = [
   },
   {
     label: "Atlas Simulator guide",
-    description: "Simulate folder context and preview the insights pipeline.",
+    description: "Preview which instruction files load and why.",
     href: `${repoBase}/docs/atlas/simulator.md`,
   },
   {
@@ -50,7 +55,8 @@ export default function DocsPage() {
             <Text size="caption" tone="muted">Docs</Text>
             <Heading level="display" leading="tight">mark downtown documentation</Heading>
             <Text tone="muted">
-              Quick links to the guides already in this repo. More to come as the public library ships.
+              Start here with the user guide, then dive into Atlas Simulator and Workbench when you’re ready to ship
+              agents.md.
             </Text>
           </Stack>
 
@@ -94,19 +100,19 @@ export default function DocsPage() {
 
             <Card tone="subtle" padding="lg" className="space-y-mdt-4">
               <Text size="caption" tone="muted">How to use</Text>
-              <Heading level="h3" as="h3">Make the docs work for you</Heading>
+              <Heading level="h3" as="h3">Start with the primary flow</Heading>
               <Text tone="muted">
-                Start with the repo-specific guidance, then drill into Atlas when you want to understand agent context and scoring.
+                Use the user guide to follow the scan → build → export path, then reference the rest as needed.
               </Text>
               <ul className="space-y-mdt-3 list-disc pl-mdt-5">
                 <Text as="li" size="bodySm" tone="muted">
-                  Read AGENTS.md before running tasks or pushing changes.
+                  Read the User guide first to understand the scan-to-export workflow.
                 </Text>
                 <Text as="li" size="bodySm" tone="muted">
-                  Use the Atlas Simulator guide to preview how folder context is interpreted.
+                  Use the Atlas Simulator guide to preview which instruction files load.
                 </Text>
                 <Text as="li" size="bodySm" tone="muted">
-                  Keep the Beads CLI doc open when sequencing work across issues.
+                  Open Workbench to assemble scopes and export agents.md.
                 </Text>
               </ul>
             </Card>
