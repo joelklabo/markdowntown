@@ -54,6 +54,8 @@ function renderCelestialBodyRects(
   const rayOffset = Math.max(0, Math.floor((size - ray) / 2));
   const diag = Math.max(1, Math.floor(ray / 2));
   if (kind === "sun") {
+    const coreInset = Math.max(1, Math.floor(size / 4));
+    const coreSize = Math.max(1, size - coreInset * 2);
     const rays = [
       <rect key="sun-ray-left" x={x - ray} y={y + rayOffset} width={ray} height={ray} />,
       <rect key="sun-ray-right" x={x + size} y={y + rayOffset} width={ray} height={ray} />,
@@ -65,7 +67,15 @@ function renderCelestialBodyRects(
         <rect key="sun-ray-tl" x={x - diag} y={y - diag} width={diag} height={diag} opacity={0.8} />,
         <rect key="sun-ray-tr" x={x + size} y={y - diag} width={diag} height={diag} opacity={0.8} />,
         <rect key="sun-ray-bl" x={x - diag} y={y + size} width={diag} height={diag} opacity={0.8} />,
-        <rect key="sun-ray-br" x={x + size} y={y + size} width={diag} height={diag} opacity={0.8} />
+        <rect key="sun-ray-br" x={x + size} y={y + size} width={diag} height={diag} opacity={0.8} />,
+        <rect
+          key="sun-core-inner"
+          x={x + coreInset}
+          y={y + coreInset}
+          width={coreSize}
+          height={coreSize}
+          opacity={0.35}
+        />
       );
     }
 
@@ -79,6 +89,7 @@ function renderCelestialBodyRects(
   const cutX = x + Math.floor(size * 0.4);
   const cutY = y + Math.floor(size * 0.2);
   const crater = Math.max(1, Math.floor(size / 5));
+  const craterSmall = Math.max(1, Math.floor(size / 7));
 
   return [
     <rect key="moon-core" x={x} y={y} width={size} height={size} rx={Math.max(1, size / 3)} ry={Math.max(1, size / 3)} />,
@@ -94,6 +105,26 @@ function renderCelestialBodyRects(
         width={crater}
         height={crater}
         opacity={0.2}
+      />
+    ) : null,
+    isHd ? (
+      <rect
+        key="moon-crater-3"
+        x={x + Math.floor(size * 0.2)}
+        y={y + Math.floor(size * 0.65)}
+        width={craterSmall}
+        height={craterSmall}
+        opacity={0.2}
+      />
+    ) : null,
+    isHd ? (
+      <rect
+        key="moon-crater-4"
+        x={x + Math.floor(size * 0.55)}
+        y={y + Math.floor(size * 0.25)}
+        width={craterSmall}
+        height={craterSmall}
+        opacity={0.18}
       />
     ) : null,
   ].filter(Boolean) as Array<ReactElement>;

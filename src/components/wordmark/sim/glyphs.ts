@@ -21,218 +21,50 @@ export const CITY_WORDMARK_GLYPHS = {
 export const CITY_WORDMARK_GLYPH_ROWS = 7;
 export const CITY_WORDMARK_GLYPH_COLS = 5;
 
-export const CITY_WORDMARK_HD_GLYPHS = {
-  M: [
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBBBBB...BBBBBB",
-    "BBBBBB...BBBBBB",
-    "BBBBBB...BBBBBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-  ],
-  A: [
-    "...BBBBBBBBB...",
-    "...BBBBBBBBB...",
-    "...BBBBBBBBB...",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBBBBBBBBBBBBBB",
-    "BBBBBBBBBBBBBBB",
-    "BBBBBBBBBBBBBBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-  ],
-  R: [
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBB...BBB......",
-    "BBB...BBB......",
-    "BBB...BBB......",
-    "BBB......BBB...",
-    "BBB......BBB...",
-    "BBB......BBB...",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-  ],
-  K: [
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB......BBB...",
-    "BBB......BBB...",
-    "BBB......BBB...",
-    "BBB...BBB......",
-    "BBB...BBB......",
-    "BBB...BBB......",
-    "BBBBBB.........",
-    "BBBBBB.........",
-    "BBBBBB.........",
-    "BBB...BBB......",
-    "BBB...BBB......",
-    "BBB...BBB......",
-    "BBB......BBB...",
-    "BBB......BBB...",
-    "BBB......BBB...",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-  ],
-  D: [
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-    "BBBBBBBBBBBB...",
-  ],
-  O: [
-    "...BBBBBBBBB...",
-    "...BBBBBBBBB...",
-    "...BBBBBBBBB...",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "...BBBBBBBBB...",
-    "...BBBBBBBBB...",
-    "...BBBBBBBBB...",
-  ],
-  W: [
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBBBBB...BBBBBB",
-    "BBBBBB...BBBBBB",
-    "BBBBBB...BBBBBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-  ],
-  N: [
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBBBBB......BBB",
-    "BBBBBB......BBB",
-    "BBBBBB......BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB...BBB...BBB",
-    "BBB......BBBBBB",
-    "BBB......BBBBBB",
-    "BBB......BBBBBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-    "BBB.........BBB",
-  ],
-  T: [
-    "BBBBBBBBBBBBBBB",
-    "BBBBBBBBBBBBBBB",
-    "BBBBBBBBBBBBBBB",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-    "......BBB......",
-  ],
-} as const satisfies Record<string, CityWordmarkGlyph>;
+const HD_SCALE = 3;
 
-export const CITY_WORDMARK_HD_GLYPH_ROWS = 21;
-export const CITY_WORDMARK_HD_GLYPH_COLS = 15;
+function isGlyphCell(glyph: CityWordmarkGlyph, row: number, col: number): boolean {
+  return glyph[row]?.[col] === "B";
+}
+
+function buildHdGlyph(glyph: CityWordmarkGlyph, scale: number = HD_SCALE): CityWordmarkGlyph {
+  const rows = glyph.length;
+  const cols = glyph[0]?.length ?? 0;
+  const out = Array.from({ length: rows * scale }, () => Array(cols * scale).fill("."));
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!isGlyphCell(glyph, r, c)) continue;
+      const north = r > 0 && isGlyphCell(glyph, r - 1, c);
+      const south = r < rows - 1 && isGlyphCell(glyph, r + 1, c);
+      const west = c > 0 && isGlyphCell(glyph, r, c - 1);
+      const east = c < cols - 1 && isGlyphCell(glyph, r, c + 1);
+
+      const baseRow = r * scale;
+      const baseCol = c * scale;
+
+      for (let dr = 0; dr < scale; dr++) {
+        for (let dc = 0; dc < scale; dc++) {
+          out[baseRow + dr][baseCol + dc] = "B";
+        }
+      }
+
+      if (!north && !west) out[baseRow][baseCol] = ".";
+      if (!north && !east) out[baseRow][baseCol + scale - 1] = ".";
+      if (!south && !west) out[baseRow + scale - 1][baseCol] = ".";
+      if (!south && !east) out[baseRow + scale - 1][baseCol + scale - 1] = ".";
+    }
+  }
+
+  return out.map((row) => row.join(""));
+}
+
+export const CITY_WORDMARK_HD_GLYPHS = Object.fromEntries(
+  Object.entries(CITY_WORDMARK_GLYPHS).map(([key, glyph]) => [key, buildHdGlyph(glyph)])
+) as Record<string, CityWordmarkGlyph>;
+
+export const CITY_WORDMARK_HD_GLYPH_ROWS = CITY_WORDMARK_GLYPH_ROWS * HD_SCALE;
+export const CITY_WORDMARK_HD_GLYPH_COLS = CITY_WORDMARK_GLYPH_COLS * HD_SCALE;
 
 export type CityWordmarkGlyphSet = {
   glyphs: Record<string, CityWordmarkGlyph>;
