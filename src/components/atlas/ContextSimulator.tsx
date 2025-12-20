@@ -10,9 +10,11 @@ import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
+import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
 import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
 import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsScan";
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
+import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
 import type { RepoTree, SimulationResult, SimulatorToolId } from "@/lib/atlas/simulators/types";
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
@@ -129,7 +131,12 @@ export function ContextSimulator() {
   const [repoSource, setRepoSource] = useState<"manual" | "folder">("manual");
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
-  const [scanMeta, setScanMeta] = useState<{ totalFiles: number; truncated: boolean; rootName?: string } | null>(null);
+  const [scanMeta, setScanMeta] = useState<{
+    totalFiles: number;
+    matchedFiles: number;
+    truncated: boolean;
+    rootName?: string;
+  } | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<SimulationResult>(() => runSimulation("github-copilot", "", DEFAULT_REPO_TREE));
@@ -243,20 +250,15 @@ export function ContextSimulator() {
               <Radio
                 name="sim-repo-source"
                 checked={repoSource === "folder"}
-                disabled={!canPickDirectory}
                 onChange={() => setRepoSource("folder")}
                 label="Local folder (File System Access API)"
               />
             </div>
-            {!canPickDirectory ? (
-              <Text tone="muted" size="bodySm">
-                Folder picking isn’t supported in this browser.
-              </Text>
-            ) : (
-              <Text tone="muted" size="bodySm">
-                Scans locally in your browser. File contents are never uploaded.
-              </Text>
-            )}
+            <Text tone="muted" size="bodySm">
+              {canPickDirectory
+                ? "Scans locally in your browser. File contents are never uploaded."
+                : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
+            </Text>
           </div>
 
           <div className="space-y-2">
@@ -280,33 +282,64 @@ export function ContextSimulator() {
             </label>
             {repoSource === "folder" ? (
               <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={!canPickDirectory || isScanning}
-                  onClick={async () => {
-                    setScanError(null);
-                    setIsScanning(true);
-                    try {
-                      const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
-                      if (!picker) throw new Error("File System Access API not available");
-                      const handle = await picker();
-                      const { tree, totalFiles, truncated } = await scanRepoTree(handle as FileSystemDirectoryHandleLike);
-                      setScannedTree(tree);
-                      setScanMeta({ totalFiles, truncated, rootName: (handle as { name?: string }).name });
-                      setResult(simulateContextResolution({ tool, cwd, tree }));
-                    } catch (err) {
-                      if (err instanceof DOMException && err.name === "AbortError") {
-                        return;
+                {canPickDirectory ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={isScanning}
+                    onClick={async () => {
+                      setScanError(null);
+                      setIsScanning(true);
+                      try {
+                        const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+                        if (!picker) throw new Error("File System Access API not available");
+                        const handle = await picker();
+                        const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
+                          handle as FileSystemDirectoryHandleLike
+                        );
+                        setScannedTree(tree);
+                        setScanMeta({
+                          totalFiles,
+                          matchedFiles,
+                          truncated,
+                          rootName: (handle as { name?: string }).name,
+                        });
+                        setResult(simulateContextResolution({ tool, cwd, tree }));
+                      } catch (err) {
+                        if (err instanceof DOMException && err.name === "AbortError") {
+                          return;
+                        }
+                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+                      } finally {
+                        setIsScanning(false);
                       }
-                      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-                    } finally {
-                      setIsScanning(false);
-                    }
-                  }}
-                >
-                  {isScanning ? "Scanning…" : "Choose folder"}
-                </Button>
+                    }}
+                  >
+                    {isScanning ? "Scanning…" : "Choose folder"}
+                  </Button>
+                ) : (
+                  <Input
+                    type="file"
+                    multiple
+                    // @ts-expect-error - non-standard attribute for directory uploads
+                    webkitdirectory="true"
+                    aria-label="Upload folder"
+                    onChange={(event) => {
+                      setScanError(null);
+                      const files = event.target.files;
+                      if (!files || files.length === 0) return;
+                      try {
+                        const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
+                        const rootName = files[0]?.webkitRelativePath?.split("/")[0];
+                        setScannedTree(tree);
+                        setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
+                        setResult(simulateContextResolution({ tool, cwd, tree }));
+                      } catch (err) {
+                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+                      }
+                    }}
+                  />
+                )}
 
                 {scanError ? (
                   <Text tone="muted" size="bodySm">
@@ -314,12 +347,7 @@ export function ContextSimulator() {
                   </Text>
                 ) : null}
 
-                {scanMeta ? (
-                  <Text tone="muted" size="bodySm">
-                    {scanMeta.rootName ? `${scanMeta.rootName}: ` : ""}
-                    {scanMeta.totalFiles} file(s) scanned{scanMeta.truncated ? " (truncated)" : ""}.
-                  </Text>
-                ) : null}
+                {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
 
                 <TextArea id="sim-tree" rows={10} value={scannedPreview} readOnly />
               </div>
