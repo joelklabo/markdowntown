@@ -16,13 +16,13 @@ export function StructurePanel() {
   }, []);
 
   if (!enabled) {
-    return <div className="p-4 text-mdt-muted text-body-sm">Loading structure...</div>;
+    return <div className="p-mdt-4 text-mdt-muted text-body-sm">Loading structure...</div>;
   }
 
   return (
     <div className="flex flex-col h-full min-h-0">
       <ScopesPanel />
-      <div className="h-px bg-mdt-border my-4" />
+      <div className="h-px bg-mdt-border my-mdt-4" />
       <BlocksPanel />
     </div>
   );

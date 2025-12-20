@@ -112,8 +112,8 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
   };
 
   return (
-    <Container className="max-w-7xl">
-      <Grid columns={2} gap={8} className="h-[calc(100vh-100px)] py-8">
+    <Container size="xl" padding="lg" className="py-mdt-10 md:py-mdt-12">
+      <Grid columns={2} gap={8} className="h-[calc(100vh-100px)]">
         <TranslateInput value={input} onChange={setInput} disabled={loading} helperText={helperText} />
         <TranslateOutput
           targets={targets}

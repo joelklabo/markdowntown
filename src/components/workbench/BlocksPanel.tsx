@@ -4,6 +4,7 @@ import React from 'react';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import { cn } from '@/lib/cn';
 import type { UamBlockKindV1 } from '@/lib/uam/uamTypes';
 
@@ -46,17 +47,18 @@ export function BlocksPanel() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-mdt-2 flex items-center justify-between">
         <span className="font-bold text-body-sm text-mdt-muted uppercase tracking-wider">Blocks</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-mdt-2">
           <label className="sr-only" htmlFor="block-kind">
             Block kind
           </label>
-          <select
+          <Select
             id="block-kind"
             value={kind}
             onChange={(e) => setKind(e.target.value as UamBlockKindV1)}
-            className="h-8 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-2 text-caption text-mdt-text"
+            size="sm"
+            className="w-32"
             aria-label="Block kind"
           >
             {KIND_OPTIONS.map(opt => (
@@ -64,7 +66,7 @@ export function BlocksPanel() {
                 {opt.label}
               </option>
             ))}
-          </select>
+          </Select>
           <Button size="xs" onClick={handleAdd}>
             + Add
           </Button>
@@ -77,7 +79,7 @@ export function BlocksPanel() {
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
-              className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-2"
+              className="flex-1 min-h-0 overflow-y-auto space-y-mdt-2 pr-mdt-2"
             >
               {blocks.map((block, index) => (
                 <Draggable key={block.id} draggableId={block.id} index={index}>
@@ -87,7 +89,7 @@ export function BlocksPanel() {
                       {...provided.draggableProps}
                       style={provided.draggableProps.style}
                       className={cn(
-                        'p-2 rounded border group flex items-center gap-2 cursor-pointer transition-colors',
+                        'group flex items-center gap-mdt-2 rounded-mdt-md border p-mdt-2 transition-colors',
                         selectedBlockId === block.id
                           ? 'border-mdt-primary bg-mdt-primary/10'
                           : 'border-mdt-border bg-mdt-surface hover:border-mdt-primary-soft',
@@ -97,14 +99,14 @@ export function BlocksPanel() {
                     >
                       <div
                         {...provided.dragHandleProps}
-                        className="text-mdt-muted cursor-grab hover:text-mdt-text px-1"
+                        className="cursor-grab px-mdt-1 text-mdt-muted hover:text-mdt-text"
                         aria-label="Drag handle"
                       >
                         ⋮⋮
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono text-[10px] uppercase text-mdt-muted bg-mdt-surface-strong px-1 rounded">
+                        <div className="mb-mdt-1 flex items-center gap-mdt-2">
+                          <span className="rounded-mdt-sm bg-mdt-surface-strong px-mdt-1 font-mono text-[10px] uppercase text-mdt-muted">
                             {block.kind}
                           </span>
                         </div>
@@ -116,7 +118,7 @@ export function BlocksPanel() {
                           e.stopPropagation();
                           removeBlock(block.id);
                         }}
-                        className="opacity-0 group-hover:opacity-100 text-mdt-muted hover:text-mdt-danger p-1"
+                        className="p-mdt-1 text-mdt-muted opacity-0 group-hover:opacity-100 hover:text-mdt-danger"
                         aria-label="Remove block"
                       >
                         ×
@@ -136,4 +138,3 @@ export function BlocksPanel() {
     </div>
   );
 }
-

@@ -56,7 +56,7 @@ export function ScopesPanel() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-mdt-2 flex items-center justify-between">
         <span className="font-bold text-body-sm text-mdt-muted uppercase tracking-wider">Scopes</span>
         <Button
           size="xs"
@@ -69,13 +69,13 @@ export function ScopesPanel() {
       </div>
 
       {adding && (
-        <div className="mb-3 space-y-2">
+        <div className="mb-mdt-3 space-y-mdt-2">
           <Input
             value={pattern}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="src/**/*.ts"
             aria-label="Scope glob pattern"
-            className="h-8"
+            size="sm"
           />
           {validation.message && <div className="text-caption text-mdt-danger">{validation.message}</div>}
           <div className="flex justify-end">
@@ -86,7 +86,7 @@ export function ScopesPanel() {
         </div>
       )}
 
-      <div className="space-y-1">
+      <div className="space-y-mdt-1">
         {scopes.map(scope => {
           const count = blocks.filter(b => b.scopeId === scope.id).length;
           const selected = selectedScopeId === scope.id;
@@ -96,7 +96,7 @@ export function ScopesPanel() {
             <div
               key={scope.id}
               className={cn(
-                'w-full text-left px-2 py-2 rounded border flex items-center gap-2 transition-colors',
+                'w-full text-left rounded-mdt-md border px-mdt-2 py-mdt-2 flex items-center gap-mdt-2 transition-colors',
                 selected ? 'border-mdt-primary bg-mdt-primary/10' : 'border-mdt-border bg-mdt-surface hover:border-mdt-primary-soft'
               )}
             >
@@ -106,7 +106,7 @@ export function ScopesPanel() {
                 className="flex-1 min-w-0 text-left"
                 aria-current={selected ? 'true' : undefined}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-mdt-2">
                   <span className="truncate text-body-sm text-mdt-text">{scopeLabel(scope)}</span>
                   <span className="text-[10px] text-mdt-muted font-mono uppercase">
                     {scope.kind}
@@ -122,7 +122,7 @@ export function ScopesPanel() {
                     e.stopPropagation();
                     removeScope(scope.id);
                   }}
-                  className="text-mdt-muted hover:text-mdt-danger px-1"
+                  className="px-mdt-1 text-mdt-muted hover:text-mdt-danger"
                   aria-label="Remove scope"
                 >
                   ×

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import type { UamScopeV1 } from '@/lib/uam/uamTypes';
+import { Select } from '@/components/ui/Select';
 
 function scopeLabel(scope: UamScopeV1): string {
   if (scope.name && scope.name.trim().length > 0) return scope.name;
@@ -56,24 +57,25 @@ export function PreviewPanel() {
   }, [uam.meta.title, uam.meta.description, scopesToRender, blocks]);
 
   return (
-    <div className="h-full overflow-auto p-4 space-y-3">
+    <div className="h-full overflow-auto space-y-mdt-3 p-mdt-4">
       <div className="flex items-center justify-between">
         <span className="font-bold text-body-sm text-mdt-muted uppercase tracking-wider">Preview</span>
-        <label className="text-caption text-mdt-muted flex items-center gap-2">
+        <label className="flex items-center gap-mdt-2 text-caption text-mdt-muted">
           <span>Show</span>
-          <select
+          <Select
             value={mode}
             onChange={(e) => setMode(e.target.value as 'selected' | 'all')}
-            className="h-8 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-2 text-caption text-mdt-text"
+            size="sm"
+            className="w-32"
             aria-label="Preview mode"
           >
             <option value="selected">This scope</option>
             <option value="all">All scopes</option>
-          </select>
+          </Select>
         </label>
       </div>
 
-      <pre className="text-caption bg-mdt-surface-subtle p-3 rounded-mdt-md border border-mdt-border overflow-auto whitespace-pre-wrap font-mono text-mdt-text">
+      <pre className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3 font-mono text-caption text-mdt-text overflow-auto whitespace-pre-wrap">
         {markdown}
       </pre>
     </div>

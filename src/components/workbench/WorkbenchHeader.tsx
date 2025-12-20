@@ -60,24 +60,26 @@ export function WorkbenchHeader() {
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between border-b border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3">
+      <div className="flex items-center gap-mdt-2">
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="font-bold border-transparent hover:border-gray-200 focus:border-blue-500 w-64 h-8 py-1"
+          size="sm"
+          className="w-64 font-semibold"
           aria-label="Agent Title"
         />
         <Badge tone={visibilityBadge.tone} aria-label={`Visibility: ${visibilityBadge.label}`}>
           {visibilityBadge.label}
         </Badge>
       </div>
-      <div className="flex gap-2 items-center">
+      <div className="flex items-center gap-mdt-2">
         <Select
           value={visibility}
           onChange={(e) => setVisibility(e.target.value as ArtifactVisibility)}
           aria-label="Visibility"
-          className="h-8 py-1 w-32 text-sm"
+          size="sm"
+          className="w-32"
         >
           <option value="PRIVATE">Private</option>
           <option value="UNLISTED">Unlisted</option>
@@ -94,7 +96,8 @@ export function WorkbenchHeader() {
           onBlur={() => setTagsFocused(false)}
           placeholder="Tags (comma-separated)"
           aria-label="Tags"
-          className="h-8 py-1 w-56"
+          size="sm"
+          className="w-56"
         />
         <Button
           size="sm"
@@ -106,7 +109,7 @@ export function WorkbenchHeader() {
         >
           ⌘K
         </Button>
-        <div className="text-xs text-gray-500 tabular-nums leading-tight">
+        <div className="text-caption text-mdt-muted tabular-nums leading-tight">
           <div>
             {autosaveStatus === 'saving'
               ? 'Draft: saving…'
@@ -131,7 +134,7 @@ export function WorkbenchHeader() {
         <Button size="sm" onClick={handleSave} disabled={saving || cloudSaveStatus === 'saving' || !session}>
           {saving || cloudSaveStatus === 'saving' ? 'Saving...' : 'Save'}
         </Button>
-        {!session && <span className="text-xs text-red-500">Sign in to save</span>}
+        {!session && <span className="text-caption text-[color:var(--mdt-color-danger)]">Sign in to save</span>}
       </div>
     </div>
   );

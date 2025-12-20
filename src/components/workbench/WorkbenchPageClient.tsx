@@ -42,7 +42,7 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam }: W
   if (!mounted) return null;
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col bg-mdt-bg">
+    <div className="flex h-[calc(100vh-64px)] flex-col bg-mdt-bg">
       <WorkbenchHeader />
 
       <TabsRoot
@@ -57,19 +57,19 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam }: W
         </TabsList>
       </TabsRoot>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-[280px_1fr_320px] overflow-hidden">
+      <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-[280px_1fr_320px]">
         <div
           className={`h-full border-r border-mdt-border bg-mdt-surface-subtle ${
             mobileTab === 'structure' ? 'block' : 'hidden md:block'
           }`}
         >
-          <div className="h-full p-4 overflow-hidden">
+          <div className="h-full overflow-hidden p-mdt-4">
             <StructurePanel />
           </div>
         </div>
 
-        <div className={`h-full bg-mdt-surface relative ${mobileTab === 'editor' ? 'block' : 'hidden md:block'}`}>
-          <div className="h-full p-4 overflow-hidden">
+        <div className={`relative h-full bg-mdt-surface ${mobileTab === 'editor' ? 'block' : 'hidden md:block'}`}>
+          <div className="h-full overflow-hidden p-mdt-4">
             <EditorPanel />
           </div>
         </div>
@@ -79,7 +79,7 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam }: W
             mobileTab === 'output' ? 'block' : 'hidden md:block'
           }`}
         >
-          <div className="h-full pt-4 pb-0 px-0 overflow-hidden flex flex-col">
+          <div className="flex h-full flex-col overflow-hidden px-0 pb-0 pt-mdt-4">
             <OutputPanel />
           </div>
         </div>

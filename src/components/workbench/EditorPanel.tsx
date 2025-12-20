@@ -17,7 +17,7 @@ export function EditorPanel() {
 
   if (!block) {
     return (
-      <div className="h-full flex items-center justify-center text-mdt-muted text-body-sm">
+      <div className="flex h-full items-center justify-center text-body-sm text-mdt-muted">
         Select a block to edit
       </div>
     );
@@ -66,13 +66,13 @@ export function EditorPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="flex h-full flex-col">
+      <div className="mb-mdt-3 flex items-center gap-mdt-2">
         <Input
           value={block.title ?? ''}
           onChange={(e) => updateBlockTitle(block.id, e.target.value || undefined)}
           placeholder="Block title (optional)"
-          className="h-8"
+          size="sm"
           aria-label="Block title"
         />
         <span className="text-[11px] text-mdt-muted font-mono whitespace-nowrap">
@@ -83,12 +83,12 @@ export function EditorPanel() {
       <CodeEditor
         value={block.body}
         onChange={handleBodyChange}
-        className="flex-1 resize-none border-none focus:ring-0 p-0 bg-transparent"
+        className="flex-1 resize-none border-none bg-transparent p-0 focus:ring-0"
         placeholder={helpersByKind[block.kind].placeholder}
         autoFocus
       />
 
-      <div className="mt-2 text-caption text-mdt-muted">
+      <div className="mt-mdt-2 text-caption text-mdt-muted">
         Tip: Type <code>/checklist</code>, <code>/commands</code>, <code>/files</code> to switch kind.
       </div>
     </div>

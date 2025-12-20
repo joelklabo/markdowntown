@@ -282,9 +282,9 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
   }
 
   return (
-    <main id="main-content" className="py-mdt-6 pb-32">
+    <main id="main-content" className="py-mdt-10 pb-mdt-16 md:py-mdt-12 md:pb-mdt-12">
       <Container size="lg" padding="md">
-        <Stack gap={6}>
+        <Stack gap={8}>
           <OnboardingChecklist
             onLoadSample={() => {
               const sample = templates[0];
@@ -299,7 +299,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             <div
               role="status"
               className={cn(
-                "fixed right-4 top-20 z-40 min-w-[220px] rounded-mdt-md border px-3 py-2 text-body-sm shadow-mdt-lg",
+                "fixed right-4 top-20 z-40 min-w-[220px] rounded-mdt-md border px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-lg",
                 toast.tone === "success"
                   ? "border-[color:var(--mdt-color-success)]/30 bg-[color:var(--mdt-color-success)]/10 text-[color:var(--mdt-color-success)]"
                   : toast.tone === "error"
@@ -316,8 +316,8 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             padding="sm"
             className="sticky top-16 z-10 rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface)]/90 backdrop-blur-md"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
+            <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+              <div className="flex items-center gap-mdt-2 text-body-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
                 {steps.map((label, idx) => {
                   const active = idx === stepIndex;
                   const done = idx < stepIndex;
@@ -326,7 +326,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                       key={label}
                       type="button"
                       onClick={() => goStep(idx)}
-                      className={`flex items-center gap-2 rounded-mdt-sm px-2 py-1 transition ${
+                      className={`flex items-center gap-mdt-2 rounded-mdt-sm px-mdt-2 py-mdt-1 transition ${
                         active
                           ? "bg-mdt-blue text-white"
                           : done
@@ -344,7 +344,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                   );
                 })}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-mdt-2">
                 <div className="h-2 w-32 rounded-full bg-mdt-bg dark:bg-mdt-bg-dark">
                   <div
                     className="h-2 rounded-full bg-mdt-blue transition-all"
@@ -352,7 +352,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                     aria-hidden
                   />
                 </div>
-                <span className="text-xs text-mdt-muted dark:text-mdt-muted-dark">
+                <span className="text-caption text-mdt-muted dark:text-mdt-muted-dark">
                   Step {stepIndex + 1} of {steps.length}
                 </span>
               </div>
@@ -377,257 +377,256 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             </Row>
           </Row>
 
-          <div className="grid gap-mdt-4 xl:grid-cols-[300px_300px_1fr_260px] lg:grid-cols-[300px_300px_1fr]">
-        <Surface padding="md" className="space-y-3" data-step-anchor="template">
-          <div className="flex items-center justify-between">
-            <h3 className="text-h3">Templates</h3>
-            <Pill tone="yellow">Pick one</Pill>
-          </div>
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-            {templates.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  data-testid="builder-template"
-                  onClick={() => setSelectedTemplate(tpl.id)}
-                  className={`w-full rounded-mdt-md border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
-                    selectedTemplate === tpl.id
-                      ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
-                      : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
-                  }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">{tpl.title}</span>
-                  <Pill tone="gray">{tpl.tags[0]}</Pill>
-                </div>
-                <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark line-clamp-2">{tpl.description}</p>
-              </button>
-            ))}
-          </div>
-        </Surface>
+          <div className="grid gap-mdt-4 lg:grid-cols-[300px_300px_1fr] xl:grid-cols-[300px_300px_1fr_260px]">
+            <Surface padding="md" className="space-y-mdt-3" data-step-anchor="template">
+              <div className="flex items-center justify-between">
+                <h3 className="text-h3">Templates</h3>
+                <Pill tone="yellow">Pick one</Pill>
+              </div>
+              <div className="max-h-[60vh] space-y-mdt-2 overflow-y-auto">
+                {templates.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    data-testid="builder-template"
+                    onClick={() => setSelectedTemplate(tpl.id)}
+                    className={`w-full rounded-mdt-md border px-mdt-3 py-mdt-2 text-left text-body-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                      selectedTemplate === tpl.id
+                        ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
+                        : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">{tpl.title}</span>
+                      <Pill tone="gray">{tpl.tags[0]}</Pill>
+                    </div>
+                    <p className="line-clamp-2 text-caption text-mdt-muted dark:text-mdt-muted-dark">{tpl.description}</p>
+                  </button>
+                ))}
+              </div>
+            </Surface>
 
-        <Surface padding="md" className="space-y-3" data-step-anchor="snippets">
-          <div className="flex items-center justify-between">
-            <h3 className="text-h3">Snippets</h3>
-            <Pill tone="blue">Add</Pill>
-          </div>
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-            {snippets.map((snip) => {
-              const active = selectedSnippets.includes(snip.id);
-              return (
-                <div key={snip.id} className="flex flex-col gap-2 rounded-md border border-transparent p-1">
-                  <div className="flex items-start gap-2">
-                    <button
-                      data-testid="builder-snippet"
-                      onClick={() => toggleSnippet(snip.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "ArrowUp") {
-                          e.preventDefault();
-                          moveSnippet(snip.id, -1);
-                        }
-                        if (e.key === "ArrowDown") {
-                          e.preventDefault();
-                          moveSnippet(snip.id, 1);
-                        }
-                      }}
-                      className={`flex-1 rounded-mdt-md border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
-                        active
-                          ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
-                          : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold">{snip.title}</span>
-                        <Pill tone="gray">{snip.tags[0]}</Pill>
+            <Surface padding="md" className="space-y-mdt-3" data-step-anchor="snippets">
+              <div className="flex items-center justify-between">
+                <h3 className="text-h3">Snippets</h3>
+                <Pill tone="blue">Add</Pill>
+              </div>
+              <div className="max-h-[60vh] space-y-mdt-2 overflow-y-auto">
+                {snippets.map((snip) => {
+                  const active = selectedSnippets.includes(snip.id);
+                  return (
+                    <div key={snip.id} className="flex flex-col gap-mdt-2 rounded-mdt-md border border-transparent p-mdt-1">
+                      <div className="flex items-start gap-mdt-2">
+                        <button
+                          data-testid="builder-snippet"
+                          onClick={() => toggleSnippet(snip.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowUp") {
+                              e.preventDefault();
+                              moveSnippet(snip.id, -1);
+                            }
+                            if (e.key === "ArrowDown") {
+                              e.preventDefault();
+                              moveSnippet(snip.id, 1);
+                            }
+                          }}
+                          className={`flex-1 rounded-mdt-md border px-mdt-3 py-mdt-2 text-left text-body-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                            active
+                              ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
+                              : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">{snip.title}</span>
+                            <Pill tone="gray">{snip.tags[0]}</Pill>
+                          </div>
+                          <p className="line-clamp-2 text-caption text-mdt-muted dark:text-mdt-muted-dark">{snip.content}</p>
+                        </button>
+                        {active && (
+                          <div className="flex flex-col gap-mdt-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => moveSnippet(snip.id, -1)}
+                              aria-label="Move up"
+                              disabled={selectedSnippets.indexOf(snip.id) === 0}
+                            >
+                              ↑
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => moveSnippet(snip.id, 1)}
+                              aria-label="Move down"
+                              disabled={selectedSnippets.indexOf(snip.id) === selectedSnippets.length - 1}
+                            >
+                              ↓
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-mdt-muted dark:text-mdt-muted-dark line-clamp-2">{snip.content}</p>
-                    </button>
-                    {active && (
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveSnippet(snip.id, -1)}
-                          aria-label="Move up"
-                          disabled={selectedSnippets.indexOf(snip.id) === 0}
-                        >
-                          ↑
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveSnippet(snip.id, 1)}
-                          aria-label="Move down"
-                          disabled={selectedSnippets.indexOf(snip.id) === selectedSnippets.length - 1}
-                        >
-                          ↓
-                        </Button>
+                      {active && (
+                        <TextArea
+                          value={overrides[snip.id] ?? ""}
+                          onChange={(e) => setOverride(snip.id, e.target.value)}
+                          placeholder="Override this snippet (optional)"
+                          className="font-mono text-caption"
+                          rows={2}
+                          aria-label={`Override content for ${snip.title}`}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Surface>
+
+            <Surface padding="md" className="flex flex-col gap-mdt-3" data-step-anchor="preview">
+              <div className="flex items-center justify-between">
+                <h3 className="text-h3">Preview</h3>
+                <div className="flex gap-mdt-2">
+                  <Button variant="secondary" size="sm" onClick={copyMarkdown} disabled={!rendered}>
+                    Copy
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={downloadMarkdown} disabled={!rendered}>
+                    Download
+                  </Button>
+                  <Button size="sm" onClick={saveDocument} disabled={!rendered || saving}>
+                    {saving ? "Saving…" : "Save"}
+                  </Button>
+                </div>
+              </div>
+              {requireAuth && (
+                <div className="flex items-center gap-mdt-2 text-caption text-mdt-muted">
+                  <span>Sign in to save this document</span>
+                  <Button variant="ghost" size="xs" asChild>
+                    <Link href="/signin?callbackUrl=/builder">Sign in</Link>
+                  </Button>
+                </div>
+              )}
+              {error && <p className="text-body-sm text-[color:var(--mdt-color-danger)]">Preview error: {error}</p>}
+              {saveError && <p className="text-body-sm text-[color:var(--mdt-color-danger)]">Save error: {saveError}</p>}
+              {hasPrivateContent && (
+                <p className="rounded-mdt-sm border border-[color:var(--mdt-color-warning)]/30 bg-[color:var(--mdt-color-warning)]/10 px-mdt-2 py-mdt-1 text-caption text-[color:var(--mdt-color-warning)]">
+                  Private or unlisted snippets detected — export is fine but sharing may leak non-public content.
+                </p>
+              )}
+              {previewLoading && <p className="text-caption text-mdt-muted">Refreshing preview…</p>}
+              <div
+                ref={previewRef}
+                className="min-h-[300px] space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-4 font-mono text-body-sm"
+              >
+                {visibleLines.length === 0 && (
+                  <p className="text-mdt-muted">Select a template and add snippets to see your agents.md.</p>
+                )}
+                {lines.map((line, idx) => {
+                  const owner = lineOwner[idx];
+                  const hidden = owner && owner.line !== idx && collapsed.has(owner.id);
+                  if (hidden) return null;
+                  const match = /^(#{1,6})\s+(.*)/.exec(line.trim());
+                  if (match) {
+                    const level = match[1].length;
+                    const title = match[2];
+                    const id = outline.find((n) => n.line === idx)?.id ?? `h-${idx}`;
+                    return (
+                      <div
+                        key={id}
+                        id={id}
+                        tabIndex={-1}
+                        className="font-semibold text-mdt-text"
+                        style={{ marginLeft: `${(level - 1) * 8}px` }}
+                      >
+                        {match[1]} {title}
+                      </div>
+                    );
+                  }
+                  return (
+                    <p key={`line-${idx}`} className="leading-6 text-mdt-muted">
+                      {line || "\u00a0"}
+                    </p>
+                  );
+                })}
+              </div>
+            </Surface>
+
+            <Surface padding="md" className="space-y-mdt-3" data-step-anchor="outline">
+              <div className="flex items-center justify-between">
+                <h3 className="text-h3">Outline</h3>
+                <div className="flex gap-mdt-2">
+                  <Button size="sm" variant="secondary" onClick={() => setCollapsed(new Set())}>
+                    Expand all
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setCollapsed(new Set(outline.map((o) => o.id)))}>
+                    Collapse all
+                  </Button>
+                </div>
+              </div>
+              {outline.length === 0 ? (
+                <p className="text-body-sm text-mdt-muted">Headings will appear here once you add a template/snippet.</p>
+              ) : (
+                <DragDropContext onDragStart={() => setDraggingOutline(true)} onDragEnd={handleOutlineDragEnd}>
+                  <Droppable droppableId="outline">
+                    {(provided) => (
+                      <div
+                        role="tree"
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="space-y-mdt-1"
+                      >
+                        {outline.map((node, idx) => {
+                          const isCollapsed = collapsed.has(node.id);
+                          return (
+                            <Draggable draggableId={node.id} index={idx} key={node.id} isDragDisabled={node.level === 1}>
+                              {(drag) => (
+                                <button
+                                  key={node.id}
+                                  role="treeitem"
+                                  aria-level={node.level}
+                                  aria-expanded={!isCollapsed}
+                                  aria-selected="false"
+                                  ref={drag.innerRef}
+                                  {...drag.draggableProps}
+                                  {...drag.dragHandleProps}
+                                  onClick={() => {
+                                    jumpTo(node.id);
+                                  }}
+                                  onDoubleClick={() => toggleCollapse(node.id)}
+                                  className={cn(
+                                    "flex w-full items-center justify-between rounded-mdt-sm px-mdt-2 py-mdt-2 text-left text-body-sm transition",
+                                    "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
+                                    draggingOutline && node.level === 1 ? "opacity-80" : ""
+                                  )}
+                                  style={{ paddingLeft: `${(node.level - 1) * 12 + 8}px` }}
+                                >
+                                  <span className="flex items-center gap-mdt-2">
+                                    <span
+                                      aria-hidden
+                                      className={cn(
+                                        "inline-flex h-5 w-5 items-center justify-center rounded-mdt-sm border border-mdt-border text-[11px]",
+                                        isCollapsed ? "bg-mdt-surface-subtle" : "bg-mdt-surface-strong"
+                                      )}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        toggleCollapse(node.id);
+                                      }}
+                                    >
+                                      {isCollapsed ? "+" : "–"}
+                                    </span>
+                                    <span className="font-medium text-mdt-text">{node.title}</span>
+                                  </span>
+                                  <span className="text-caption text-mdt-muted">#{node.line + 1}</span>
+                                </button>
+                              )}
+                            </Draggable>
+                          );
+                        })}
+                        {provided.placeholder}
                       </div>
                     )}
-                  </div>
-                  {active && (
-                    <TextArea
-                      value={overrides[snip.id] ?? ""}
-                      onChange={(e) => setOverride(snip.id, e.target.value)}
-                      placeholder="Override this snippet (optional)"
-                      className="font-mono text-xs"
-                      rows={2}
-                      aria-label={`Override content for ${snip.title}`}
-                    />
-                  )}
-                </div>
-              );
-            })}
+                  </Droppable>
+                </DragDropContext>
+              )}
+            </Surface>
           </div>
-        </Surface>
-
-        <Surface padding="md" className="flex flex-col gap-3" data-step-anchor="preview">
-        <div className="flex items-center justify-between">
-          <h3 className="text-h3">Preview</h3>
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={copyMarkdown} disabled={!rendered}>
-              Copy
-            </Button>
-            <Button variant="secondary" size="sm" onClick={downloadMarkdown} disabled={!rendered}>
-              Download
-            </Button>
-            <Button size="sm" onClick={saveDocument} disabled={!rendered || saving}>
-              {saving ? "Saving…" : "Save"}
-            </Button>
-          </div>
-        </div>
-        {requireAuth && (
-          <div className="flex items-center gap-2 text-xs text-mdt-muted">
-            <span>Sign in to save this document</span>
-            <Button variant="ghost" size="xs" asChild>
-              <Link href="/signin?callbackUrl=/builder">Sign in</Link>
-            </Button>
-          </div>
-        )}
-        {error && <p className="text-sm text-red-600">Preview error: {error}</p>}
-        {saveError && <p className="text-sm text-red-600">Save error: {saveError}</p>}
-        {hasPrivateContent && (
-          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-mdt-sm px-2 py-1">
-            Private or unlisted snippets detected — export is fine but sharing may leak non-public content.
-          </p>
-        )}
-        {previewLoading && <p className="text-xs text-mdt-muted">Refreshing preview…</p>}
-          <div
-            ref={previewRef}
-            className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-4 font-mono text-sm min-h-[300px] space-y-2"
-          >
-            {visibleLines.length === 0 && <p className="text-mdt-muted">Select a template and add snippets to see your agents.md.</p>}
-            {lines.map((line, idx) => {
-              const owner = lineOwner[idx];
-              const hidden = owner && owner.line !== idx && collapsed.has(owner.id);
-              if (hidden) return null;
-              const match = /^(#{1,6})\s+(.*)/.exec(line.trim());
-              if (match) {
-                const level = match[1].length;
-                const title = match[2];
-                const id = outline.find((n) => n.line === idx)?.id ?? `h-${idx}`;
-                return (
-                  <div
-                    key={id}
-                    id={id}
-                    tabIndex={-1}
-                    className="font-semibold text-mdt-text"
-                    style={{ marginLeft: `${(level - 1) * 8}px` }}
-                  >
-                    {match[1]} {title}
-                  </div>
-                );
-              }
-              return (
-                <p key={`line-${idx}`} className="text-mdt-text-muted leading-6">
-                  {line || "\u00a0"}
-                </p>
-              );
-            })}
-          </div>
-        </Surface>
-
-        <Surface padding="md" className="space-y-3" data-step-anchor="outline">
-          <div className="flex items-center justify-between">
-            <h3 className="text-h3">Outline</h3>
-            <div className="flex gap-2">
-              <Button size="sm" variant="secondary" onClick={() => setCollapsed(new Set())}>
-                Expand all
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setCollapsed(new Set(outline.map((o) => o.id)))}>
-                Collapse all
-              </Button>
-            </div>
-          </div>
-          {outline.length === 0 ? (
-            <p className="text-sm text-mdt-muted">Headings will appear here once you add a template/snippet.</p>
-          ) : (
-            <DragDropContext
-              onDragStart={() => setDraggingOutline(true)}
-              onDragEnd={handleOutlineDragEnd}
-            >
-              <Droppable droppableId="outline">
-                {(provided) => (
-                  <div
-                    role="tree"
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="space-y-1"
-                  >
-                    {outline.map((node, idx) => {
-                      const isCollapsed = collapsed.has(node.id);
-                      return (
-                        <Draggable draggableId={node.id} index={idx} key={node.id} isDragDisabled={node.level === 1}>
-                          {(drag) => (
-                            <button
-                              key={node.id}
-                              role="treeitem"
-                              aria-level={node.level}
-                              aria-expanded={!isCollapsed}
-                              aria-selected="false"
-                              ref={drag.innerRef}
-                              {...drag.draggableProps}
-                              {...drag.dragHandleProps}
-                              onClick={() => {
-                                jumpTo(node.id);
-                              }}
-                              onDoubleClick={() => toggleCollapse(node.id)}
-                              className={cn(
-                                "flex w-full items-center justify-between rounded-mdt-sm px-2 py-2 text-left text-sm transition",
-                                "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
-                                draggingOutline && node.level === 1 ? "opacity-80" : ""
-                              )}
-                              style={{ paddingLeft: `${(node.level - 1) * 12 + 8}px` }}
-                            >
-                              <span className="flex items-center gap-2">
-                                <span
-                                  aria-hidden
-                                  className={cn(
-                                    "inline-flex h-5 w-5 items-center justify-center rounded-mdt-sm border border-mdt-border text-[11px]",
-                                    isCollapsed ? "bg-mdt-surface-subtle" : "bg-mdt-surface-strong"
-                                  )}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleCollapse(node.id);
-                                  }}
-                                >
-                                  {isCollapsed ? "+" : "–"}
-                                </span>
-                                <span className="font-medium text-mdt-text">{node.title}</span>
-                              </span>
-                              <span className="text-caption text-mdt-muted">#{node.line + 1}</span>
-                            </button>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          )}
-        </Surface>
-      </div>
           <BuilderStatus saveState={saveState} />
         </Stack>
       </Container>
