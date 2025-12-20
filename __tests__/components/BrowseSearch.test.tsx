@@ -26,6 +26,7 @@ describe("BrowseSearch", () => {
     replaceMock.mockClear();
 
     const input = screen.getByRole("searchbox", { name: /search library/i });
+    expect(input).toHaveAttribute("placeholder", "Search snippets, templates…");
     await user.type(input, "hello");
 
     await waitFor(() =>

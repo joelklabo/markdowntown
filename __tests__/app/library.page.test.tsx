@@ -50,8 +50,10 @@ describe("LibraryPage", () => {
     const jsx = await LibraryPage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
+    expect(screen.getByText("Public library")).toBeInTheDocument();
     expect(screen.getByText("Library")).toBeInTheDocument();
     expect(screen.getByText("Filters")).toBeInTheDocument();
+    expect(screen.getByText("Public artifacts")).toBeInTheDocument();
     expect(screen.getByText("Test Agent")).toBeInTheDocument();
   });
 

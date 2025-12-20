@@ -37,6 +37,9 @@ describe("LibraryCard", () => {
     expect(screen.getByText(/Test snippet description/)).toBeInTheDocument();
     expect(screen.getByText("#cli")).toBeInTheDocument();
     expect(screen.getByText("#qa")).toBeInTheDocument();
+    expect(screen.getByText("34 views")).toBeInTheDocument();
+    expect(screen.getByText("12 copies")).toBeInTheDocument();
+    expect(screen.getByText("5 votes")).toBeInTheDocument();
 
     screen.getByRole("button", { name: /copy snippet demo/i });
     screen.getByRole("button", { name: /add snippet demo to builder/i });
