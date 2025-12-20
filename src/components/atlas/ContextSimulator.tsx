@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
@@ -10,12 +10,15 @@ import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
+import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
+import { computeSimulatorInsights } from "@/lib/atlas/simulators/insights";
 import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
 import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsScan";
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
-import type { RepoTree, SimulationResult, SimulatorToolId } from "@/lib/atlas/simulators/types";
+import type { RepoTree, SimulationResult, SimulatorInsights as SimulatorInsightsData, SimulatorToolId } from "@/lib/atlas/simulators/types";
+import { track, trackError } from "@/lib/analytics";
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
   { id: "github-copilot", label: "GitHub Copilot" },
@@ -63,6 +66,37 @@ function normalizePath(value: string): string {
   const normalized = value.replace(/\\/g, "/").replace(/^\.\/+/, "").replace(/\/+$/, "");
   if (!normalized || normalized === ".") return "";
   return normalized;
+}
+
+function normalizePaths(paths: string[]): string[] {
+  return paths.map((path) => normalizePath(path)).filter(Boolean);
+}
+
+function buildInputSignature(
+  tool: SimulatorToolId,
+  cwd: string,
+  repoSource: "manual" | "folder",
+  paths: string[],
+): string {
+  return JSON.stringify({
+    tool,
+    cwd: normalizePath(cwd),
+    repoSource,
+    paths: normalizePaths(paths),
+  });
+}
+
+function isInstructionPath(path: string): boolean {
+  if (!path) return false;
+  if (path === ".github/copilot-instructions.md") return true;
+  if (path.startsWith(".github/instructions/") && path.endsWith(".instructions.md")) return true;
+  if (path.startsWith(".github/copilot-instructions/") && path.endsWith(".instructions.md")) return true;
+  if (path.startsWith(".github/agents/")) return true;
+  if (path === "AGENTS.md" || path.endsWith("/AGENTS.md")) return true;
+  if (path === "AGENTS.override.md" || path.endsWith("/AGENTS.override.md")) return true;
+  if (path === "CLAUDE.md" || path.endsWith("/CLAUDE.md")) return true;
+  if (path === "GEMINI.md" || path.endsWith("/GEMINI.md")) return true;
+  return false;
 }
 
 function analyzeRepo(paths: string[]): RepoSignals {
@@ -117,6 +151,85 @@ function analyzeRepo(paths: string[]): RepoSignals {
   return signals;
 }
 
+const DEFAULT_REPO_PATHS = parseRepoPaths(DEFAULT_REPO_TREE);
+
+function toolLabel(tool: SimulatorToolId): string {
+  return TOOL_OPTIONS.find((option) => option.id === tool)?.label ?? tool;
+}
+
+type SummaryInput = {
+  tool: SimulatorToolId;
+  cwd: string;
+  repoSource: "manual" | "folder";
+  result: SimulationResult;
+  insights: SimulatorInsightsData;
+  extraFiles: string[];
+  isStale: boolean;
+};
+
+function formatSummary({ tool, cwd, repoSource, result, insights, extraFiles, isStale }: SummaryInput): string {
+  const lines: string[] = [];
+  lines.push(`Tool: ${toolLabel(tool)} (${tool})`);
+  lines.push(`CWD: ${normalizePath(cwd) || "(repo root)"}`);
+  lines.push(`Repo source: ${repoSource}`);
+
+  if (isStale) {
+    lines.push("Note: Results may be out of date. Re-run simulation for fresh results.");
+  }
+
+  lines.push("");
+  lines.push("Loaded files:");
+  if (result.loaded.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const file of result.loaded) {
+      lines.push(`- ${file.path} — ${file.reason}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("Missing instruction patterns:");
+  if (insights.missingFiles.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const item of insights.missingFiles) {
+      lines.push(`- ${item.label}: ${item.pattern}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("Extra instruction files:");
+  if (extraFiles.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const path of extraFiles) {
+      lines.push(`- ${path}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("Warnings:");
+  if (result.warnings.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const warning of result.warnings) {
+      lines.push(`- ${warning.code}: ${warning.message}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("Precedence notes:");
+  if (insights.precedenceNotes.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const note of insights.precedenceNotes) {
+      lines.push(`- ${note}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 function runSimulation(tool: SimulatorToolId, cwd: string, repoText: string): SimulationResult {
   return simulateContextResolution({
     tool,
@@ -140,6 +253,15 @@ export function ContextSimulator() {
   const [scanError, setScanError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<SimulationResult>(() => runSimulation("github-copilot", "", DEFAULT_REPO_TREE));
+  const [insights, setInsights] = useState<SimulatorInsightsData>(() =>
+    computeSimulatorInsights({ tool: "github-copilot", cwd: "", tree: toRepoTree(DEFAULT_REPO_PATHS) }),
+  );
+  const [lastSimulatedSignature, setLastSimulatedSignature] = useState(() =>
+    buildInputSignature("github-copilot", "", "manual", DEFAULT_REPO_PATHS),
+  );
+  const [lastSimulatedPaths, setLastSimulatedPaths] = useState<string[]>(() => normalizePaths(DEFAULT_REPO_PATHS));
+  const [actionStatus, setActionStatus] = useState<string | null>(null);
+  const statusTimeoutRef = useRef<number | null>(null);
 
   const canPickDirectory = typeof window !== "undefined" && "showDirectoryPicker" in window;
 
@@ -150,6 +272,11 @@ export function ContextSimulator() {
     [manualPaths, repoSource, scannedTree],
   );
   const repoSignals = useMemo(() => analyzeRepo(repoPaths), [repoPaths]);
+  const currentSignature = useMemo(
+    () => buildInputSignature(tool, cwd, repoSource, repoPaths),
+    [cwd, repoPaths, repoSource, tool],
+  );
+  const isStale = currentSignature !== lastSimulatedSignature;
 
   const scannedPreview = useMemo(() => {
     const paths = (scannedTree?.files ?? []).map((file) => file.path);
@@ -215,6 +342,104 @@ export function ContextSimulator() {
 
     return "If you expected files, double-check the repo tree and current directory.";
   }, [cwd, manualPaths.length, repoSignals, repoSource, scannedTree, tool]);
+
+  const extraInstructionFiles = useMemo(() => {
+    const found = new Set(insights.foundFiles.map((path) => normalizePath(path)));
+    return lastSimulatedPaths.filter((path) => isInstructionPath(path) && !found.has(path));
+  }, [insights, lastSimulatedPaths]);
+
+  const announceStatus = (message: string) => {
+    setActionStatus(message);
+    if (statusTimeoutRef.current) {
+      window.clearTimeout(statusTimeoutRef.current);
+    }
+    statusTimeoutRef.current = window.setTimeout(() => setActionStatus(null), 3000);
+  };
+
+  const runSimulationWithTree = (
+    tree: RepoTree,
+    sourcePaths: string[],
+    source: "manual" | "folder",
+    trigger: "manual" | "scan",
+  ) => {
+    const normalizedPaths = normalizePaths(sourcePaths);
+    const nextResult = simulateContextResolution({ tool, cwd, tree });
+    const nextInsights = computeSimulatorInsights({ tool, cwd, tree });
+    setResult(nextResult);
+    setInsights(nextInsights);
+    setLastSimulatedSignature(buildInputSignature(tool, cwd, source, normalizedPaths));
+    setLastSimulatedPaths(normalizedPaths);
+    track("atlas_simulator_simulate", {
+      tool,
+      repoSource: source,
+      trigger,
+      cwd: normalizePath(cwd) || undefined,
+      fileCount: normalizedPaths.length,
+    });
+  };
+
+  const handleCopySummary = async () => {
+    const summary = formatSummary({
+      tool,
+      cwd,
+      repoSource,
+      result,
+      insights,
+      extraFiles: extraInstructionFiles,
+      isStale,
+    });
+    try {
+      if (!navigator?.clipboard?.writeText) {
+        throw new Error("Clipboard unavailable");
+      }
+      await navigator.clipboard.writeText(summary);
+      announceStatus("Summary copied to clipboard.");
+      track("atlas_simulator_copy_summary", {
+        tool,
+        repoSource,
+        fileCount: lastSimulatedPaths.length,
+      });
+    } catch (err) {
+      announceStatus("Unable to copy summary.");
+      if (err instanceof Error) {
+        trackError("atlas_simulator_copy_error", err, { tool, repoSource });
+      }
+    }
+  };
+
+  const handleDownloadReport = () => {
+    const summary = formatSummary({
+      tool,
+      cwd,
+      repoSource,
+      result,
+      insights,
+      extraFiles: extraInstructionFiles,
+      isStale,
+    });
+    try {
+      const blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `atlas-simulator-${tool}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      announceStatus("Report downloaded.");
+      track("atlas_simulator_download_report", {
+        tool,
+        repoSource,
+        fileCount: lastSimulatedPaths.length,
+      });
+    } catch (err) {
+      announceStatus("Unable to download report.");
+      if (err instanceof Error) {
+        trackError("atlas_simulator_download_error", err, { tool, repoSource });
+      }
+    }
+  };
 
   return (
     <div className="grid gap-mdt-6 lg:grid-cols-[360px,1fr]">
@@ -290,6 +515,7 @@ export function ContextSimulator() {
                     onClick={async () => {
                       setScanError(null);
                       setIsScanning(true);
+                      track("atlas_simulator_scan_start", { method: "directory_picker", tool });
                       try {
                         const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
                         if (!picker) throw new Error("File System Access API not available");
@@ -297,17 +523,38 @@ export function ContextSimulator() {
                         const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
                           handle as FileSystemDirectoryHandleLike
                         );
+                        const rootName = (handle as { name?: string }).name;
                         setScannedTree(tree);
                         setScanMeta({
                           totalFiles,
                           matchedFiles,
                           truncated,
-                          rootName: (handle as { name?: string }).name,
+                          rootName,
                         });
-                        setResult(simulateContextResolution({ tool, cwd, tree }));
+                        runSimulationWithTree(
+                          tree,
+                          tree.files.map((file) => file.path),
+                          "folder",
+                          "scan",
+                        );
+                        track("atlas_simulator_scan_complete", {
+                          method: "directory_picker",
+                          tool,
+                          totalFiles,
+                          matchedFiles,
+                          truncated,
+                          rootName,
+                        });
                       } catch (err) {
                         if (err instanceof DOMException && err.name === "AbortError") {
+                          track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
                           return;
+                        }
+                        if (err instanceof Error) {
+                          trackError("atlas_simulator_scan_error", err, {
+                            method: "directory_picker",
+                            tool,
+                          });
                         }
                         setScanError(err instanceof Error ? err.message : "Unable to scan folder");
                       } finally {
@@ -329,12 +576,32 @@ export function ContextSimulator() {
                       const files = event.target.files;
                       if (!files || files.length === 0) return;
                       try {
+                        track("atlas_simulator_scan_start", { method: "file_input", tool });
                         const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
                         const rootName = files[0]?.webkitRelativePath?.split("/")[0];
                         setScannedTree(tree);
                         setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
-                        setResult(simulateContextResolution({ tool, cwd, tree }));
+                        runSimulationWithTree(
+                          tree,
+                          tree.files.map((file) => file.path),
+                          "folder",
+                          "scan",
+                        );
+                        track("atlas_simulator_scan_complete", {
+                          method: "file_input",
+                          tool,
+                          totalFiles,
+                          matchedFiles,
+                          truncated,
+                          rootName,
+                        });
                       } catch (err) {
+                        if (err instanceof Error) {
+                          trackError("atlas_simulator_scan_error", err, {
+                            method: "file_input",
+                            tool,
+                          });
+                        }
                         setScanError(err instanceof Error ? err.message : "Unable to scan folder");
                       }
                     }}
@@ -372,7 +639,11 @@ export function ContextSimulator() {
                 repoSource === "folder"
                   ? scannedTree ?? { files: [] }
                   : toRepoTree(manualPaths);
-              setResult(simulateContextResolution({ tool, cwd, tree }));
+              const sourcePaths =
+                repoSource === "folder"
+                  ? (scannedTree?.files ?? []).map((file) => file.path)
+                  : manualPaths;
+              runSimulationWithTree(tree, sourcePaths, repoSource, "manual");
             }}
           >
             Simulate
@@ -385,6 +656,11 @@ export function ContextSimulator() {
           <Stack gap={1}>
             <Heading level="h2">Result</Heading>
             <Text tone="muted">Ordered files loaded and any warnings from heuristics.</Text>
+            {isStale ? (
+              <Text tone="muted" size="bodySm" role="status">
+                Results are out of date. Run Simulate to refresh.
+              </Text>
+            ) : null}
           </Stack>
 
           <Stack gap={2}>
@@ -424,6 +700,25 @@ export function ContextSimulator() {
                 ))}
               </ul>
             )}
+          </Stack>
+
+          <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
+
+          <Stack gap={2}>
+            <Heading level="h3">Actions</Heading>
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" variant="secondary" onClick={handleCopySummary}>
+                Copy summary
+              </Button>
+              <Button type="button" variant="secondary" onClick={handleDownloadReport}>
+                Download report
+              </Button>
+            </div>
+            {actionStatus ? (
+              <Text tone="muted" size="bodySm" role="status" aria-live="polite">
+                {actionStatus}
+              </Text>
+            ) : null}
           </Stack>
         </Stack>
       </Card>
