@@ -51,15 +51,14 @@ describe("Home page", () => {
     ]);
   });
 
-  it("renders hero CTA and search module", async () => {
+  it("renders hero copy and primary CTA", async () => {
     const jsx = await Home();
     render(jsx);
 
     expect(
-      screen.getByRole("heading", { name: /Compose, remix, and ship agents\.md fast/i })
+      screen.getByRole("heading", { name: /Scan your repo\. See which instructions load\./i })
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Browse library" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Build in 60s" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Search snippets and templates")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Scan a folder" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Open Workbench" }).length).toBeGreaterThan(0);
   });
 });

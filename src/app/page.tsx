@@ -14,11 +14,10 @@ import { Stack, Row } from "@/components/ui/Stack";
 import { Surface } from "@/components/ui/Surface";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
-import { Input } from "@/components/ui/Input";
 
 export const metadata: Metadata = {
   title: "mark downtown | Compose, remix, and ship agents.md fast",
-  description: "Copy battle-tested snippets and templates, preview in the builder, and export agents.md with confidence.",
+  description: "Scan a repo to see which instructions load, then build and export agents.md with confidence.",
 };
 
 type HomeCounters = {
@@ -50,12 +49,12 @@ async function getPublicCounters(): Promise<HomeCounters> {
 
 const features = [
   {
-    title: "Search + filters",
-    desc: "Find the right snippet by tag, type, or quality signals in seconds.",
+    title: "Scan + insights",
+    desc: "See which instruction files load, what is missing, and why before you build.",
   },
   {
-    title: "Guided builder",
-    desc: "Drop in templates and snippets, reorder, and preview live before export.",
+    title: "Guided Workbench",
+    desc: "Assemble scopes and blocks, reorder, and preview live before export.",
   },
   {
     title: "Copy or download",
@@ -68,9 +67,9 @@ const features = [
 ];
 
 const buildSteps = [
-  { title: "Pick a template", copy: "Start from battle-tested scaffolds or go blank." },
-  { title: "Add snippets", copy: "Search, tag, and reorder sections with keyboard shortcuts." },
-  { title: "Preview & export", copy: "Copy, download, or save to keep history in sync." },
+  { title: "Scan a folder", copy: "Preview which instruction files load and in what order." },
+  { title: "Review insights", copy: "Confirm missing files and precedence before editing." },
+  { title: "Build & export", copy: "Open Workbench to edit and export agents.md." },
 ];
 
 export default async function Home() {
@@ -109,10 +108,10 @@ export default async function Home() {
               </Text>
               <Row justify="center" gap={3} wrap>
                 <Button size="lg" asChild>
-                  <Link href="/browse">Browse library</Link>
+                  <Link href="/library">Browse library</Link>
                 </Button>
                 <Button variant="secondary" size="lg" asChild>
-                  <Link href="/builder">Open builder</Link>
+                  <Link href="/workbench">Open Workbench</Link>
                 </Button>
               </Row>
               <Text size="caption" tone="muted">
@@ -160,56 +159,43 @@ export default async function Home() {
                 <span>Copy without login</span>
               </div>
               <Stack gap={3}>
-                <Heading level="display" leading="tight" className="max-w-[22ch]">Compose, remix, and ship agents.md fast</Heading>
+                <Heading level="display" leading="tight" className="max-w-[22ch]">
+                  Scan your repo. See which instructions load.
+                </Heading>
                 <Text tone="muted" className="max-w-2xl">
-                  Copy battle-tested snippets and templates, preview in the builder, and export with confidence. Keyboard-first flows keep you moving; light/dark stay in lockstep.
+                  Review insights, refine in Workbench, and export agents.md with confidence in minutes.
                 </Text>
               </Stack>
 
               <Surface
-                as="form"
-                action="/browse"
+                tone="raised"
                 padding="md"
                 className="grid gap-mdt-4 border-mdt-border-strong bg-mdt-surface shadow-mdt-lg sm:grid-cols-[1fr_auto] sm:items-end"
               >
                 <Stack gap={3}>
-                  <Text as="label" htmlFor="hero-search" size="caption" tone="muted">
-                    Search snippets, templates, agents.md
+                  <Text size="caption" tone="muted">Start here</Text>
+                  <Heading level="h3" as="h2">Scan a folder</Heading>
+                  <Text size="bodySm" tone="muted">
+                    Preview which instruction files load, then open Workbench to export agents.md.
                   </Text>
-                  <Input
-                    id="hero-search"
-                    name="q"
-                    size="lg"
-                    className="bg-mdt-surface-subtle"
-                    placeholder='Try "function calling" or "retrieval"'
-                    aria-label="Search snippets and templates"
-                  />
-                  <Row wrap gap={2} align="center" className="text-xs text-mdt-muted">
-                    <span className="rounded-mdt-pill bg-mdt-surface-strong px-mdt-2 py-[2px] text-[10px] font-semibold uppercase tracking-wide text-mdt-text">
-                      Popular
-                    </span>
-                    {tags.slice(0, 4).map(({ tag }) => (
-                      <button
-                        key={tag}
-                        type="submit"
-                        name="tag"
-                        value={tag}
-                        className="rounded-mdt-pill border border-mdt-border bg-[color:var(--mdt-color-surface)] px-mdt-3 py-mdt-1 text-caption font-medium text-mdt-text shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:border-mdt-border-strong hover:shadow-mdt-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                      >
-                        #{tag}
-                      </button>
-                    ))}
-                  </Row>
                 </Stack>
                 <div className="space-y-mdt-2 sm:text-right">
                   <Row wrap gap={2} justify="end" className="sm:justify-end">
-                    <Button type="submit" size="lg">Browse library</Button>
+                    <Button size="lg" asChild>
+                      <Link href="/atlas/simulator">Scan a folder</Link>
+                    </Button>
                     <Button variant="secondary" size="lg" asChild>
-                      <Link href="#build-in-60s">Build in 60s</Link>
+                      <Link href="/workbench">Open Workbench</Link>
                     </Button>
                   </Row>
                   <Text size="caption" tone="muted">
-                    No login required to browse.
+                    Prefer inspiration first?{" "}
+                    <Link
+                      href="/library"
+                      className="font-medium text-mdt-text underline decoration-mdt-border-strong underline-offset-4"
+                    >
+                      Browse the Library.
+                    </Link>
                   </Text>
                 </div>
               </Surface>
@@ -229,12 +215,12 @@ export default async function Home() {
               <Surface tone="raised" padding="lg" className="space-y-mdt-6 border-mdt-border-strong shadow-mdt-lg">
                 <Row align="center" justify="between" gap={3}>
                   <Stack gap={1}>
-                    <Text size="caption" tone="muted">Live builder preview</Text>
+                    <Text size="caption" tone="muted">Live Workbench preview</Text>
                     <Heading level="h3" as="h2">Structured agents.md</Heading>
                   </Stack>
-                  <Button size="xs" variant="secondary" asChild>
-                    <Link href="/builder">Open builder</Link>
-                  </Button>
+                    <Button size="xs" variant="secondary" asChild>
+                      <Link href="/workbench">Open Workbench</Link>
+                    </Button>
                 </Row>
                 <Surface tone="subtle" padding="md" className="space-y-mdt-4">
                   <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
@@ -270,8 +256,8 @@ export default async function Home() {
         <Stack gap={12}>
           <Surface as="section" id="build-in-60s" padding="lg" className="grid gap-mdt-6 border-mdt-border-strong md:grid-cols-[1.4fr_1fr]">
             <Stack gap={3}>
-              <Text size="caption" tone="muted">Build in 60 seconds</Text>
-              <Heading level="h2" as="h3">Guided, keyboard-first path</Heading>
+              <Text size="caption" tone="muted">Scan to export</Text>
+              <Heading level="h2" as="h3">A clear, scan-first path</Heading>
               <Stack gap={4}>
                 {buildSteps.map((step, idx) => (
                   <Surface key={step.title} tone="subtle" padding="sm" className="flex items-start gap-mdt-3">
@@ -286,11 +272,8 @@ export default async function Home() {
                 ))}
               </Stack>
               <Row wrap gap={3}>
-                <Button asChild>
-                  <Link href="/builder">Start guided build</Link>
-                </Button>
                 <Button variant="secondary" asChild>
-                  <Link href="/browse">Browse library</Link>
+                  <Link href="/workbench">Open Workbench</Link>
                 </Button>
               </Row>
             </Stack>
@@ -305,7 +288,7 @@ export default async function Home() {
                 ))}
               </div>
               <Surface padding="sm" className="text-body-sm text-mdt-muted">
-                Use a template jumps to curated rails, and the bottom nav keeps Builder one tap away on mobile.
+                Use a template to jump to curated rails, and the bottom nav keeps Workbench one tap away on mobile.
               </Surface>
             </Surface>
           </Surface>
@@ -336,7 +319,7 @@ export default async function Home() {
                   <h3 className="text-h2">Trending snippets & templates</h3>
                 </div>
                 <Button variant="secondary" asChild>
-                  <Link href="/browse">Browse all</Link>
+                  <Link href="/library">Browse all</Link>
                 </Button>
               </div>
               <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -363,7 +346,7 @@ export default async function Home() {
                 {tags.slice(0, 18).map(({ tag, count }) => (
                   <Link
                     key={tag}
-                    href={`/browse?tag=${encodeURIComponent(tag)}`}
+                    href={`/library?tag=${encodeURIComponent(tag)}`}
                     className="inline-flex items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:bg-mdt-surface hover:border-mdt-border-strong hover:shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                   >
                     <span className="font-medium">#{tag}</span>
@@ -383,7 +366,7 @@ export default async function Home() {
                     <h3 className="text-h3">agents.md files people grab</h3>
                   </div>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href="/browse?sort=copied">See list</Link>
+                    <Link href="/library?sort=copied">See list</Link>
                   </Button>
                 </div>
                 <div className="space-y-mdt-3">
@@ -418,7 +401,7 @@ export default async function Home() {
                 </div>
                 <ul className="list-disc space-y-mdt-2 pl-mdt-5 text-sm text-mdt-muted">
                   <li>Save agents.md documents and favorites.</li>
-                  <li>Resume builder with your snippets and templates.</li>
+                  <li>Resume Workbench with your snippets and templates.</li>
                   <li>Vote, comment, and track copies/downloads.</li>
                 </ul>
                 <div className="flex flex-wrap gap-mdt-2">
@@ -426,7 +409,7 @@ export default async function Home() {
                     <Link href="/signin?callbackUrl=/">Sign in</Link>
                   </Button>
                   <Button variant="secondary" asChild>
-                    <Link href="/browse">Keep browsing</Link>
+                    <Link href="/library">Keep browsing</Link>
                   </Button>
                 </div>
               </Card>
@@ -439,7 +422,7 @@ export default async function Home() {
                   <h3 className="text-h3">Fresh snippets, templates, and files</h3>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href="/browse?sort=new">See all new</Link>
+                  <Link href="/library?sort=new">See all new</Link>
                 </Button>
               </div>
               <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -470,16 +453,16 @@ export default async function Home() {
           </section>
 
           <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border-strong bg-[color:var(--mdt-color-surface-raised)] p-mdt-10 text-center shadow-mdt-lg space-y-mdt-4 sm:p-mdt-12">
-            <Heading level="h1" as="h2" align="center">Start building now</Heading>
+            <Heading level="h1" as="h2" align="center">Start with a scan</Heading>
             <Text tone="muted" align="center">
-              Assemble an agents.md with public snippets and templates, then copy or download. Sign in later to save and keep favorites in sync across projects.
+              Scan a repo to see what loads, then open Workbench to refine and export agents.md. Use the Library when you want inspiration.
             </Text>
             <Row justify="center" gap={3} className="mt-mdt-6">
               <Button size="lg" asChild>
-                <Link href="/builder">Open builder</Link>
+                <Link href="/atlas/simulator">Scan a folder</Link>
               </Button>
               <Button variant="secondary" size="lg" asChild>
-                <Link href="/browse">Browse library</Link>
+                <Link href="/workbench">Open Workbench</Link>
               </Button>
             </Row>
           </div>
