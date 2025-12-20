@@ -60,6 +60,7 @@ describe('StructurePanel', () => {
 
     fireEvent.click(screen.getByLabelText('Remove block'));
     expect(useWorkbenchStore.getState().uam.blocks).toHaveLength(0);
+    expect(screen.getByText('No blocks in this scope.')).toBeInTheDocument();
   });
 
   it('shows blocks for the selected scope', async () => {

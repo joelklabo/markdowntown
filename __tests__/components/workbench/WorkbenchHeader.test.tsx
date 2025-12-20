@@ -19,12 +19,15 @@ describe('WorkbenchHeader', () => {
     render(<WorkbenchHeader session={null} />);
     expect(screen.getByDisplayValue('Test Agent')).toBeInTheDocument();
     expect(screen.getByLabelText('Visibility: Draft')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '⌘K' })).toBeInTheDocument();
+    expect(screen.getByText(/Draft:/i)).toBeInTheDocument();
   });
 
   it('shows sign in warning if logged out', () => {
     render(<WorkbenchHeader session={null} />);
     expect(screen.getByText('Sign in to save')).toBeInTheDocument();
     expect(screen.getByText('Save')).toBeDisabled();
+    expect(screen.getByText('Cloud: sign in')).toBeInTheDocument();
   });
 
   it('enables save if logged in', () => {
