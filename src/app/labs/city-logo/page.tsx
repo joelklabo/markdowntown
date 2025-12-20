@@ -105,6 +105,8 @@ function parseInitialConfig(searchParams: SearchParams): CityWordmarkConfig {
   const renderOverrides: Record<string, unknown> = {};
   const voxelScale = parseIntRange(firstString(searchParams.voxelScale), 1, 32);
   if (typeof voxelScale === "number") renderOverrides.voxelScale = voxelScale;
+  const bannerScale = parseIntRange(firstString(searchParams.bannerScale), 1, 32);
+  if (typeof bannerScale === "number") renderOverrides.bannerScale = bannerScale;
   const detail = parseRenderDetail(firstString(searchParams.detail));
   if (detail) renderOverrides.detail = detail;
   if (Object.keys(renderOverrides).length > 0) overrides.render = renderOverrides;

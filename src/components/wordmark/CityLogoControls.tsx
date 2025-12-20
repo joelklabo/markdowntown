@@ -43,6 +43,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, le
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
   const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
+  const [bannerScaleDraft, setBannerScaleDraft] = useState(String(sim.config.render.bannerScale));
   const [renderDetailDraft, setRenderDetailDraft] = useState<CityWordmarkRenderDetail>(sim.config.render.detail);
   const [skylineMinHeightDraft, setSkylineMinHeightDraft] = useState(String(sim.config.skyline.minHeight));
   const [skylineMaxHeightDraft, setSkylineMaxHeightDraft] = useState(String(sim.config.skyline.maxHeight));
@@ -60,6 +61,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, le
     setSeedDraft(next.seed);
     setTimeScaleDraft(String(next.timeScale));
     setVoxelScaleDraft(String(next.render.voxelScale));
+    setBannerScaleDraft(String(next.render.bannerScale));
     setRenderDetailDraft(next.render.detail);
     setSkylineMinHeightDraft(String(next.skyline.minHeight));
     setSkylineMaxHeightDraft(String(next.skyline.maxHeight));
@@ -314,6 +316,47 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, le
         </div>
       </Card>
 
+      {preview ? (
+        <Card className="p-mdt-4 space-y-mdt-3 md:col-span-2 xl:col-span-3 2xl:col-span-4 sticky top-4 z-10">
+          <div className="text-body-sm font-medium text-mdt-text">Preview</div>
+          <div className="grid grid-cols-2 gap-mdt-3">
+            <div className="space-y-mdt-1">
+              <div className="text-caption text-mdt-muted">Banner width</div>
+              <Select
+                name="previewWidth"
+                value={preview.widthMode}
+                onChange={(e) => preview.setWidthMode(e.target.value as CityLogoPreviewWidthMode)}
+              >
+                <option value="fixed">Fixed</option>
+                <option value="full">Full width</option>
+              </Select>
+            </div>
+            <div className="space-y-mdt-1">
+              <div className="text-caption text-mdt-muted">Banner scale</div>
+              <Input
+                type="number"
+                inputMode="numeric"
+                name="bannerScale"
+                min={1}
+                max={32}
+                step={1}
+                value={bannerScaleDraft}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setBannerScaleDraft(next);
+                  const parsed = Math.floor(Number(next));
+                  if (!Number.isFinite(parsed) || parsed < 1 || parsed > 32) return;
+                  sim.setConfig({ render: { bannerScale: parsed } });
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-caption text-mdt-muted">
+            Banner scale expands the skyline scene width without changing voxel resolution.
+          </div>
+        </Card>
+      ) : null}
+
       <Card className="p-mdt-4 space-y-mdt-3">
         <div className="text-body-sm font-medium text-mdt-text">Presets</div>
         <div className="grid grid-cols-2 gap-mdt-2">
@@ -407,21 +450,6 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, le
 	            </Select>
           </div>
 
-	          {preview ? (
-	            <div className="space-y-mdt-1">
-	              <div className="text-caption text-mdt-muted">Preview width</div>
-	              <Select
-	                name="previewWidth"
-	                value={preview.widthMode}
-	                onChange={(e) => preview.setWidthMode(e.target.value as CityLogoPreviewWidthMode)}
-	              >
-	                <option value="fixed">Fixed</option>
-	                <option value="full">Full width</option>
-              </Select>
-            </div>
-          ) : (
-            <div />
-          )}
         </div>
       </Card>
 
