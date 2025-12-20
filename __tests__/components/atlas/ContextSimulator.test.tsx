@@ -3,6 +3,28 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ContextSimulator } from "@/components/atlas/ContextSimulator";
 
+type MockHandle = {
+  kind: "file" | "directory";
+  name: string;
+  entries?: () => AsyncIterable<[string, MockHandle]>;
+};
+
+function file(name: string): MockHandle {
+  return { kind: "file", name };
+}
+
+function dir(name: string, children: MockHandle[]): MockHandle {
+  return {
+    kind: "directory",
+    name,
+    async *entries() {
+      for (const child of children) {
+        yield [child.name, child];
+      }
+    },
+  };
+}
+
 describe("ContextSimulator", () => {
   it("simulates loaded files for GitHub Copilot", async () => {
     render(<ContextSimulator />);
@@ -63,5 +85,43 @@ describe("ContextSimulator", () => {
       expect.stringContaining("AGENTS.override.md"),
       expect.stringContaining("packages/app/AGENTS.md"),
     ]);
+  });
+
+  it("supports folder scans and shows scan metadata + insights", async () => {
+    const rootHandle = dir("repo", [file("AGENTS.md"), dir("apps", [dir("web", [file("AGENTS.md")])])]);
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: async () => rootHandle,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
+    await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
+    await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");
+    await userEvent.click(screen.getByLabelText("Local folder (File System Access API)"));
+    await userEvent.click(screen.getByRole("button", { name: "Choose folder" }));
+
+    expect(await screen.findByText(/2 file\(s\) scanned/i)).toBeInTheDocument();
+
+    const loadedList = await screen.findByRole("list", { name: "Loaded files" });
+    expect(within(loadedList).getByText("AGENTS.md")).toBeInTheDocument();
+    expect(within(loadedList).getByText("apps/web/AGENTS.md")).toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { name: "Insights" })).toBeInTheDocument();
+    expect(screen.getByText("Missing instruction files")).toBeInTheDocument();
+    expect(screen.getAllByText("AGENTS.override.md").length).toBeGreaterThan(0);
+
+    if (originalPicker) {
+      Object.defineProperty(window, "showDirectoryPicker", {
+        value: originalPicker,
+        configurable: true,
+      });
+    } else {
+      // @ts-expect-error remove the stub when not present
+      delete window.showDirectoryPicker;
+    }
   });
 });
