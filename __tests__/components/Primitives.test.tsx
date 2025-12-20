@@ -51,14 +51,14 @@ describe("UI primitives", () => {
     expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Notes")).toBeInTheDocument();
 
-    expect(screen.getByTestId("input-md").className).toContain("h-mdt-10");
+    expect(screen.getByTestId("input-md").className).toContain("h-mdt-11");
     expect(screen.getByTestId("input-xs").className).toContain("h-mdt-8");
 
-    expect(screen.getByTestId("textarea-md").className).toContain("px-mdt-3");
+    expect(screen.getByTestId("textarea-md").className).toContain("px-mdt-4");
     expect(screen.getByTestId("textarea-xs").className).toContain("px-mdt-2");
 
-    expect(screen.getByTestId("select-md").className).toContain("h-mdt-10");
-    expect(screen.getByTestId("select-sm").className).toContain("h-mdt-9");
+    expect(screen.getByTestId("select-md").className).toContain("h-mdt-11");
+    expect(screen.getByTestId("select-sm").className).toContain("h-mdt-10");
   });
 
   it("renders V2 typography primitives", () => {

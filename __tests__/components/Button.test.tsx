@@ -28,7 +28,7 @@ describe("Button", () => {
     expect(getByText("Size").className).toContain("h-mdt-8");
 
     rerender(<Button size="lg">Size</Button>);
-    expect(getByText("Size").className).toContain("h-mdt-11");
+    expect(getByText("Size").className).toContain("h-mdt-12");
   });
 
   it("supports asChild", () => {

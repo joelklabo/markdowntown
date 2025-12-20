@@ -13,7 +13,7 @@ const textAreaVariants = cva(
       size: {
         xs: "px-mdt-2 py-mdt-1 text-caption",
         sm: "px-mdt-3 py-mdt-2 text-body-sm",
-        md: "px-mdt-3 py-mdt-2 text-body-sm",
+        md: "px-mdt-4 py-mdt-2 text-body-sm",
       },
     },
     defaultVariants: {

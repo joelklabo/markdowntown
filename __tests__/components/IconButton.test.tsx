@@ -30,8 +30,8 @@ describe("IconButton", () => {
       </IconButton>
     );
 
-    expect(getByRole("button", { name: /icon button/i }).className).toContain("h-mdt-11");
-    expect(getByRole("button", { name: /icon button/i }).className).toContain("w-mdt-11");
+    expect(getByRole("button", { name: /icon button/i }).className).toContain("h-mdt-12");
+    expect(getByRole("button", { name: /icon button/i }).className).toContain("w-mdt-12");
   });
 
   it("supports asChild", () => {
@@ -46,8 +46,7 @@ describe("IconButton", () => {
     const el = getByRole("link", { name: /go link/i });
     expect(el.tagName).toBe("A");
     expect(el.getAttribute("href")).toBe("/test");
-    expect(el.className).toContain("h-mdt-10");
-    expect(el.className).toContain("w-mdt-10");
+    expect(el.className).toContain("h-mdt-11");
+    expect(el.className).toContain("w-mdt-11");
   });
 });
-

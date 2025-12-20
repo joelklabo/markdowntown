@@ -21,9 +21,9 @@ const styles = cva(base, {
     },
     size: {
       xs: "h-mdt-8 w-mdt-8 text-xs",
-      sm: "h-mdt-9 w-mdt-9 text-sm",
-      md: "h-mdt-10 w-mdt-10 text-base",
-      lg: "h-mdt-11 w-mdt-11 text-lg",
+      sm: "h-mdt-10 w-mdt-10 text-sm",
+      md: "h-mdt-11 w-mdt-11 text-base",
+      lg: "h-mdt-12 w-mdt-12 text-lg",
     },
     shape: {
       rounded: "rounded-mdt-md",

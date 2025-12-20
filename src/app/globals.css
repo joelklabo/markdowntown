@@ -253,11 +253,11 @@
   --radius-pill: var(--mdt-radius-pill);
 
   /* Motion */
-  --mdt-motion-fast: 120ms;
-  --mdt-motion-base: 180ms;
-  --mdt-motion-slow: 260ms;
-  --mdt-motion-exit: 150ms;
-  --mdt-motion-enter: 220ms;
+  --mdt-motion-fast: 140ms;
+  --mdt-motion-base: 200ms;
+  --mdt-motion-slow: 320ms;
+  --mdt-motion-exit: 160ms;
+  --mdt-motion-enter: 240ms;
   --mdt-motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
   --mdt-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --mdt-motion-ease-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);

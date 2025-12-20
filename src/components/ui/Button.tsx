@@ -15,15 +15,15 @@ const buttonVariants = cva(base, {
       primary:
         "bg-[color:var(--mdt-color-primary)] text-[color:var(--mdt-color-text-on-strong)] shadow-mdt-sm hover:bg-[color:var(--mdt-color-primary-strong)] hover:shadow-mdt-md active:shadow-mdt-sm",
       secondary:
-        "bg-[color:var(--mdt-color-surface)] text-[color:var(--mdt-color-text)] border-[color:var(--mdt-color-border)] hover:bg-[color:var(--mdt-color-surface-subtle)]",
+        "bg-[color:var(--mdt-color-surface)] text-[color:var(--mdt-color-text)] border-[color:var(--mdt-color-border)] hover:bg-[color:var(--mdt-color-surface-subtle)] hover:border-[color:var(--mdt-color-border-strong)]",
       ghost:
         "bg-transparent text-[color:var(--mdt-color-text)] border-transparent hover:bg-[color:var(--mdt-color-surface-subtle)]",
     },
     size: {
       xs: "h-mdt-8 px-mdt-2 py-mdt-1 text-caption",
-      sm: "h-mdt-9 px-mdt-3",
-      md: "h-mdt-10",
-      lg: "h-mdt-11 px-mdt-5 text-body",
+      sm: "h-mdt-10 px-mdt-3",
+      md: "h-mdt-11",
+      lg: "h-mdt-12 px-mdt-6 text-body",
     },
   },
   defaultVariants: {
