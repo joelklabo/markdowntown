@@ -156,11 +156,11 @@ export function LivingCityWordmarkSvg({
 
   const palette = useMemo(() => getCityWordmarkPalette(timeOfDay, scheme), [scheme, timeOfDay]);
   const gridBuilding = useMemo(
-    () => lerpRgb(palette.building, palette.buildingMuted, 0.3),
+    () => lerpRgb(palette.building, palette.buildingMuted, 0.2),
     [palette]
   );
   const gridBuildingMuted = useMemo(
-    () => lerpRgb(palette.buildingMuted, palette.sky, 0.2),
+    () => lerpRgb(palette.buildingMuted, palette.sky, 0.1),
     [palette]
   );
   const { daylight } = getTimeOfDayPhase(timeOfDay);

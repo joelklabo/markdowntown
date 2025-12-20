@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { featureFlags } from "@/lib/flags";
 import { cn } from "@/lib/cn";
 import { LivingCityWordmarkSvg } from "./LivingCityWordmarkSvg";
+import { createCityWordmarkLayout } from "./sim/layout";
 import { useCityWordmarkSim } from "./sim/useCityWordmarkSim";
 import { trackError } from "@/lib/analytics";
 
@@ -36,6 +37,8 @@ function usePrefersReducedMotion(): boolean {
 
 export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio, sizeMode }: LivingCityWordmarkProps) {
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLSpanElement | null>(null);
+  const [autoBannerScale, setAutoBannerScale] = useState<number | null>(null);
   const id = useId();
   const titleId = `${id}-title`;
   const descId = `${id}-desc`;
@@ -55,14 +58,55 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
   const canAnimate = mounted && shouldAnimate;
   const sim = useCityWordmarkSim({ enabled: canAnimate });
   const { peek, setConfig } = sim;
-  const resolvedBannerScale = bannerScale ?? sim.config.render.bannerScale;
+  const baseLayout = useMemo(
+    () =>
+      createCityWordmarkLayout({
+        resolution: sim.config.render.voxelScale,
+        detail: sim.config.render.detail,
+        sceneScale: 1,
+      }),
+    [sim.config.render.detail, sim.config.render.voxelScale]
+  );
+
+  useEffect(() => {
+    if (bannerScale != null) return;
+    if (sizeMode !== "fluid") return;
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    let frame = 0;
+    const update = (width: number, height: number) => {
+      if (width <= 0 || height <= 0) return;
+      const targetScale = Math.max(1, Math.ceil((baseLayout.height * (width / height)) / baseLayout.width));
+      setAutoBannerScale((prev) => (prev === targetScale ? prev : targetScale));
+    };
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => update(width, height));
+    });
+
+    observer.observe(el);
+    const rect = el.getBoundingClientRect();
+    update(rect.width, rect.height);
+
+    return () => {
+      observer.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [bannerScale, baseLayout.height, baseLayout.width, sizeMode]);
+
+  const resolvedBannerScale = bannerScale ?? autoBannerScale ?? sim.config.render.bannerScale;
 
   useEffect(() => {
     if (!canAnimate) return;
-    if (bannerScale == null) return;
-    if (bannerScale === peek().config.render.bannerScale) return;
-    setConfig({ render: { bannerScale } });
-  }, [bannerScale, canAnimate, peek, setConfig]);
+    if (resolvedBannerScale == null) return;
+    if (resolvedBannerScale === peek().config.render.bannerScale) return;
+    setConfig({ render: { bannerScale: resolvedBannerScale } });
+  }, [canAnimate, peek, resolvedBannerScale, setConfig]);
 
   const mergedClassName = cn(
     "mdt-wordmark",
@@ -89,22 +133,24 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
         trackError("wordmark_banner_error", error, { route: pathname })
       }
     >
-      <LivingCityWordmarkSvg
-        titleId={titleId}
-        descId={descId}
-        className={mergedClassName}
-        seed={sim.config.seed}
-        timeOfDay={sim.config.timeOfDay}
-        scheme={sim.config.scheme}
-        nowMs={sim.nowMs}
-        actorRects={sim.actorRects}
-        voxelScale={sim.config.render.voxelScale}
-        renderDetail={sim.config.render.detail}
-        bannerScale={resolvedBannerScale}
-        sizeMode={sizeMode}
-        preserveAspectRatio={preserveAspectRatio}
-        skyline={sim.config.skyline}
-      />
+      <span ref={containerRef} className="block h-full w-full">
+        <LivingCityWordmarkSvg
+          titleId={titleId}
+          descId={descId}
+          className={mergedClassName}
+          seed={sim.config.seed}
+          timeOfDay={sim.config.timeOfDay}
+          scheme={sim.config.scheme}
+          nowMs={sim.nowMs}
+          actorRects={sim.actorRects}
+          voxelScale={sim.config.render.voxelScale}
+          renderDetail={sim.config.render.detail}
+          bannerScale={resolvedBannerScale}
+          sizeMode={sizeMode}
+          preserveAspectRatio={preserveAspectRatio}
+          skyline={sim.config.skyline}
+        />
+      </span>
     </WordmarkErrorBoundary>
   );
 }

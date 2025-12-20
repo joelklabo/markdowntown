@@ -186,11 +186,10 @@ export function SiteNav({ user }: { user?: User }) {
     <>
       <header className="sticky top-0 z-30 border-b border-mdt-border/70 bg-[color:var(--mdt-color-surface-raised)]/92 backdrop-blur-lg shadow-mdt-md">
         <div className="border-b border-mdt-border/60">
-          <div className="w-full overflow-hidden py-mdt-1">
+          <div className="w-full overflow-hidden">
             {featureFlags.wordmarkBannerV1 ? (
               <LivingCityWordmark
                 className={cn("mdt-wordmark--banner", "block h-12 w-full md:h-14")}
-                bannerScale={12}
                 sizeMode="fluid"
                 preserveAspectRatio="xMinYMid slice"
               />
