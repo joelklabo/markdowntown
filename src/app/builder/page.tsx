@@ -5,8 +5,8 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
-  title: "Builder | mark downtown",
-  description: "Assemble snippets and templates into a single agents.md and export without signing in.",
+  title: "Workbench | mark downtown",
+  description: "Build, edit, and export agents.md files in Workbench.",
 };
 
 export default async function BuilderPage({

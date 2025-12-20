@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Templates | mark downtown",
-  description: "Templates with placeholders you can fill and export to agents.md.",
+  description: "Browse templates in the public library.",
 };
 
 export default async function TemplatesPage() {

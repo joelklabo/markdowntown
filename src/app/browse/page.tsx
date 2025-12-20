@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Browse library | mark downtown",
-  description: "Discover reusable snippets, templates, and agents.md files to assemble your next agents.md.",
+  title: "Library | mark downtown",
+  description: "Browse public artifacts and open them in Workbench.",
 };
 
 export default async function BrowsePage({

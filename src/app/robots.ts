@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: ["/"],
-      disallow: ["/api", "/signin", "/api/auth"],
+      disallow: ["/api", "/signin", "/api/auth", "/browse", "/builder"],
     },
     sitemap: "https://markdown.town/sitemap.xml",
   };
