@@ -71,6 +71,22 @@ describe("CityWordmark engine events", () => {
     unsubscribe();
   });
 
+  it("spawns pedestrian actors for command palette and login events", () => {
+    resetEngine();
+    const unsubscribe = subscribeCityWordmarkEngine(() => {});
+
+    dispatchCityWordmarkEvent({ type: "command_palette_open", ts: 1400 });
+    let snapshot = getCityWordmarkEngineSnapshot();
+    expect(snapshot.actorRects.some((r) => r.tone === "pedestrian")).toBe(true);
+
+    resetEngine();
+    dispatchCityWordmarkEvent({ type: "login", method: "oauth", ts: 2200 });
+    snapshot = getCityWordmarkEngineSnapshot();
+    expect(snapshot.actorRects.some((r) => r.tone === "pedestrian")).toBe(true);
+
+    unsubscribe();
+  });
+
   it("throttles repeated events within the cooldown window", () => {
     resetEngine();
     const unsubscribe = subscribeCityWordmarkEngine(() => {});

@@ -192,6 +192,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         setHighlight(0);
         setQuery("open block");
         track("workbench_shortcut", { shortcut: "cmd_p", action: "open_block" });
+        emitCityWordmarkEvent({ type: "command_palette_open", origin: "cmd_p" });
         return;
       }
 
@@ -201,6 +202,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
         setHighlight(0);
         setQuery("export");
         track("workbench_shortcut", { shortcut: "cmd_shift_e", action: "export" });
+        emitCityWordmarkEvent({ type: "command_palette_open", origin: "cmd_shift_e" });
         return;
       }
 

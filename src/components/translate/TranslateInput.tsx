@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
 import { Stack, Row } from '@/components/ui/Stack';
+import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 
 interface TranslateInputProps {
   value: string;
@@ -21,6 +22,7 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
       const text = await file.text();
       setFileName(file.name);
       onChange(text);
+      emitCityWordmarkEvent({ type: 'upload', kind: 'file' });
     },
     [onChange]
   );
@@ -83,4 +85,3 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
     </Stack>
   );
 }
-

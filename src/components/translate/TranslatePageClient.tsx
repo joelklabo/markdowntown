@@ -8,6 +8,7 @@ import { TranslateOutput, type TranslateCompileResult } from '@/components/trans
 import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 import { createZip } from '@/lib/compile/zip';
 import { createUamTargetV1, wrapMarkdownAsGlobal, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
+import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 
 type TranslatePageClientProps = {
   initialInput: string;
@@ -69,6 +70,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
     try {
       if (isTooLarge) {
         setError('Input is too large to compile.');
+        emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
         return;
       }
 
@@ -91,6 +93,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
       setResult(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error compiling');
+      emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     } finally {
       setLoading(false);
     }
@@ -108,6 +111,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
       URL.revokeObjectURL(url);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error creating zip');
+      emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     }
   };
 

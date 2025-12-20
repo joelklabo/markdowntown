@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
+import { emitCityWordmarkEvent } from "@/components/wordmark/sim/bridge";
 
 type Props = {
   password: string;
   callbackUrl?: string;
+  wordmarkMethod?: "oauth" | "password" | "sso";
 };
 
-export function DemoLoginButton({ password, callbackUrl = "/" }: Props) {
+export function DemoLoginButton({ password, callbackUrl = "/", wordmarkMethod }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleClick() {
+    if (wordmarkMethod) emitCityWordmarkEvent({ type: "login", method: wordmarkMethod });
     setLoading(true);
     setError(null);
     const res = await signIn("demo", {

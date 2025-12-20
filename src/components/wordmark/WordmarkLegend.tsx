@@ -23,12 +23,12 @@ type LegendItem = {
 };
 
 const LEGEND_ITEMS: LegendItem[] = [
-  { id: "search", label: "Search", detail: "Cars cruise by", icon: "car" },
-  { id: "command", label: "Command", detail: "Pedestrians appear", icon: "pedestrian" },
-  { id: "login", label: "Login", detail: "Pedestrians gather", icon: "pedestrian" },
-  { id: "publish", label: "Publish", detail: "Delivery truck rolls through", icon: "truck" },
-  { id: "upload", label: "Upload", detail: "Dog walkers pop up", icon: "dog" },
-  { id: "alert", label: "Alert", detail: "Ambulance lights flash", icon: "ambulance" },
+  { id: "search", label: "Search", detail: "Cars stream through", icon: "car" },
+  { id: "command", label: "Command palette", detail: "Pedestrians gather", icon: "pedestrian" },
+  { id: "login", label: "Login", detail: "Commuters appear", icon: "pedestrian" },
+  { id: "publish", label: "Publish", detail: "Delivery trucks roll by", icon: "truck" },
+  { id: "upload", label: "Upload", detail: "Dog walkers show up", icon: "dog" },
+  { id: "alert", label: "Alert", detail: "Ambulance lights flare", icon: "ambulance" },
 ];
 
 function LegendIcon({ icon, className }: { icon: LegendIconName; className?: string }) {

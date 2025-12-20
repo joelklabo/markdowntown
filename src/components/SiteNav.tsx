@@ -98,11 +98,22 @@ export function SiteNav({ user }: { user?: User }) {
     return search ? `/library?${search}` : "/library";
   }
 
+  function buildSearchEventQuery(overrides?: Record<string, string | undefined>) {
+    const trimmed = query.trim();
+    if (trimmed) return trimmed;
+    const tokens = Object.entries(overrides ?? {})
+      .filter(([, value]) => value)
+      .map(([key, value]) => `${key}:${value}`);
+    if (tokens.length > 0) return tokens.join(" ");
+    return "browse";
+  }
+
   function applyQuickFilter(overrides: Record<string, string>, source: string) {
     const destination = buildBrowseHref(overrides);
     const q = query.trim();
     persistRecent(q);
     track("nav_search_quick_filter", { source, q: q || undefined, ...overrides });
+    emitCityWordmarkEvent({ type: "search", query: buildSearchEventQuery(overrides) });
     router.push(destination);
     setShowMobileSearch(false);
     setShowOverflowSheet(false);
@@ -310,7 +321,10 @@ export function SiteNav({ user }: { user?: User }) {
                 <Button variant="ghost" size="xs" className="whitespace-nowrap" asChild>
                   <Link
                     href={`/signin?callbackUrl=${encodeURIComponent(pathname || "/")}`}
-                    onClick={() => track("nav_click", { href: "signin", placement: "desktop" })}
+                    onClick={() => {
+                      track("nav_click", { href: "signin", placement: "desktop" });
+                      emitCityWordmarkEvent({ type: "login", method: "oauth" });
+                    }}
                   >
                     Sign in
                   </Link>

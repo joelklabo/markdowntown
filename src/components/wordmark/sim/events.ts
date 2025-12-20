@@ -8,21 +8,28 @@ export type CityWordmarkEventListener = (event: CityWordmarkEvent) => void;
 
 const EVENT_RATE_WINDOW_MS = 1000;
 const EVENT_RATE_MAX = 12;
-let rateWindowStart = 0;
-let rateCount = 0;
+
+function createRateLimiter(windowMs: number, max: number) {
+  const windows = new Map<string, { start: number; count: number }>();
+
+  return (key: string, now: number) => {
+    const entry = windows.get(key) ?? { start: 0, count: 0 };
+    if (entry.start === 0 || now - entry.start > windowMs) {
+      entry.start = now;
+      entry.count = 0;
+    }
+    entry.count += 1;
+    windows.set(key, entry);
+    return entry.count > max;
+  };
+}
+
+const isDispatchRateLimited = createRateLimiter(EVENT_RATE_WINDOW_MS, EVENT_RATE_MAX);
+const isListenerRateLimited = createRateLimiter(EVENT_RATE_WINDOW_MS, EVENT_RATE_MAX);
 
 function normalizeEventTs(ts?: number): number {
   const value = typeof ts === "number" && Number.isFinite(ts) ? ts : Date.now();
   return value;
-}
-
-function isRateLimited(now: number): boolean {
-  if (rateWindowStart === 0 || now - rateWindowStart > EVENT_RATE_WINDOW_MS) {
-    rateWindowStart = now;
-    rateCount = 0;
-  }
-  rateCount += 1;
-  return rateCount > EVENT_RATE_MAX;
 }
 
 export function dispatchCityWordmarkEvent(event: CityWordmarkEvent) {
@@ -31,6 +38,7 @@ export function dispatchCityWordmarkEvent(event: CityWordmarkEvent) {
   const parsed = parseCityWordmarkEvent(event);
   if (!parsed) return;
   const ts = normalizeEventTs(parsed.ts);
+  if (isDispatchRateLimited(parsed.type, Date.now())) return;
   window.dispatchEvent(new CustomEvent<CityWordmarkEvent>(CITY_WORDMARK_EVENT, { detail: { ...parsed, ts } }));
 }
 
@@ -43,7 +51,7 @@ export function listenCityWordmarkEvents(listener: CityWordmarkEventListener) {
     const detail = parseCityWordmarkEvent(e.detail);
     if (!detail) return;
     const ts = normalizeEventTs(detail.ts);
-    if (isRateLimited(Date.now())) return;
+    if (isListenerRateLimited(detail.type, Date.now())) return;
     listener({ ...detail, ts });
   }
 

@@ -134,12 +134,18 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     return false;
   }
 
-  function wrapEventActor(actor: CityWordmarkActor, kind: string, startMs: number): CityWordmarkActor {
+  function wrapEventActor(
+    actor: CityWordmarkActor,
+    kind: string,
+    startMs: number,
+    configOverride?: CityWordmarkConfig
+  ): CityWordmarkActor {
     let inner = actor;
     const wrapper: CityWordmarkActor = {
       kind,
       update(ctx) {
-        inner = inner.update(ctx);
+        const updateCtx = configOverride ? { ...ctx, config: configOverride } : ctx;
+        inner = inner.update(updateCtx);
         if (inner.done || ctx.nowMs - startMs >= EVENT_ACTOR_TTL_MS) {
           wrapper.done = true;
         }
@@ -147,7 +153,8 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
       },
       render(ctx) {
         if (wrapper.done) return [];
-        return inner.render(ctx);
+        const renderCtx = configOverride ? { ...ctx, config: configOverride } : ctx;
+        return inner.render(renderCtx);
       },
     };
     return wrapper;
@@ -186,35 +193,38 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     actors = [...base, ...merged];
   }
 
-  function spawnEventActorBundle(event: CityWordmarkEvent, ts: number): CityWordmarkActor[] {
+  function spawnEventActorBundle(
+    event: CityWordmarkEvent,
+    ts: number
+  ): { actors: CityWordmarkActor[]; configOverride?: CityWordmarkConfig } | null {
     const seed = `${snapshot.config.seed}:event:${event.type}:${ts}:${eventIndex++}`;
     const baseConfig = snapshot.config;
 
     if (event.type === "search") {
       const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { cars: true } });
-      return spawnCarActors({ config, layout });
+      return { actors: spawnCarActors({ config, layout }), configOverride: config };
     }
 
     if (event.type === "command_palette_open") {
       const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { pedestrians: true } });
-      return spawnPedestrianActors({ config, layout });
+      return { actors: spawnPedestrianActors({ config, layout }), configOverride: config };
     }
 
     if (event.type === "publish") {
       const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { trucks: true } });
-      return spawnTruckActors({ config, layout });
+      return { actors: spawnTruckActors({ config, layout }), configOverride: config };
     }
 
     if (event.type === "upload") {
-      return [createEventDogActor(seed)];
+      return { actors: [createEventDogActor(seed)], configOverride: baseConfig };
     }
 
     if (event.type === "login") {
       const config = mergeCityWordmarkConfig(baseConfig, { seed, density: "sparse", actors: { pedestrians: true } });
-      return spawnPedestrianActors({ config, layout });
+      return { actors: spawnPedestrianActors({ config, layout }), configOverride: config };
     }
 
-    return [];
+    return null;
   }
 
   function onCityWordmarkEvent(event: CityWordmarkEvent) {
@@ -240,10 +250,10 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     }
 
     const bundle = spawnEventActorBundle(event, ts);
-    if (bundle.length === 0) return;
+    if (!bundle || bundle.actors.length === 0) return;
     const startMs = snapshot.nowMs;
-    const wrapped = bundle.map((actor, index) =>
-      wrapEventActor(actor, `event:${event.type}:${eventIndex}-${index}`, startMs)
+    const wrapped = bundle.actors.map((actor, index) =>
+      wrapEventActor(actor, `event:${event.type}:${eventIndex}-${index}`, startMs, bundle.configOverride)
     );
 
     addEventActors(wrapped);

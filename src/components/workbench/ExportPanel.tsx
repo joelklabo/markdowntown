@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
+import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 
 const COMPILE_DEBOUNCE_MS = 250;
 
@@ -75,6 +76,7 @@ export function ExportPanel() {
       if (requestId !== requestIdRef.current) return;
       setCompilationResult(null);
       setError(err instanceof Error ? err.message : 'Error compiling');
+      emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     } finally {
       if (requestId === requestIdRef.current) setLoading(false);
     }
@@ -96,6 +98,7 @@ export function ExportPanel() {
 
     pendingUamRef.current = nextUam;
     setLoading(true);
+    emitCityWordmarkEvent({ type: 'publish', kind: 'artifact' });
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -122,6 +125,7 @@ export function ExportPanel() {
   const handleDownload = async () => {
     if (!result || result.files.length === 0) return;
     try {
+      emitCityWordmarkEvent({ type: 'publish', kind: 'file' });
       const blob = await createZip(result.files);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -131,6 +135,7 @@ export function ExportPanel() {
       URL.revokeObjectURL(url);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error creating zip');
+      emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     }
   };
 

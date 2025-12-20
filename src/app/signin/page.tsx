@@ -46,7 +46,7 @@ export default async function SignInPage({
                 revoke access in GitHub settings.
               </Text>
               <Row wrap gap={3}>
-                <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured}>
+                <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured} wordmarkMethod="oauth">
                   {githubConfigured ? "Continue with GitHub" : "GitHub not configured"}
                 </GithubLoginButton>
                 <Button variant="secondary" asChild>
@@ -81,7 +81,12 @@ export default async function SignInPage({
                 <div className="rounded-mdt-lg bg-mdt-bg-soft p-mdt-3 text-body-sm text-mdt-muted">
                   By continuing, you agree to keep your credentials safe and abide by our acceptable use.
                 </div>
-                <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured} className="w-full">
+                <GithubLoginButton
+                  callbackUrl={callbackUrl}
+                  disabled={!githubConfigured}
+                  className="w-full"
+                  wordmarkMethod="oauth"
+                >
                   {githubConfigured ? "Sign in with GitHub" : "GitHub not configured"}
                 </GithubLoginButton>
                 {demoLoginEnabled && (
@@ -92,7 +97,7 @@ export default async function SignInPage({
                         {demoPassword}
                       </span>
                     </div>
-                    <DemoLoginButton password={demoPassword} callbackUrl={callbackUrl} />
+                    <DemoLoginButton password={demoPassword} callbackUrl={callbackUrl} wordmarkMethod="password" />
                   </div>
                 )}
               </Surface>
