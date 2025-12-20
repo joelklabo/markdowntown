@@ -29,6 +29,7 @@ export default function TermsPage() {
             <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
               <li>Use the app for composing, copying, or testing markdown content.</li>
               <li>Avoid uploading sensitive or production data in this demo environment.</li>
+              <li>Atlas Simulator folder scans run locally and only read file paths.</li>
               <li>Respect third-party licenses when importing or sharing content.</li>
             </ul>
           </Surface>

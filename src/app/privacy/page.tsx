@@ -34,6 +34,15 @@ export default function PrivacyPage() {
           </Surface>
 
           <Surface padding="lg" className="space-y-mdt-3">
+            <Heading level="h3" as="h2">Local folder scans</Heading>
+            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
+              <li>Atlas Simulator scans run locally in your browser and never upload file contents.</li>
+              <li>We only read file paths to find relevant instruction files.</li>
+              <li>No folder data is stored on our servers.</li>
+            </ul>
+          </Surface>
+
+          <Surface padding="lg" className="space-y-mdt-3">
             <Heading level="h3" as="h2">Your choices</Heading>
             <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
               <li>Use the app without signing in to browse and copy content.</li>
