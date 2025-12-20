@@ -66,9 +66,9 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
   const related = relatedPublic.filter((rel) => rel.id !== item.id).map(toSampleCard).slice(0, 3);
 
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
+        <Stack gap={8}>
           <Breadcrumb
             segments={[
               { href: "/", label: "Home" },
@@ -77,7 +77,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
             ]}
           />
 
-          <Surface tone="raised" padding="lg" className="space-y-mdt-4">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-5">
             <DetailWarning visibility={visibility} type="snippet" />
 
             <Row wrap gap={4} justify="between" align="start" className="items-start">
@@ -86,7 +86,7 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
                   <Pill tone="blue">Snippet</Pill>
                   {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
                 </Row>
-                <Stack gap={2}>
+                <Stack gap={3}>
                   <Heading level="display" leading="tight">{item.title}</Heading>
                   <Text tone="muted" className="max-w-3xl">{item.description}</Text>
                 </Stack>
@@ -105,27 +105,27 @@ export default async function SnippetDetail({ params }: { params: Promise<Snippe
 
           <SnippetTabs title={item.title} rendered={rawContent} raw={rawContent} />
 
-          <Surface padding="md" className="space-y-mdt-3">
+          <Surface padding="md" className="space-y-mdt-4">
             <Heading level="h3" as="h4">Quality signals</Heading>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
+            <div className="grid gap-mdt-3 sm:grid-cols-3">
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3 text-body-sm">
                 <p className="text-caption text-mdt-muted">Copies</p>
                 <p className="text-h3 font-display">{item.stats.copies.toLocaleString()}</p>
               </div>
-              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3 text-body-sm">
                 <p className="text-caption text-mdt-muted">Views</p>
                 <p className="text-h3 font-display">{item.stats.views.toLocaleString()}</p>
               </div>
-              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-sm">
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3 text-body-sm">
                 <p className="text-caption text-mdt-muted">Votes</p>
                 <p className="text-h3 font-display">{item.stats.votes.toLocaleString()}</p>
               </div>
             </div>
           </Surface>
 
-          <Surface padding="md" className="space-y-mdt-3">
+          <Surface padding="md" className="space-y-mdt-4">
             <Heading level="h3" as="h4">Related snippets</Heading>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-mdt-4 sm:grid-cols-2">
               {related.map((rel) => (
                 <LibraryCard key={rel.id} item={rel} />
               ))}

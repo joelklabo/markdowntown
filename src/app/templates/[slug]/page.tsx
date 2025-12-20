@@ -86,9 +86,9 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
   const visibility = data.visibility ?? "PUBLIC";
 
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
+        <Stack gap={8}>
           <Breadcrumb
             segments={[
               { href: "/", label: "Home" },
@@ -97,7 +97,7 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
             ]}
           />
 
-          <Surface tone="raised" padding="lg" className="space-y-mdt-3 sticky top-16 z-10">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-4 sticky top-16 z-10">
             <DetailWarning visibility={visibility} type="template" />
 
             <Row wrap gap={4} justify="between" align="start" className="items-start">
@@ -125,9 +125,9 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
 
           <DetailTabs title={data.title} rendered={initialRendered} raw={body} copyLabel="Copy" />
 
-          <Surface padding="md" className="space-y-mdt-3">
+          <Surface padding="md" className="space-y-mdt-4">
             <Heading level="h3" as="h4">Related templates</Heading>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-mdt-4 sm:grid-cols-2">
               {related.map((rel) => (
                 <LibraryCard key={rel.id} item={rel} />
               ))}

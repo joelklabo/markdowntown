@@ -64,9 +64,9 @@ export default async function FileDetail({ params }: { params: Promise<FileParam
   const visibility = item.visibility ?? "PUBLIC";
 
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
+        <Stack gap={8}>
           <Breadcrumb
             segments={[
               { href: "/", label: "Home" },
@@ -75,11 +75,11 @@ export default async function FileDetail({ params }: { params: Promise<FileParam
             ]}
           />
 
-          <Surface tone="raised" padding="lg" className="space-y-mdt-3">
+          <Surface tone="raised" padding="lg" className="space-y-mdt-4">
             <DetailWarning visibility={visibility} type="file" />
 
             <Row wrap gap={4} justify="between" align="start" className="items-start">
-              <Stack gap={2} className="min-w-0">
+              <Stack gap={3} className="min-w-0">
                 <Row wrap gap={2} className="items-center">
                   <Pill tone="blue">agents.md</Pill>
                 </Row>

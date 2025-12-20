@@ -21,9 +21,9 @@ export default async function EditDocumentPage({ params }: { params: Promise<Par
   if (!doc) return notFound();
 
   return (
-    <main id="main-content" className="py-mdt-8">
+    <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={6}>
+        <Stack gap={8}>
           <Breadcrumb
             segments={[
               { href: "/", label: "Home" },
@@ -31,7 +31,7 @@ export default async function EditDocumentPage({ params }: { params: Promise<Par
               { label: doc.title },
             ]}
           />
-          <Stack gap={2}>
+          <Stack gap={3}>
             <Heading level="display" leading="tight">Edit agents.md</Heading>
             <Text tone="muted">Update content, then save and export.</Text>
           </Stack>
