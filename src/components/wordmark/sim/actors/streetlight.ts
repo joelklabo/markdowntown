@@ -38,7 +38,7 @@ function createStreetlightActor(state: StreetlightState): CityWordmarkActor {
     const out: CityWordmarkActorRect[] = [];
 
     for (const light of state.lights) {
-      if (light.x < 0 || light.x >= ctx.layout.width) continue;
+      if (light.x < 0 || light.x >= ctx.layout.sceneWidth) continue;
       if (light.y < 0 || light.y >= ctx.layout.height) continue;
 
       let opacity = 1;
@@ -65,11 +65,11 @@ function createStreetlightActor(state: StreetlightState): CityWordmarkActor {
 export function spawnStreetlightActors(ctx: CityWordmarkActorContext): CityWordmarkActor[] {
   const count = getStreetlightCount(ctx.config);
   if (count === 0) return [];
-  if (ctx.layout.width <= 0) return [];
+  if (ctx.layout.sceneWidth <= 0) return [];
 
   const rng = createRng(`${ctx.config.seed}:streetlights`);
   const y = Math.max(0, ctx.layout.baselineY - 3);
-  const xMax = Math.max(0, ctx.layout.width - 1);
+  const xMax = Math.max(0, ctx.layout.sceneWidth - 1);
 
   const lights: Streetlight[] = [];
 
@@ -95,4 +95,3 @@ export function spawnStreetlightActors(ctx: CityWordmarkActorContext): CityWordm
 
   return [createStreetlightActor({ lights })];
 }
-

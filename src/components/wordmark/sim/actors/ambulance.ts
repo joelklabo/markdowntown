@@ -23,7 +23,7 @@ function createAmbulanceActor(state: AmbulanceState): CityWordmarkActor {
     if (!ctx.config.actors.ambulance) return { ...actor, done: true };
 
     const x = getX(state, ctx);
-    const offScreen = x > ctx.layout.width + 3;
+    const offScreen = x > ctx.layout.sceneWidth + 3;
     const expired = ctx.nowMs >= state.endAtMs;
     if (expired && offScreen) return { ...actor, done: true };
     return actor;
@@ -31,7 +31,7 @@ function createAmbulanceActor(state: AmbulanceState): CityWordmarkActor {
 
   function render(ctx: { nowMs: number; config: CityWordmarkConfig; layout: CityWordmarkLayout }): CityWordmarkActorRect[] {
     const x = getX(state, ctx);
-    if (x > ctx.layout.width + 2) return [];
+    if (x > ctx.layout.sceneWidth + 2) return [];
     if (x + state.width < -2) return [];
 
     const out: CityWordmarkActorRect[] = [

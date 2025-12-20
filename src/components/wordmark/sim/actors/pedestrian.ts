@@ -1,3 +1,4 @@
+import type { CityWordmarkLayout } from "../layout";
 import { createRng } from "../rng";
 import type { CityWordmarkConfig } from "../types";
 import type { CityWordmarkActor, CityWordmarkActorContext, CityWordmarkActorRect } from "./types";
@@ -39,7 +40,7 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
     return actor;
   }
 
-  function render(ctx: { nowMs: number; config: CityWordmarkConfig; layout: { width: number; height: number } }): CityWordmarkActorRect[] {
+  function render(ctx: { nowMs: number; config: CityWordmarkConfig; layout: CityWordmarkLayout }): CityWordmarkActorRect[] {
     if (!ctx.config.actors.pedestrians) return [];
     if (state.pedestrians.length === 0) return [];
 
@@ -51,7 +52,7 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
       const dx = pingPong(travel, segmentLen);
       const x = p.minX + Math.floor(dx);
 
-      if (x < 0 || x >= ctx.layout.width) continue;
+      if (x < 0 || x >= ctx.layout.sceneWidth) continue;
       if (p.yBody < 0 || p.yBody >= ctx.layout.height) continue;
 
       const yHead = p.yBody - 1;
@@ -64,7 +65,7 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
 
       if (p.hasDog) {
         const dogX = x + p.dogOffset;
-        if (dogX >= 0 && dogX < ctx.layout.width) {
+        if (dogX >= 0 && dogX < ctx.layout.sceneWidth) {
           out.push({ x: dogX, y: p.yBody, width: 1, height: 1, tone: "dog", opacity: 0.72 });
         }
       }
@@ -85,10 +86,10 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
 export function spawnPedestrianActors(ctx: CityWordmarkActorContext): CityWordmarkActor[] {
   const count = getPedestrianCount(ctx.config);
   if (count === 0) return [];
-  if (ctx.layout.width <= 0 || ctx.layout.height <= 0) return [];
+  if (ctx.layout.sceneWidth <= 0 || ctx.layout.height <= 0) return [];
 
   const rng = createRng(`${ctx.config.seed}:pedestrians`);
-  const xMax = Math.max(0, ctx.layout.width - 1);
+  const xMax = Math.max(0, ctx.layout.sceneWidth - 1);
   if (xMax < 4) return [];
 
   const yBody = Math.max(1, ctx.layout.baselineY - 3);

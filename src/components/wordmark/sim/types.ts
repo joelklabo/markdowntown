@@ -7,6 +7,8 @@ export type CityWordmarkScheme = (typeof CITY_WORDMARK_SCHEMES)[number];
 export type CityWordmarkRenderConfig = {
   /** Resolution multiplier (higher = smaller voxels). */
   voxelScale: number;
+  /** Multiplier for full-width banner rendering. */
+  bannerScale: number;
 };
 
 export type CityWordmarkSkylineConfig = {

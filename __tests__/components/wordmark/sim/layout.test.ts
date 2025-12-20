@@ -12,8 +12,17 @@ describe("createCityWordmarkLayout", () => {
     const b = createCityWordmarkLayout();
     expect(a).toEqual(b);
     expect(a.width).toBeGreaterThan(0);
+    expect(a.sceneWidth).toBeGreaterThan(0);
+    expect(a.sceneWidth).toBeGreaterThanOrEqual(a.width);
     expect(a.height).toBeGreaterThan(0);
     expect(a.rects.length).toBeGreaterThan(0);
+  });
+
+  it("supports expanding the scene width beyond the text", () => {
+    const base = createCityWordmarkLayout({ sceneScale: 1 });
+    const expanded = createCityWordmarkLayout({ sceneScale: 3 });
+    expect(expanded.width).toBe(base.width);
+    expect(expanded.sceneWidth).toBe(base.width * 3);
   });
 
   it("includes all glyphs needed for MARKDOWNTOWN", () => {

@@ -22,8 +22,8 @@ describe("LivingCityWordmarkSvg", () => {
     expect(width1).toBeGreaterThan(0);
     expect(height1).toBeGreaterThan(0);
     expect(viewBox1).not.toBeNull();
-    expect(viewBox1!.width).toBe(width1);
-    expect(viewBox1!.height).toBe(height1);
+    expect(viewBox1!.width).toBeGreaterThan(0);
+    expect(viewBox1!.height).toBeGreaterThan(0);
 
     rerender(<LivingCityWordmarkSvg titleId="title" descId="desc" voxelScale={6} />);
 
@@ -31,11 +31,10 @@ describe("LivingCityWordmarkSvg", () => {
     const height6 = Number(svg.getAttribute("height"));
     const viewBox6 = parseViewBox(svg.getAttribute("viewBox"));
 
-    expect(width6).toBe(width1 * 6);
-    expect(height6).toBe(height1 * 6);
+    expect(width6).toBe(width1);
+    expect(height6).toBe(height1);
     expect(viewBox6).not.toBeNull();
-    expect(viewBox6!.width).toBe(width6);
-    expect(viewBox6!.height).toBe(height6);
+    expect(viewBox6!.width).toBe(viewBox1!.width * 6);
+    expect(viewBox6!.height).toBe(viewBox1!.height * 6);
   });
 });
-

@@ -23,6 +23,7 @@ const defaultActors: CityWordmarkActorsConfig = {
 
 const defaultRender: CityWordmarkRenderConfig = {
   voxelScale: 3,
+  bannerScale: 1,
 };
 
 const defaultSkyline: CityWordmarkSkylineConfig = {
@@ -54,11 +55,13 @@ const actorsOverridesSchema = z
 
 const renderSchema = z.object({
   voxelScale: z.number().int().min(1).max(32).default(defaultRender.voxelScale),
+  bannerScale: z.number().int().min(1).max(32).default(defaultRender.bannerScale),
 });
 
 const renderOverridesSchema = z
   .object({
     voxelScale: z.number().int().min(1).max(32).optional(),
+    bannerScale: z.number().int().min(1).max(32).optional(),
   })
   .strict();
 

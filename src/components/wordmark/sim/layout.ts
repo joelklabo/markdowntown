@@ -10,6 +10,7 @@ export type CityWordmarkVoxelRect = {
 
 export type CityWordmarkLayout = {
   width: number;
+  sceneWidth: number;
   height: number;
   rects: CityWordmarkVoxelRect[];
   baselineY: number;
@@ -23,6 +24,8 @@ export type CityWordmarkLayoutOptions = {
   topPadding?: number;
   /** Resolution multiplier for expanding the glyph grid. */
   resolution?: number;
+  /** Multiplier for the full scene width (banner width). */
+  sceneScale?: number;
 };
 
 const DEFAULT_LAYOUT: Required<CityWordmarkLayoutOptions> = {
@@ -30,6 +33,7 @@ const DEFAULT_LAYOUT: Required<CityWordmarkLayoutOptions> = {
   letterSpacing: 1,
   topPadding: 4,
   resolution: 1,
+  sceneScale: 1,
 };
 
 export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}): CityWordmarkLayout {
@@ -41,6 +45,7 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
   const topPadding = topPaddingBase * resolution;
   const glyphRows = CITY_WORDMARK_GLYPH_ROWS * resolution;
   const glyphCols = CITY_WORDMARK_GLYPH_COLS * resolution;
+  const sceneScale = Math.max(1, Math.floor(options.sceneScale ?? DEFAULT_LAYOUT.sceneScale));
 
   let xCursor = 0;
   const rects: CityWordmarkVoxelRect[] = [];
@@ -89,10 +94,11 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
   }
 
   const width = Math.max(0, xCursor - (text.length > 0 ? letterSpacing : 0));
+  const sceneWidth = Math.max(width, width * sceneScale);
   const baselineY = topPadding + glyphRows;
   const height = baselineY;
 
-  return { width, height, rects, baselineY };
+  return { width, sceneWidth, height, rects, baselineY };
 }
 
 export type CityWordmarkSkylineMaskOptions = {

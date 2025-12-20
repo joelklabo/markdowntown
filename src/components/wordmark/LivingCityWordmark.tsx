@@ -27,6 +27,14 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
 
   const enabled = mounted && featureFlags.wordmarkAnimV1 && pathname !== "/labs/city-logo";
   const sim = useCityWordmarkSim({ enabled });
+  const { peek, setConfig } = sim;
+  const resolvedBannerScale = bannerScale ?? sim.config.render.bannerScale;
+
+  useEffect(() => {
+    if (bannerScale == null) return;
+    if (bannerScale === peek().config.render.bannerScale) return;
+    setConfig({ render: { bannerScale } });
+  }, [bannerScale, peek, setConfig]);
 
   return (
     <LivingCityWordmarkSvg
@@ -39,7 +47,7 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
       nowMs={sim.nowMs}
       actorRects={sim.actorRects}
       voxelScale={sim.config.render.voxelScale}
-      bannerScale={bannerScale}
+      bannerScale={resolvedBannerScale}
       sizeMode={sizeMode}
       preserveAspectRatio={preserveAspectRatio}
       skyline={sim.config.skyline}

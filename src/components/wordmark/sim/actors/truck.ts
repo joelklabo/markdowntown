@@ -26,12 +26,13 @@ function createTruckActor(state: TruckState): CityWordmarkActor {
   }
 
   function render(ctx: { nowMs: number; config: CityWordmarkConfig; layout: CityWordmarkLayout }): CityWordmarkActorRect[] {
-    const period = ctx.layout.width + state.width + 12;
+    const sceneWidth = ctx.layout.sceneWidth;
+    const period = sceneWidth + state.width + 12;
     const x = Math.floor(
       ((state.x0 + (ctx.nowMs / 1000) * state.speedVps * ctx.config.timeScale) % period) - state.width
     );
 
-    if (x > ctx.layout.width + 2) return [];
+    if (x > sceneWidth + 2) return [];
     if (x + state.width < -2) return [];
 
     const bodyTone = "car" as const;
@@ -78,7 +79,7 @@ export function spawnTruckActors(ctx: CityWordmarkActorContext): CityWordmarkAct
   const actors: CityWordmarkActor[] = [];
   const width = 10;
   const cabWidth = 4;
-  const period = ctx.layout.width + width + 12;
+  const period = ctx.layout.sceneWidth + width + 12;
   for (let i = 0; i < count; i++) {
     const speedVps = 2.5 + rng.nextFloat() * 2.5;
     const x0 = (i / count) * period + rng.nextFloat() * 6;
@@ -87,4 +88,3 @@ export function spawnTruckActors(ctx: CityWordmarkActorContext): CityWordmarkAct
 
   return actors;
 }
-
