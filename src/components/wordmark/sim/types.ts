@@ -72,3 +72,53 @@ export type CityWordmarkEvent =
   | ({ type: "upload"; kind?: "artifact" | "template" | "snippet" | "file" } & CityWordmarkEventBase)
   | ({ type: "login"; method?: "oauth" | "password" | "sso" } & CityWordmarkEventBase)
   | ({ type: "alert"; kind: "ambulance" } & CityWordmarkEventBase);
+
+export const CITY_WORDMARK_EVENT_TYPES = [
+  "search",
+  "command_palette_open",
+  "publish",
+  "upload",
+  "login",
+  "alert",
+] as const;
+
+export type CityWordmarkEventType = (typeof CITY_WORDMARK_EVENT_TYPES)[number];
+
+const eventBaseSchema = z.object({
+  ts: z.number().finite().optional(),
+});
+
+const eventKindSchema = z.enum(["artifact", "template", "snippet", "file"]);
+
+export const cityWordmarkEventSchema = z.discriminatedUnion("type", [
+  eventBaseSchema.extend({
+    type: z.literal("search"),
+    query: z.string().min(1),
+  }),
+  eventBaseSchema.extend({
+    type: z.literal("command_palette_open"),
+    origin: z.string().optional(),
+  }),
+  eventBaseSchema.extend({
+    type: z.literal("publish"),
+    kind: eventKindSchema.optional(),
+  }),
+  eventBaseSchema.extend({
+    type: z.literal("upload"),
+    kind: eventKindSchema.optional(),
+  }),
+  eventBaseSchema.extend({
+    type: z.literal("login"),
+    method: z.enum(["oauth", "password", "sso"]).optional(),
+  }),
+  eventBaseSchema.extend({
+    type: z.literal("alert"),
+    kind: z.literal("ambulance"),
+  }),
+]);
+
+export function parseCityWordmarkEvent(value: unknown): CityWordmarkEvent | null {
+  const parsed = cityWordmarkEventSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+import { z } from "zod";

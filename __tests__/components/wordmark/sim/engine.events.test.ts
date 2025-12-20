@@ -25,5 +25,24 @@ describe("CityWordmark engine events", () => {
 
     unsubscribe();
   });
-});
 
+  it("ignores malformed events safely", () => {
+    setCityWordmarkEnginePlaying(false);
+    setCityWordmarkEngineConfig({
+      seed: "seed",
+      density: "normal",
+      actors: { cars: false, trucks: false, streetlights: false, pedestrians: false, dogs: false, ambulance: false },
+    });
+
+    const unsubscribe = subscribeCityWordmarkEngine(() => {});
+    const before = getCityWordmarkEngineSnapshot();
+
+    dispatchCityWordmarkEvent({ type: "search" } as unknown as never);
+    dispatchCityWordmarkEvent({ type: "unknown", ts: 1 } as unknown as never);
+
+    const after = getCityWordmarkEngineSnapshot();
+    expect(after.actorRects).toEqual(before.actorRects);
+
+    unsubscribe();
+  });
+});
