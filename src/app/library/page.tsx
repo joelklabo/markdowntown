@@ -95,7 +95,7 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
           <Text size="caption" tone="muted">Public library</Text>
           <Heading level="h1">Library</Heading>
           <Text tone="muted" className="max-w-2xl">
-            Filter public artifacts and open them in Workbench. Stack tags, targets, and scopes to find the right agents.md faster.
+            Browse public artifacts and open them in Workbench. Use filters when you need to narrow down by tool, tags, or scopes.
           </Text>
         </Stack>
 
@@ -131,12 +131,15 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
             {rowItems.length === 0 && (
               <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-8 shadow-mdt-sm">
                 <Heading level="h3" as="h2">
-                  No public items found
+                  No public items match those filters
                 </Heading>
-                <Text tone="muted" className="mt-mdt-2">
-                  Try clearing filters or check back later.
+                <Text tone="muted" className="mt-mdt-2 max-w-xl">
+                  Clear filters to browse everything, or scan your own folder to get a tailored setup.
                 </Text>
-                <div className="mt-mdt-4">
+                <div className="mt-mdt-4 flex flex-wrap gap-mdt-2">
+                  <Button size="sm" asChild>
+                    <Link href="/atlas/simulator">Scan a folder</Link>
+                  </Button>
                   <Button size="sm" variant="secondary" asChild>
                     <Link href="/library">Clear filters</Link>
                   </Button>

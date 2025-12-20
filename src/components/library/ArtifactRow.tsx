@@ -88,14 +88,14 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-mdt-2">
+        <Button size="sm" asChild>
+          <Link href={`/workbench?id=${item.id}`}>Open in Workbench</Link>
+        </Button>
         <PreviewDrawer artifactId={item.id} title={item.title} targets={item.targets} />
-        <Button size="xs" variant="secondary" onClick={handleCopy} aria-label={`Copy link for ${item.title}`}>
-          {copied ? "Copied" : "Copy"}
+        <Button size="xs" variant="ghost" onClick={handleCopy} aria-label={`Copy link for ${item.title}`}>
+          {copied ? "Copied" : "Copy link"}
         </Button>
-        <ForkButton artifactId={item.id} size="xs" label="Fork" />
-        <Button size="xs" asChild>
-          <Link href={`/workbench?id=${item.id}`}>Open Workbench</Link>
-        </Button>
+        <ForkButton artifactId={item.id} size="xs" variant="ghost" label="Fork" />
       </div>
     </div>
   );

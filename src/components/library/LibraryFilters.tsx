@@ -42,6 +42,7 @@ function buildHref(next: Filters): string {
 
 export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, availableTargets }: LibraryFiltersProps) {
   const selected: Filters = { q, type, tags, targets, hasScopes };
+  const advancedOpen = tags.length > 0 || targets.length > 0 || hasScopes === true;
 
   return (
     <Card className="space-y-mdt-4">
@@ -70,7 +71,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
         ))}
 
         <Button type="submit" size="sm" className="w-full">
-          Apply
+          Search
         </Button>
       </form>
 
@@ -93,64 +94,74 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
           </Row>
         </div>
 
-        <div className="space-y-mdt-2">
-          <Text size="caption" tone="muted">
-            Targets
-          </Text>
-          <Row wrap gap={2}>
-            {availableTargets.slice(0, 12).map((t) => {
-              const active = targets.includes(t);
-              return (
-                <Link key={t} href={buildHref({ ...selected, targets: toggle(targets, t) })}>
-                  <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
-                    {t}
+        <details
+          className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2"
+          open={advancedOpen}
+        >
+          <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+            Advanced filters
+          </summary>
+          <div className="mt-mdt-3 space-y-mdt-4">
+            <div className="space-y-mdt-2">
+              <Text size="caption" tone="muted">
+                Targets
+              </Text>
+              <Row wrap gap={2}>
+                {availableTargets.slice(0, 8).map((t) => {
+                  const active = targets.includes(t);
+                  return (
+                    <Link key={t} href={buildHref({ ...selected, targets: toggle(targets, t) })}>
+                      <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
+                        {t}
+                      </Pill>
+                    </Link>
+                  );
+                })}
+                {availableTargets.length === 0 && (
+                  <Text size="caption" tone="muted">
+                    No target metadata yet.
+                  </Text>
+                )}
+              </Row>
+            </div>
+
+            <div className="space-y-mdt-2">
+              <Text size="caption" tone="muted">
+                Scopes
+              </Text>
+              <Row wrap gap={2}>
+                <Link href={buildHref({ ...selected, hasScopes: hasScopes === true ? undefined : true })}>
+                  <Pill tone={hasScopes === true ? "blue" : "gray"} className={hasScopes === true ? "" : "hover:bg-mdt-surface-strong"}>
+                    Supports scopes
                   </Pill>
                 </Link>
-              );
-            })}
-            {availableTargets.length === 0 && (
-              <Text size="caption" tone="muted">
-                No target metadata yet.
-              </Text>
-            )}
-          </Row>
-        </div>
+              </Row>
+            </div>
 
-        <div className="space-y-mdt-2">
-          <Text size="caption" tone="muted">
-            Scopes
-          </Text>
-          <Row wrap gap={2}>
-            <Link href={buildHref({ ...selected, hasScopes: hasScopes === true ? undefined : true })}>
-              <Pill tone={hasScopes === true ? "blue" : "gray"} className={hasScopes === true ? "" : "hover:bg-mdt-surface-strong"}>
-                Supports scopes
-              </Pill>
-            </Link>
-          </Row>
-        </div>
-
-        <div className="space-y-mdt-2">
-          <Text size="caption" tone="muted">
-            Tags
-          </Text>
-          <Row wrap gap={2}>
-            {topTags.slice(0, 16).map(({ tag }) => {
-              const active = tags.includes(tag);
-              return (
-                <Link key={tag} href={buildHref({ ...selected, tags: toggle(tags, tag) })}>
-                  <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
-                    #{tag}
-                  </Pill>
-                </Link>
-              );
-            })}
-            {topTags.length === 0 && (
+            <div className="space-y-mdt-2">
               <Text size="caption" tone="muted">
-                No tags yet.
+                Tags
               </Text>
-            )}
-          </Row>
-        </div>
+              <Row wrap gap={2}>
+                {topTags.slice(0, 12).map(({ tag }) => {
+                  const active = tags.includes(tag);
+                  return (
+                    <Link key={tag} href={buildHref({ ...selected, tags: toggle(tags, tag) })}>
+                      <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
+                        #{tag}
+                      </Pill>
+                    </Link>
+                  );
+                })}
+                {topTags.length === 0 && (
+                  <Text size="caption" tone="muted">
+                    No tags yet.
+                  </Text>
+                )}
+              </Row>
+            </div>
+          </div>
+        </details>
       </Stack>
     </Card>
   );
