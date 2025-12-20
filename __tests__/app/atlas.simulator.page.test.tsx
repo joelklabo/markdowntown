@@ -5,12 +5,13 @@ import AtlasSimulatorPage from "@/app/atlas/simulator/page";
 describe("/atlas/simulator page", () => {
   it("renders simulator inputs", () => {
     render(<AtlasSimulatorPage />);
-    expect(screen.getByRole("heading", { name: "Simulator" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Inputs" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Result" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Scan a folder" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Scan setup" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Results" })).toBeInTheDocument();
     expect(screen.getByLabelText("Tool")).toBeInTheDocument();
     expect(screen.getByLabelText("Current directory (cwd)")).toBeInTheDocument();
-    expect(screen.getByLabelText("Repo tree (paths)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Upload folder")).toBeInTheDocument();
+    expect(screen.getByText(/advanced: paste repo paths/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Loaded files" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Actions" })).toBeInTheDocument();
   });

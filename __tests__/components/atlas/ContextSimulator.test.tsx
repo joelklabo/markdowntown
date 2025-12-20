@@ -28,18 +28,20 @@ function dir(name: string, children: MockHandle[]): MockHandle {
 describe("ContextSimulator", () => {
   it("simulates loaded files for GitHub Copilot", async () => {
     render(<ContextSimulator />);
-    expect(screen.getByRole("heading", { name: "Inputs" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Result" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Scan setup" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Results" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeInTheDocument();
 
-    await userEvent.clear(screen.getByLabelText("Repo tree (paths)"));
+    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
     await userEvent.type(
-      screen.getByLabelText("Repo tree (paths)"),
+      manualPathsInput,
       ".github/copilot-instructions.md\n.github/instructions/apps-web.instructions.md\nAGENTS.md\n"
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "Simulate" }));
+    await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
@@ -52,13 +54,15 @@ describe("ContextSimulator", () => {
 
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "copilot-cli");
 
-    await userEvent.clear(screen.getByLabelText("Repo tree (paths)"));
+    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
     await userEvent.type(
-      screen.getByLabelText("Repo tree (paths)"),
+      manualPathsInput,
       ".github/copilot-instructions.md\n.github/copilot-instructions/apps-web.instructions.md\n.github/agents/release.agent.md\nAGENTS.md\n"
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "Simulate" }));
+    await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
@@ -74,13 +78,15 @@ describe("ContextSimulator", () => {
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "packages/app");
 
-    await userEvent.clear(screen.getByLabelText("Repo tree (paths)"));
+    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
     await userEvent.type(
-      screen.getByLabelText("Repo tree (paths)"),
+      manualPathsInput,
       "AGENTS.md\nAGENTS.override.md\npackages/app/AGENTS.md\n"
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "Simulate" }));
+    await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     const items = within(loadedList).getAllByRole("listitem");
@@ -105,10 +111,9 @@ describe("ContextSimulator", () => {
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");
-    await userEvent.click(screen.getByLabelText("Local folder (File System Access API)"));
-    await userEvent.click(screen.getByRole("button", { name: "Choose folder" }));
+    await userEvent.click(screen.getByRole("button", { name: "Scan a folder" }));
 
-    expect(await screen.findByText(/2 file\(s\) scanned/i)).toBeInTheDocument();
+    expect(await screen.findByText(/2 file\(s\) scanned.*2 instruction file\(s\) matched/i)).toBeInTheDocument();
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText("AGENTS.md")).toBeInTheDocument();

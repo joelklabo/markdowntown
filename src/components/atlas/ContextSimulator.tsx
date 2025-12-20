@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
-import { Radio } from "@/components/ui/Radio";
 import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
@@ -151,7 +150,7 @@ function analyzeRepo(paths: string[]): RepoSignals {
   return signals;
 }
 
-const DEFAULT_REPO_PATHS = parseRepoPaths(DEFAULT_REPO_TREE);
+const EMPTY_REPO_TREE: RepoTree = { files: [] };
 
 function toolLabel(tool: SimulatorToolId): string {
   return TOOL_OPTIONS.find((option) => option.id === tool)?.label ?? tool;
@@ -171,7 +170,7 @@ function formatSummary({ tool, cwd, repoSource, result, insights, extraFiles, is
   const lines: string[] = [];
   lines.push(`Tool: ${toolLabel(tool)} (${tool})`);
   lines.push(`CWD: ${normalizePath(cwd) || "(repo root)"}`);
-  lines.push(`Repo source: ${repoSource}`);
+  lines.push(`Repo source: ${repoSource === "folder" ? "folder scan" : "manual paths"}`);
 
   if (isStale) {
     lines.push("Note: Results may be out of date. Re-run simulation for fresh results.");
@@ -230,18 +229,11 @@ function formatSummary({ tool, cwd, repoSource, result, insights, extraFiles, is
   return lines.join("\n");
 }
 
-function runSimulation(tool: SimulatorToolId, cwd: string, repoText: string): SimulationResult {
-  return simulateContextResolution({
-    tool,
-    cwd,
-    tree: toRepoTree(parseRepoPaths(repoText)),
-  });
-}
-
 export function ContextSimulator() {
   const [tool, setTool] = useState<SimulatorToolId>("github-copilot");
   const [cwd, setCwd] = useState("");
-  const [repoSource, setRepoSource] = useState<"manual" | "folder">("manual");
+  const [repoSource, setRepoSource] = useState<"manual" | "folder">("folder");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
   const [scanMeta, setScanMeta] = useState<{
@@ -252,14 +244,16 @@ export function ContextSimulator() {
   } | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [result, setResult] = useState<SimulationResult>(() => runSimulation("github-copilot", "", DEFAULT_REPO_TREE));
+  const [result, setResult] = useState<SimulationResult>(() =>
+    simulateContextResolution({ tool: "github-copilot", cwd: "", tree: EMPTY_REPO_TREE }),
+  );
   const [insights, setInsights] = useState<SimulatorInsightsData>(() =>
-    computeSimulatorInsights({ tool: "github-copilot", cwd: "", tree: toRepoTree(DEFAULT_REPO_PATHS) }),
+    computeSimulatorInsights({ tool: "github-copilot", cwd: "", tree: EMPTY_REPO_TREE }),
   );
   const [lastSimulatedSignature, setLastSimulatedSignature] = useState(() =>
-    buildInputSignature("github-copilot", "", "manual", DEFAULT_REPO_PATHS),
+    buildInputSignature("github-copilot", "", "folder", []),
   );
-  const [lastSimulatedPaths, setLastSimulatedPaths] = useState<string[]>(() => normalizePaths(DEFAULT_REPO_PATHS));
+  const [lastSimulatedPaths, setLastSimulatedPaths] = useState<string[]>(() => []);
   const [actionStatus, setActionStatus] = useState<string | null>(null);
   const statusTimeoutRef = useRef<number | null>(null);
 
@@ -277,6 +271,7 @@ export function ContextSimulator() {
     [cwd, repoPaths, repoSource, tool],
   );
   const isStale = currentSignature !== lastSimulatedSignature;
+  const advancedOpen = showAdvanced || repoSource === "manual";
 
   const scannedPreview = useMemo(() => {
     const paths = (scannedTree?.files ?? []).map((file) => file.path);
@@ -288,7 +283,7 @@ export function ContextSimulator() {
 
   const emptyStateHint = useMemo(() => {
     if (repoSource === "folder" && !scannedTree) {
-      return "Choose a folder to scan, then click Simulate.";
+      return "Choose a folder to scan to see which instruction files load.";
     }
 
     if (repoSource === "manual" && manualPaths.length === 0) {
@@ -369,6 +364,8 @@ export function ContextSimulator() {
     setInsights(nextInsights);
     setLastSimulatedSignature(buildInputSignature(tool, cwd, source, normalizedPaths));
     setLastSimulatedPaths(normalizedPaths);
+    setRepoSource(source);
+    setShowAdvanced(source === "manual");
     track("atlas_simulator_simulate", {
       tool,
       repoSource: source,
@@ -446,8 +443,8 @@ export function ContextSimulator() {
       <Card className="p-mdt-5">
         <Stack gap={5}>
           <Stack gap={1}>
-            <Heading level="h2">Inputs</Heading>
-            <Text tone="muted">Select a tool, a repo tree, and a working directory.</Text>
+            <Heading level="h2">Scan setup</Heading>
+            <Text tone="muted">Choose a tool, set the working directory, and scan a folder.</Text>
           </Stack>
 
           <div className="space-y-mdt-4">
@@ -462,29 +459,6 @@ export function ContextSimulator() {
                   </option>
                 ))}
               </Select>
-            </div>
-
-            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <div className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Repo source</div>
-              <div className="flex flex-col gap-mdt-2">
-                <Radio
-                  name="sim-repo-source"
-                  checked={repoSource === "manual"}
-                  onChange={() => setRepoSource("manual")}
-                  label="Manual (paste paths)"
-                />
-                <Radio
-                  name="sim-repo-source"
-                  checked={repoSource === "folder"}
-                  onChange={() => setRepoSource("folder")}
-                  label="Local folder (File System Access API)"
-                />
-              </div>
-              <Text tone="muted" size="bodySm">
-                {canPickDirectory
-                  ? "Scans locally in your browser. File contents are never uploaded."
-                  : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
-              </Text>
             </div>
 
             <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
@@ -503,134 +477,159 @@ export function ContextSimulator() {
             </div>
 
             <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <label htmlFor="sim-tree" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                Repo tree (paths)
-              </label>
-              {repoSource === "folder" ? (
-                <div className="space-y-mdt-3">
-                  {canPickDirectory ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="w-full sm:w-auto"
-                      disabled={isScanning}
-                      onClick={async () => {
-                        setScanError(null);
-                        setIsScanning(true);
-                        track("atlas_simulator_scan_start", { method: "directory_picker", tool });
-                        try {
-                          const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
-                          if (!picker) throw new Error("File System Access API not available");
-                          const handle = await picker();
-                          const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
-                            handle as FileSystemDirectoryHandleLike
-                          );
-                          const rootName = (handle as { name?: string }).name;
-                          setScannedTree(tree);
-                          setScanMeta({
-                            totalFiles,
-                            matchedFiles,
-                            truncated,
-                            rootName,
-                          });
-                          runSimulationWithTree(
-                            tree,
-                            tree.files.map((file) => file.path),
-                            "folder",
-                            "scan",
-                          );
-                          track("atlas_simulator_scan_complete", {
+              <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Scan a folder</label>
+              <Text tone="muted" size="bodySm">
+                {canPickDirectory
+                  ? "Scans locally in your browser. File contents are never uploaded."
+                  : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
+              </Text>
+              <div className="space-y-mdt-3">
+                {canPickDirectory ? (
+                  <Button
+                    type="button"
+                    className="w-full sm:w-auto"
+                    disabled={isScanning}
+                    onClick={async () => {
+                      setScanError(null);
+                      setIsScanning(true);
+                      track("atlas_simulator_scan_start", { method: "directory_picker", tool });
+                      try {
+                        const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+                        if (!picker) throw new Error("File System Access API not available");
+                        const handle = await picker();
+                        const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
+                          handle as FileSystemDirectoryHandleLike
+                        );
+                        const rootName = (handle as { name?: string }).name;
+                        setScannedTree(tree);
+                        setScanMeta({
+                          totalFiles,
+                          matchedFiles,
+                          truncated,
+                          rootName,
+                        });
+                        runSimulationWithTree(
+                          tree,
+                          tree.files.map((file) => file.path),
+                          "folder",
+                          "scan",
+                        );
+                        track("atlas_simulator_scan_complete", {
+                          method: "directory_picker",
+                          tool,
+                          totalFiles,
+                          matchedFiles,
+                          truncated,
+                          rootName,
+                        });
+                      } catch (err) {
+                        if (err instanceof DOMException && err.name === "AbortError") {
+                          track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
+                          return;
+                        }
+                        if (err instanceof Error) {
+                          trackError("atlas_simulator_scan_error", err, {
                             method: "directory_picker",
                             tool,
-                            totalFiles,
-                            matchedFiles,
-                            truncated,
-                            rootName,
                           });
-                        } catch (err) {
-                          if (err instanceof DOMException && err.name === "AbortError") {
-                            track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
-                            return;
-                          }
-                          if (err instanceof Error) {
-                            trackError("atlas_simulator_scan_error", err, {
-                              method: "directory_picker",
-                              tool,
-                            });
-                          }
-                          setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-                        } finally {
-                          setIsScanning(false);
                         }
-                      }}
-                    >
-                      {isScanning ? "Scanning…" : "Choose folder"}
-                    </Button>
-                  ) : (
-                    <Input
-                      type="file"
-                      multiple
-                      // @ts-expect-error - non-standard attribute for directory uploads
-                      webkitdirectory="true"
-                      aria-label="Upload folder"
-                      onChange={(event) => {
-                        setScanError(null);
-                        const files = event.target.files;
-                        if (!files || files.length === 0) return;
-                        try {
-                          track("atlas_simulator_scan_start", { method: "file_input", tool });
-                          const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
-                          const rootName = files[0]?.webkitRelativePath?.split("/")[0];
-                          setScannedTree(tree);
-                          setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
-                          runSimulationWithTree(
-                            tree,
-                            tree.files.map((file) => file.path),
-                            "folder",
-                            "scan",
-                          );
-                          track("atlas_simulator_scan_complete", {
+                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+                      } finally {
+                        setIsScanning(false);
+                      }
+                    }}
+                  >
+                    {isScanning ? "Scanning…" : "Scan a folder"}
+                  </Button>
+                ) : (
+                  <Input
+                    type="file"
+                    multiple
+                    // @ts-expect-error - non-standard attribute for directory uploads
+                    webkitdirectory="true"
+                    aria-label="Upload folder"
+                    onChange={(event) => {
+                      setScanError(null);
+                      const files = event.target.files;
+                      if (!files || files.length === 0) return;
+                      try {
+                        track("atlas_simulator_scan_start", { method: "file_input", tool });
+                        const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
+                        const rootName = files[0]?.webkitRelativePath?.split("/")[0];
+                        setScannedTree(tree);
+                        setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
+                        runSimulationWithTree(
+                          tree,
+                          tree.files.map((file) => file.path),
+                          "folder",
+                          "scan",
+                        );
+                        track("atlas_simulator_scan_complete", {
+                          method: "file_input",
+                          tool,
+                          totalFiles,
+                          matchedFiles,
+                          truncated,
+                          rootName,
+                        });
+                      } catch (err) {
+                        if (err instanceof Error) {
+                          trackError("atlas_simulator_scan_error", err, {
                             method: "file_input",
                             tool,
-                            totalFiles,
-                            matchedFiles,
-                            truncated,
-                            rootName,
                           });
-                        } catch (err) {
-                          if (err instanceof Error) {
-                            trackError("atlas_simulator_scan_error", err, {
-                              method: "file_input",
-                              tool,
-                            });
-                          }
-                          setScanError(err instanceof Error ? err.message : "Unable to scan folder");
                         }
-                      }}
-                    />
-                  )}
+                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+                      }
+                    }}
+                  />
+                )}
 
-                  {scanError ? (
-                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
-                      {scanError}
-                    </div>
-                  ) : null}
+                {scanError ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
+                    {scanError}
+                  </div>
+                ) : null}
 
-                  {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+                {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
 
-                  <TextArea id="sim-tree" rows={10} value={scannedPreview} readOnly />
-                </div>
-              ) : (
                 <TextArea
-                  id="sim-tree"
-                  rows={10}
-                  value={repoText}
-                  onChange={(e) => setRepoText(e.target.value)}
-                  placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+                  id="sim-tree-preview"
+                  rows={8}
+                  value={scannedPreview}
+                  readOnly
+                  placeholder="Scanned paths will appear here."
                 />
-              )}
+              </div>
+
+              <details
+                className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2"
+                open={advancedOpen}
+                onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
+              >
+                <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                  Advanced: paste repo paths
+                </summary>
+                <div className="mt-mdt-3 space-y-mdt-3">
+                  <Text tone="muted" size="bodySm">
+                    Use this when you can’t scan a folder. One path per line.
+                  </Text>
+                  <TextArea
+                    id="sim-tree-manual"
+                    rows={8}
+                    value={repoText}
+                    onChange={(e) => {
+                      if (repoSource !== "manual") setRepoSource("manual");
+                      setShowAdvanced(true);
+                      setRepoText(e.target.value);
+                    }}
+                    placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+                  />
+                </div>
+              </details>
+
               <Text tone="muted" size="bodySm">
-                {repoFileCount} file(s). Lines starting with `#` or `//` are ignored.
+                {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
               </Text>
             </div>
           </div>
@@ -650,7 +649,7 @@ export function ContextSimulator() {
               runSimulationWithTree(tree, sourcePaths, repoSource, "manual");
             }}
           >
-            Simulate
+            Refresh results
           </Button>
         </Stack>
       </Card>
@@ -658,8 +657,8 @@ export function ContextSimulator() {
       <Card className="p-mdt-5">
         <Stack gap={5}>
           <Stack gap={2}>
-            <Heading level="h2">Result</Heading>
-            <Text tone="muted">Ordered files loaded and any warnings from heuristics.</Text>
+            <Heading level="h2">Results</Heading>
+            <Text tone="muted">See what loads, what is missing, and any warnings.</Text>
             {isStale ? (
               <div
                 className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted"
@@ -671,6 +670,18 @@ export function ContextSimulator() {
           </Stack>
 
           <div className="space-y-mdt-4">
+            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                Summary
+              </Text>
+              <Text size="bodySm" tone="muted">
+                {result.loaded.length} loaded, {insights.missingFiles.length} missing pattern
+                {insights.missingFiles.length === 1 ? "" : "s"}, {extraInstructionFiles.length} extra instruction file
+                {extraInstructionFiles.length === 1 ? "" : "s"}, {result.warnings.length} warning
+                {result.warnings.length === 1 ? "" : "s"}.
+              </Text>
+            </div>
+
             <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
                 Loaded files

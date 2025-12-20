@@ -8,8 +8,8 @@ export default function AtlasSimulatorPage() {
     <main className="py-mdt-4">
       <Stack gap={5}>
         <Stack gap={2} className="max-w-2xl">
-          <Heading level="h1">Simulator</Heading>
-          <Text tone="muted">Preview which instruction files a tool would load from a repo.</Text>
+          <Heading level="h1">Scan a folder</Heading>
+          <Text tone="muted">Preview which instruction files a tool would load and what to fix next.</Text>
         </Stack>
         <ContextSimulator />
       </Stack>
