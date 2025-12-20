@@ -3,6 +3,7 @@ import type { CityWordmarkLayout } from "../layout";
 import { createRng } from "../rng";
 import { getTimeOfDayPhase } from "../time";
 import type { CityWordmarkConfig } from "../types";
+import { getActorScale } from "./types";
 import type { CityWordmarkActor, CityWordmarkActorContext, CityWordmarkActorRect } from "./types";
 
 type Streetlight = {
@@ -36,6 +37,10 @@ function createStreetlightActor(state: StreetlightState): CityWordmarkActor {
     if (nightness <= 0.12) return [];
 
     const out: CityWordmarkActorRect[] = [];
+    const scale = getActorScale(ctx.layout);
+    const isHd = scale > 1;
+    const postWidth = Math.max(1, Math.floor(scale / 2));
+    const postHeight = scale * 2;
 
     for (const light of state.lights) {
       if (light.x < 0 || light.x >= ctx.layout.sceneWidth) continue;
@@ -47,7 +52,26 @@ function createStreetlightActor(state: StreetlightState): CityWordmarkActor {
         opacity = t < 120 ? light.dimOpacity : t < 200 ? 1 : t < 320 ? light.dimOpacity * 0.7 : 1;
       }
 
-      out.push({ x: light.x, y: light.y, width: 1, height: 1, tone: "headlight", opacity });
+      if (isHd) {
+        const bulbSize = scale;
+        const postX = light.x + Math.floor((bulbSize - postWidth) / 2);
+        const postY = light.y + bulbSize;
+
+        if (postY + postHeight <= ctx.layout.height) {
+          out.push({
+            x: postX,
+            y: postY,
+            width: postWidth,
+            height: postHeight,
+            tone: "pedestrian",
+            opacity: clamp01(opacity * 0.55),
+          });
+        }
+
+        out.push({ x: light.x, y: light.y, width: bulbSize, height: bulbSize, tone: "headlight", opacity });
+      } else {
+        out.push({ x: light.x, y: light.y, width: 1, height: 1, tone: "headlight", opacity });
+      }
     }
 
     return out;
@@ -68,14 +92,15 @@ export function spawnStreetlightActors(ctx: CityWordmarkActorContext): CityWordm
   if (ctx.layout.sceneWidth <= 0) return [];
 
   const rng = createRng(`${ctx.config.seed}:streetlights`);
-  const y = Math.max(0, ctx.layout.baselineY - 3);
+  const scale = getActorScale(ctx.layout);
+  const y = Math.max(0, ctx.layout.baselineY - 3 * scale);
   const xMax = Math.max(0, ctx.layout.sceneWidth - 1);
 
   const lights: Streetlight[] = [];
 
   for (let i = 0; i < count; i++) {
     const xBase = Math.round(((i + 1) / (count + 1)) * xMax);
-    const jitter = rng.nextInt(-1, 2);
+    const jitter = rng.nextInt(-1 * scale, 2 * scale + 1);
     const x = clamp01((xBase + jitter) / Math.max(1, xMax)) * xMax;
 
     const cycleMs = rng.nextInt(2400, 7200);

@@ -42,5 +42,24 @@ describe("spawnStreetlightActors", () => {
     const disabled = { ...config, actors: { ...config.actors, streetlights: false } };
     expect(spawnStreetlightActors({ config: disabled, layout })).toEqual([]);
   });
-});
 
+  it("renders HD poles when detail is hd", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), {
+      seed: "seed",
+      density: "dense",
+      timeOfDay: 0.04,
+    });
+    const standardLayout = createCityWordmarkLayout({ detail: "standard" });
+    const hdLayout = createCityWordmarkLayout({ detail: "hd" });
+
+    const standardRects = spawnStreetlightActors({ config, layout: standardLayout }).flatMap((actor) =>
+      actor.render({ nowMs: 0, config, layout: standardLayout })
+    );
+    const hdRects = spawnStreetlightActors({ config, layout: hdLayout }).flatMap((actor) =>
+      actor.render({ nowMs: 0, config, layout: hdLayout })
+    );
+
+    expect(standardRects.length).toBeGreaterThan(0);
+    expect(hdRects.length).toBeGreaterThan(standardRects.length);
+  });
+});

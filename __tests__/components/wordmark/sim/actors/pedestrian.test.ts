@@ -51,5 +51,32 @@ describe("spawnPedestrianActors", () => {
     const disabled = { ...config, actors: { ...config.actors, pedestrians: false } };
     expect(spawnPedestrianActors({ config: disabled, layout })).toEqual([]);
   });
-});
 
+  it("renders taller HD silhouettes when detail is hd", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), {
+      seed: "seed",
+      density: "dense",
+      timeOfDay: 0.55,
+    });
+    const standardLayout = createCityWordmarkLayout({ detail: "standard" });
+    const hdLayout = createCityWordmarkLayout({ detail: "hd" });
+
+    const standardRects = spawnPedestrianActors({ config, layout: standardLayout }).flatMap((actor) =>
+      actor.render({ nowMs: 0, config, layout: standardLayout })
+    );
+    const hdRects = spawnPedestrianActors({ config, layout: hdLayout }).flatMap((actor) =>
+      actor.render({ nowMs: 0, config, layout: hdLayout })
+    );
+
+    const standardPed = standardRects.filter((r) => r.tone === "pedestrian");
+    const hdPed = hdRects.filter((r) => r.tone === "pedestrian");
+
+    expect(standardPed.length).toBeGreaterThan(0);
+    expect(hdPed.length).toBeGreaterThan(standardPed.length);
+
+    const standardHeight =
+      Math.max(...standardPed.map((r) => r.y + r.height)) - Math.min(...standardPed.map((r) => r.y));
+    const hdHeight = Math.max(...hdPed.map((r) => r.y + r.height)) - Math.min(...hdPed.map((r) => r.y));
+    expect(hdHeight).toBeGreaterThan(standardHeight);
+  });
+});
