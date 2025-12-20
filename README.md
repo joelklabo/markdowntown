@@ -1,12 +1,14 @@
 # mark downtown
-Compose and preview markdown sections in a three-panel editor, backed by Next.js, Prisma, and GitHub OAuth.
+Scan instruction files in a repo, understand how tools load them, and export a clean agents.md from the Workbench.
 
 ## What’s here
-- App Router Next.js 16 + Tailwind v4 UI with list → editor → preview.
-- Prisma models for `User`, `Section`, `Agent` (Postgres in prod; SQLite in dev), NextAuth tables.
+- Atlas Simulator to scan a folder and preview which instruction files load (and in what order).
+- Workbench to assemble scopes + blocks, then preview/lint/export agents.md.
+- Library of public artifacts with “Open in Workbench” as the primary action.
+- Translate helpers for converting instruction formats across tools.
+- App Router Next.js 16 + Tailwind v4 UI with Prisma + NextAuth.
 - RESTful section APIs (`/api/sections`) protected by session auth.
-- GitHub login via NextAuth (database sessions).
-- Health check at `/api/health`.
+- GitHub login via NextAuth (database sessions) and a health check at `/api/health`.
 - Dockerfile, GitHub Actions CI (lint, type-check, build), Beads backlog.
 - Design system: mark downtown brand icon, Tailwind tokens, global utilities, and UI primitives (BrandLogo, Button, Card, Pill).
 - Release docs: Semantic Versioning, CHANGELOG, and migration/release guides in `docs/`.
@@ -23,6 +25,8 @@ pnpm dev
 ```
 Open http://localhost:3000 and sign in with GitHub to access the composer.
 Labs: http://localhost:3000/labs/city-logo
+
+Primary flow: http://localhost:3000/atlas/simulator → http://localhost:3000/workbench
 
 ## Scripts
 - `pnpm dev` – run locally
@@ -58,8 +62,8 @@ docker run -p 3000:3000 \
 - Commit `.beads` changes with code for traceability.
 
 ## More docs
+- User guide: `docs/USER_GUIDE.md`
 - Developer onboarding: `docs/DEV_ONBOARDING.md`
-- Agent concept (future): `AGENTS.md`
 - Release process: `docs/RELEASE_PROCESS.md`
 - Migration policy: `docs/MIGRATIONS.md`
 - Monitoring/analytics: set `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, and optional `NEXT_PUBLIC_POSTHOG_HOST`.
