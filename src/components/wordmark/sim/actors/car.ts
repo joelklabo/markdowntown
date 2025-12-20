@@ -3,6 +3,7 @@ import type { CityWordmarkLayout } from "../layout";
 import { createRng } from "../rng";
 import { getTimeOfDayPhase } from "../time";
 import type { CityWordmarkConfig } from "../types";
+import { getActorLaneY, getActorScale } from "./types";
 import type { CityWordmarkActor, CityWordmarkActorContext, CityWordmarkActorRect } from "./types";
 
 type CarState = {
@@ -26,28 +27,65 @@ function createCarActor(state: CarState): CityWordmarkActor {
 
   function render(ctx: { nowMs: number; config: CityWordmarkConfig; layout: CityWordmarkLayout }): CityWordmarkActorRect[] {
     const sceneWidth = ctx.layout.sceneWidth;
-    const period = sceneWidth + state.width + 8;
+    const scale = getActorScale(ctx.layout);
+    const period = sceneWidth + state.width + 8 * scale;
     const x = Math.floor(
       ((state.x0 + (ctx.nowMs / 1000) * state.speedVps * ctx.config.timeScale) % period) - state.width
     );
 
-    if (x > sceneWidth + 2) return [];
-    if (x + state.width < -2) return [];
+    const margin = Math.max(2, scale * 2);
+    if (x > sceneWidth + margin) return [];
+    if (x + state.width < -margin) return [];
 
     const bodyTone = "car" as const;
-    const out: CityWordmarkActorRect[] = [
-      { x: x + 1, y: state.y, width: state.width - 2, height: 1, tone: bodyTone, opacity: 0.85 },
-      { x, y: state.y + 1, width: state.width, height: 1, tone: bodyTone, opacity: 0.95 },
-    ];
+    const isHd = scale > 1;
+    const out: CityWordmarkActorRect[] = [];
+
+    if (isHd) {
+      const roofInset = scale;
+      out.push(
+        {
+          x: x + roofInset,
+          y: state.y,
+          width: state.width - roofInset * 2,
+          height: scale,
+          tone: bodyTone,
+          opacity: 0.72,
+        },
+        {
+          x,
+          y: state.y + scale,
+          width: state.width,
+          height: scale,
+          tone: bodyTone,
+          opacity: 0.88,
+        },
+        {
+          x: x + scale,
+          y: state.y + scale * 2,
+          width: state.width - scale,
+          height: scale,
+          tone: bodyTone,
+          opacity: 0.95,
+        }
+      );
+    } else {
+      out.push(
+        { x: x + 1, y: state.y, width: state.width - 2, height: 1, tone: bodyTone, opacity: 0.85 },
+        { x, y: state.y + 1, width: state.width, height: 1, tone: bodyTone, opacity: 0.95 }
+      );
+    }
 
     const { daylight } = getTimeOfDayPhase(ctx.config.timeOfDay);
     const nightness = clamp01(1 - daylight);
     if (nightness > 0.12) {
+      const headlightY = isHd ? state.y + scale * 2 : state.y + 1;
+      const headlightSize = isHd ? scale : 1;
       out.push({
         x: x + state.width,
-        y: state.y + 1,
-        width: 1,
-        height: 1,
+        y: headlightY,
+        width: headlightSize,
+        height: headlightSize,
         tone: "headlight",
         opacity: clamp01(nightness * 0.85),
       });
@@ -70,14 +108,16 @@ export function spawnCarActors(ctx: CityWordmarkActorContext): CityWordmarkActor
   if (count === 0) return [];
 
   const rng = createRng(`${ctx.config.seed}:cars`);
-  const laneY = Math.max(0, ctx.layout.baselineY - 2);
-  const width = 5;
+  const scale = getActorScale(ctx.layout);
+  const rowCount = scale > 1 ? 3 : 2;
+  const laneY = getActorLaneY(ctx.layout, rowCount);
+  const width = 5 * scale;
 
   const actors: CityWordmarkActor[] = [];
-  const period = ctx.layout.sceneWidth + width + 8;
+  const period = ctx.layout.sceneWidth + width + 8 * scale;
   for (let i = 0; i < count; i++) {
     const speedVps = 3 + rng.nextFloat() * 6;
-    const x0 = (i / count) * period + rng.nextFloat() * 4;
+    const x0 = (i / count) * period + rng.nextFloat() * 4 * scale;
     actors.push(createCarActor({ x0, speedVps, width, y: laneY }));
   }
 

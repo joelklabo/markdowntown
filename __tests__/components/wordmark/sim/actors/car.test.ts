@@ -42,4 +42,28 @@ describe("spawnCarActors", () => {
     const disabled = { ...config, actors: { ...config.actors, cars: false } };
     expect(spawnCarActors({ config: disabled, layout })).toEqual([]);
   });
+
+  it("renders a taller HD profile when detail is hd", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), {
+      seed: "seed",
+      density: "normal",
+      timeOfDay: 0.9,
+    });
+    const standardLayout = createCityWordmarkLayout({ detail: "standard" });
+    const hdLayout = createCityWordmarkLayout({ detail: "hd" });
+
+    const standardActor = spawnCarActors({ config, layout: standardLayout })[0];
+    const hdActor = spawnCarActors({ config, layout: hdLayout })[0];
+
+    const standardRects = standardActor?.render({ nowMs: 0, config, layout: standardLayout }) ?? [];
+    const hdRects = hdActor?.render({ nowMs: 0, config, layout: hdLayout }) ?? [];
+
+    expect(standardRects.length).toBeGreaterThan(0);
+    expect(hdRects.length).toBeGreaterThan(standardRects.length);
+
+    const standardHeight =
+      Math.max(...standardRects.map((r) => r.y + r.height)) - Math.min(...standardRects.map((r) => r.y));
+    const hdHeight = Math.max(...hdRects.map((r) => r.y + r.height)) - Math.min(...hdRects.map((r) => r.y));
+    expect(hdHeight).toBeGreaterThan(standardHeight);
+  });
 });

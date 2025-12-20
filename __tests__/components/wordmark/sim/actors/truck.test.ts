@@ -47,5 +47,29 @@ describe("spawnTruckActors", () => {
     const disabled = { ...config, actors: { ...config.actors, trucks: false } };
     expect(spawnTruckActors({ config: disabled, layout })).toEqual([]);
   });
-});
 
+  it("renders a taller HD profile when detail is hd", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), {
+      seed: "seed",
+      density: "dense",
+      actors: { trucks: true },
+      timeOfDay: 0.9,
+    });
+    const standardLayout = createCityWordmarkLayout({ detail: "standard" });
+    const hdLayout = createCityWordmarkLayout({ detail: "hd" });
+
+    const standardActor = spawnTruckActors({ config, layout: standardLayout })[0];
+    const hdActor = spawnTruckActors({ config, layout: hdLayout })[0];
+
+    const standardRects = standardActor?.render({ nowMs: 0, config, layout: standardLayout }) ?? [];
+    const hdRects = hdActor?.render({ nowMs: 0, config, layout: hdLayout }) ?? [];
+
+    expect(standardRects.length).toBeGreaterThan(0);
+    expect(hdRects.length).toBeGreaterThan(standardRects.length);
+
+    const standardHeight =
+      Math.max(...standardRects.map((r) => r.y + r.height)) - Math.min(...standardRects.map((r) => r.y));
+    const hdHeight = Math.max(...hdRects.map((r) => r.y + r.height)) - Math.min(...hdRects.map((r) => r.y));
+    expect(hdHeight).toBeGreaterThan(standardHeight);
+  });
+});

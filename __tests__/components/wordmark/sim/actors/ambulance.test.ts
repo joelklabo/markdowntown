@@ -39,5 +39,27 @@ describe("spawnAmbulanceActor", () => {
     const disabled = { ...config, actors: { ...config.actors, ambulance: false } };
     expect(spawnAmbulanceActor({ config: disabled, layout, nowMs: 0, triggerIndex: 0 })).toBeNull();
   });
-});
 
+  it("renders a taller HD profile when detail is hd", () => {
+    const config = mergeCityWordmarkConfig(getDefaultCityWordmarkConfig(), { seed: "seed", density: "normal" });
+    const standardLayout = createCityWordmarkLayout({ detail: "standard" });
+    const hdLayout = createCityWordmarkLayout({ detail: "hd" });
+
+    const standardActor = spawnAmbulanceActor({ config, layout: standardLayout, nowMs: 0, triggerIndex: 0 });
+    const hdActor = spawnAmbulanceActor({ config, layout: hdLayout, nowMs: 0, triggerIndex: 0 });
+
+    expect(standardActor).not.toBeNull();
+    expect(hdActor).not.toBeNull();
+    if (!standardActor || !hdActor) return;
+
+    const standardRects = standardActor.render({ nowMs: 0, config, layout: standardLayout });
+    const hdRects = hdActor.render({ nowMs: 0, config, layout: hdLayout });
+
+    expect(hdRects.length).toBeGreaterThan(standardRects.length);
+
+    const standardHeight =
+      Math.max(...standardRects.map((r) => r.y + r.height)) - Math.min(...standardRects.map((r) => r.y));
+    const hdHeight = Math.max(...hdRects.map((r) => r.y + r.height)) - Math.min(...hdRects.map((r) => r.y));
+    expect(hdHeight).toBeGreaterThan(standardHeight);
+  });
+});

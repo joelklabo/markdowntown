@@ -28,3 +28,12 @@ export type CityWordmarkActor = {
   update: (ctx: CityWordmarkActorUpdateContext) => CityWordmarkActor;
   render: (ctx: CityWordmarkActorRenderContext) => CityWordmarkActorRect[];
 };
+
+export function getActorScale(layout: CityWordmarkLayout): number {
+  return Math.max(1, Math.floor(layout.detailScale));
+}
+
+export function getActorLaneY(layout: CityWordmarkLayout, rows: number): number {
+  const scale = getActorScale(layout);
+  return Math.max(0, layout.baselineY - rows * scale);
+}
