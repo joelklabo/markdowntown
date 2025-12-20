@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { clamp01 } from "./sim/easing";
 import type { CityWordmarkActorRect } from "./sim/actors/types";
-import { CITY_WORDMARK_GLYPH_ROWS } from "./sim/glyphs";
 import { createCityWordmarkLayout, createCityWordmarkSkylineMask } from "./sim/layout";
 import { getCityWordmarkPalette } from "./sim/palette";
 import { getCelestialPositions, getTimeOfDayPhase } from "./sim/time";
@@ -83,8 +82,8 @@ export function LivingCityWordmarkSvg({
   const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
   const bannerScale = normalizeVoxelScale(bannerScaleProp ?? 1);
   const layout = useMemo(
-    () => createCityWordmarkLayout({ resolution, sceneScale: bannerScale }),
-    [resolution, bannerScale]
+    () => createCityWordmarkLayout({ resolution, sceneScale: bannerScale, detail }),
+    [detail, resolution, bannerScale]
   );
 
   const palette = useMemo(() => getCityWordmarkPalette(timeOfDay, scheme), [scheme, timeOfDay]);
@@ -100,30 +99,32 @@ export function LivingCityWordmarkSvg({
   const nightness = clamp01(1 - daylight);
   const celestial = getCelestialPositions(timeOfDay);
 
-  const viewWidth = layout.sceneWidth;
-  const viewHeight = layout.height;
+  const sceneWidth = layout.sceneWidth;
+  const sceneHeight = layout.height;
+  const viewWidth = sceneWidth / layout.detailScale;
+  const viewHeight = sceneHeight / layout.detailScale;
   const baseWidth = viewWidth / resolution;
-  const baseHeight = layout.height / resolution;
+  const baseHeight = viewHeight / resolution;
   const pixelWidth = baseWidth * BASE_VOXEL_PIXEL_SCALE;
   const pixelHeight = baseHeight * BASE_VOXEL_PIXEL_SCALE;
 
-  const topPadding = layout.baselineY - CITY_WORDMARK_GLYPH_ROWS * resolution;
+  const topPadding = layout.topPadding;
   const skyHeight = Math.max(1, topPadding);
 
   const starOpacity = clamp01(nightness * 1.1);
   const stars = [
-    { x: Math.round(viewWidth * 0.18), y: 2 * resolution },
-    { x: Math.round(viewWidth * 0.34), y: 4 * resolution },
-    { x: Math.round(viewWidth * 0.62), y: 3 * resolution },
-    { x: Math.round(viewWidth * 0.78), y: 5 * resolution },
+    { x: Math.round(sceneWidth * 0.18), y: 2 * resolution },
+    { x: Math.round(sceneWidth * 0.34), y: 4 * resolution },
+    { x: Math.round(sceneWidth * 0.62), y: 3 * resolution },
+    { x: Math.round(sceneWidth * 0.78), y: 5 * resolution },
   ];
 
   const skyline = useMemo(
     () => {
-      const minHeight = (skylineOverrides?.minHeight ?? 2) * resolution;
-      const maxHeight = (skylineOverrides?.maxHeight ?? 6) * resolution;
+      const minHeight = (skylineOverrides?.minHeight ?? 2) * resolution * layout.detailScale;
+      const maxHeight = (skylineOverrides?.maxHeight ?? 6) * resolution * layout.detailScale;
       const options = {
-        width: viewWidth,
+        width: sceneWidth,
         baselineY: layout.baselineY,
         seed,
         minHeight,
@@ -137,13 +138,13 @@ export function LivingCityWordmarkSvg({
       };
       return createCityWordmarkSkylineMask(options);
     },
-    [layout.baselineY, resolution, seed, skylineOverrides, viewWidth]
+    [layout.baselineY, layout.detailScale, resolution, sceneWidth, seed, skylineOverrides]
   );
   const skylinePath = useMemo(() => voxelRectsToPath(skyline, 1), [skyline]);
 
   const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, 1), [layout.rects]);
 
-  const windows = useMemo(() => createCityWordmarkWindows({ seed, resolution }), [resolution, seed]);
+  const windows = useMemo(() => createCityWordmarkWindows({ seed, resolution, detail }), [detail, resolution, seed]);
   const windowState = useMemo(
     () => getCityWordmarkWindowLights(windows, { nowMs, timeOfDay }),
     [nowMs, timeOfDay, windows]
@@ -160,7 +161,7 @@ export function LivingCityWordmarkSvg({
   }, [windowState, windows]);
 
   const bodySize = 2 * resolution;
-  const skyMaxX = Math.max(0, viewWidth - bodySize);
+  const skyMaxX = Math.max(0, sceneWidth - bodySize);
   const skyMaxY = Math.max(0, skyHeight - bodySize);
 
   const sunX = Math.round(skyMaxX * celestial.sun.x);
@@ -242,65 +243,67 @@ export function LivingCityWordmarkSvg({
       <title id={titleId}>{ACCESSIBLE_TITLE}</title>
       <desc id={descId}>Living voxel/cityscape wordmark spelling “{VISUAL_WORD}”.</desc>
 
-      <rect x={0} y={0} width={viewWidth} height={viewHeight} fill={rgbToCss(palette.sky)} />
+      <g transform={layout.detailScale === 1 ? undefined : `scale(${1 / layout.detailScale})`}>
+        <rect x={0} y={0} width={sceneWidth} height={sceneHeight} fill={rgbToCss(palette.sky)} />
 
-      {celestial.sun.visible && (
-        <g fill={rgbToCss(palette.sun)} opacity={clamp01(daylight * 1.1)}>
-          {renderCelestialBodyRects(sunX, sunY, bodySize, "sun")}
+        {celestial.sun.visible && (
+          <g fill={rgbToCss(palette.sun)} opacity={clamp01(daylight * 1.1)}>
+            {renderCelestialBodyRects(sunX, sunY, bodySize, "sun")}
+          </g>
+        )}
+
+        {celestial.moon.visible && (
+          <g fill={rgbToCss(palette.moon)} opacity={clamp01(nightness * 1.1)}>
+            {renderCelestialBodyRects(moonX, moonY, bodySize, "moon")}
+          </g>
+        )}
+
+        {stars.map((star) => (
+          <rect
+            key={`${star.x}-${star.y}`}
+            x={star.x}
+            y={star.y}
+            width={resolution}
+            height={resolution}
+            fill={rgbToCss(palette.star)}
+            opacity={starOpacity}
+          />
+        ))}
+
+        <g
+          fill={resolution > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
+          opacity={0.9}
+        >
+          <path d={skylinePath} />
         </g>
-      )}
 
-      {celestial.moon.visible && (
-        <g fill={rgbToCss(palette.moon)} opacity={clamp01(nightness * 1.1)}>
-          {renderCelestialBodyRects(moonX, moonY, bodySize, "moon")}
+        <g fill={resolution > 1 ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
+          <path d={wordmarkPath} />
         </g>
-      )}
 
-      {stars.map((star) => (
         <rect
-          key={`${star.x}-${star.y}`}
-          x={star.x}
-          y={star.y}
-          width={resolution}
+          x={0}
+          y={layout.baselineY - resolution}
+          width={sceneWidth}
           height={resolution}
-          fill={rgbToCss(palette.star)}
-          opacity={starOpacity}
+          fill={rgbToCss(palette.buildingMuted)}
+          opacity={0.25}
         />
-      ))}
 
-      <g
-        fill={resolution > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
-        opacity={0.9}
-      >
-        <path d={skylinePath} />
+        {windowsPath.length > 0 && (
+          <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
+            <path d={windowsPath} />
+          </g>
+        )}
+
+        {actorBatches.length > 0 && (
+          <g>
+            {actorBatches.map((batch) => (
+              <path key={batch.key} d={batch.d} fill={batch.meta.fillCss} opacity={batch.meta.opacity} />
+            ))}
+          </g>
+        )}
       </g>
-
-      <g fill={resolution > 1 ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
-        <path d={wordmarkPath} />
-      </g>
-
-      <rect
-        x={0}
-        y={layout.baselineY - resolution}
-        width={viewWidth}
-        height={resolution}
-        fill={rgbToCss(palette.buildingMuted)}
-        opacity={0.25}
-      />
-
-      {windowsPath.length > 0 && (
-        <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
-          <path d={windowsPath} />
-        </g>
-      )}
-
-      {actorBatches.length > 0 && (
-        <g>
-          {actorBatches.map((batch) => (
-            <path key={batch.key} d={batch.d} fill={batch.meta.fillCss} opacity={batch.meta.opacity} />
-          ))}
-        </g>
-      )}
     </svg>
   );
 }

@@ -53,7 +53,10 @@ function cancelFrame(id: FrameHandle) {
 export function createCityWordmarkEngine(options: { initialConfig?: CityWordmarkConfig; initialPlaying?: boolean } = {}) {
   const listeners = new Set<CityWordmarkEngineListener>();
   const initialConfig = options.initialConfig ?? getDefaultCityWordmarkConfig();
-  let layout = createCityWordmarkLayout({ sceneScale: initialConfig.render.bannerScale });
+  let layout = createCityWordmarkLayout({
+    sceneScale: initialConfig.render.bannerScale,
+    detail: initialConfig.render.detail,
+  });
   let actors: CityWordmarkActor[] = [];
 
   let snapshot: CityWordmarkEngineSnapshot = {
@@ -207,7 +210,7 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
 
   function setConfig(overrides: unknown) {
     const nextConfig = mergeCityWordmarkConfig(snapshot.config, overrides);
-    layout = createCityWordmarkLayout({ sceneScale: nextConfig.render.bannerScale });
+    layout = createCityWordmarkLayout({ sceneScale: nextConfig.render.bannerScale, detail: nextConfig.render.detail });
     ambulanceTriggerIndex = 0;
     actors = [
       ...spawnCarActors({ config: nextConfig, layout }),

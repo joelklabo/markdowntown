@@ -1,5 +1,6 @@
 import { createRng } from "./rng";
-import { CITY_WORDMARK_GLYPH_COLS, CITY_WORDMARK_GLYPH_ROWS, CITY_WORDMARK_TEXT, getCityWordmarkGlyph } from "./glyphs";
+import { CITY_WORDMARK_TEXT, getCityWordmarkGlyph, getCityWordmarkGlyphMetrics } from "./glyphs";
+import type { CityWordmarkRenderDetail } from "./types";
 
 export type CityWordmarkVoxelRect = {
   x: number;
@@ -14,6 +15,10 @@ export type CityWordmarkLayout = {
   height: number;
   rects: CityWordmarkVoxelRect[];
   baselineY: number;
+  glyphRows: number;
+  glyphCols: number;
+  topPadding: number;
+  detailScale: number;
 };
 
 export type CityWordmarkLayoutOptions = {
@@ -26,6 +31,8 @@ export type CityWordmarkLayoutOptions = {
   resolution?: number;
   /** Multiplier for the full scene width (banner width). */
   sceneScale?: number;
+  /** Render detail preset (standard vs HD glyph grids). */
+  detail?: CityWordmarkRenderDetail;
 };
 
 const DEFAULT_LAYOUT: Required<CityWordmarkLayoutOptions> = {
@@ -34,17 +41,20 @@ const DEFAULT_LAYOUT: Required<CityWordmarkLayoutOptions> = {
   topPadding: 4,
   resolution: 1,
   sceneScale: 1,
+  detail: "standard",
 };
 
 export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}): CityWordmarkLayout {
   const text = options.text ?? DEFAULT_LAYOUT.text;
+  const detail = options.detail ?? DEFAULT_LAYOUT.detail;
+  const { rows: glyphRowsBase, cols: glyphColsBase, scale: detailScale } = getCityWordmarkGlyphMetrics(detail);
   const letterSpacingBase = options.letterSpacing ?? DEFAULT_LAYOUT.letterSpacing;
   const topPaddingBase = options.topPadding ?? DEFAULT_LAYOUT.topPadding;
   const resolution = Math.max(1, Math.floor(options.resolution ?? DEFAULT_LAYOUT.resolution));
-  const letterSpacing = letterSpacingBase * resolution;
-  const topPadding = topPaddingBase * resolution;
-  const glyphRows = CITY_WORDMARK_GLYPH_ROWS * resolution;
-  const glyphCols = CITY_WORDMARK_GLYPH_COLS * resolution;
+  const letterSpacing = letterSpacingBase * resolution * detailScale;
+  const topPadding = topPaddingBase * resolution * detailScale;
+  const glyphRows = glyphRowsBase * resolution;
+  const glyphCols = glyphColsBase * resolution;
   const sceneScale = Math.max(1, Math.floor(options.sceneScale ?? DEFAULT_LAYOUT.sceneScale));
 
   let xCursor = 0;
@@ -69,7 +79,7 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
       continue;
     }
 
-    const glyph = expandGlyph([...getCityWordmarkGlyph(rawChar)]);
+    const glyph = expandGlyph([...getCityWordmarkGlyph(rawChar, detail)]);
 
     for (let row = 0; row < glyphRows; row++) {
       const line = glyph[row] ?? "";
@@ -98,7 +108,7 @@ export function createCityWordmarkLayout(options: CityWordmarkLayoutOptions = {}
   const baselineY = topPadding + glyphRows;
   const height = baselineY;
 
-  return { width, sceneWidth, height, rects, baselineY };
+  return { width, sceneWidth, height, rects, baselineY, glyphRows, glyphCols, topPadding, detailScale };
 }
 
 export type CityWordmarkSkylineMaskOptions = {

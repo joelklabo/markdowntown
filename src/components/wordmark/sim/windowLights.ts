@@ -1,7 +1,8 @@
 import { clamp01 } from "./easing";
-import { CITY_WORDMARK_GLYPH_COLS, CITY_WORDMARK_TEXT, getCityWordmarkGlyph } from "./glyphs";
+import { CITY_WORDMARK_TEXT, getCityWordmarkGlyph, getCityWordmarkGlyphMetrics } from "./glyphs";
 import { createRng } from "./rng";
 import { getTimeOfDayPhase } from "./time";
+import type { CityWordmarkRenderDetail } from "./types";
 
 export type CityWordmarkWindow = {
   x: number;
@@ -18,6 +19,7 @@ export type CityWordmarkWindowLayoutOptions = {
   topPadding?: number;
   letterSpacing?: number;
   resolution?: number;
+  detail?: CityWordmarkRenderDetail;
   windowChance?: number;
   minCycleMs?: number;
   maxCycleMs?: number;
@@ -45,9 +47,11 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
   const text = options.text ?? CITY_WORDMARK_TEXT;
   const topPaddingBase = options.topPadding ?? DEFAULTS.topPadding;
   const letterSpacingBase = options.letterSpacing ?? DEFAULTS.letterSpacing;
+  const detail = options.detail ?? "standard";
+  const { cols: glyphColsBase, scale: detailScale } = getCityWordmarkGlyphMetrics(detail);
   const resolution = Math.max(1, Math.floor(options.resolution ?? DEFAULTS.resolution));
-  const topPadding = topPaddingBase * resolution;
-  const letterSpacing = letterSpacingBase * resolution;
+  const topPadding = topPaddingBase * resolution * detailScale;
+  const letterSpacing = letterSpacingBase * resolution * detailScale;
   const windowChanceBase = options.windowChance ?? DEFAULTS.windowChance;
   const windowChance = clamp01(windowChanceBase / resolution);
   const minCycleMs = options.minCycleMs ?? DEFAULTS.minCycleMs;
@@ -84,11 +88,12 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
       continue;
     }
 
-    const glyph = expandGlyph([...getCityWordmarkGlyph(rawChar)]);
-    const rowStart = 2 * resolution;
-    const rowEnd = 5 * resolution + (resolution - 1);
-    const colStart = 1 * resolution;
-    const colEnd = 3 * resolution + (resolution - 1);
+    const glyph = expandGlyph([...getCityWordmarkGlyph(rawChar, detail)]);
+    const windowScale = resolution * detailScale;
+    const rowStart = 2 * windowScale;
+    const rowEnd = 5 * windowScale + (windowScale - 1);
+    const colStart = 1 * windowScale;
+    const colEnd = 3 * windowScale + (windowScale - 1);
 
     for (let row = rowStart; row <= rowEnd; row++) {
       const line = glyph[row] ?? "";
@@ -105,7 +110,7 @@ export function createCityWordmarkWindows(options: CityWordmarkWindowLayoutOptio
       }
     }
 
-    xCursor += CITY_WORDMARK_GLYPH_COLS * resolution + letterSpacing;
+    xCursor += glyphColsBase * resolution + letterSpacing;
   }
 
   return windows;

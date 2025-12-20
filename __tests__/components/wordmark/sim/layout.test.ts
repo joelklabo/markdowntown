@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { CITY_WORDMARK_GLYPHS } from "@/components/wordmark/sim/glyphs";
+import {
+  CITY_WORDMARK_GLYPHS,
+  CITY_WORDMARK_GLYPH_COLS,
+  CITY_WORDMARK_GLYPH_ROWS,
+  CITY_WORDMARK_HD_GLYPH_COLS,
+  CITY_WORDMARK_HD_GLYPH_ROWS,
+} from "@/components/wordmark/sim/glyphs";
 import {
   createCityWordmarkLayout,
   createCityWordmarkSkylineMask,
@@ -30,6 +36,14 @@ describe("createCityWordmarkLayout", () => {
     for (const ch of required) {
       expect(CITY_WORDMARK_GLYPHS[ch]).toBeDefined();
     }
+  });
+
+  it("uses HD glyph metrics when detail is hd", () => {
+    const hd = createCityWordmarkLayout({ detail: "hd" });
+    expect(hd.glyphCols).toBe(CITY_WORDMARK_HD_GLYPH_COLS);
+    expect(hd.glyphRows).toBe(CITY_WORDMARK_HD_GLYPH_ROWS);
+    expect(hd.detailScale).toBe(CITY_WORDMARK_HD_GLYPH_COLS / CITY_WORDMARK_GLYPH_COLS);
+    expect(hd.topPadding).toBeGreaterThanOrEqual(CITY_WORDMARK_GLYPH_ROWS);
   });
 });
 
