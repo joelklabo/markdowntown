@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -36,9 +36,10 @@ export type CityLogoControlsProps = {
     onCopyLink?: () => void;
     onShareTimeOfDay?: (timeOfDay: number) => void;
   };
+  legend?: ReactNode;
 };
 
-export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: CityLogoControlsProps) {
+export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, legend }: CityLogoControlsProps) {
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
   const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
@@ -560,6 +561,10 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
           <div className="line-clamp-2">Last: {lastEvent ?? "—"}</div>
         </div>
       </Card>
+
+      {legend ? (
+        <div className="md:col-span-2 xl:col-span-3 2xl:col-span-4">{legend}</div>
+      ) : null}
     </div>
   );
 }

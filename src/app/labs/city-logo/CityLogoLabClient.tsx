@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { CityLogoControls, type CityLogoPreviewWidthMode } from "@/components/wordmark/CityLogoControls";
 import { LivingCityWordmarkSvg } from "@/components/wordmark/LivingCityWordmarkSvg";
+import { WordmarkLegend } from "@/components/wordmark/WordmarkLegend";
 import { getDefaultCityWordmarkConfig } from "@/components/wordmark/sim/config";
 import { dispatchCityWordmarkEvent } from "@/components/wordmark/sim/events";
 import { createCityWordmarkEngine } from "@/components/wordmark/sim/engine";
@@ -151,6 +152,7 @@ export function CityLogoLabClient({
         eventOrigin="labs"
         preview={{ widthMode: previewWidthMode, setWidthMode: setPreviewWidthMode }}
         share={{ onCopyLink: copyLink, onShareTimeOfDay: setShareTimeOfDay }}
+        legend={<WordmarkLegend />}
       />
 
       <Card className="p-mdt-6">
