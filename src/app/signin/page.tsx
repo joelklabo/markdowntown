@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { DemoLoginButton } from "@/components/auth/DemoLoginButton";
 import { GithubLoginButton } from "@/components/auth/GithubLoginButton";
 import { Container } from "@/components/ui/Container";
-import { Stack, Row } from "@/components/ui/Stack";
+import { Stack } from "@/components/ui/Stack";
 import { Surface } from "@/components/ui/Surface";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
@@ -29,80 +29,86 @@ export default async function SignInPage({
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text">
       <main id="main-content" className="py-mdt-10 md:py-mdt-12">
-        <Container size="md" padding="md" className="space-y-mdt-8">
-          <div className="flex items-center justify-between">
-            <BrandLogo />
-            <Button variant="ghost" asChild size="sm">
-              <Link href="/">Back home</Link>
-            </Button>
-          </div>
+        <Container size="md" padding="md">
+          <Stack gap={10}>
+            <div className="flex items-center justify-between">
+              <BrandLogo />
+              <Button variant="ghost" asChild size="sm">
+                <Link href="/">Back home</Link>
+              </Button>
+            </div>
 
-          <div className="flex flex-col items-center gap-mdt-8 md:flex-row md:items-start">
-            <Stack gap={3} className="flex-1">
-              <Text size="caption" tone="muted">Sign in</Text>
-              <Heading level="display" leading="tight">Welcome back to your town</Heading>
-              <Text tone="muted" className="max-w-xl">
-                Use your GitHub account to access your private markdown sections. You can always
-                revoke access in GitHub settings.
-              </Text>
-              <Row wrap gap={3}>
-                <GithubLoginButton callbackUrl={callbackUrl} disabled={!githubConfigured} wordmarkMethod="oauth">
-                  {githubConfigured ? "Continue with GitHub" : "GitHub not configured"}
-                </GithubLoginButton>
-                <Button variant="secondary" asChild>
-                  <Link href="/">Cancel</Link>
-                </Button>
-              </Row>
-              {!githubConfigured && (
-                <div className="rounded-mdt-md border border-[color:var(--mdt-color-warning)]/30 bg-[color:var(--mdt-color-warning)]/10 px-mdt-3 py-mdt-2 text-body-sm text-[color:var(--mdt-color-warning)]">
-                  GitHub OAuth is not configured in this environment. Add GITHUB_CLIENT_ID/SECRET or use the demo login below.
-                </div>
-              )}
-              {error && (
-                <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
-                  Sign-in failed: {error.replaceAll("_", " ")}
+            <div className="grid gap-mdt-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+              <Stack gap={5} className="max-w-xl">
+                <Text size="caption" tone="muted">Sign in</Text>
+                <Heading level="display" leading="tight">Welcome back to your town</Heading>
+                <Text tone="muted" leading="relaxed">
+                  Sign in with GitHub to save private sections, publish artifacts, and keep drafts in sync across devices.
                 </Text>
-              )}
-            </Stack>
+                <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+                  <Heading level="h3" as="h2">What you get</Heading>
+                  <ul className="list-disc space-y-mdt-2 pl-mdt-5">
+                    <Text as="li" size="bodySm" tone="muted">Secure OAuth via GitHub.</Text>
+                    <Text as="li" size="bodySm" tone="muted">Session-backed API access to saved sections.</Text>
+                    <Text as="li" size="bodySm" tone="muted">Live preview, exports, and artifact history.</Text>
+                  </ul>
+                </Surface>
+                <Text size="bodySm" tone="muted" leading="relaxed">
+                  You can revoke access at any time in your GitHub settings.
+                </Text>
+              </Stack>
 
-            <div className="flex-1 w-full max-w-xl">
               <Surface padding="lg" className="space-y-mdt-4">
-                <Stack gap={1}>
-                  <Heading level="h3" as="p">What you get</Heading>
-                  <Text tone="muted">
-                    Private storage for your sections, live preview, and agent-ready exports.
+                <div className="space-y-mdt-2">
+                  <Text size="caption" tone="muted">Sign-in options</Text>
+                  <Heading level="h3" as="h2">Continue with GitHub</Heading>
+                  <Text tone="muted" leading="relaxed">
+                    Use your GitHub account to access private markdown sections and sync saved exports.
                   </Text>
-                </Stack>
-                <ul className="space-y-mdt-2 list-disc pl-mdt-5 text-body text-mdt-muted">
-                  <li>Secure OAuth via GitHub</li>
-                  <li>Session-backed API access to sections</li>
-                  <li>Compose, edit, and preview in real time</li>
-                </ul>
-                <div className="rounded-mdt-lg bg-mdt-bg-soft p-mdt-3 text-body-sm text-mdt-muted">
-                  By continuing, you agree to keep your credentials safe and abide by our acceptable use.
                 </div>
                 <GithubLoginButton
                   callbackUrl={callbackUrl}
                   disabled={!githubConfigured}
                   className="w-full"
+                  size="lg"
                   wordmarkMethod="oauth"
                 >
                   {githubConfigured ? "Sign in with GitHub" : "GitHub not configured"}
                 </GithubLoginButton>
+                {!githubConfigured && (
+                  <div className="rounded-mdt-md border border-[color:var(--mdt-color-warning)]/30 bg-[color:var(--mdt-color-warning)]/10 px-mdt-3 py-mdt-2">
+                    <Text size="bodySm" className="text-[color:var(--mdt-color-warning)]">
+                      GitHub OAuth is not configured here. Add GITHUB_CLIENT_ID/SECRET or use the demo login below.
+                    </Text>
+                  </div>
+                )}
+                {error && (
+                  <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
+                    Sign-in failed: {error.replaceAll("_", " ")}
+                  </Text>
+                )}
                 {demoLoginEnabled && (
-                  <div className="space-y-mdt-2">
+                  <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-4">
                     <div className="flex items-center justify-between text-caption text-mdt-muted">
                       <span>Demo login (local dev)</span>
-                      <span className="rounded-mdt-sm border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-mdt-1 font-mono">
+                      <span className="rounded-mdt-sm border border-mdt-border bg-mdt-surface px-mdt-2 py-mdt-1 font-mono">
                         {demoPassword}
                       </span>
                     </div>
-                    <DemoLoginButton password={demoPassword} callbackUrl={callbackUrl} wordmarkMethod="password" />
+                    <DemoLoginButton
+                      password={demoPassword}
+                      callbackUrl={callbackUrl}
+                      wordmarkMethod="password"
+                      variant="secondary"
+                    />
                   </div>
                 )}
+                <Text size="caption" tone="muted">
+                  By continuing, you agree to keep your credentials safe and follow acceptable use.
+                </Text>
               </Surface>
             </div>
-          </div>
+          </Stack>
         </Container>
       </main>
     </div>

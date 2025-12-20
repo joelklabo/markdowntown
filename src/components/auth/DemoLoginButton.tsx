@@ -3,15 +3,26 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
 import { emitCityWordmarkEvent } from "@/components/wordmark/sim/bridge";
 
 type Props = {
   password: string;
   callbackUrl?: string;
   wordmarkMethod?: "oauth" | "password" | "sso";
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "xs" | "sm" | "md" | "lg";
+  className?: string;
 };
 
-export function DemoLoginButton({ password, callbackUrl = "/", wordmarkMethod }: Props) {
+export function DemoLoginButton({
+  password,
+  callbackUrl = "/",
+  wordmarkMethod,
+  variant = "secondary",
+  size = "md",
+  className,
+}: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,14 +42,18 @@ export function DemoLoginButton({ password, callbackUrl = "/", wordmarkMethod }:
   }
 
   return (
-    <div className="space-y-2 w-full">
-      <Button className="w-full" onClick={handleClick} disabled={loading}>
+    <div className={`space-y-mdt-2 w-full ${className ?? ""}`.trim()}>
+      <Button className="w-full" onClick={handleClick} disabled={loading} variant={variant} size={size}>
         {loading ? "Signing in…" : "Sign in with demo account"}
       </Button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <p className="text-xs text-mdt-muted">
+      {error && (
+        <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
+          {error}
+        </Text>
+      )}
+      <Text size="caption" tone="muted">
         Uses a local demo user; no GitHub account required.
-      </p>
+      </Text>
     </div>
   );
 }
