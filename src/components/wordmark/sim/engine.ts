@@ -6,7 +6,9 @@ import { spawnTruckActors } from "./actors/truck";
 import { spawnAmbulanceActor } from "./actors/ambulance";
 import { spawnStreetlightActors } from "./actors/streetlight";
 import { spawnPedestrianActors } from "./actors/pedestrian";
+import { getActorScale } from "./actors/types";
 import { createCityWordmarkLayout } from "./layout";
+import { createRng } from "./rng";
 import { normalizeTimeOfDay } from "./time";
 import { listenCityWordmarkEvents } from "./events";
 import type { CityWordmarkEvent } from "./types";
@@ -150,6 +152,31 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     return wrapper;
   }
 
+  function createEventDogActor(seed: string): CityWordmarkActor {
+    const rng = createRng(`${seed}:dog`);
+    const scale = getActorScale(layout);
+    const bodyWidth = scale * 2;
+    const headSize = scale;
+    const maxX = Math.max(0, layout.sceneWidth - bodyWidth - headSize);
+    const x = maxX > 0 ? rng.nextInt(0, maxX + 1) : 0;
+    const y = Math.max(0, layout.baselineY - scale);
+
+    const actor: CityWordmarkActor = {
+      kind: "dog",
+      update() {
+        return actor;
+      },
+      render() {
+        return [
+          { x, y, width: bodyWidth, height: headSize, tone: "dog", opacity: 0.72 },
+          { x: x + bodyWidth, y, width: headSize, height: headSize, tone: "dog", opacity: 0.62 },
+        ];
+      },
+    };
+
+    return actor;
+  }
+
   function addEventActors(newActors: CityWordmarkActor[]) {
     if (newActors.length === 0) return;
     const base = actors.filter((actor) => !actor.kind.startsWith("event:"));
@@ -178,12 +205,7 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     }
 
     if (event.type === "upload") {
-      const config = mergeCityWordmarkConfig(baseConfig, {
-        seed,
-        density: "sparse",
-        actors: { pedestrians: true, dogs: true },
-      });
-      return spawnPedestrianActors({ config, layout });
+      return [createEventDogActor(seed)];
     }
 
     if (event.type === "login") {
@@ -304,6 +326,8 @@ export function createCityWordmarkEngine(options: { initialConfig?: CityWordmark
     const nextConfig = mergeCityWordmarkConfig(snapshot.config, overrides);
     layout = createCityWordmarkLayout({ sceneScale: nextConfig.render.bannerScale, detail: nextConfig.render.detail });
     ambulanceTriggerIndex = 0;
+    eventIndex = 0;
+    lastEventAt.clear();
     actors = [
       ...spawnCarActors({ config: nextConfig, layout }),
       ...spawnTruckActors({ config: nextConfig, layout }),

@@ -15,9 +15,9 @@ function normalizeEventTs(ts?: number): number {
   return value;
 }
 
-function isRateLimited(ts: number): boolean {
-  if (rateWindowStart === 0 || ts - rateWindowStart > EVENT_RATE_WINDOW_MS) {
-    rateWindowStart = ts;
+function isRateLimited(now: number): boolean {
+  if (rateWindowStart === 0 || now - rateWindowStart > EVENT_RATE_WINDOW_MS) {
+    rateWindowStart = now;
     rateCount = 0;
   }
   rateCount += 1;
@@ -40,7 +40,7 @@ export function listenCityWordmarkEvents(listener: CityWordmarkEventListener) {
     const detail = parseCityWordmarkEvent(e.detail);
     if (!detail) return;
     const ts = normalizeEventTs(detail.ts);
-    if (isRateLimited(ts)) return;
+    if (isRateLimited(Date.now())) return;
     listener({ ...detail, ts });
   }
 
