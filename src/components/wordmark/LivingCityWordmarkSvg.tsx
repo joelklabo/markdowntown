@@ -34,6 +34,8 @@ type LivingCityWordmarkSvgProps = {
   sizeMode?: "fixed" | "fluid";
   preserveAspectRatio?: string;
   skyline?: Partial<CityWordmarkSkylineConfig>;
+  /** Force solid fills instead of grid patterns for deterministic snapshots. */
+  forceSolidGrid?: boolean;
 };
 
 const ACCESSIBLE_TITLE = "mark downtown";
@@ -145,6 +147,7 @@ export function LivingCityWordmarkSvg({
   sizeMode = "fixed",
   preserveAspectRatio,
   skyline: skylineOverrides,
+  forceSolidGrid = false,
 }: LivingCityWordmarkSvgProps) {
   const detail = renderDetail ?? "hd";
   const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
@@ -269,6 +272,8 @@ export function LivingCityWordmarkSvg({
     [actorRects, nightness, palette]
   );
 
+  const useGridPatterns = gridScale > 1 && !forceSolidGrid;
+
   return (
     <svg
       viewBox={`0 0 ${viewWidth} ${viewHeight}`}
@@ -286,7 +291,7 @@ export function LivingCityWordmarkSvg({
       shapeRendering="crispEdges"
     >
       <defs>
-        {gridScale > 1 && (
+        {useGridPatterns && (
           <>
             <pattern
               id={`${titleId}-building-grid`}
@@ -346,13 +351,13 @@ export function LivingCityWordmarkSvg({
         })}
 
         <g
-          fill={gridScale > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
+          fill={useGridPatterns ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
           opacity={0.9}
         >
           <path d={skylinePath} />
         </g>
 
-        <g fill={gridScale > 1 ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
+        <g fill={useGridPatterns ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
           <path d={wordmarkPath} />
         </g>
 

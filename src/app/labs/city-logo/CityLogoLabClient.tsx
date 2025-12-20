@@ -235,6 +235,7 @@ export function CityLogoLabClient({
           voxelScale={renderConfig.render.voxelScale}
           renderDetail={renderConfig.render.detail}
           bannerScale={renderConfig.render.bannerScale}
+          forceSolidGrid={snapshotMode}
           skyline={renderConfig.skyline}
         />
       </div>
@@ -242,7 +243,7 @@ export function CityLogoLabClient({
   );
 
   if (snapshotMode) {
-    return <div className="p-mdt-6">{preview}</div>;
+    return <div className="fixed inset-0 p-mdt-6">{preview}</div>;
   }
 
   return (
