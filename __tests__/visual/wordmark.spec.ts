@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-const snapshotTolerance = { maxDiffPixelRatio: 0.1, maxDiffPixels: 1500 };
-
 test.describe("City wordmark visual", () => {
   test("day scene", async ({ page }) => {
     await page.goto("/labs/city-logo?snapshot=1&timeOfDay=0.55&voxelScale=3&detail=hd");
@@ -9,7 +7,7 @@ test.describe("City wordmark visual", () => {
     const preview = page.getByTestId("city-logo-preview");
     await expect(preview).toBeVisible();
     await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
-    await expect(preview).toHaveScreenshot("wordmark-day.png", snapshotTolerance);
+    await expect(preview).toHaveScreenshot("wordmark-day.png", { timeout: 10000 });
   });
 
   test("night scene", async ({ page }) => {
@@ -18,7 +16,7 @@ test.describe("City wordmark visual", () => {
     const preview = page.getByTestId("city-logo-preview");
     await expect(preview).toBeVisible();
     await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
-    await expect(preview).toHaveScreenshot("wordmark-night.png", snapshotTolerance);
+    await expect(preview).toHaveScreenshot("wordmark-night.png", { timeout: 10000 });
   });
 
   test("ambulance scene", async ({ page }) => {
@@ -30,7 +28,6 @@ test.describe("City wordmark visual", () => {
     await expect(
       page.locator('[data-testid="city-logo-preview"] :is(rect,path)[fill="rgb(255 84 84)"]')
     ).toHaveCount(2);
-
-    await expect(preview).toHaveScreenshot("wordmark-ambulance.png", snapshotTolerance);
+    await expect(preview).toHaveScreenshot("wordmark-ambulance.png", { timeout: 10000 });
   });
 });

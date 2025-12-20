@@ -243,7 +243,11 @@ export function CityLogoLabClient({
   );
 
   if (snapshotMode) {
-    return <div className="fixed inset-0 p-mdt-6">{preview}</div>;
+    return (
+      <div className="fixed inset-0 z-[999] overflow-hidden bg-mdt-bg p-mdt-6">
+        {preview}
+      </div>
+    );
   }
 
   return (
