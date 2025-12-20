@@ -442,198 +442,202 @@ export function ContextSimulator() {
   };
 
   return (
-    <div className="grid gap-mdt-6 lg:grid-cols-[360px,1fr]">
-      <Card className="p-mdt-4">
-        <Stack gap={4}>
+    <div className="grid gap-mdt-6 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] lg:gap-mdt-8">
+      <Card className="p-mdt-5">
+        <Stack gap={5}>
           <Stack gap={1}>
             <Heading level="h2">Inputs</Heading>
             <Text tone="muted">Select a tool, a repo tree, and a working directory.</Text>
           </Stack>
 
-          <div className="space-y-2">
-            <label htmlFor="sim-tool" className="text-body-sm font-semibold text-mdt-text">
-              Tool
-            </label>
-            <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
-              {TOOL_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-body-sm font-semibold text-mdt-text">Repo source</div>
-            <div className="flex flex-wrap gap-4">
-              <Radio
-                name="sim-repo-source"
-                checked={repoSource === "manual"}
-                onChange={() => setRepoSource("manual")}
-                label="Manual (paste paths)"
-              />
-              <Radio
-                name="sim-repo-source"
-                checked={repoSource === "folder"}
-                onChange={() => setRepoSource("folder")}
-                label="Local folder (File System Access API)"
-              />
+          <div className="space-y-mdt-4">
+            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                Tool
+              </label>
+              <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+                {TOOL_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
             </div>
-            <Text tone="muted" size="bodySm">
-              {canPickDirectory
-                ? "Scans locally in your browser. File contents are never uploaded."
-                : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
-            </Text>
-          </div>
 
-          <div className="space-y-2">
-            <label htmlFor="sim-cwd" className="text-body-sm font-semibold text-mdt-text">
-              Current directory (cwd)
-            </label>
-            <Input
-              id="sim-cwd"
-              placeholder="e.g. src/app"
-              value={cwd}
-              onChange={(e) => setCwd(e.target.value)}
-            />
-            <Text tone="muted" size="bodySm">
-              Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
-            </Text>
-          </div>
+            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <div className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Repo source</div>
+              <div className="flex flex-col gap-mdt-2">
+                <Radio
+                  name="sim-repo-source"
+                  checked={repoSource === "manual"}
+                  onChange={() => setRepoSource("manual")}
+                  label="Manual (paste paths)"
+                />
+                <Radio
+                  name="sim-repo-source"
+                  checked={repoSource === "folder"}
+                  onChange={() => setRepoSource("folder")}
+                  label="Local folder (File System Access API)"
+                />
+              </div>
+              <Text tone="muted" size="bodySm">
+                {canPickDirectory
+                  ? "Scans locally in your browser. File contents are never uploaded."
+                  : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
+              </Text>
+            </div>
 
-          <div className="space-y-2">
-            <label htmlFor="sim-tree" className="text-body-sm font-semibold text-mdt-text">
-              Repo tree (paths)
-            </label>
-            {repoSource === "folder" ? (
-              <div className="space-y-2">
-                {canPickDirectory ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={isScanning}
-                    onClick={async () => {
-                      setScanError(null);
-                      setIsScanning(true);
-                      track("atlas_simulator_scan_start", { method: "directory_picker", tool });
-                      try {
-                        const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
-                        if (!picker) throw new Error("File System Access API not available");
-                        const handle = await picker();
-                        const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
-                          handle as FileSystemDirectoryHandleLike
-                        );
-                        const rootName = (handle as { name?: string }).name;
-                        setScannedTree(tree);
-                        setScanMeta({
-                          totalFiles,
-                          matchedFiles,
-                          truncated,
-                          rootName,
-                        });
-                        runSimulationWithTree(
-                          tree,
-                          tree.files.map((file) => file.path),
-                          "folder",
-                          "scan",
-                        );
-                        track("atlas_simulator_scan_complete", {
-                          method: "directory_picker",
-                          tool,
-                          totalFiles,
-                          matchedFiles,
-                          truncated,
-                          rootName,
-                        });
-                      } catch (err) {
-                        if (err instanceof DOMException && err.name === "AbortError") {
-                          track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
-                          return;
-                        }
-                        if (err instanceof Error) {
-                          trackError("atlas_simulator_scan_error", err, {
+            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <label htmlFor="sim-cwd" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                Current directory (cwd)
+              </label>
+              <Input
+                id="sim-cwd"
+                placeholder="e.g. src/app"
+                value={cwd}
+                onChange={(e) => setCwd(e.target.value)}
+              />
+              <Text tone="muted" size="bodySm">
+                Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
+              </Text>
+            </div>
+
+            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <label htmlFor="sim-tree" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                Repo tree (paths)
+              </label>
+              {repoSource === "folder" ? (
+                <div className="space-y-mdt-3">
+                  {canPickDirectory ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                      disabled={isScanning}
+                      onClick={async () => {
+                        setScanError(null);
+                        setIsScanning(true);
+                        track("atlas_simulator_scan_start", { method: "directory_picker", tool });
+                        try {
+                          const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+                          if (!picker) throw new Error("File System Access API not available");
+                          const handle = await picker();
+                          const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
+                            handle as FileSystemDirectoryHandleLike
+                          );
+                          const rootName = (handle as { name?: string }).name;
+                          setScannedTree(tree);
+                          setScanMeta({
+                            totalFiles,
+                            matchedFiles,
+                            truncated,
+                            rootName,
+                          });
+                          runSimulationWithTree(
+                            tree,
+                            tree.files.map((file) => file.path),
+                            "folder",
+                            "scan",
+                          );
+                          track("atlas_simulator_scan_complete", {
                             method: "directory_picker",
                             tool,
+                            totalFiles,
+                            matchedFiles,
+                            truncated,
+                            rootName,
                           });
+                        } catch (err) {
+                          if (err instanceof DOMException && err.name === "AbortError") {
+                            track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
+                            return;
+                          }
+                          if (err instanceof Error) {
+                            trackError("atlas_simulator_scan_error", err, {
+                              method: "directory_picker",
+                              tool,
+                            });
+                          }
+                          setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+                        } finally {
+                          setIsScanning(false);
                         }
-                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-                      } finally {
-                        setIsScanning(false);
-                      }
-                    }}
-                  >
-                    {isScanning ? "Scanning…" : "Choose folder"}
-                  </Button>
-                ) : (
-                  <Input
-                    type="file"
-                    multiple
-                    // @ts-expect-error - non-standard attribute for directory uploads
-                    webkitdirectory="true"
-                    aria-label="Upload folder"
-                    onChange={(event) => {
-                      setScanError(null);
-                      const files = event.target.files;
-                      if (!files || files.length === 0) return;
-                      try {
-                        track("atlas_simulator_scan_start", { method: "file_input", tool });
-                        const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
-                        const rootName = files[0]?.webkitRelativePath?.split("/")[0];
-                        setScannedTree(tree);
-                        setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
-                        runSimulationWithTree(
-                          tree,
-                          tree.files.map((file) => file.path),
-                          "folder",
-                          "scan",
-                        );
-                        track("atlas_simulator_scan_complete", {
-                          method: "file_input",
-                          tool,
-                          totalFiles,
-                          matchedFiles,
-                          truncated,
-                          rootName,
-                        });
-                      } catch (err) {
-                        if (err instanceof Error) {
-                          trackError("atlas_simulator_scan_error", err, {
+                      }}
+                    >
+                      {isScanning ? "Scanning…" : "Choose folder"}
+                    </Button>
+                  ) : (
+                    <Input
+                      type="file"
+                      multiple
+                      // @ts-expect-error - non-standard attribute for directory uploads
+                      webkitdirectory="true"
+                      aria-label="Upload folder"
+                      onChange={(event) => {
+                        setScanError(null);
+                        const files = event.target.files;
+                        if (!files || files.length === 0) return;
+                        try {
+                          track("atlas_simulator_scan_start", { method: "file_input", tool });
+                          const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
+                          const rootName = files[0]?.webkitRelativePath?.split("/")[0];
+                          setScannedTree(tree);
+                          setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
+                          runSimulationWithTree(
+                            tree,
+                            tree.files.map((file) => file.path),
+                            "folder",
+                            "scan",
+                          );
+                          track("atlas_simulator_scan_complete", {
                             method: "file_input",
                             tool,
+                            totalFiles,
+                            matchedFiles,
+                            truncated,
+                            rootName,
                           });
+                        } catch (err) {
+                          if (err instanceof Error) {
+                            trackError("atlas_simulator_scan_error", err, {
+                              method: "file_input",
+                              tool,
+                            });
+                          }
+                          setScanError(err instanceof Error ? err.message : "Unable to scan folder");
                         }
-                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-                      }
-                    }}
-                  />
-                )}
+                      }}
+                    />
+                  )}
 
-                {scanError ? (
-                  <Text tone="muted" size="bodySm">
-                    {scanError}
-                  </Text>
-                ) : null}
+                  {scanError ? (
+                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
+                      {scanError}
+                    </div>
+                  ) : null}
 
-                {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+                  {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
 
-                <TextArea id="sim-tree" rows={10} value={scannedPreview} readOnly />
-              </div>
-            ) : (
-              <TextArea
-                id="sim-tree"
-                rows={10}
-                value={repoText}
-                onChange={(e) => setRepoText(e.target.value)}
-                placeholder="One path per line (e.g. .github/copilot-instructions.md)"
-              />
-            )}
-            <Text tone="muted" size="bodySm">
-              {repoFileCount} file(s). Lines starting with `#` or `//` are ignored.
-            </Text>
+                  <TextArea id="sim-tree" rows={10} value={scannedPreview} readOnly />
+                </div>
+              ) : (
+                <TextArea
+                  id="sim-tree"
+                  rows={10}
+                  value={repoText}
+                  onChange={(e) => setRepoText(e.target.value)}
+                  placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+                />
+              )}
+              <Text tone="muted" size="bodySm">
+                {repoFileCount} file(s). Lines starting with `#` or `//` are ignored.
+              </Text>
+            </div>
           </div>
 
           <Button
             type="button"
+            className="w-full sm:w-auto"
             onClick={() => {
               const tree =
                 repoSource === "folder"
@@ -651,75 +655,86 @@ export function ContextSimulator() {
         </Stack>
       </Card>
 
-      <Card className="p-mdt-4">
-        <Stack gap={4}>
-          <Stack gap={1}>
+      <Card className="p-mdt-5">
+        <Stack gap={5}>
+          <Stack gap={2}>
             <Heading level="h2">Result</Heading>
             <Text tone="muted">Ordered files loaded and any warnings from heuristics.</Text>
             {isStale ? (
-              <Text tone="muted" size="bodySm" role="status">
+              <div
+                className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted"
+                role="status"
+              >
                 Results are out of date. Run Simulate to refresh.
-              </Text>
+              </div>
             ) : null}
           </Stack>
 
-          <Stack gap={2}>
-            <Heading level="h3">Loaded files</Heading>
-            {result.loaded.length === 0 ? (
-              <Stack gap={1}>
-                <Text tone="muted">No files would be loaded for this input.</Text>
-                {emptyStateHint ? (
-                  <Text tone="muted" size="bodySm">
-                    {emptyStateHint}
-                  </Text>
-                ) : null}
-              </Stack>
-            ) : (
-              <ul className="space-y-2" aria-label="Loaded files">
-                {result.loaded.map((file) => (
-                  <li key={file.path} className="rounded-md border border-mdt-border bg-mdt-surface px-3 py-2">
-                    <div className="font-mono text-body-sm text-mdt-text">{file.path}</div>
-                    <div className="text-body-xs text-mdt-muted">{file.reason}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Stack>
-
-          <Stack gap={2}>
-            <Heading level="h3">Warnings</Heading>
-            {result.warnings.length === 0 ? (
-              <Text tone="muted">No warnings.</Text>
-            ) : (
-              <ul className="space-y-2" aria-label="Warnings">
-                {result.warnings.map((warning) => (
-                  <li key={warning.code} className="rounded-md border border-mdt-border bg-mdt-surface px-3 py-2">
-                    <div className="text-body-sm font-semibold text-mdt-text">{warning.code}</div>
-                    <div className="text-body-xs text-mdt-muted">{warning.message}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Stack>
-
-          <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
-
-          <Stack gap={2}>
-            <Heading level="h3">Actions</Heading>
-            <div className="flex flex-wrap gap-3">
-              <Button type="button" variant="secondary" onClick={handleCopySummary}>
-                Copy summary
-              </Button>
-              <Button type="button" variant="secondary" onClick={handleDownloadReport}>
-                Download report
-              </Button>
+          <div className="space-y-mdt-4">
+            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                Loaded files
+              </Text>
+              {result.loaded.length === 0 ? (
+                <Stack gap={1}>
+                  <Text tone="muted" size="bodySm">No files would be loaded for this input.</Text>
+                  {emptyStateHint ? (
+                    <Text tone="muted" size="bodySm">
+                      {emptyStateHint}
+                    </Text>
+                  ) : null}
+                </Stack>
+              ) : (
+                <ul className="space-y-mdt-2" aria-label="Loaded files">
+                  {result.loaded.map((file) => (
+                    <li key={file.path} className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                      <div className="font-mono text-body-sm text-mdt-text">{file.path}</div>
+                      <div className="text-body-xs text-mdt-muted">{file.reason}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-            {actionStatus ? (
-              <Text tone="muted" size="bodySm" role="status" aria-live="polite">
-                {actionStatus}
+
+            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                Warnings
               </Text>
-            ) : null}
-          </Stack>
+              {result.warnings.length === 0 ? (
+                <Text tone="muted" size="bodySm">No warnings.</Text>
+              ) : (
+                <ul className="space-y-mdt-2" aria-label="Warnings">
+                  {result.warnings.map((warning) => (
+                    <li key={warning.code} className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                      <div className="text-body-sm font-semibold text-mdt-text">{warning.code}</div>
+                      <div className="text-body-xs text-mdt-muted">{warning.message}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
+
+            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                Actions
+              </Text>
+              <div className="flex flex-wrap gap-mdt-2">
+                <Button type="button" variant="secondary" onClick={handleCopySummary}>
+                  Copy summary
+                </Button>
+                <Button type="button" variant="secondary" onClick={handleDownloadReport}>
+                  Download report
+                </Button>
+              </div>
+              {actionStatus ? (
+                <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted" role="status" aria-live="polite">
+                  {actionStatus}
+                </div>
+              ) : null}
+            </div>
+          </div>
         </Stack>
       </Card>
     </div>
