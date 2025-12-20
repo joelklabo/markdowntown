@@ -8,6 +8,22 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const pushMock = vi.fn();
 
+const createMatchMedia =
+  (matchesFor: (query: string) => boolean) =>
+  (query: string): MediaQueryList =>
+    ({
+      matches: matchesFor(query),
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList;
+
+const prefersReducedMotion = (query: string) => query.includes("prefers-reduced-motion");
+
 vi.mock("next/navigation", () => ({
   __esModule: true,
   useRouter: () => ({ push: pushMock }),
@@ -17,17 +33,9 @@ vi.mock("next/navigation", () => ({
 describe("SiteNav", () => {
   beforeEach(() => {
     pushMock.mockClear();
-    (window.matchMedia as unknown as (query: string) => MediaQueryList) = (query: string) =>
-      ({
-        matches: query.includes("min-width: 768px"),
-        media: query,
-        onchange: null,
-        addListener: () => {},
-        removeListener: () => {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        dispatchEvent: () => false,
-      }) as unknown as MediaQueryList;
+    (window.matchMedia as unknown as (query: string) => MediaQueryList) = createMatchMedia(
+      (query) => prefersReducedMotion(query) || query.includes("min-width: 768px")
+    );
   });
 
   it("renders the mark downtown wordmark", () => {
@@ -100,17 +108,7 @@ describe("SiteNav", () => {
   });
 
   it("opens and closes the mobile search sheet with focus restore", async () => {
-    (window.matchMedia as unknown as (query: string) => MediaQueryList) = (query: string) =>
-      ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: () => {},
-        removeListener: () => {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        dispatchEvent: () => false,
-      }) as unknown as MediaQueryList;
+    (window.matchMedia as unknown as (query: string) => MediaQueryList) = createMatchMedia(prefersReducedMotion);
 
     render(
       <ThemeProvider>
@@ -131,17 +129,7 @@ describe("SiteNav", () => {
   });
 
   it("opens the overflow sheet and switches to search", async () => {
-    (window.matchMedia as unknown as (query: string) => MediaQueryList) = (query: string) =>
-      ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: () => {},
-        removeListener: () => {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        dispatchEvent: () => false,
-      }) as unknown as MediaQueryList;
+    (window.matchMedia as unknown as (query: string) => MediaQueryList) = createMatchMedia(prefersReducedMotion);
 
     render(
       <ThemeProvider>
