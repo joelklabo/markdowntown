@@ -6,6 +6,7 @@ describe("city wordmark config", () => {
     const config = getDefaultCityWordmarkConfig();
     expect(config.render.voxelScale).toBe(3);
     expect(config.render.bannerScale).toBe(1);
+    expect(config.render.detail).toBe("hd");
     expect(config.scheme).toBe("classic");
     expect(config.skyline).toEqual({
       minHeight: 2,
@@ -19,7 +20,7 @@ describe("city wordmark config", () => {
   it("deep-merges nested overrides", () => {
     const base = getDefaultCityWordmarkConfig();
     const next = mergeCityWordmarkConfig(base, {
-      render: { voxelScale: 6, bannerScale: 4 },
+      render: { voxelScale: 6, bannerScale: 4, detail: "standard" },
       skyline: { maxHeight: 10 },
       actors: { trucks: true },
       scheme: "noir",
@@ -27,6 +28,7 @@ describe("city wordmark config", () => {
 
     expect(next.render.voxelScale).toBe(6);
     expect(next.render.bannerScale).toBe(4);
+    expect(next.render.detail).toBe("standard");
     expect(next.skyline.minHeight).toBe(base.skyline.minHeight);
     expect(next.skyline.maxHeight).toBe(10);
     expect(next.actors.trucks).toBe(true);

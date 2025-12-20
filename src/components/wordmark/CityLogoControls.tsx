@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { getDefaultCityWordmarkConfig } from "./sim/config";
 import { CITY_WORDMARK_EVENT, dispatchCityWordmarkEvent, listenCityWordmarkEvents } from "./sim/events";
 import { CITY_WORDMARK_SCHEME_OPTIONS } from "./sim/palette";
-import type { CityWordmarkDensity, CityWordmarkScheme } from "./sim/types";
+import type { CityWordmarkDensity, CityWordmarkRenderDetail, CityWordmarkScheme } from "./sim/types";
 import type { CityWordmarkSim } from "./sim/useCityWordmarkSim";
 
 export type CityLogoPreviewWidthMode = "fixed" | "full";
@@ -42,6 +42,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
   const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
+  const [renderDetailDraft, setRenderDetailDraft] = useState<CityWordmarkRenderDetail>(sim.config.render.detail);
   const [skylineMinHeightDraft, setSkylineMinHeightDraft] = useState(String(sim.config.skyline.minHeight));
   const [skylineMaxHeightDraft, setSkylineMaxHeightDraft] = useState(String(sim.config.skyline.maxHeight));
   const [skylineMinSegmentWidthDraft, setSkylineMinSegmentWidthDraft] = useState(String(sim.config.skyline.minSegmentWidth));
@@ -58,6 +59,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
     setSeedDraft(next.seed);
     setTimeScaleDraft(String(next.timeScale));
     setVoxelScaleDraft(String(next.render.voxelScale));
+    setRenderDetailDraft(next.render.detail);
     setSkylineMinHeightDraft(String(next.skyline.minHeight));
     setSkylineMaxHeightDraft(String(next.skyline.maxHeight));
     setSkylineMinSegmentWidthDraft(String(next.skyline.minSegmentWidth));
@@ -371,6 +373,22 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share }: 
                 sim.setConfig({ render: { voxelScale: parsed } });
               }}
             />
+          </div>
+
+          <div className="space-y-mdt-1">
+            <div className="text-caption text-mdt-muted">Detail</div>
+            <Select
+              name="renderDetail"
+              value={renderDetailDraft}
+              onChange={(e) => {
+                const next = e.target.value as CityWordmarkRenderDetail;
+                setRenderDetailDraft(next);
+                sim.setConfig({ render: { detail: next } });
+              }}
+            >
+              <option value="standard">Standard</option>
+              <option value="hd">HD</option>
+            </Select>
           </div>
 
 	          <div className="space-y-mdt-1">

@@ -47,6 +47,7 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
       nowMs={sim.nowMs}
       actorRects={sim.actorRects}
       voxelScale={sim.config.render.voxelScale}
+      renderDetail={sim.config.render.detail}
       bannerScale={resolvedBannerScale}
       sizeMode={sizeMode}
       preserveAspectRatio={preserveAspectRatio}

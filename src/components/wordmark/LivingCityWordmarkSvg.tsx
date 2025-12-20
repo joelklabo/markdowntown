@@ -13,7 +13,7 @@ import type { Rgb } from "./sim/color";
 import { lerpRgb } from "./sim/color";
 import { batchVoxelRectsToPaths, normalizeVoxelScale, rgbToCss, voxelRectsToPath } from "./sim/renderSvg";
 import { createCityWordmarkWindows, getCityWordmarkWindowLights } from "./sim/windowLights";
-import type { CityWordmarkScheme, CityWordmarkSkylineConfig } from "./sim/types";
+import type { CityWordmarkRenderDetail, CityWordmarkScheme, CityWordmarkSkylineConfig } from "./sim/types";
 
 type LivingCityWordmarkSvgProps = {
   titleId: string;
@@ -27,6 +27,8 @@ type LivingCityWordmarkSvgProps = {
   actorRects?: readonly CityWordmarkActorRect[];
   /** Resolution multiplier (higher = smaller voxels). */
   voxelScale?: number;
+  /** Render detail preset for HD assets. */
+  renderDetail?: CityWordmarkRenderDetail;
   /** Multiplier for extra skyline width in voxels. */
   bannerScale?: number;
   /** Force width/height to follow CSS sizing. */
@@ -71,11 +73,13 @@ export function LivingCityWordmarkSvg({
   nowMs = 0,
   actorRects = [],
   voxelScale: voxelScaleProp,
+  renderDetail,
   bannerScale: bannerScaleProp,
   sizeMode = "fixed",
   preserveAspectRatio,
   skyline: skylineOverrides,
 }: LivingCityWordmarkSvgProps) {
+  const detail = renderDetail ?? "hd";
   const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
   const bannerScale = normalizeVoxelScale(bannerScaleProp ?? 1);
   const layout = useMemo(
@@ -201,6 +205,7 @@ export function LivingCityWordmarkSvg({
       className={cn("select-none", className)}
       width={sizeMode === "fluid" ? "100%" : pixelWidth}
       height={sizeMode === "fluid" ? "100%" : pixelHeight}
+      data-render-detail={detail}
       role="img"
       aria-labelledby={titleId}
       aria-describedby={descId}

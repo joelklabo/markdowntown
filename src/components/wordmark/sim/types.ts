@@ -4,11 +4,16 @@ export type CityWordmarkDensity = (typeof CITY_WORDMARK_DENSITIES)[number];
 export const CITY_WORDMARK_SCHEMES = ["classic", "noir", "neon"] as const;
 export type CityWordmarkScheme = (typeof CITY_WORDMARK_SCHEMES)[number];
 
+export const CITY_WORDMARK_RENDER_DETAILS = ["standard", "hd"] as const;
+export type CityWordmarkRenderDetail = (typeof CITY_WORDMARK_RENDER_DETAILS)[number];
+
 export type CityWordmarkRenderConfig = {
   /** Resolution multiplier (higher = smaller voxels). */
   voxelScale: number;
   /** Multiplier for full-width banner rendering. */
   bannerScale: number;
+  /** Detail preset for choosing standard vs HD assets. */
+  detail: CityWordmarkRenderDetail;
 };
 
 export type CityWordmarkSkylineConfig = {

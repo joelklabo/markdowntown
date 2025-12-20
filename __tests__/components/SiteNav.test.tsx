@@ -38,7 +38,7 @@ describe("SiteNav", () => {
         </DensityProvider>
       </ThemeProvider>
     );
-    expect(screen.getByRole("link", { name: "mark downtown" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "mark downtown" })).toBeInTheDocument();
   });
 
   it("focuses desktop search on / without opening the mobile sheet", () => {

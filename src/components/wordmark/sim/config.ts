@@ -3,14 +3,16 @@ import type {
   CityWordmarkActorsConfig,
   CityWordmarkConfig,
   CityWordmarkDensity,
+  CityWordmarkRenderDetail,
   CityWordmarkRenderConfig,
   CityWordmarkScheme,
   CityWordmarkSkylineConfig,
 } from "./types";
-import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_SCHEMES } from "./types";
+import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_RENDER_DETAILS, CITY_WORDMARK_SCHEMES } from "./types";
 
 const densitySchema = z.enum(CITY_WORDMARK_DENSITIES) satisfies z.ZodType<CityWordmarkDensity>;
 const schemeSchema = z.enum(CITY_WORDMARK_SCHEMES) satisfies z.ZodType<CityWordmarkScheme>;
+const renderDetailSchema = z.enum(CITY_WORDMARK_RENDER_DETAILS) satisfies z.ZodType<CityWordmarkRenderDetail>;
 
 const defaultActors: CityWordmarkActorsConfig = {
   cars: true,
@@ -24,6 +26,7 @@ const defaultActors: CityWordmarkActorsConfig = {
 const defaultRender: CityWordmarkRenderConfig = {
   voxelScale: 3,
   bannerScale: 1,
+  detail: "hd",
 };
 
 const defaultSkyline: CityWordmarkSkylineConfig = {
@@ -56,12 +59,14 @@ const actorsOverridesSchema = z
 const renderSchema = z.object({
   voxelScale: z.number().int().min(1).max(32).default(defaultRender.voxelScale),
   bannerScale: z.number().int().min(1).max(32).default(defaultRender.bannerScale),
+  detail: renderDetailSchema.default(defaultRender.detail),
 });
 
 const renderOverridesSchema = z
   .object({
     voxelScale: z.number().int().min(1).max(32).optional(),
     bannerScale: z.number().int().min(1).max(32).optional(),
+    detail: renderDetailSchema.optional(),
   })
   .strict();
 

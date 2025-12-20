@@ -1,6 +1,6 @@
 import { getDefaultCityWordmarkConfig, mergeCityWordmarkConfig } from "@/components/wordmark/sim/config";
-import type { CityWordmarkConfig, CityWordmarkDensity, CityWordmarkScheme } from "@/components/wordmark/sim/types";
-import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_SCHEMES } from "@/components/wordmark/sim/types";
+import type { CityWordmarkConfig, CityWordmarkDensity, CityWordmarkRenderDetail, CityWordmarkScheme } from "@/components/wordmark/sim/types";
+import { CITY_WORDMARK_DENSITIES, CITY_WORDMARK_RENDER_DETAILS, CITY_WORDMARK_SCHEMES } from "@/components/wordmark/sim/types";
 import { CityLogoLabClientNoSSR } from "./CityLogoLabClientNoSSR";
 
 export const dynamic = "force-dynamic";
@@ -76,6 +76,14 @@ function parseScheme(value: string | undefined): CityWordmarkScheme | undefined 
   return undefined;
 }
 
+function parseRenderDetail(value: string | undefined): CityWordmarkRenderDetail | undefined {
+  if (!value) return undefined;
+  if ((CITY_WORDMARK_RENDER_DETAILS as readonly string[]).includes(value)) {
+    return value as CityWordmarkRenderDetail;
+  }
+  return undefined;
+}
+
 function parseInitialConfig(searchParams: SearchParams): CityWordmarkConfig {
   const overrides: Record<string, unknown> = {};
 
@@ -94,8 +102,12 @@ function parseInitialConfig(searchParams: SearchParams): CityWordmarkConfig {
   const scheme = parseScheme(firstString(searchParams.scheme));
   if (scheme) overrides.scheme = scheme;
 
+  const renderOverrides: Record<string, unknown> = {};
   const voxelScale = parseIntRange(firstString(searchParams.voxelScale), 1, 32);
-  if (typeof voxelScale === "number") overrides.render = { voxelScale };
+  if (typeof voxelScale === "number") renderOverrides.voxelScale = voxelScale;
+  const detail = parseRenderDetail(firstString(searchParams.detail));
+  if (detail) renderOverrides.detail = detail;
+  if (Object.keys(renderOverrides).length > 0) overrides.render = renderOverrides;
 
   const skylineOverrides: Record<string, number> = {};
   const skyMinH = parseIntRange(firstString(searchParams.skyMinH), 1, 32);

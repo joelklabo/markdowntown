@@ -44,6 +44,7 @@ function buildCityLogoLabSearchParams(options: {
   if (Math.abs(shareTimeOfDay - DEFAULT_CONFIG.timeOfDay) > 0.0001) params.set("timeOfDay", formatFloat(shareTimeOfDay, 3));
 
   if (config.render.voxelScale !== DEFAULT_CONFIG.render.voxelScale) params.set("voxelScale", String(config.render.voxelScale));
+  if (config.render.detail !== DEFAULT_CONFIG.render.detail) params.set("detail", config.render.detail);
 
   if (config.skyline.minHeight !== DEFAULT_CONFIG.skyline.minHeight) params.set("skyMinH", String(config.skyline.minHeight));
   if (config.skyline.maxHeight !== DEFAULT_CONFIG.skyline.maxHeight) params.set("skyMaxH", String(config.skyline.maxHeight));
@@ -144,6 +145,7 @@ export function CityLogoLabClient({
             nowMs={sim.nowMs}
             actorRects={sim.actorRects}
             voxelScale={sim.config.render.voxelScale}
+            renderDetail={sim.config.render.detail}
             skyline={sim.config.skyline}
           />
         </div>
