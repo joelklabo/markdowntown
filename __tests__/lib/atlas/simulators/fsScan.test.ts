@@ -25,10 +25,26 @@ describe('atlas/simulators/fsScan', () => {
       dir('apps', [dir('web', [file('AGENTS.md')])]),
     ]);
 
-    const result = await scanRepoTree(root, { ignoreDirs: ['node_modules'] });
+    const result = await scanRepoTree(root, { ignoreDirs: ['node_modules'], includeOnly: [/AGENTS\.md$/] });
 
     expect(result.truncated).toBe(false);
+    expect(result.totalFiles).toBe(2);
+    expect(result.matchedFiles).toBe(2);
     expect(result.tree.files.map(f => f.path)).toEqual(['AGENTS.md', 'apps/web/AGENTS.md']);
+  });
+
+  it('filters by includeOnly patterns and reports matched counts', async () => {
+    const root = dir('repo', [
+      file('AGENTS.md'),
+      file('README.md'),
+      dir('apps', [dir('web', [file('GEMINI.md')])]),
+    ]);
+
+    const result = await scanRepoTree(root, { ignoreDirs: [], includeOnly: [/AGENTS\.md$/, /GEMINI\.md$/] });
+
+    expect(result.totalFiles).toBe(3);
+    expect(result.matchedFiles).toBe(2);
+    expect(result.tree.files.map(f => f.path)).toEqual(['AGENTS.md', 'apps/web/GEMINI.md']);
   });
 
   it('stops scanning when maxFiles is reached', async () => {
@@ -36,7 +52,8 @@ describe('atlas/simulators/fsScan', () => {
     const result = await scanRepoTree(root, { maxFiles: 2, ignoreDirs: [] });
 
     expect(result.truncated).toBe(true);
+    expect(result.totalFiles).toBe(2);
+    expect(result.matchedFiles).toBe(2);
     expect(result.tree.files).toHaveLength(2);
   });
 });
-
