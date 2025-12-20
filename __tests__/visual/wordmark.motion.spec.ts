@@ -1,6 +1,21 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("City wordmark motion", () => {
+  test("nav banner animates", async ({ page }) => {
+    await page.goto("/");
+    await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
+
+    const banner = page.locator("header .mdt-wordmark--banner");
+    await expect(banner).toBeVisible();
+    await expect(banner).toHaveClass(/mdt-wordmark--animated/);
+
+    const twinkle = banner.locator('[data-mtw-anim="twinkle"]').first();
+    await expect(twinkle).toHaveCount(1);
+
+    const animationName = await twinkle.evaluate((el) => getComputedStyle(el).animationName);
+    expect(animationName).toContain("mdt-wordmark-twinkle");
+  });
+
   test("animates while playing", async ({ page }) => {
     await page.goto("/labs/city-logo?seed=motion-smoke&density=dense&timeScale=2&timeOfDay=0.55");
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
@@ -17,4 +32,3 @@ test.describe("City wordmark motion", () => {
     expect(first.equals(second)).toBe(false);
   });
 });
-

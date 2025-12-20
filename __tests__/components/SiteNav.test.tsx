@@ -38,7 +38,10 @@ describe("SiteNav", () => {
         </DensityProvider>
       </ThemeProvider>
     );
-    expect(screen.getByRole("img", { name: "mark downtown" })).toBeInTheDocument();
+    const wordmark = screen.getByRole("img", { name: "mark downtown" });
+    expect(wordmark).toBeInTheDocument();
+    expect(wordmark).toHaveClass("mdt-wordmark--banner");
+    expect(wordmark).toHaveAttribute("data-render-detail", "hd");
   });
 
   it("focuses desktop search on / without opening the mobile sheet", () => {
