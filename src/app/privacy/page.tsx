@@ -15,48 +15,80 @@ export default function PrivacyPage() {
   return (
     <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={8}>
-          <Stack gap={3}>
+        <Stack gap={10}>
+          <Stack gap={4} className="max-w-2xl">
             <Text size="caption" tone="muted">Privacy</Text>
-            <Heading level="display" leading="tight">How we handle your data</Heading>
-            <Text tone="muted">
-              mark downtown is running in a local/demo environment. We store minimal data and you can remove it anytime.
+            <Heading level="display" leading="tight">Your data stays in your workspace</Heading>
+            <Text tone="muted" leading="relaxed">
+              mark downtown runs as a local or self-hosted preview. We only keep what you intentionally save, and Atlas
+              folder scans stay in your browser.
             </Text>
           </Stack>
 
-          <Surface padding="lg" className="space-y-mdt-3">
-            <Heading level="h3" as="h2">What we collect</Heading>
-            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
-              <li>Authentication data only when you sign in via GitHub.</li>
-              <li>Content you choose to save (snippets, templates, or documents).</li>
-              <li>Basic usage telemetry when enabled (anonymized for local dev).</li>
+          <Surface tone="subtle" padding="lg" className="space-y-mdt-4">
+            <div className="flex flex-wrap items-center justify-between gap-mdt-2">
+              <Heading level="h3" as="h2">Local-first summary</Heading>
+              <Text size="caption" tone="muted">Privacy essentials</Text>
+            </div>
+            <ul className="list-disc space-y-mdt-2 pl-mdt-5">
+              <Text as="li" size="bodySm" tone="muted">
+                Folder scans run locally in your browser; file contents are never uploaded.
+              </Text>
+              <Text as="li" size="bodySm" tone="muted">
+                Simulator results use file paths only, and repo contents are not stored on our servers.
+              </Text>
+              <Text as="li" size="bodySm" tone="muted">
+                Optional analytics (when enabled) capture event names, tool selections, and counts\u2014not file contents.
+              </Text>
             </ul>
           </Surface>
 
-          <Surface padding="lg" className="space-y-mdt-3">
-            <Heading level="h3" as="h2">Local folder scans</Heading>
-            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
-              <li>Atlas Simulator scans run locally in your browser and never upload file contents.</li>
-              <li>We only read file paths to find relevant instruction files.</li>
-              <li>No folder data is stored on our servers.</li>
-            </ul>
-          </Surface>
+          <div className="grid gap-mdt-6 lg:grid-cols-2">
+            <Surface padding="lg" className="space-y-mdt-4">
+              <Heading level="h3" as="h2">What we store</Heading>
+              <ul className="list-disc space-y-mdt-2 pl-mdt-5">
+                <Text as="li" size="bodySm" tone="muted">
+                  GitHub sign-in profile basics (name, avatar, and email if provided) when you authenticate.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Content you choose to save, such as snippets, templates, or documents.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Session metadata needed to keep you signed in and connect saved items to your account.
+                </Text>
+              </ul>
+            </Surface>
 
-          <Surface padding="lg" className="space-y-mdt-3">
-            <Heading level="h3" as="h2">Your choices</Heading>
-            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
-              <li>Use the app without signing in to browse and copy content.</li>
-              <li>Delete saved documents from the Documents area when signed in.</li>
-              <li>Opt out of telemetry by leaving analytics env vars unset.</li>
-            </ul>
-            <Text size="bodySm" tone="muted">
-              Questions? Reach out via the project GitHub issues{" "}
-              <Link href="https://github.com/joelklabo/markdowntown/issues" className="text-mdt-blue hover:underline" target="_blank" rel="noreferrer">
-                github.com/joelklabo/markdowntown
-              </Link>
-              .
-            </Text>
-          </Surface>
+            <Surface padding="lg" className="space-y-mdt-4">
+              <Heading level="h3" as="h2">Your controls</Heading>
+              <ul className="list-disc space-y-mdt-2 pl-mdt-5">
+                <Text as="li" size="bodySm" tone="muted">
+                  Browse and copy content without signing in.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Delete saved documents from the Documents area when signed in.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Disable analytics by leaving optional telemetry env vars unset.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Clear your local database or preview data store to remove everything.
+                </Text>
+              </ul>
+              <Text size="bodySm" tone="muted" leading="relaxed">
+                Questions? Reach out via the project GitHub issues{" "}
+                <Link
+                  href="https://github.com/joelklabo/markdowntown/issues"
+                  className="text-mdt-blue hover:underline"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  github.com/joelklabo/markdowntown
+                </Link>
+                .
+              </Text>
+            </Surface>
+          </div>
         </Stack>
       </Container>
     </main>

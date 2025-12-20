@@ -15,33 +15,65 @@ export default function TermsPage() {
   return (
     <main id="main-content" className="py-mdt-10 md:py-mdt-12">
       <Container size="md" padding="md">
-        <Stack gap={8}>
-          <Stack gap={3}>
+        <Stack gap={10}>
+          <Stack gap={4} className="max-w-2xl">
             <Text size="caption" tone="muted">Terms</Text>
-            <Heading level="display" leading="tight">mark downtown terms of use</Heading>
-            <Text tone="muted">
-              These lightweight terms cover using the local/demo version of mark downtown.
+            <Heading level="display" leading="tight">Terms for the local preview</Heading>
+            <Text tone="muted" leading="relaxed">
+              These terms apply to the local/demo build of mark downtown. If you self-host, you control storage,
+              retention, and access in your environment.
             </Text>
           </Stack>
 
-          <Surface padding="lg" className="space-y-mdt-3">
-            <Heading level="h3" as="h2">Acceptable use</Heading>
-            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
-              <li>Use the app for composing, copying, or testing markdown content.</li>
-              <li>Avoid uploading sensitive or production data in this demo environment.</li>
-              <li>Atlas Simulator folder scans run locally and only read file paths.</li>
-              <li>Respect third-party licenses when importing or sharing content.</li>
-            </ul>
-          </Surface>
+          <div className="grid gap-mdt-6 lg:grid-cols-2">
+            <Surface padding="lg" className="space-y-mdt-4">
+              <Heading level="h3" as="h2">Acceptable use</Heading>
+              <ul className="list-disc space-y-mdt-2 pl-mdt-5">
+                <Text as="li" size="bodySm" tone="muted">
+                  Use the app for composing, copying, or testing markdown content.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Avoid uploading sensitive or production data in this preview environment.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Respect third-party licenses when importing, exporting, or sharing content.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Keep automated scripts or bots respectful of rate limits and shared resources.
+                </Text>
+              </ul>
+            </Surface>
 
-          <Surface padding="lg" className="space-y-mdt-3">
+            <Surface padding="lg" className="space-y-mdt-4">
+              <Heading level="h3" as="h2">Local-only expectations</Heading>
+              <ul className="list-disc space-y-mdt-2 pl-mdt-5">
+                <Text as="li" size="bodySm" tone="muted">
+                  Atlas Simulator scans run locally in your browser and only read file paths.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  File contents remain on your machine; simulations do not upload repo data.
+                </Text>
+                <Text as="li" size="bodySm" tone="muted">
+                  Optional analytics capture high-level events only when configured.
+                </Text>
+              </ul>
+            </Surface>
+          </div>
+
+          <Surface tone="subtle" padding="lg" className="space-y-mdt-4">
             <Heading level="h3" as="h2">Liability & availability</Heading>
-            <Text size="bodySm" tone="muted">
-              This preview is provided &quot;as is&quot; with no uptime guarantees. Content may be cleared during development cycles.
+            <Text size="bodySm" tone="muted" leading="relaxed">
+              This preview is provided &quot;as is&quot; with no uptime guarantees. Content may be cleared during
+              development cycles, so keep backups of anything important.
             </Text>
-            <Text size="bodySm" tone="muted">
+            <Text size="bodySm" tone="muted" leading="relaxed">
               Report issues or questions on GitHub{" "}
-              <Link href="https://github.com/joelklabo/markdowntown/issues" className="text-mdt-blue hover:underline" target="_blank" rel="noreferrer">
+              <Link
+                href="https://github.com/joelklabo/markdowntown/issues"
+                className="text-mdt-blue hover:underline"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
                 github.com/joelklabo/markdowntown
               </Link>
               .
