@@ -1,6 +1,9 @@
 /// <reference types="vitest" />
 import "@testing-library/jest-dom";
 
+// Ensure React act warnings are suppressed in the test environment.
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
 // Radix Tooltip and Drawer use ResizeObserver; jsdom doesn't provide it by default.
 class ResizeObserver {
   observe() {}

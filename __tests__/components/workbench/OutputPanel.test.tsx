@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { createUamTargetV1 } from '@/lib/uam/uamTypes';
@@ -30,16 +31,17 @@ describe('OutputPanel', () => {
 
   it('renders tabs and export panel by default', () => {
     render(<OutputPanel />);
-    expect(screen.getByText('Export')).toBeInTheDocument();
-    expect(screen.getByText('Preview')).toBeInTheDocument();
-    expect(screen.getByText('Lint')).toBeInTheDocument();
-    expect(screen.getByText('Diff')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Export' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Preview' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Lint' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Diff' })).toBeInTheDocument();
     expect(screen.getByText('Targets')).toBeInTheDocument(); // Export panel content
   });
 
-  it('switches tabs', () => {
+  it('switches tabs', async () => {
+    const user = userEvent.setup();
     render(<OutputPanel />);
-    fireEvent.click(screen.getByText('Preview'));
+    await user.click(screen.getByRole('tab', { name: 'Preview' }));
     expect(screen.getByText(/# Untitled Agent/)).toBeInTheDocument(); // Preview panel content
   });
 
