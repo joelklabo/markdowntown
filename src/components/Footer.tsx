@@ -4,8 +4,8 @@ import { Text } from "./ui/Text";
 
 export function Footer() {
   return (
-    <footer className="mt-mdt-16 border-t border-mdt-border bg-[color:var(--mdt-color-surface-subtle)] py-mdt-8 text-body-sm text-mdt-muted">
-      <Container as="div" padding="sm" className="flex flex-col gap-mdt-4 md:flex-row md:items-center md:justify-between">
+    <footer className="mt-mdt-16 border-t border-mdt-border/70 bg-[color:var(--mdt-color-surface-subtle)]/85 py-mdt-10 text-body-sm text-mdt-muted">
+      <Container as="div" padding="sm" className="flex flex-col gap-mdt-5 md:flex-row md:items-center md:justify-between">
         <div className="space-y-mdt-1">
           <Text as="p" weight="semibold" tone="default">
             mark downtown
