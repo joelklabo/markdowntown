@@ -22,6 +22,11 @@ export default function AtlasPage() {
             { href: "/atlas/platforms", title: "Platforms", description: "Browse per-tool facts and examples." },
             { href: "/atlas/concepts", title: "Concepts", description: "Guides for key behaviors and constraints." },
             { href: "/atlas/recipes", title: "Recipes", description: "Copy-pastable patterns for safe workflows." },
+            {
+              href: "/atlas/simulator",
+              title: "Simulator",
+              description: "Scan a repo folder to preview loaded instructions per tool.",
+            },
             { href: "/atlas/compare", title: "Compare", description: "Matrix view of feature support across tools." },
             { href: "/atlas/changelog", title: "Changelog", description: "What changed, when, and why." },
           ].map((item) => (
