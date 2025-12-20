@@ -4,7 +4,7 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 import React from "react";
 
 const base = cn(
-  "inline-flex items-center justify-center gap-2 rounded-mdt-md px-mdt-4 py-mdt-2 text-body-sm font-medium border border-transparent",
+  "inline-flex items-center justify-center gap-mdt-2 rounded-mdt-md px-mdt-4 py-mdt-2 text-body-sm font-medium border border-transparent",
   interactiveBase,
   focusRing
 );

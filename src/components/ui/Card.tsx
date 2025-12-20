@@ -1,11 +1,12 @@
 import { cn } from "@/lib/cn";
 import React from "react";
+import type { SurfaceProps } from "./Surface";
 import { Surface } from "./Surface";
 
 export function Card({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: SurfaceProps<"div">) {
   return (
     <Surface
       className={cn(

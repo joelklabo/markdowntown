@@ -29,6 +29,11 @@ const headingVariants = cva("font-display", {
       normal: "leading-normal",
       relaxed: "leading-relaxed",
     },
+    tracking: {
+      tight: "tracking-tight",
+      normal: "tracking-normal",
+      wide: "tracking-wide",
+    },
     align: {
       left: "text-left",
       center: "text-center",
@@ -53,13 +58,12 @@ export type HeadingProps = VariantProps<typeof headingVariants> & {
   as?: React.ElementType;
 } & React.HTMLAttributes<HTMLElement>;
 
-export function Heading({ level = "h2", as, tone, weight, leading, align, className, ...props }: HeadingProps) {
+export function Heading({ level = "h2", as, tone, weight, leading, tracking, align, className, ...props }: HeadingProps) {
   const Comp = as ?? defaultTag[level as HeadingLevel];
   return (
     <Comp
-      className={cn(headingVariants({ level, tone, weight, leading, align }), className)}
+      className={cn(headingVariants({ level, tone, weight, leading, tracking, align }), className)}
       {...props}
     />
   );
 }
-

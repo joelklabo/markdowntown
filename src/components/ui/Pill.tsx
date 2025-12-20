@@ -18,7 +18,7 @@ export function Pill({ tone = "primary", className, ...props }: PillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-mdt-pill px-mdt-2 py-[1px] text-caption font-medium",
+        "inline-flex items-center rounded-mdt-pill px-mdt-2 py-[calc(var(--mdt-space-1)/4)] text-caption font-medium",
         toneClass,
         className
       )}

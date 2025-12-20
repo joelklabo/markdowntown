@@ -14,6 +14,7 @@ const inputVariants = cva(
         xs: "h-mdt-8 px-mdt-2 py-mdt-1 text-caption",
         sm: "h-mdt-9 px-mdt-3 py-mdt-2 text-body-sm",
         md: "h-mdt-10 px-mdt-3 py-mdt-2 text-body-sm",
+        lg: "h-mdt-11 px-mdt-4 py-mdt-2 text-body",
       },
     },
     defaultVariants: {

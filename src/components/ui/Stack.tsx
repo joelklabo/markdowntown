@@ -13,6 +13,7 @@ const gapMap = {
   8: "gap-mdt-8",
   9: "gap-mdt-9",
   10: "gap-mdt-10",
+  11: "gap-mdt-11",
   12: "gap-mdt-12",
 } as const;
 
@@ -72,4 +73,3 @@ export function Stack({
 export function Row(props: Omit<StackProps, "direction">) {
   return <Stack direction="horizontal" {...props} />;
 }
-

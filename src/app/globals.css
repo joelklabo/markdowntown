@@ -457,8 +457,8 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-mdt-md
-      px-4 py-2 text-body-sm font-medium transition
+    @apply inline-flex items-center justify-center gap-mdt-2 rounded-mdt-md
+      px-mdt-4 py-mdt-2 text-body-sm font-medium transition
       duration-150 ease-out border border-transparent;
   }
 
@@ -486,15 +486,14 @@
   }
 
   .card {
-    @apply bg-mdt-surface rounded-mdt-md border border-mdt-border
-      shadow-mdt-sm p-4 transition duration-mdt-base ease-mdt-emphasized;
+    @apply shadow-mdt-sm transition duration-mdt-base ease-mdt-emphasized;
   }
   .card:hover {
     @apply shadow-mdt-md border-mdt-border-strong;
   }
 
   .pill {
-    @apply inline-flex items-center rounded-mdt-pill px-2 py-[2px]
+    @apply inline-flex items-center rounded-mdt-pill px-mdt-2 py-[calc(var(--mdt-space-1)/2)]
     text-caption font-medium;
   }
   .pill-primary {

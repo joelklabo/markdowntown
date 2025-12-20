@@ -26,6 +26,11 @@ const textVariants = cva("", {
       normal: "leading-normal",
       relaxed: "leading-relaxed",
     },
+    tracking: {
+      tight: "tracking-tight",
+      normal: "tracking-normal",
+      wide: "tracking-wide",
+    },
     align: {
       left: "text-left",
       center: "text-center",
@@ -52,6 +57,7 @@ export function Text<C extends React.ElementType = "p">({
   tone,
   weight,
   leading,
+  tracking,
   align,
   className,
   ...props
@@ -59,7 +65,7 @@ export function Text<C extends React.ElementType = "p">({
   const Comp = (as ?? "p") as React.ElementType;
   return (
     <Comp
-      className={cn(textVariants({ size, tone, weight, leading, align }), className)}
+      className={cn(textVariants({ size, tone, weight, leading, tracking, align }), className)}
       {...props}
     />
   );
@@ -73,6 +79,7 @@ export function CodeText<C extends React.ElementType = "code">({
   tone,
   weight,
   leading,
+  tracking,
   align,
   className,
   ...props
@@ -80,7 +87,7 @@ export function CodeText<C extends React.ElementType = "code">({
   const Comp = (as ?? "code") as React.ElementType;
   return (
     <Comp
-      className={cn(textVariants({ size, tone, weight, leading, align }), "font-mono", className)}
+      className={cn(textVariants({ size, tone, weight, leading, tracking, align }), "font-mono", className)}
       {...props}
     />
   );
