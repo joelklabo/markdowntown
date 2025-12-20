@@ -53,8 +53,10 @@ describe("LibraryPage", () => {
     expect(screen.getByText("Public library")).toBeInTheDocument();
     expect(screen.getByText("Library")).toBeInTheDocument();
     expect(screen.getByText("Filters")).toBeInTheDocument();
+    expect(screen.getByText("Advanced filters")).toBeInTheDocument();
     expect(screen.getByText("Public artifacts")).toBeInTheDocument();
     expect(screen.getByText("Test Agent")).toBeInTheDocument();
+    expect(screen.getByText("Open in Workbench")).toBeInTheDocument();
   });
 
   it("parses query params into listPublicItems filters", async () => {

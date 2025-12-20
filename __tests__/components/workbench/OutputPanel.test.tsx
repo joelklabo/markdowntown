@@ -35,6 +35,7 @@ describe('OutputPanel', () => {
     expect(screen.getByRole('tab', { name: 'Preview' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Lint' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Diff' })).toBeInTheDocument();
+    expect(screen.getByText('Nothing to export yet')).toBeInTheDocument();
     expect(screen.getByText('Targets')).toBeInTheDocument(); // Export panel content
   });
 

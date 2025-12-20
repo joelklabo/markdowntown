@@ -29,6 +29,9 @@ describe('StructurePanel', () => {
     render(<StructurePanel />);
 
     await waitFor(() => expect(screen.getByText('Scopes')).toBeInTheDocument());
+    expect(
+      screen.getByText('Scopes target folders. Blocks are the instruction sections inside each scope.')
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Add scope' }));
     fireEvent.change(screen.getByLabelText('Scope glob pattern'), { target: { value: '[' } });
