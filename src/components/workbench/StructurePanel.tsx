@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScopesPanel } from './ScopesPanel';
 import { BlocksPanel } from './BlocksPanel';
+import { Text } from '@/components/ui/Text';
 
 export function StructurePanel() {
   const [enabled, setEnabled] = useState(false);
@@ -25,6 +26,11 @@ export function StructurePanel() {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-mdt-4">
+      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+        <Text size="bodySm" tone="muted">
+          Scopes target folders. Blocks are the instruction sections inside each scope.
+        </Text>
+      </div>
       <ScopesPanel />
       <div className="h-px bg-mdt-border" />
       <BlocksPanel />

@@ -2,24 +2,56 @@
 
 import React from 'react';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CodeEditor } from '@/components/ui/CodeEditor';
+import { Text } from '@/components/ui/Text';
 import type { UamBlockKindV1 } from '@/lib/uam/uamTypes';
 
 export function EditorPanel() {
   const selectedBlockId = useWorkbenchStore(s => s.selectedBlockId);
   const blocks = useWorkbenchStore(s => s.uam.blocks);
+  const selectedScopeId = useWorkbenchStore(s => s.selectedScopeId);
+  const addBlock = useWorkbenchStore(s => s.addBlock);
   const updateBlock = useWorkbenchStore(s => s.updateBlock);
   const updateBlockBody = useWorkbenchStore(s => s.updateBlockBody);
   const updateBlockTitle = useWorkbenchStore(s => s.updateBlockTitle);
+  const selectBlock = useWorkbenchStore(s => s.selectBlock);
 
   const block = blocks.find(b => b.id === selectedBlockId);
+  const hasBlocks = blocks.length > 0;
 
   if (!block) {
+    const handleAddBlock = () => {
+      const id = addBlock({ kind: 'markdown', scopeId: selectedScopeId, body: '' });
+      selectBlock(id);
+    };
+
+    const firstBlockId = blocks[0]?.id;
+    const handleSelectFirst = () => {
+      if (firstBlockId) selectBlock(firstBlockId);
+    };
+
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
-          Select a block to edit
+        <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-center text-body-sm text-mdt-muted">
+          <div className="mb-mdt-1 text-body-sm font-semibold text-mdt-text">
+            {hasBlocks ? 'Select a block to edit' : 'Start with a block'}
+          </div>
+          <Text size="bodySm" tone="muted" className="mb-mdt-3">
+            {hasBlocks
+              ? 'Choose a block from the list to edit it.'
+              : 'Add a block to write your first instructions.'}
+          </Text>
+          {hasBlocks ? (
+            <Button size="xs" onClick={handleSelectFirst} disabled={!firstBlockId}>
+              Open first block
+            </Button>
+          ) : (
+            <Button size="xs" onClick={handleAddBlock}>
+              Add a block
+            </Button>
+          )}
         </div>
       </div>
     );

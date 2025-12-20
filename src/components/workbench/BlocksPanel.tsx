@@ -5,6 +5,7 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-p
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { Text } from '@/components/ui/Text';
 import { cn } from '@/lib/cn';
 import type { UamBlockKindV1 } from '@/lib/uam/uamTypes';
 
@@ -47,7 +48,7 @@ export function BlocksPanel() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="mb-mdt-3 flex items-center justify-between">
+      <div className="mb-mdt-2 flex items-center justify-between">
         <span className="text-caption font-semibold uppercase tracking-wider text-mdt-muted">Blocks</span>
         <div className="flex items-center gap-mdt-2">
           <label className="sr-only" htmlFor="block-kind">
@@ -72,6 +73,9 @@ export function BlocksPanel() {
           </Button>
         </div>
       </div>
+      <Text size="bodySm" tone="muted" className="mb-mdt-3">
+        Add instruction blocks for the selected scope.
+      </Text>
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId={`blocks:${selectedScopeId}`}>
@@ -129,7 +133,15 @@ export function BlocksPanel() {
               ))}
               {provided.placeholder}
               {blocks.length === 0 && (
-                <div className="text-mdt-muted text-body-sm">No blocks in this scope.</div>
+                <div className="rounded-mdt-md border border-dashed border-mdt-border bg-mdt-surface-subtle p-mdt-3 text-body-sm text-mdt-muted">
+                  <div className="mb-mdt-1 text-body-sm font-semibold text-mdt-text">No blocks yet</div>
+                  <div className="mb-mdt-3">
+                    Add a block to start writing instructions for this scope.
+                  </div>
+                  <Button size="xs" onClick={handleAdd}>
+                    Add a block
+                  </Button>
+                </div>
               )}
             </div>
           )}

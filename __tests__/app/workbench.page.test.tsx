@@ -28,8 +28,8 @@ describe('WorkbenchPage', () => {
     // It renders "Loading structure..." initially.
     expect(screen.getByText('Loading structure...')).toBeInTheDocument();
 
-    // Editor Panel (starts with Select a block...)
-    expect(screen.getByText('Select a block to edit')).toBeInTheDocument();
+    // Editor Panel (starts with empty state guidance)
+    expect(screen.getByText('Start with a block')).toBeInTheDocument();
 
     // Output Panel (starts with Export/Preview tabs)
     expect(screen.getByText('Export')).toBeInTheDocument();

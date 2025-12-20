@@ -6,6 +6,7 @@ import { StructurePanel } from '@/components/workbench/StructurePanel';
 import { EditorPanel } from '@/components/workbench/EditorPanel';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
 import { WorkbenchHeader } from '@/components/workbench/WorkbenchHeader';
+import { WorkbenchOnboardingCard } from '@/components/workbench/WorkbenchOnboardingCard';
 import type { Session } from 'next-auth';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import type { UamV1 } from '@/lib/uam/uamTypes';
@@ -22,6 +23,7 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam, ses
 
   const loadArtifact = useWorkbenchStore(s => s.loadArtifact);
   const initializeFromTemplate = useWorkbenchStore(s => s.initializeFromTemplate);
+  const hasBlocks = useWorkbenchStore(s => s.uam.blocks.length > 0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -74,7 +76,12 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam, ses
 
         <div className={`relative h-full bg-mdt-surface ${mobileTab === 'editor' ? 'block' : 'hidden md:block'}`}>
           <div className="h-full overflow-hidden p-mdt-4 md:p-mdt-5">
-            <EditorPanel />
+            <div className="flex h-full flex-col gap-mdt-4">
+              {!hasBlocks && <WorkbenchOnboardingCard />}
+              <div className="flex-1 min-h-0">
+                <EditorPanel />
+              </div>
+            </div>
           </div>
         </div>
 
