@@ -27,13 +27,16 @@ Legacy aliases (`mdt-blue`, `mdt-bg`, etc.) still map to the semantic set for ba
 - Scale (Tailwind keys): `display` 36px, `h1` 30px, `h2` 24px, `h3` 20px, `body` 16px, `body-sm` 14px, `caption` 12px.
 
 ### Spacing & Radius
-- Spacing: semantic steps `mdt-1,2,3,4,5,6,8,10,12` (4/8 base) available for padding/gaps.
+- Density: `--mdt-density-scale` multiplies the 4px scale (`compact` = 0.85, theme refresh = 1.05). Use density toggles to validate rhythm at both ends.
+- Spacing: `mdt-0` through `mdt-16` (0,1,2,3,4,5,6,7,8,9,10,11,12,14,16) available via Tailwind (`p-mdt-5`, `gap-mdt-4`, `py-mdt-10`, etc.).
 - Radius: `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-pill`.
 - Page rhythm: primary pages use `py-mdt-10 md:py-mdt-12`; primary stacks use `gap={8}` with nested `gap={2|3|4}`; cards default to `p-mdt-5` with `space-y-mdt-3`.
 
 ### Elevation & Motion
 - Shadows: `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-focus`, plus button shadows.
-- Motion: timings `mdt-fast|base|slow`; easings `ease-mdt-standard`, `ease-mdt-emphasized` (all via CSS vars).
+- Motion: timings `mdt-fast|base|slow` + `mdt-enter|exit`; easings `ease-mdt-standard`, `ease-mdt-emphasized`, `ease-mdt-snappy`; distances `mdt-motion-distance-{short,mid,far}`.
+- Motion utilities: `motion-fade-in`, `motion-slide-up`, `motion-scale-in`, and Radix sheet transitions (`mdt-radix-panel-*`) for staged reveals.
+- Reduced motion: `prefers-reduced-motion` clamps animation/transition durations to ~0 and disables wordmark animation. Avoid motion-only affordances.
 
 ## Usage in Tailwind
 - Backgrounds: `bg-mdt-surface`, `bg-mdt-surface-subtle`.
@@ -41,6 +44,7 @@ Legacy aliases (`mdt-blue`, `mdt-bg`, etc.) still map to the semantic set for ba
 - Borders: `border-mdt-border`.
 - Actions: `bg-mdt-primary`, `hover:bg-mdt-primary-strong`.
 - Cards: `bg-mdt-surface shadow-mdt-sm border border-mdt-border`.
+- Motion: `duration-mdt-fast`, `duration-mdt-base`, `ease-mdt-standard`, `ease-mdt-snappy`.
 - Dark mode: toggle `.dark` on `html` or `body`; tokens swap via CSS variables.
 
 ## Components (primitives)
