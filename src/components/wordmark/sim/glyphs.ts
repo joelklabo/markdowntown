@@ -59,7 +59,7 @@ function buildHdGlyph(glyph: CityWordmarkGlyph, scale: number = HD_SCALE): CityW
   return out.map((row) => row.join(""));
 }
 
-export const CITY_WORDMARK_HD_GLYPHS = Object.fromEntries(
+const CITY_WORDMARK_HD_GLYPHS = Object.fromEntries(
   Object.entries(CITY_WORDMARK_GLYPHS).map(([key, glyph]) => [key, buildHdGlyph(glyph)])
 ) as Record<string, CityWordmarkGlyph>;
 
@@ -73,7 +73,7 @@ export type CityWordmarkGlyphSet = {
   scale: number;
 };
 
-export const CITY_WORDMARK_GLYPH_SETS: Record<CityWordmarkRenderDetail, CityWordmarkGlyphSet> = {
+const CITY_WORDMARK_GLYPH_SETS: Record<CityWordmarkRenderDetail, CityWordmarkGlyphSet> = {
   standard: {
     glyphs: CITY_WORDMARK_GLYPHS,
     rows: CITY_WORDMARK_GLYPH_ROWS,
@@ -88,7 +88,7 @@ export const CITY_WORDMARK_GLYPH_SETS: Record<CityWordmarkRenderDetail, CityWord
   },
 };
 
-export function getCityWordmarkGlyphSet(detail: CityWordmarkRenderDetail = "standard"): CityWordmarkGlyphSet {
+function getCityWordmarkGlyphSet(detail: CityWordmarkRenderDetail = "standard"): CityWordmarkGlyphSet {
   return CITY_WORDMARK_GLYPH_SETS[detail] ?? CITY_WORDMARK_GLYPH_SETS.standard;
 }
 

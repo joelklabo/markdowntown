@@ -73,24 +73,13 @@ export type CityWordmarkEvent =
   | ({ type: "login"; method?: "oauth" | "password" | "sso" } & CityWordmarkEventBase)
   | ({ type: "alert"; kind: "ambulance" } & CityWordmarkEventBase);
 
-export const CITY_WORDMARK_EVENT_TYPES = [
-  "search",
-  "command_palette_open",
-  "publish",
-  "upload",
-  "login",
-  "alert",
-] as const;
-
-export type CityWordmarkEventType = (typeof CITY_WORDMARK_EVENT_TYPES)[number];
-
 const eventBaseSchema = z.object({
   ts: z.number().finite().optional(),
 });
 
 const eventKindSchema = z.enum(["artifact", "template", "snippet", "file"]);
 
-export const cityWordmarkEventSchema = z.discriminatedUnion("type", [
+const cityWordmarkEventSchema = z.discriminatedUnion("type", [
   eventBaseSchema.extend({
     type: z.literal("search"),
     query: z.string().min(1),

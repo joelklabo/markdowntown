@@ -10,7 +10,7 @@ type VisualPageOptions = {
   theme?: "light" | "dark";
 };
 
-export async function prepareVisualPage(page: Page, options: VisualPageOptions = {}) {
+async function prepareVisualPage(page: Page, options: VisualPageOptions = {}) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript((opts: VisualPageOptions & { storageKey: string }) => {
     (window as unknown as { __MDT_VISUAL_TEST__?: boolean }).__MDT_VISUAL_TEST__ = true;
