@@ -38,10 +38,16 @@ export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState })
     if (saveState === "saved") return "Saved";
     return "Idle";
   })();
+  const saveTone =
+    saveState === "dirty"
+      ? "text-[color:var(--mdt-color-warning)]"
+      : saveState === "saving"
+        ? "text-[color:var(--mdt-color-info)]"
+        : "text-mdt-text";
 
   return (
-    <div className="sticky bottom-0 z-20 mt-6 flex items-center justify-between gap-4 rounded-mdt-md border border-mdt-border bg-mdt-surface px-4 py-2 text-sm text-mdt-muted">
-      <div className="flex items-center gap-3">
+    <div className="sticky bottom-0 z-20 mt-6 flex flex-col gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3 text-caption text-mdt-muted sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-mdt-3">
         <Dot ok={bundleOk} />
         <span>{bundleOk ? "Bundle within budget" : "Bundle size warning"}</span>
         <Divider />
@@ -53,7 +59,7 @@ export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState })
           Cache {perf.cache ?? "n/a"}
         </span>
         <Divider />
-        <span className="flex items-center gap-1">
+        <span className={cn("flex items-center gap-1 font-medium", saveTone)}>
           <Dot ok={saveState !== "dirty"} />
           {saveLabel}
         </span>
@@ -76,5 +82,5 @@ function Dot({ ok }: { ok: boolean }) {
 }
 
 function Divider() {
-  return <span className="h-4 w-px bg-mdt-border" aria-hidden />;
+  return <span className="hidden h-4 w-px bg-mdt-border sm:inline-block" aria-hidden />;
 }

@@ -314,10 +314,10 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
           <Surface
             as="div"
             padding="sm"
-            className="sticky top-16 z-10 rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface)]/90 backdrop-blur-md"
+            className="sticky top-16 z-10 rounded-mdt-md border border-mdt-border bg-[color:var(--mdt-color-surface)]/95 shadow-mdt-sm backdrop-blur-md"
           >
             <div className="flex flex-wrap items-center justify-between gap-mdt-3">
-              <div className="flex items-center gap-mdt-2 text-body-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
+              <div className="flex flex-wrap items-center gap-mdt-2 text-body-sm font-semibold text-mdt-muted dark:text-mdt-muted-dark">
                 {steps.map((label, idx) => {
                   const active = idx === stepIndex;
                   const done = idx < stepIndex;
@@ -326,13 +326,14 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                       key={label}
                       type="button"
                       onClick={() => goStep(idx)}
-                      className={`flex items-center gap-mdt-2 rounded-mdt-sm px-mdt-2 py-mdt-1 transition ${
+                      className={cn(
+                        "flex items-center gap-mdt-2 rounded-mdt-sm px-mdt-2 py-mdt-1 text-body-sm font-semibold transition duration-mdt-fast ease-mdt-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] motion-reduce:transition-none",
                         active
-                          ? "bg-mdt-blue text-white"
+                          ? "bg-mdt-blue text-white shadow-mdt-sm"
                           : done
-                            ? "bg-mdt-bg text-mdt-text dark:bg-mdt-bg-dark dark:text-mdt-text-dark"
+                            ? "bg-mdt-surface-subtle text-mdt-text dark:bg-mdt-surface-strong dark:text-mdt-text-dark"
                             : "text-mdt-muted hover:text-mdt-text dark:text-mdt-muted-dark dark:hover:text-mdt-text-dark"
-                      }`}
+                      )}
                       aria-current={active ? "step" : undefined}
                       aria-pressed={active}
                     >
@@ -345,9 +346,9 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                 })}
               </div>
               <div className="flex items-center gap-mdt-2">
-                <div className="h-2 w-32 rounded-full bg-mdt-bg dark:bg-mdt-bg-dark">
+                <div className="h-2 w-24 rounded-full bg-mdt-bg dark:bg-mdt-bg-dark sm:w-32">
                   <div
-                    className="h-2 rounded-full bg-mdt-blue transition-all"
+                    className="h-2 rounded-full bg-mdt-blue transition-all motion-reduce:transition-none"
                     style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
                     aria-hidden
                   />
@@ -359,7 +360,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             </div>
           </Surface>
 
-          <Row wrap gap={3} justify="between" align="center">
+          <div className="flex flex-col gap-mdt-4 lg:flex-row lg:items-center lg:justify-between">
             <Stack gap={1}>
               <Text size="caption" tone="muted">Builder</Text>
               <Heading level="display" leading="tight">Assemble your agents.md</Heading>
@@ -367,7 +368,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                 Pick a template, add snippets, reorder, then copy, download, or save as a document.
               </Text>
             </Stack>
-            <Row gap={2} wrap>
+            <Row gap={2} wrap className="w-full lg:w-auto">
               <Button variant="secondary" asChild>
                 <Link href="/browse">Browse library</Link>
               </Button>
@@ -375,25 +376,26 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                 <Link href={requireAuth ? "/signin?callbackUrl=/builder" : "/documents"}>Your documents</Link>
               </Button>
             </Row>
-          </Row>
+          </div>
 
-          <div className="grid gap-mdt-4 lg:grid-cols-[300px_300px_1fr] xl:grid-cols-[300px_300px_1fr_260px]">
-            <Surface padding="md" className="space-y-mdt-3" data-step-anchor="template">
-              <div className="flex items-center justify-between">
+          <div className="grid gap-mdt-5 lg:grid-cols-[320px_320px_minmax(0,1fr)] xl:grid-cols-[320px_320px_minmax(0,1fr)_280px]">
+            <Surface padding="md" className="space-y-mdt-4" data-step-anchor="template">
+              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-h3">Templates</h3>
                 <Pill tone="yellow">Pick one</Pill>
               </div>
-              <div className="max-h-[60vh] space-y-mdt-2 overflow-y-auto">
+              <div className="max-h-[55vh] space-y-mdt-2 overflow-y-auto pr-1">
                 {templates.map((tpl) => (
                   <button
                     key={tpl.id}
                     data-testid="builder-template"
                     onClick={() => setSelectedTemplate(tpl.id)}
-                    className={`w-full rounded-mdt-md border px-mdt-3 py-mdt-2 text-left text-body-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                    className={cn(
+                      "w-full rounded-mdt-md border px-mdt-3 py-mdt-2 text-left text-body-sm transition duration-mdt-fast ease-mdt-standard focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface motion-reduce:transition-none",
                       selectedTemplate === tpl.id
-                        ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
-                        : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
-                    }`}
+                        ? "border-mdt-info bg-mdt-primary-soft shadow-mdt-sm dark:bg-mdt-surface-strong"
+                        : "border-transparent hover:bg-mdt-surface-subtle hover:shadow-mdt-sm dark:hover:bg-mdt-surface-subtle"
+                    )}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold">{tpl.title}</span>
@@ -405,16 +407,16 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               </div>
             </Surface>
 
-            <Surface padding="md" className="space-y-mdt-3" data-step-anchor="snippets">
-              <div className="flex items-center justify-between">
+            <Surface padding="md" className="space-y-mdt-4" data-step-anchor="snippets">
+              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-h3">Snippets</h3>
                 <Pill tone="blue">Add</Pill>
               </div>
-              <div className="max-h-[60vh] space-y-mdt-2 overflow-y-auto">
+              <div className="max-h-[55vh] space-y-mdt-2 overflow-y-auto pr-1">
                 {snippets.map((snip) => {
                   const active = selectedSnippets.includes(snip.id);
                   return (
-                    <div key={snip.id} className="flex flex-col gap-mdt-2 rounded-mdt-md border border-transparent p-mdt-1">
+                    <div key={snip.id} className="flex flex-col gap-mdt-2 rounded-mdt-md border border-transparent p-mdt-2">
                       <div className="flex items-start gap-mdt-2">
                         <button
                           data-testid="builder-snippet"
@@ -429,11 +431,12 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                               moveSnippet(snip.id, 1);
                             }
                           }}
-                          className={`flex-1 rounded-mdt-md border px-mdt-3 py-mdt-2 text-left text-body-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface ${
+                          className={cn(
+                            "flex-1 rounded-mdt-md border px-mdt-3 py-mdt-2 text-left text-body-sm transition duration-mdt-fast ease-mdt-standard focus:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-mdt-surface motion-reduce:transition-none",
                             active
-                              ? "border-mdt-info bg-mdt-primary-soft dark:bg-mdt-surface-strong"
-                              : "border-transparent hover:bg-mdt-surface-subtle dark:hover:bg-mdt-surface-subtle"
-                          }`}
+                              ? "border-mdt-info bg-mdt-primary-soft shadow-mdt-sm dark:bg-mdt-surface-strong"
+                              : "border-transparent hover:bg-mdt-surface-subtle hover:shadow-mdt-sm dark:hover:bg-mdt-surface-subtle"
+                          )}
                         >
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">{snip.title}</span>
@@ -480,10 +483,10 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               </div>
             </Surface>
 
-            <Surface padding="md" className="flex flex-col gap-mdt-3" data-step-anchor="preview">
-              <div className="flex items-center justify-between">
+            <Surface padding="md" className="flex flex-col gap-mdt-4" data-step-anchor="preview">
+              <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-h3">Preview</h3>
-                <div className="flex gap-mdt-2">
+                <div className="flex flex-wrap gap-mdt-2">
                   <Button variant="secondary" size="sm" onClick={copyMarkdown} disabled={!rendered}>
                     Copy
                   </Button>
@@ -496,7 +499,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                 </div>
               </div>
               {requireAuth && (
-                <div className="flex items-center gap-mdt-2 text-caption text-mdt-muted">
+                <div className="flex flex-wrap items-center gap-mdt-2 text-caption text-mdt-muted">
                   <span>Sign in to save this document</span>
                   <Button variant="ghost" size="xs" asChild>
                     <Link href="/signin?callbackUrl=/builder">Sign in</Link>
@@ -513,7 +516,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               {previewLoading && <p className="text-caption text-mdt-muted">Refreshing preview…</p>}
               <div
                 ref={previewRef}
-                className="min-h-[300px] space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-4 font-mono text-body-sm"
+                className="min-h-[300px] space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-4 font-mono text-body-sm shadow-mdt-sm"
               >
                 {visibleLines.length === 0 && (
                   <p className="text-mdt-muted">Select a template and add snippets to see your agents.md.</p>
@@ -548,10 +551,10 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
               </div>
             </Surface>
 
-            <Surface padding="md" className="space-y-mdt-3" data-step-anchor="outline">
-              <div className="flex items-center justify-between">
+            <Surface padding="md" className="space-y-mdt-4" data-step-anchor="outline">
+              <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-h3">Outline</h3>
-                <div className="flex gap-mdt-2">
+                <div className="flex flex-wrap gap-mdt-2">
                   <Button size="sm" variant="secondary" onClick={() => setCollapsed(new Set())}>
                     Expand all
                   </Button>
@@ -591,7 +594,7 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
                                   }}
                                   onDoubleClick={() => toggleCollapse(node.id)}
                                   className={cn(
-                                    "flex w-full items-center justify-between rounded-mdt-sm px-mdt-2 py-mdt-2 text-left text-body-sm transition",
+                                    "flex w-full items-center justify-between rounded-mdt-sm px-mdt-2 py-mdt-2 text-left text-body-sm transition duration-mdt-fast ease-mdt-standard motion-reduce:transition-none",
                                     "hover:bg-[color:var(--mdt-color-surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--mdt-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]",
                                     draggingOutline && node.level === 1 ? "opacity-80" : ""
                                   )}
