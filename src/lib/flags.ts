@@ -16,6 +16,7 @@ export const featureFlags = {
   templatesV1: isServer && envBool(process.env.TEMPLATES_V1),
   engagementV1: isServer && envBool(process.env.ENGAGEMENT_V1),
   themeRefreshV1: envBool(process.env.NEXT_PUBLIC_THEME_REFRESH_V1),
+  uxClarityV1: envBool(process.env.NEXT_PUBLIC_UX_CLARITY_V1),
   wordmarkAnimV1: envBoolDefaultTrue(process.env.NEXT_PUBLIC_WORDMARK_ANIM_V1),
   wordmarkBannerV1: envBoolDefaultTrue(process.env.NEXT_PUBLIC_WORDMARK_BANNER_V1),
   labsCityLogo: isServer && envBool(process.env.LABS_CITY_LOGO),

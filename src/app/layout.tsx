@@ -89,6 +89,7 @@ export default async function RootLayout({
       lang="en"
       className={[inter.variable, display.variable, mono.variable].join(" ")}
       data-theme-refresh={featureFlags.themeRefreshV1 ? "true" : undefined}
+      data-ux-clarity={featureFlags.uxClarityV1 ? "true" : undefined}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
