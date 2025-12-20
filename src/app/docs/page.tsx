@@ -15,6 +15,7 @@ const repoBase = "https://github.com/joelklabo/markdowntown/blob/main";
 const docsLinks = [
   { label: "AGENTS.md", href: `${repoBase}/AGENTS.md` },
   { label: "README", href: `${repoBase}/README.md` },
+  { label: "Atlas Simulator guide", href: `${repoBase}/docs/atlas/simulator.md` },
   { label: "Developer onboarding", href: `${repoBase}/docs/DEV_ONBOARDING.md` },
   { label: "Beads CLI", href: `${repoBase}/docs/BEADS.md` },
 ];
