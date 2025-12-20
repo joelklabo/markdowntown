@@ -56,6 +56,9 @@ function createStreetlightActor(state: StreetlightState): CityWordmarkActor {
         const bulbSize = scale;
         const postX = light.x + Math.floor((bulbSize - postWidth) / 2);
         const postY = light.y + bulbSize;
+        const capHeight = Math.max(1, Math.floor(scale / 3));
+        const glowSize = bulbSize + Math.max(1, Math.floor(scale / 2));
+        const glowOffset = Math.floor((glowSize - bulbSize) / 2);
 
         if (postY + postHeight <= ctx.layout.height) {
           out.push({
@@ -65,6 +68,31 @@ function createStreetlightActor(state: StreetlightState): CityWordmarkActor {
             height: postHeight,
             tone: "pedestrian",
             opacity: clamp01(opacity * 0.55),
+          });
+        }
+
+        const capY = light.y - capHeight;
+        if (capY >= 0) {
+          out.push({
+            x: light.x,
+            y: capY,
+            width: bulbSize,
+            height: capHeight,
+            tone: "pedestrian",
+            opacity: clamp01(opacity * 0.4),
+          });
+        }
+
+        const glowX = light.x - glowOffset;
+        const glowY = light.y - glowOffset;
+        if (glowX + glowSize >= 0 && glowY + glowSize >= 0) {
+          out.push({
+            x: glowX,
+            y: glowY,
+            width: glowSize,
+            height: glowSize,
+            tone: "headlight",
+            opacity: clamp01(opacity * 0.25),
           });
         }
 

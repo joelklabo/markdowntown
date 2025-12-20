@@ -43,6 +43,9 @@ function createCarActor(state: CarState): CityWordmarkActor {
 
     if (isHd) {
       const roofInset = scale;
+      const windowInset = Math.max(1, Math.floor(scale / 2));
+      const wheelSize = Math.max(1, Math.floor(scale / 2));
+      const wheelY = state.y + scale * 2;
       out.push(
         {
           x: x + roofInset,
@@ -67,6 +70,30 @@ function createCarActor(state: CarState): CityWordmarkActor {
           height: scale,
           tone: bodyTone,
           opacity: 0.95,
+        },
+        {
+          x: x + windowInset,
+          y: state.y + scale,
+          width: Math.max(1, state.width - windowInset * 2 - scale),
+          height: scale,
+          tone: bodyTone,
+          opacity: 0.55,
+        },
+        {
+          x: x + scale,
+          y: wheelY,
+          width: wheelSize,
+          height: wheelSize,
+          tone: bodyTone,
+          opacity: 0.6,
+        },
+        {
+          x: x + state.width - scale - wheelSize,
+          y: wheelY,
+          width: wheelSize,
+          height: wheelSize,
+          tone: bodyTone,
+          opacity: 0.6,
         }
       );
     } else {

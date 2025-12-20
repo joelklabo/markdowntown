@@ -51,6 +51,7 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
     const bodyWidth = isHd ? scale : 1;
     const bodyHeight = isHd ? scale * 2 : 1;
     const headSize = isHd ? scale : 1;
+    const limbSize = isHd ? Math.max(1, Math.floor(scale / 2)) : 1;
 
     for (const p of state.pedestrians) {
       const segmentLen = Math.max(0, p.maxX - p.minX);
@@ -77,8 +78,28 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
             height: scale,
             tone: "pedestrian",
             opacity: 0.85,
+          },
+          {
+            x: x + Math.max(0, Math.floor(scale / 3)),
+            y: p.yBody + scale * 2 - limbSize,
+            width: limbSize,
+            height: limbSize,
+            tone: "pedestrian",
+            opacity: 0.6,
           }
         );
+
+        const armX = x + bodyWidth;
+        if (armX + limbSize <= ctx.layout.sceneWidth) {
+          out.push({
+            x: armX,
+            y: p.yBody + Math.max(0, Math.floor(scale / 2)),
+            width: limbSize,
+            height: limbSize,
+            tone: "pedestrian",
+            opacity: 0.6,
+          });
+        }
       } else {
         out.push({ x, y: p.yBody, width: 1, height: 1, tone: "pedestrian", opacity: 0.85 });
       }
@@ -95,6 +116,19 @@ function createPedestrianActor(state: PedestrianState): CityWordmarkActor {
                 { x: dogX, y: dogY, width: dogBodyWidth, height: scale, tone: "dog", opacity: 0.72 },
                 { x: dogHeadX, y: dogY, width: scale, height: scale, tone: "dog", opacity: 0.62 }
               );
+
+              const tailSize = Math.max(1, Math.floor(scale / 2));
+              const tailX = dogX - tailSize;
+              if (tailX >= 0) {
+                out.push({
+                  x: tailX,
+                  y: dogY + Math.max(0, Math.floor(scale / 2)),
+                  width: tailSize,
+                  height: tailSize,
+                  tone: "dog",
+                  opacity: 0.52,
+                });
+              }
             }
           } else {
             out.push({ x: dogX, y: p.yBody, width: 1, height: 1, tone: "dog", opacity: 0.72 });

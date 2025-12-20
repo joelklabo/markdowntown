@@ -42,6 +42,11 @@ function createAmbulanceActor(state: AmbulanceState): CityWordmarkActor {
 
     if (isHd) {
       const roofInset = scale;
+      const windowInset = Math.max(1, Math.floor(scale / 2));
+      const stripeHeight = Math.max(1, Math.floor(scale / 2));
+      const stripeY = state.y + scale + Math.max(0, Math.floor(scale / 2));
+      const wheelSize = Math.max(1, Math.floor(scale / 2));
+      const wheelY = state.y + scale * 2;
       out.push(
         {
           x: x + roofInset,
@@ -66,6 +71,38 @@ function createAmbulanceActor(state: AmbulanceState): CityWordmarkActor {
           height: scale,
           tone: "ambulance",
           opacity: 0.97,
+        },
+        {
+          x: x + windowInset,
+          y: state.y + scale,
+          width: Math.max(1, state.width - windowInset * 2 - scale),
+          height: scale,
+          tone: "ambulance",
+          opacity: 0.55,
+        },
+        {
+          x: x + scale,
+          y: stripeY,
+          width: Math.max(1, state.width - scale * 3),
+          height: stripeHeight,
+          tone: "sirenRed",
+          opacity: 0.45,
+        },
+        {
+          x: x + scale,
+          y: wheelY,
+          width: wheelSize,
+          height: wheelSize,
+          tone: "ambulance",
+          opacity: 0.6,
+        },
+        {
+          x: x + state.width - scale - wheelSize,
+          y: wheelY,
+          width: wheelSize,
+          height: wheelSize,
+          tone: "ambulance",
+          opacity: 0.6,
         }
       );
     } else {
