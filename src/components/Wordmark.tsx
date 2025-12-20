@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { featureFlags } from "@/lib/flags";
 import { LivingCityWordmark } from "./wordmark/LivingCityWordmark";
 
 type WordmarkSize = "sm" | "md" | "lg";
@@ -28,8 +27,7 @@ export function Wordmark({ asLink = true, href = "/", size = "md", className }: 
   const content = (
     <LivingCityWordmark
       className={cn(
-        "mdt-wordmark w-auto shrink-0",
-        featureFlags.wordmarkAnimV1 && "mdt-wordmark--animated",
+        "w-auto shrink-0",
         sizeClasses[size].svg
       )}
     />

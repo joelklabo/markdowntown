@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { LivingCityWordmark } from "./wordmark/LivingCityWordmark";
+import { Wordmark } from "./Wordmark";
 import { NavActiveIndicator } from "./nav/NavActiveIndicator";
 import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
@@ -16,6 +17,7 @@ import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, TranslateIcon, WorkbenchI
 import { emitCityWordmarkEvent } from "./wordmark/sim/bridge";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
+import { featureFlags } from "@/lib/flags";
 
 const links = [
   { href: "/library", label: "Library" },
@@ -186,12 +188,18 @@ export function SiteNav({ user }: { user?: User }) {
       <header className="sticky top-0 z-30 border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]/90 backdrop-blur-lg shadow-mdt-md">
         <div className="border-b border-mdt-border/60">
           <div className="w-full overflow-hidden">
-            <LivingCityWordmark
-              className="block h-14 w-full md:h-16"
-              bannerScale={12}
-              sizeMode="fluid"
-              preserveAspectRatio="xMinYMid slice"
-            />
+            {featureFlags.wordmarkBannerV1 ? (
+              <LivingCityWordmark
+                className={cn("mdt-wordmark--banner", "block h-14 w-full md:h-16")}
+                bannerScale={12}
+                sizeMode="fluid"
+                preserveAspectRatio="xMinYMid slice"
+              />
+            ) : (
+              <div className="flex h-14 items-center justify-center md:h-16">
+                <Wordmark asLink href="/" size="md" />
+              </div>
+            )}
           </div>
         </div>
         <Container

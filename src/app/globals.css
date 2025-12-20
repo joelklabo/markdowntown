@@ -555,6 +555,12 @@
     shape-rendering: crispEdges;
   }
 
+  .mdt-wordmark--banner {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
   .mdt-wordmark [data-mtw="building"] {
     fill: var(--mdt-wordmark-building);
   }

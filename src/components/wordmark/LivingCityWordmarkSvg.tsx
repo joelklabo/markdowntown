@@ -296,7 +296,9 @@ export function LivingCityWordmarkSvg({
         </g>
       )}
 
-        {stars.map((star) => (
+        {stars.map((star) => {
+          const twinkleDelay = ((star.x + star.y) % 10) * 0.15;
+          return (
           <rect
             key={`${star.x}-${star.y}`}
             x={star.x}
@@ -305,8 +307,11 @@ export function LivingCityWordmarkSvg({
             height={resolution}
             fill={rgbToCss(palette.star)}
             opacity={starOpacity}
+            data-mtw-anim="twinkle"
+            style={{ animationDelay: `${twinkleDelay}s` }}
           />
-        ))}
+          );
+        })}
 
         <g
           fill={gridScale > 1 ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
@@ -329,7 +334,7 @@ export function LivingCityWordmarkSvg({
         />
 
         {windowsPath.length > 0 && (
-          <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)}>
+          <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)} data-mtw-anim="shimmer">
             <path d={windowsPath} />
           </g>
         )}
