@@ -17,6 +17,8 @@ type LivingCityWordmarkProps = {
   sizeMode?: "fixed" | "fluid";
 };
 
+const MAX_BANNER_SCALE = 32;
+
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() => {
     if (typeof window === "undefined" || !window.matchMedia) return false;
@@ -91,7 +93,8 @@ export function LivingCityWordmark({
     const update = (width: number, height: number) => {
       if (width <= 0 || height <= 0) return;
       const targetScale = Math.max(1, Math.ceil((baseLayout.height * (width / height)) / baseLayout.width));
-      setAutoBannerScale((prev) => (prev === targetScale ? prev : targetScale));
+      const nextScale = Math.min(MAX_BANNER_SCALE, targetScale);
+      setAutoBannerScale((prev) => (prev === nextScale ? prev : nextScale));
     };
 
     const observer = new ResizeObserver((entries) => {
@@ -112,7 +115,11 @@ export function LivingCityWordmark({
     };
   }, [bannerScale, baseLayout.height, baseLayout.width, sizeMode]);
 
-  const resolvedBannerScale = bannerScale ?? autoBannerScale ?? sim.config.render.bannerScale;
+  const rawBannerScale = bannerScale ?? autoBannerScale ?? sim.config.render.bannerScale;
+  const resolvedBannerScale = Math.min(
+    MAX_BANNER_SCALE,
+    Math.max(1, Math.floor(rawBannerScale))
+  );
 
   useEffect(() => {
     if (!canAnimate) return;
@@ -126,7 +133,7 @@ export function LivingCityWordmark({
     canAnimate && "mdt-wordmark--animated",
     className
   );
-  const mergedContainerClassName = cn("block h-full w-full", containerClassName);
+  const mergedContainerClassName = cn("block w-full", containerClassName);
 
   const fallback = (
     <span

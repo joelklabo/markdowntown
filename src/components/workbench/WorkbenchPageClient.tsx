@@ -6,15 +6,17 @@ import { StructurePanel } from '@/components/workbench/StructurePanel';
 import { EditorPanel } from '@/components/workbench/EditorPanel';
 import { OutputPanel } from '@/components/workbench/OutputPanel';
 import { WorkbenchHeader } from '@/components/workbench/WorkbenchHeader';
+import type { Session } from 'next-auth';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import type { UamV1 } from '@/lib/uam/uamTypes';
 
 type WorkbenchPageClientProps = {
   initialArtifactId: string | null;
   initialTemplateUam: UamV1 | null;
+  session: Session | null;
 };
 
-export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam }: WorkbenchPageClientProps) {
+export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam, session }: WorkbenchPageClientProps) {
   const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>('structure');
   const [mounted, setMounted] = useState(false);
 
@@ -43,7 +45,7 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam }: W
 
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col bg-mdt-bg">
-      <WorkbenchHeader />
+      <WorkbenchHeader session={session} />
 
       <TabsRoot
         value={mobileTab}

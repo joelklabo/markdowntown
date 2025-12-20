@@ -3,7 +3,6 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { PosthogProviderLazy } from "@/providers/PosthogProviderLazy";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import { AuthProvider } from "@/providers/AuthProvider";
 import { DensityProvider } from "@/providers/DensityProvider";
 import { getSession } from "@/lib/auth";
 import { featureFlags } from "@/lib/flags";
@@ -99,20 +98,18 @@ export default async function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <AuthProvider session={session}>
-          <DensityProvider>
-            <ThemeProvider>
-              <PosthogProviderLazy>
-                <SiteNav user={user} />
-                <WhatNewBanner />
-                <CommandPalette />
-                <PerfVitalsToggle />
-                <main id="main-content">{children}</main>
-                <Footer />
-              </PosthogProviderLazy>
-            </ThemeProvider>
-          </DensityProvider>
-        </AuthProvider>
+        <DensityProvider>
+          <ThemeProvider>
+            <PosthogProviderLazy>
+              <SiteNav user={user} />
+              <WhatNewBanner />
+              <CommandPalette />
+              <PerfVitalsToggle />
+              <main id="main-content">{children}</main>
+              <Footer />
+            </PosthogProviderLazy>
+          </ThemeProvider>
+        </DensityProvider>
       </body>
     </html>
   );

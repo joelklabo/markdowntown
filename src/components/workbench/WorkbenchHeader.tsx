@@ -3,15 +3,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useWorkbenchStore, type ArtifactVisibility } from '@/hooks/useWorkbenchStore';
 import { Button } from '@/components/ui/Button';
-import { useSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { COMMAND_PALETTE_OPEN_EVENT } from '@/components/CommandPalette';
 import { track } from '@/lib/analytics';
 
-export function WorkbenchHeader() {
-  const { data: session } = useSession();
+type WorkbenchHeaderProps = {
+  session: Session | null;
+};
+
+export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
   const artifactId = useWorkbenchStore(s => s.id);
   const title = useWorkbenchStore(s => s.title);
   const autosaveStatus = useWorkbenchStore(s => s.autosaveStatus);

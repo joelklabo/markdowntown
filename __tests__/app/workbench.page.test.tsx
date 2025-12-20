@@ -3,8 +3,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import WorkbenchPage from '@/app/workbench/page';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn().mockReturnValue({ data: { user: { name: 'Test User' } } }),
+vi.mock('@/lib/auth', () => ({
+  getSession: vi.fn().mockResolvedValue({ user: { name: 'Test User' } }),
 }));
 
 // Mock requestAnimationFrame for StructurePanel

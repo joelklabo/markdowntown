@@ -1,5 +1,6 @@
 import { WorkbenchPageClient } from '@/components/workbench/WorkbenchPageClient';
 import { loadWorkbenchTemplateUam } from '@/lib/atlas/load';
+import { getSession } from '@/lib/auth';
 import type { UamV1 } from '@/lib/uam/uamTypes';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -12,6 +13,7 @@ function firstString(value: string | string[] | undefined): string | null {
 
 export default async function WorkbenchPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
+  const session = await getSession();
 
   const idOrSlug =
     firstString(searchParams.id)?.trim() ??
@@ -30,6 +32,11 @@ export default async function WorkbenchPage(props: { searchParams: Promise<Searc
     }
   }
 
-  return <WorkbenchPageClient initialArtifactId={idOrSlug} initialTemplateUam={initialTemplateUam} />;
+  return (
+    <WorkbenchPageClient
+      initialArtifactId={idOrSlug}
+      initialTemplateUam={initialTemplateUam}
+      session={session}
+    />
+  );
 }
-
