@@ -96,19 +96,22 @@ export default async function Home() {
     return (
       <div className="min-h-screen bg-mdt-bg text-mdt-text">
         <div className="relative overflow-hidden border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]">
-          <Container size="lg" padding="lg" className="py-mdt-16">
-            <Surface tone="raised" padding="lg" className="mx-auto max-w-3xl space-y-mdt-4 text-center shadow-mdt-lg">
-              <Heading level="display" leading="tight">
+          <Container size="lg" padding="lg" className="py-mdt-14 md:py-mdt-16">
+            <Surface tone="raised" padding="lg" className="mx-auto max-w-3xl space-y-mdt-5 border-mdt-border-strong text-center shadow-mdt-lg">
+              <Row justify="center">
+                <Pill tone="yellow">Library empty</Pill>
+              </Row>
+              <Heading level="display" leading="tight" className="mx-auto max-w-[20ch]">
                 Nothing public yet
               </Heading>
-              <Text tone="muted">
+              <Text tone="muted" className="mx-auto max-w-2xl">
                 Publish an artifact to seed the Library. Until then, you can still build agents.md locally.
               </Text>
               <Row justify="center" gap={3} wrap>
-                <Button asChild>
+                <Button size="lg" asChild>
                   <Link href="/browse">Browse library</Link>
                 </Button>
-                <Button variant="secondary" asChild>
+                <Button variant="secondary" size="lg" asChild>
                   <Link href="/builder">Open builder</Link>
                 </Button>
               </Row>
@@ -149,15 +152,15 @@ export default async function Home() {
           <Container
             size="lg"
             padding="lg"
-            className="flex flex-col gap-mdt-12 pb-mdt-16 pt-mdt-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center"
+            className="flex flex-col gap-mdt-10 pb-mdt-16 pt-mdt-12 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-mdt-12 md:pt-mdt-16"
           >
             <div className="space-y-mdt-6">
-              <div className="inline-flex items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm font-medium text-mdt-muted">
+              <div className="inline-flex items-center gap-mdt-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-caption font-medium text-mdt-muted shadow-mdt-sm">
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-[color:var(--mdt-color-primary)]">Public-first</span>
                 <span>Copy without login</span>
               </div>
               <Stack gap={3}>
-                <Heading level="display" leading="tight">Compose, remix, and ship agents.md fast</Heading>
+                <Heading level="display" leading="tight" className="max-w-[22ch]">Compose, remix, and ship agents.md fast</Heading>
                 <Text tone="muted" className="max-w-2xl">
                   Copy battle-tested snippets and templates, preview in the builder, and export with confidence. Keyboard-first flows keep you moving; light/dark stay in lockstep.
                 </Text>
@@ -167,47 +170,53 @@ export default async function Home() {
                 as="form"
                 action="/browse"
                 padding="md"
-                className="grid gap-mdt-3 sm:grid-cols-[1fr_auto] sm:items-center"
+                className="grid gap-mdt-4 border-mdt-border-strong bg-mdt-surface shadow-mdt-lg sm:grid-cols-[1fr_auto] sm:items-end"
               >
-                <Stack gap={2}>
+                <Stack gap={3}>
                   <Text as="label" htmlFor="hero-search" size="caption" tone="muted">
                     Search snippets, templates, agents.md
                   </Text>
-                  <Row wrap gap={2} className="items-center">
-                    <Input
-                      id="hero-search"
-                      name="q"
-                      size="lg"
-                      className="bg-mdt-surface-subtle"
-                      placeholder='Try "function calling" or "retrieval"'
-                      aria-label="Search snippets and templates"
-                    />
-                    <div className="flex flex-wrap gap-mdt-2 text-xs text-mdt-muted sm:ml-mdt-2">
-                      {tags.slice(0, 4).map(({ tag }) => (
-                        <button
-                          key={tag}
-                          type="submit"
-                          name="tag"
-                          value={tag}
-                          className="rounded-mdt-pill border border-mdt-border bg-[color:var(--mdt-color-surface)] px-mdt-3 py-mdt-1 shadow-mdt-sm transition hover:-translate-y-[1px] hover:border-mdt-border-strong"
-                        >
-                          #{tag}
-                        </button>
-                      ))}
-                    </div>
+                  <Input
+                    id="hero-search"
+                    name="q"
+                    size="lg"
+                    className="bg-mdt-surface-subtle"
+                    placeholder='Try "function calling" or "retrieval"'
+                    aria-label="Search snippets and templates"
+                  />
+                  <Row wrap gap={2} align="center" className="text-xs text-mdt-muted">
+                    <span className="rounded-mdt-pill bg-mdt-surface-strong px-mdt-2 py-[2px] text-[10px] font-semibold uppercase tracking-wide text-mdt-text">
+                      Popular
+                    </span>
+                    {tags.slice(0, 4).map(({ tag }) => (
+                      <button
+                        key={tag}
+                        type="submit"
+                        name="tag"
+                        value={tag}
+                        className="rounded-mdt-pill border border-mdt-border bg-[color:var(--mdt-color-surface)] px-mdt-3 py-mdt-1 text-caption font-medium text-mdt-text shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:border-mdt-border-strong hover:shadow-mdt-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                      >
+                        #{tag}
+                      </button>
+                    ))}
                   </Row>
                 </Stack>
-                <Row wrap gap={2} justify="end" className="sm:justify-end">
-                  <Button type="submit">Browse library</Button>
-                  <Button variant="secondary" asChild>
-                    <Link href="#build-in-60s">Build in 60s</Link>
-                  </Button>
-                </Row>
+                <div className="space-y-mdt-2 sm:text-right">
+                  <Row wrap gap={2} justify="end" className="sm:justify-end">
+                    <Button type="submit" size="lg">Browse library</Button>
+                    <Button variant="secondary" size="lg" asChild>
+                      <Link href="#build-in-60s">Build in 60s</Link>
+                    </Button>
+                  </Row>
+                  <Text size="caption" tone="muted">
+                    No login required to browse.
+                  </Text>
+                </div>
               </Surface>
 
-              <div className="grid gap-mdt-3 sm:grid-cols-3">
+              <div className="grid gap-mdt-4 sm:grid-cols-3">
                 {proof.map((item) => (
-                  <Surface key={item.label} padding="md" className="space-y-mdt-1">
+                  <Surface key={item.label} padding="md" className="space-y-mdt-1 border-mdt-border-strong bg-mdt-surface">
                     <Text size="caption" tone="muted">{item.label}</Text>
                     <Heading level="h2" as="p">{item.value}</Heading>
                     <Text size="bodySm" tone="muted">{item.hint}</Text>
@@ -217,7 +226,7 @@ export default async function Home() {
             </div>
 
             <div className="relative">
-              <Surface tone="raised" padding="lg" className="space-y-mdt-5 shadow-mdt-lg">
+              <Surface tone="raised" padding="lg" className="space-y-mdt-6 border-mdt-border-strong shadow-mdt-lg">
                 <Row align="center" justify="between" gap={3}>
                   <Stack gap={1}>
                     <Text size="caption" tone="muted">Live builder preview</Text>
@@ -227,7 +236,7 @@ export default async function Home() {
                     <Link href="/builder">Open builder</Link>
                   </Button>
                 </Row>
-                <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+                <Surface tone="subtle" padding="md" className="space-y-mdt-4">
                   <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
                     <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-success)]" aria-hidden />
                     Live preview ready - autosaves disabled for anon
@@ -259,13 +268,13 @@ export default async function Home() {
 
       <Container size="lg" padding="lg" className="pb-mdt-16 pt-mdt-12">
         <Stack gap={12}>
-          <Surface as="section" id="build-in-60s" padding="lg" className="grid gap-mdt-6 md:grid-cols-[1.4fr_1fr]">
+          <Surface as="section" id="build-in-60s" padding="lg" className="grid gap-mdt-6 border-mdt-border-strong md:grid-cols-[1.4fr_1fr]">
             <Stack gap={3}>
               <Text size="caption" tone="muted">Build in 60 seconds</Text>
               <Heading level="h2" as="h3">Guided, keyboard-first path</Heading>
               <Stack gap={4}>
                 {buildSteps.map((step, idx) => (
-                  <Surface key={step.title} tone="subtle" padding="sm" className="flex gap-mdt-3">
+                  <Surface key={step.title} tone="subtle" padding="sm" className="flex items-start gap-mdt-3">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--mdt-color-primary-soft)] text-sm font-semibold text-[color:var(--mdt-color-primary-strong)]">
                       {idx + 1}
                     </span>
@@ -286,7 +295,7 @@ export default async function Home() {
               </Row>
             </Stack>
 
-            <Surface tone="subtle" padding="md" className="space-y-mdt-4 border-dashed">
+            <Surface tone="subtle" padding="md" className="space-y-mdt-5 border-dashed">
               <Text size="caption" tone="muted">Quality signals</Text>
               <div className="grid gap-mdt-3 sm:grid-cols-2">
                 {["Live preview", "Copy without login", "Keyboard shortcuts", "Light & dark"].map((label) => (
@@ -301,18 +310,27 @@ export default async function Home() {
             </Surface>
           </Surface>
 
-          <section className="grid gap-mdt-4 md:grid-cols-2" id="features">
-            {features.map((feature) => (
-              <Card key={feature.title} className="space-y-mdt-2 bg-[color:var(--mdt-color-surface)]">
-                <Heading level="h3" as="h4">{feature.title}</Heading>
-                <Text size="bodySm" tone="muted">{feature.desc}</Text>
-              </Card>
-            ))}
+          <section className="space-y-mdt-5" id="features">
+            <Stack gap={2}>
+              <Text size="caption" tone="muted">Why teams ship with markdowntown</Text>
+              <Heading level="h2" as="h3">Everything you need to move fast</Heading>
+              <Text size="bodySm" tone="muted" className="max-w-2xl">
+                From discovery to export, every step stays structured, shareable, and consistent with your agents.md standards.
+              </Text>
+            </Stack>
+            <div className="grid gap-mdt-4 md:grid-cols-2">
+              {features.map((feature) => (
+                <Card key={feature.title} className="space-y-mdt-3 bg-[color:var(--mdt-color-surface)] motion-reduce:transition-none">
+                  <Heading level="h3" as="h4">{feature.title}</Heading>
+                  <Text size="bodySm" tone="muted">{feature.desc}</Text>
+                </Card>
+              ))}
+            </div>
           </section>
 
           <section className="grid gap-mdt-6 lg:grid-cols-[2fr_1fr]" id="templates">
             <div className="space-y-mdt-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-caption text-mdt-muted">Featured</p>
                   <h3 className="text-h2">Trending snippets & templates</h3>
@@ -331,8 +349,8 @@ export default async function Home() {
               </div>
             </div>
 
-            <Card className="space-y-mdt-3">
-              <div className="flex items-center justify-between">
+            <Card className="space-y-mdt-4">
+              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-caption text-mdt-muted">Tags</p>
                   <h3 className="text-h3">What people search</h3>
@@ -346,9 +364,10 @@ export default async function Home() {
                   <Link
                     key={tag}
                     href={`/browse?tag=${encodeURIComponent(tag)}`}
-                    className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface hover:border-mdt-border-strong hover:shadow-mdt-sm"
+                    className="inline-flex items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:bg-mdt-surface hover:border-mdt-border-strong hover:shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                   >
-                    #{tag} - {count}
+                    <span className="font-medium">#{tag}</span>
+                    <span className="text-caption text-mdt-muted">{count}</span>
                   </Link>
                 ))}
               </div>
@@ -358,7 +377,7 @@ export default async function Home() {
           <section className="space-y-mdt-8" id="featured">
             <div className="grid gap-mdt-6 lg:grid-cols-[2fr_1fr]">
               <Card className="space-y-mdt-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-caption text-mdt-muted">Most copied</p>
                     <h3 className="text-h3">agents.md files people grab</h3>
@@ -371,7 +390,7 @@ export default async function Home() {
                   {copiedFiles.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-3 text-sm"
+                      className="flex flex-col gap-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-3 text-sm sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="space-y-mdt-1">
                         <div className="flex items-center gap-mdt-2">
@@ -383,7 +402,7 @@ export default async function Home() {
                           {item.stats.copies.toLocaleString()} copies - {item.stats.views.toLocaleString()} views
                         </p>
                       </div>
-                      <Button size="sm" asChild>
+                      <Button size="sm" className="w-full sm:w-auto" asChild>
                         <Link href={`/files/${item.slug ?? item.id}`}>Copy</Link>
                       </Button>
                     </div>
@@ -392,8 +411,8 @@ export default async function Home() {
                 </div>
               </Card>
 
-              <Card className="space-y-mdt-3 border border-dashed border-mdt-border bg-mdt-surface-subtle">
-                <div className="flex items-center justify-between">
+              <Card className="space-y-mdt-4 border border-dashed border-mdt-border bg-mdt-surface-subtle">
+                <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                   <h3 className="text-h3">Why sign in</h3>
                   <Pill tone="yellow">Optional</Pill>
                 </div>
@@ -402,7 +421,7 @@ export default async function Home() {
                   <li>Resume builder with your snippets and templates.</li>
                   <li>Vote, comment, and track copies/downloads.</li>
                 </ul>
-                <div className="flex gap-mdt-2">
+                <div className="flex flex-wrap gap-mdt-2">
                   <Button asChild>
                     <Link href="/signin?callbackUrl=/">Sign in</Link>
                   </Button>
@@ -414,7 +433,7 @@ export default async function Home() {
             </div>
 
             <Card className="space-y-mdt-4" id="new">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-caption text-mdt-muted">New this week</p>
                   <h3 className="text-h3">Fresh snippets, templates, and files</h3>
@@ -432,7 +451,7 @@ export default async function Home() {
             </Card>
 
             <Card className="space-y-mdt-4" id="template-spotlight">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-caption text-mdt-muted">Template spotlight</p>
                   <h3 className="text-h3">Start from a proven template</h3>
@@ -450,16 +469,16 @@ export default async function Home() {
             </Card>
           </section>
 
-          <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border bg-[color:var(--mdt-color-surface)] p-mdt-10 text-center shadow-mdt-md space-y-mdt-4 sm:p-mdt-12">
+          <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border-strong bg-[color:var(--mdt-color-surface-raised)] p-mdt-10 text-center shadow-mdt-lg space-y-mdt-4 sm:p-mdt-12">
             <Heading level="h1" as="h2" align="center">Start building now</Heading>
             <Text tone="muted" align="center">
               Assemble an agents.md with public snippets and templates, then copy or download. Sign in later to save and keep favorites in sync across projects.
             </Text>
             <Row justify="center" gap={3} className="mt-mdt-6">
-              <Button asChild>
+              <Button size="lg" asChild>
                 <Link href="/builder">Open builder</Link>
               </Button>
-              <Button variant="secondary" asChild>
+              <Button variant="secondary" size="lg" asChild>
                 <Link href="/browse">Browse library</Link>
               </Button>
             </Row>
