@@ -58,6 +58,7 @@ pnpm start
 ## Useful scripts
 - `pnpm prisma generate` to regen client after schema changes.
 - `pnpm prisma studio` (if you add the script) to explore the DB.
+- `pnpm test:visual` to update Playwright visual snapshots.
 
 ## GitHub Actions
 CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure Container Apps on `main` using secrets `AZURE_CREDENTIALS` and `DATABASE_URL`.
@@ -67,5 +68,9 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - Prisma errors with Postgres: ensure your IP is allowed in the DB firewall and `sslmode=require` is present.
 - OAuth callback mismatch: set `NEXTAUTH_URL` to your running URL and update GitHub OAuth callback accordingly.
 - UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
+
+## Living City wordmark (labs)
+- Labs entry: `/labs/city-logo` includes controls for voxel scale, detail level, banner scale, and event simulation.
+- Feature flags: `NEXT_PUBLIC_WORDMARK_ANIM_V1` and `NEXT_PUBLIC_WORDMARK_BANNER_V1` (both default on).
 
 Happy shipping! 🎉
