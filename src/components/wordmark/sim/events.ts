@@ -1,3 +1,4 @@
+import { featureFlags } from "@/lib/flags";
 import type { CityWordmarkEvent } from "./types";
 import { parseCityWordmarkEvent } from "./types";
 
@@ -26,6 +27,7 @@ function isRateLimited(now: number): boolean {
 
 export function dispatchCityWordmarkEvent(event: CityWordmarkEvent) {
   if (typeof window === "undefined") return;
+  if (!featureFlags.wordmarkAnimV1 || !featureFlags.wordmarkBannerV1) return;
   const parsed = parseCityWordmarkEvent(event);
   if (!parsed) return;
   const ts = normalizeEventTs(parsed.ts);
@@ -34,6 +36,7 @@ export function dispatchCityWordmarkEvent(event: CityWordmarkEvent) {
 
 export function listenCityWordmarkEvents(listener: CityWordmarkEventListener) {
   if (typeof window === "undefined") return () => {};
+  if (!featureFlags.wordmarkAnimV1 || !featureFlags.wordmarkBannerV1) return () => {};
 
   function onEvent(e: Event) {
     if (!(e instanceof CustomEvent)) return;

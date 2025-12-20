@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import { usePathname } from "next/navigation";
 import { featureFlags } from "@/lib/flags";
 import { cn } from "@/lib/cn";
 import { LivingCityWordmarkSvg } from "./LivingCityWordmarkSvg";
 import { useCityWordmarkSim } from "./sim/useCityWordmarkSim";
+import { trackError } from "@/lib/analytics";
 
 type LivingCityWordmarkProps = {
   className?: string;
@@ -47,7 +48,10 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
   }, []);
 
   const shouldAnimate =
-    featureFlags.wordmarkAnimV1 && !prefersReducedMotion && pathname !== "/labs/city-logo";
+    featureFlags.wordmarkAnimV1 &&
+    featureFlags.wordmarkBannerV1 &&
+    !prefersReducedMotion &&
+    pathname !== "/labs/city-logo";
   const enabled = mounted && shouldAnimate;
   const sim = useCityWordmarkSim({ enabled });
   const { peek, setConfig } = sim;
@@ -66,22 +70,64 @@ export function LivingCityWordmark({ className, bannerScale, preserveAspectRatio
     className
   );
 
-  return (
-    <LivingCityWordmarkSvg
-      titleId={titleId}
-      descId={descId}
-      className={mergedClassName}
-      seed={sim.config.seed}
-      timeOfDay={sim.config.timeOfDay}
-      scheme={sim.config.scheme}
-      nowMs={sim.nowMs}
-      actorRects={sim.actorRects}
-      voxelScale={sim.config.render.voxelScale}
-      renderDetail={sim.config.render.detail}
-      bannerScale={resolvedBannerScale}
-      sizeMode={sizeMode}
-      preserveAspectRatio={preserveAspectRatio}
-      skyline={sim.config.skyline}
-    />
+  const fallback = (
+    <span
+      className={cn(
+        "mdt-wordmark flex items-center justify-center text-caption font-semibold uppercase tracking-[0.35em] text-mdt-muted",
+        className
+      )}
+      aria-label="mark downtown"
+    >
+      mark downtown
+    </span>
   );
+
+  return (
+    <WordmarkErrorBoundary
+      fallback={fallback}
+      onError={(error) =>
+        trackError("wordmark_banner_error", error, { route: pathname })
+      }
+    >
+      <LivingCityWordmarkSvg
+        titleId={titleId}
+        descId={descId}
+        className={mergedClassName}
+        seed={sim.config.seed}
+        timeOfDay={sim.config.timeOfDay}
+        scheme={sim.config.scheme}
+        nowMs={sim.nowMs}
+        actorRects={sim.actorRects}
+        voxelScale={sim.config.render.voxelScale}
+        renderDetail={sim.config.render.detail}
+        bannerScale={resolvedBannerScale}
+        sizeMode={sizeMode}
+        preserveAspectRatio={preserveAspectRatio}
+        skyline={sim.config.skyline}
+      />
+    </WordmarkErrorBoundary>
+  );
+}
+
+type WordmarkErrorBoundaryProps = {
+  fallback: React.ReactNode;
+  onError?: (error: Error) => void;
+  children: React.ReactNode;
+};
+
+class WordmarkErrorBoundary extends React.Component<WordmarkErrorBoundaryProps, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    this.props.onError?.(error);
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
 }

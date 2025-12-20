@@ -5,7 +5,6 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { LivingCityWordmark } from "./wordmark/LivingCityWordmark";
-import { Wordmark } from "./Wordmark";
 import { NavActiveIndicator } from "./nav/NavActiveIndicator";
 import { Button } from "./ui/Button";
 import { Container } from "./ui/Container";
@@ -197,7 +196,18 @@ export function SiteNav({ user }: { user?: User }) {
               />
             ) : (
               <div className="flex h-14 items-center justify-center md:h-16">
-                <Wordmark asLink href="/" size="md" />
+                <Link
+                  href="/"
+                  className={cn(
+                    "text-caption font-semibold uppercase tracking-[0.4em] text-mdt-muted",
+                    interactiveBase,
+                    focusRing,
+                    "rounded-md px-mdt-2 py-mdt-1 hover:text-mdt-text"
+                  )}
+                  aria-label="mark downtown"
+                >
+                  mark downtown
+                </Link>
               </div>
             )}
           </div>

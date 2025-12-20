@@ -11,3 +11,11 @@ export function track(event: string, properties?: Record<string, unknown>) {
     // swallow analytics errors to avoid UI impact
   }
 }
+
+export function trackError(event: string, error: Error, properties?: Record<string, unknown>) {
+  track(event, {
+    message: error.message,
+    stack: error.stack,
+    ...properties,
+  });
+}

@@ -3,7 +3,7 @@ import { dispatchCityWordmarkEvent } from "./events";
 import type { CityWordmarkEvent } from "./types";
 
 export function emitCityWordmarkEvent(event: CityWordmarkEvent) {
-  if (!featureFlags.wordmarkAnimV1) return;
+  if (!featureFlags.wordmarkAnimV1 || !featureFlags.wordmarkBannerV1) return;
 
   const withTs: CityWordmarkEvent = {
     ...event,
@@ -12,4 +12,3 @@ export function emitCityWordmarkEvent(event: CityWordmarkEvent) {
 
   dispatchCityWordmarkEvent(withTs);
 }
-
