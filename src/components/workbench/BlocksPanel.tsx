@@ -47,8 +47,8 @@ export function BlocksPanel() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="mb-mdt-2 flex items-center justify-between">
-        <span className="font-bold text-body-sm text-mdt-muted uppercase tracking-wider">Blocks</span>
+      <div className="mb-mdt-3 flex items-center justify-between">
+        <span className="text-caption font-semibold uppercase tracking-wider text-mdt-muted">Blocks</span>
         <div className="flex items-center gap-mdt-2">
           <label className="sr-only" htmlFor="block-kind">
             Block kind
@@ -89,7 +89,7 @@ export function BlocksPanel() {
                       {...provided.draggableProps}
                       style={provided.draggableProps.style}
                       className={cn(
-                        'group flex items-center gap-mdt-2 rounded-mdt-md border p-mdt-2 transition-colors',
+                        'group flex items-center gap-mdt-2 rounded-mdt-md border p-mdt-2 transition-colors duration-mdt-fast ease-mdt-standard motion-reduce:transition-none',
                         selectedBlockId === block.id
                           ? 'border-mdt-primary bg-mdt-primary/10'
                           : 'border-mdt-border bg-mdt-surface hover:border-mdt-primary-soft',

@@ -16,13 +16,17 @@ export function StructurePanel() {
   }, []);
 
   if (!enabled) {
-    return <div className="p-mdt-4 text-mdt-muted text-body-sm">Loading structure...</div>;
+    return (
+      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
+        Loading structure...
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex h-full min-h-0 flex-col gap-mdt-4">
       <ScopesPanel />
-      <div className="h-px bg-mdt-border my-mdt-4" />
+      <div className="h-px bg-mdt-border" />
       <BlocksPanel />
     </div>
   );

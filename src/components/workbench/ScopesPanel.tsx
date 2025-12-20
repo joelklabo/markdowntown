@@ -56,8 +56,8 @@ export function ScopesPanel() {
 
   return (
     <div>
-      <div className="mb-mdt-2 flex items-center justify-between">
-        <span className="font-bold text-body-sm text-mdt-muted uppercase tracking-wider">Scopes</span>
+      <div className="mb-mdt-3 flex items-center justify-between">
+        <span className="text-caption font-semibold uppercase tracking-wider text-mdt-muted">Scopes</span>
         <Button
           size="xs"
           variant="secondary"
@@ -86,7 +86,7 @@ export function ScopesPanel() {
         </div>
       )}
 
-      <div className="space-y-mdt-1">
+      <div className="space-y-mdt-2">
         {scopes.map(scope => {
           const count = blocks.filter(b => b.scopeId === scope.id).length;
           const selected = selectedScopeId === scope.id;
@@ -96,7 +96,7 @@ export function ScopesPanel() {
             <div
               key={scope.id}
               className={cn(
-                'w-full text-left rounded-mdt-md border px-mdt-2 py-mdt-2 flex items-center gap-mdt-2 transition-colors',
+                'w-full text-left rounded-mdt-md border px-mdt-2 py-mdt-2 flex items-center gap-mdt-2 transition-colors duration-mdt-fast ease-mdt-standard motion-reduce:transition-none',
                 selected ? 'border-mdt-primary bg-mdt-primary/10' : 'border-mdt-border bg-mdt-surface hover:border-mdt-primary-soft'
               )}
             >

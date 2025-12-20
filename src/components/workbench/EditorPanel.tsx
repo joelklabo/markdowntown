@@ -17,8 +17,10 @@ export function EditorPanel() {
 
   if (!block) {
     return (
-      <div className="flex h-full items-center justify-center text-body-sm text-mdt-muted">
-        Select a block to edit
+      <div className="flex h-full items-center justify-center">
+        <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
+          Select a block to edit
+        </div>
       </div>
     );
   }
@@ -67,28 +69,30 @@ export function EditorPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-mdt-3 flex items-center gap-mdt-2">
+      <div className="mb-mdt-3 flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
         <Input
           value={block.title ?? ''}
           onChange={(e) => updateBlockTitle(block.id, e.target.value || undefined)}
           placeholder="Block title (optional)"
           size="sm"
           aria-label="Block title"
+          className="w-full sm:max-w-md"
         />
-        <span className="text-[11px] text-mdt-muted font-mono whitespace-nowrap">
-          {block.kind.toUpperCase()}
+        <span className="inline-flex w-fit items-center rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-mdt-1 text-[11px] font-mono uppercase tracking-wide text-mdt-muted">
+          {block.kind}
         </span>
       </div>
 
       <CodeEditor
         value={block.body}
         onChange={handleBodyChange}
-        className="flex-1 resize-none border-none bg-transparent p-0 focus:ring-0"
+        size="sm"
+        className="flex-1 resize-none"
         placeholder={helpersByKind[block.kind].placeholder}
         autoFocus
       />
 
-      <div className="mt-mdt-2 text-caption text-mdt-muted">
+      <div className="mt-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
         Tip: Type <code>/checklist</code>, <code>/commands</code>, <code>/files</code> to switch kind.
       </div>
     </div>

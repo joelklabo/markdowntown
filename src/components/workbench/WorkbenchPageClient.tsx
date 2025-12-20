@@ -44,34 +44,36 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam, ses
   if (!mounted) return null;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col bg-mdt-bg">
+    <div className="flex h-[calc(100vh-64px)] min-h-0 flex-col bg-mdt-bg">
       <WorkbenchHeader session={session} />
 
-      <TabsRoot
-        value={mobileTab}
-        onValueChange={(value) => setMobileTab(value as typeof mobileTab)}
-        className="md:hidden"
-      >
-        <TabsList className="w-full">
-          <TabsTrigger value="structure" className="flex-1">Structure</TabsTrigger>
-          <TabsTrigger value="editor" className="flex-1">Editor</TabsTrigger>
-          <TabsTrigger value="output" className="flex-1">Output</TabsTrigger>
-        </TabsList>
-      </TabsRoot>
+      <div className="border-b border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3 md:hidden">
+        <TabsRoot
+          value={mobileTab}
+          onValueChange={(value) => setMobileTab(value as typeof mobileTab)}
+          className="w-full"
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="structure" className="flex-1">Structure</TabsTrigger>
+            <TabsTrigger value="editor" className="flex-1">Editor</TabsTrigger>
+            <TabsTrigger value="output" className="flex-1">Output</TabsTrigger>
+          </TabsList>
+        </TabsRoot>
+      </div>
 
-      <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-[280px_1fr_320px]">
+      <div className="grid flex-1 min-h-0 grid-cols-1 overflow-hidden md:grid-cols-[280px_minmax(0,1fr)_320px]">
         <div
           className={`h-full border-r border-mdt-border bg-mdt-surface-subtle ${
             mobileTab === 'structure' ? 'block' : 'hidden md:block'
           }`}
         >
-          <div className="h-full overflow-hidden p-mdt-4">
+          <div className="h-full overflow-hidden p-mdt-4 md:p-mdt-5">
             <StructurePanel />
           </div>
         </div>
 
         <div className={`relative h-full bg-mdt-surface ${mobileTab === 'editor' ? 'block' : 'hidden md:block'}`}>
-          <div className="h-full overflow-hidden p-mdt-4">
+          <div className="h-full overflow-hidden p-mdt-4 md:p-mdt-5">
             <EditorPanel />
           </div>
         </div>
@@ -81,7 +83,7 @@ export function WorkbenchPageClient({ initialArtifactId, initialTemplateUam, ses
             mobileTab === 'output' ? 'block' : 'hidden md:block'
           }`}
         >
-          <div className="flex h-full flex-col overflow-hidden px-0 pb-0 pt-mdt-4">
+          <div className="flex h-full flex-col overflow-hidden p-mdt-4 md:p-mdt-5">
             <OutputPanel />
           </div>
         </div>

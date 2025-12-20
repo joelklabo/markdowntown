@@ -49,26 +49,30 @@ export function LintPanel() {
   }, [uam.scopes, warnings]);
 
   if (warnings.length === 0) {
-    return <div className="p-mdt-4 text-body-sm text-mdt-muted">No lint warnings.</div>;
+    return (
+      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
+        No lint warnings.
+      </div>
+    );
   }
 
   return (
     <div className="h-full overflow-auto space-y-mdt-4 p-mdt-4">
       {groups.map((group) => (
-        <div key={group.scopeId ?? 'global'} className="rounded-mdt-md border border-mdt-border bg-mdt-surface">
-          <div className="flex items-center justify-between gap-mdt-2 border-b border-mdt-border px-mdt-3 py-mdt-2">
-            <div className="text-caption font-semibold text-mdt-text">{group.title}</div>
+        <div key={group.scopeId ?? 'global'} className="rounded-mdt-lg border border-mdt-border bg-mdt-surface shadow-mdt-sm">
+          <div className="flex items-center justify-between gap-mdt-2 border-b border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+            <div className="text-caption font-semibold uppercase tracking-wide text-mdt-text">{group.title}</div>
             <div className="text-caption text-mdt-muted">{group.warnings.length} warning(s)</div>
           </div>
 
           <ul className="divide-y divide-mdt-border">
             {group.warnings.map((w, idx) => (
-              <li key={`${w.code}:${idx}`} className="flex items-start justify-between gap-mdt-3 p-mdt-3">
+              <li key={`${w.code}:${idx}`} className="flex flex-col gap-mdt-2 p-mdt-3 sm:flex-row sm:items-start sm:justify-between sm:gap-mdt-3">
                 <div className="min-w-0">
                   <div className="font-mono text-[11px] text-mdt-muted uppercase tracking-wide">{w.code}</div>
                   <div className="text-body-sm text-mdt-text break-words">{w.message}</div>
                 </div>
-                <Button size="xs" variant="secondary" disabled title="Fix actions coming soon">
+                <Button size="xs" variant="secondary" disabled title="Fix actions coming soon" className="w-fit">
                   {w.fix ? w.fix.label : 'Fix (stub)'}
                 </Button>
               </li>

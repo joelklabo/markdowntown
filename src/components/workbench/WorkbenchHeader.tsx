@@ -63,81 +63,96 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3">
-      <div className="flex items-center gap-mdt-2">
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          size="sm"
-          className="w-64 font-semibold"
-          aria-label="Agent Title"
-        />
-        <Badge tone={visibilityBadge.tone} aria-label={`Visibility: ${visibilityBadge.label}`}>
-          {visibilityBadge.label}
-        </Badge>
-      </div>
-      <div className="flex items-center gap-mdt-2">
-        <Select
-          value={visibility}
-          onChange={(e) => setVisibility(e.target.value as ArtifactVisibility)}
-          aria-label="Visibility"
-          size="sm"
-          className="w-32"
-        >
-          <option value="PRIVATE">Private</option>
-          <option value="UNLISTED">Unlisted</option>
-          <option value="PUBLIC">Public</option>
-        </Select>
-        <Input
-          value={tagsDraft}
-          onChange={(e) => {
-            const value = e.target.value;
-            setTagsDraft(value);
-            setTags(parseTags(value));
-          }}
-          onFocus={() => setTagsFocused(true)}
-          onBlur={() => setTagsFocused(false)}
-          placeholder="Tags (comma-separated)"
-          aria-label="Tags"
-          size="sm"
-          className="w-56"
-        />
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_OPEN_EVENT, { detail: { origin: 'workbench_header' } }));
-          }}
-          title="Command palette (⌘K)"
-        >
-          ⌘K
-        </Button>
-        <div className="text-caption text-mdt-muted tabular-nums leading-tight">
-          <div>
-            {autosaveStatus === 'saving'
-              ? 'Draft: saving…'
-              : autosaveStatus === 'saved'
-                ? `Draft: saved${lastSavedAt ? ` · ${new Date(lastSavedAt).toLocaleTimeString()}` : ''}`
-                : autosaveStatus === 'error'
-                  ? 'Draft: error'
-                  : 'Draft: idle'}
+    <div className="border-b border-mdt-border bg-mdt-surface">
+      <div className="flex flex-col gap-mdt-3 px-mdt-4 py-mdt-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            size="sm"
+            className="w-full font-semibold sm:w-64"
+            aria-label="Agent Title"
+          />
+          <Badge tone={visibilityBadge.tone} aria-label={`Visibility: ${visibilityBadge.label}`}>
+            {visibilityBadge.label}
+          </Badge>
+        </div>
+
+        <div className="flex flex-col gap-mdt-3 md:flex-row md:flex-wrap md:items-center md:justify-end">
+          <div className="flex flex-1 flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <Select
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value as ArtifactVisibility)}
+              aria-label="Visibility"
+              size="sm"
+              className="w-full sm:w-32"
+            >
+              <option value="PRIVATE">Private</option>
+              <option value="UNLISTED">Unlisted</option>
+              <option value="PUBLIC">Public</option>
+            </Select>
+            <Input
+              value={tagsDraft}
+              onChange={(e) => {
+                const value = e.target.value;
+                setTagsDraft(value);
+                setTags(parseTags(value));
+              }}
+              onFocus={() => setTagsFocused(true)}
+              onBlur={() => setTagsFocused(false)}
+              placeholder="Tags (comma-separated)"
+              aria-label="Tags"
+              size="sm"
+              className="w-full sm:w-56 md:w-64"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent(COMMAND_PALETTE_OPEN_EVENT, { detail: { origin: 'workbench_header' } })
+                );
+              }}
+              title="Command palette (⌘K)"
+            >
+              ⌘K
+            </Button>
           </div>
-          <div>
-            {!session
-              ? 'Cloud: sign in'
-              : cloudSaveStatus === 'saving'
-                ? 'Cloud: saving…'
-                : cloudSaveStatus === 'saved'
-                  ? `Cloud: saved${cloudLastSavedAt ? ` · ${new Date(cloudLastSavedAt).toLocaleTimeString()}` : ''}`
-                  : cloudSaveStatus === 'error'
-                    ? 'Cloud: error'
-                    : 'Cloud: idle'}
+
+          <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted tabular-nums leading-tight">
+              <div>
+                {autosaveStatus === 'saving'
+                  ? 'Draft: saving…'
+                  : autosaveStatus === 'saved'
+                    ? `Draft: saved${lastSavedAt ? ` · ${new Date(lastSavedAt).toLocaleTimeString()}` : ''}`
+                    : autosaveStatus === 'error'
+                      ? 'Draft: error'
+                      : 'Draft: idle'}
+              </div>
+              <div>
+                {!session
+                  ? 'Cloud: sign in'
+                  : cloudSaveStatus === 'saving'
+                    ? 'Cloud: saving…'
+                    : cloudSaveStatus === 'saved'
+                      ? `Cloud: saved${cloudLastSavedAt ? ` · ${new Date(cloudLastSavedAt).toLocaleTimeString()}` : ''}`
+                      : cloudSaveStatus === 'error'
+                        ? 'Cloud: error'
+                        : 'Cloud: idle'}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-mdt-2">
+              <Button size="sm" onClick={handleSave} disabled={saving || cloudSaveStatus === 'saving' || !session}>
+                {saving || cloudSaveStatus === 'saving' ? 'Saving...' : 'Save'}
+              </Button>
+              {!session && (
+                <span className="text-caption text-[color:var(--mdt-color-danger)]">Sign in to save</span>
+              )}
+            </div>
           </div>
         </div>
-        <Button size="sm" onClick={handleSave} disabled={saving || cloudSaveStatus === 'saving' || !session}>
-          {saving || cloudSaveStatus === 'saving' ? 'Saving...' : 'Save'}
-        </Button>
-        {!session && <span className="text-caption text-[color:var(--mdt-color-danger)]">Sign in to save</span>}
       </div>
     </div>
   );
