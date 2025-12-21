@@ -3,6 +3,15 @@ export type ContentScanOptions = {
   maxBytes?: number;
 };
 
+export type ContentReadReason = "not-allowlisted" | "too-large" | "unreadable";
+
+export type ContentReadResult = {
+  content: string | null;
+  truncated: boolean;
+  skipped: boolean;
+  reason?: ContentReadReason;
+};
+
 type ReadableFile = {
   size?: number;
   text: () => Promise<string>;
@@ -41,21 +50,25 @@ export async function readInstructionContent(
   path: string,
   readFile: () => Promise<ReadableFile>,
   options: ContentScanOptions = {},
-): Promise<string | null> {
+): Promise<ContentReadResult> {
   const allowlist = options.allowlist ?? DEFAULT_INSTRUCTION_ALLOWLIST;
   const maxBytes = options.maxBytes ?? DEFAULT_MAX_CONTENT_BYTES;
 
-  if (!isAllowlistedInstructionPath(path, allowlist)) return null;
+  if (!isAllowlistedInstructionPath(path, allowlist)) {
+    return { content: null, truncated: false, skipped: true, reason: "not-allowlisted" };
+  }
 
   try {
     const file = await readFile();
     if (typeof file.size === "number" && file.size > maxBytes) {
-      return null;
+      return { content: null, truncated: false, skipped: true, reason: "too-large" };
     }
     const text = await file.text();
-    if (text.length > maxBytes) return text.slice(0, maxBytes);
-    return text;
+    if (text.length > maxBytes) {
+      return { content: text.slice(0, maxBytes), truncated: true, skipped: false };
+    }
+    return { content: text, truncated: false, skipped: false };
   } catch {
-    return null;
+    return { content: null, truncated: false, skipped: true, reason: "unreadable" };
   }
 }

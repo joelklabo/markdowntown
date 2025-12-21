@@ -10,9 +10,11 @@ import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
+import { InstructionContentLint } from "@/components/atlas/InstructionContentLint";
 import { InstructionHealthPanel } from "@/components/atlas/InstructionHealthPanel";
 import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
+import { lintInstructionContent } from "@/lib/atlas/simulators/contentLint";
 import { DEFAULT_MAX_CONTENT_BYTES } from "@/lib/atlas/simulators/contentScan";
 import { computeInstructionDiagnostics } from "@/lib/atlas/simulators/diagnostics";
 import { computeSimulatorInsights } from "@/lib/atlas/simulators/insights";
@@ -403,6 +405,10 @@ export function ContextSimulator() {
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
   );
+  const contentLintResult = useMemo(() => {
+    if (!contentLintOptIn || repoSource !== "folder") return null;
+    return lintInstructionContent(scannedTree ?? { files: [] });
+  }, [contentLintOptIn, repoSource, scannedTree]);
 
   const announceStatus = (message: string) => {
     setActionStatus(message);
@@ -756,6 +762,9 @@ export function ContextSimulator() {
           <div className="space-y-mdt-4">
             {featureFlags.instructionHealthV1 ? (
               <InstructionHealthPanel diagnostics={instructionDiagnostics} copySummaryText={fixSummaryText} />
+            ) : null}
+            {featureFlags.instructionHealthV1 ? (
+              <InstructionContentLint enabled={contentLintOptIn} result={contentLintResult} />
             ) : null}
             <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">

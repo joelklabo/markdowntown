@@ -94,16 +94,25 @@ async function walk(
       const path = joinPath(prefix, name);
       if (!includeOnly || includeOnly.some((pattern) => pattern.test(path))) {
         let content = '';
+        let contentStatus: RepoTreeFile['contentStatus'];
+        let contentReason: RepoTreeFile['contentReason'];
         if (includeContent) {
           const fileHandle = handle as FileSystemFileHandleLike;
           if (typeof fileHandle.getFile === 'function') {
-            const text = await readInstructionContent(path, () => fileHandle.getFile!(), contentOptions);
-            if (text !== null) {
-              content = text;
+            const result = await readInstructionContent(path, () => fileHandle.getFile!(), contentOptions);
+            if (result.content !== null) {
+              content = result.content;
+              contentStatus = result.truncated ? 'truncated' : 'loaded';
+            } else if (result.skipped) {
+              contentStatus = 'skipped';
+              contentReason = result.reason;
             }
+          } else {
+            contentStatus = 'skipped';
+            contentReason = 'unreadable';
           }
         }
-        out.push({ path, content });
+        out.push({ path, content, contentStatus, contentReason });
         matchedFiles += 1;
       }
     }

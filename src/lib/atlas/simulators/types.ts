@@ -3,6 +3,8 @@ export type SimulatorToolId = 'github-copilot' | 'copilot-cli' | 'claude-code' |
 export type RepoTreeFile = {
   path: string;
   content: string;
+  contentStatus?: "loaded" | "truncated" | "skipped";
+  contentReason?: "not-allowlisted" | "too-large" | "unreadable";
 };
 
 export type RepoTree = {

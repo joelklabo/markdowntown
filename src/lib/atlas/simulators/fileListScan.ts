@@ -91,17 +91,26 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
 
     if (shouldInclude(path, includeOnly)) {
       let content = '';
+      let contentStatus: RepoTreeFile['contentStatus'];
+      let contentReason: RepoTreeFile['contentReason'];
       if (includeContent && typeof file.text === 'function') {
-        const text = await readInstructionContent(
+        const result = await readInstructionContent(
           path,
           async () => ({ size: file.size, text: file.text!.bind(file) }),
           contentOptions,
         );
-        if (text !== null) {
-          content = text;
+        if (result.content !== null) {
+          content = result.content;
+          contentStatus = result.truncated ? 'truncated' : 'loaded';
+        } else if (result.skipped) {
+          contentStatus = 'skipped';
+          contentReason = result.reason;
         }
+      } else if (includeContent) {
+        contentStatus = 'skipped';
+        contentReason = 'unreadable';
       }
-      entries.push({ path, content });
+      entries.push({ path, content, contentStatus, contentReason });
       matchedFiles += 1;
     }
   }
