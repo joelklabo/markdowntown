@@ -71,3 +71,33 @@ export type InstructionDiagnostics = {
   tool: SimulatorToolId;
   diagnostics: InstructionDiagnostic[];
 };
+
+export type NextStepSeverity = 'error' | 'warning' | 'info' | 'ready';
+
+export type NextStepActionId =
+  | 'scan-folder'
+  | 'paste-paths'
+  | 'refresh-results'
+  | 'copy-template'
+  | 'open-docs'
+  | 'set-cwd'
+  | 'copy-base-template'
+  | 'switch-tool'
+  | 'review-extra-files'
+  | 'scan-smaller-folder'
+  | 'copy-summary'
+  | 'download-report';
+
+export type NextStepAction = {
+  id: NextStepActionId;
+  label: string;
+};
+
+export type NextStep = {
+  id: string;
+  severity: NextStepSeverity;
+  title: string;
+  body: string;
+  primaryAction?: NextStepAction;
+  secondaryActions?: NextStepAction[];
+};
