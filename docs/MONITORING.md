@@ -8,13 +8,14 @@
 ## PostHog
 - Set `NEXT_PUBLIC_POSTHOG_KEY` (and `NEXT_PUBLIC_POSTHOG_HOST` if self-hosted).
 - Verify pageviews and key events in PostHog; add alerts as needed in PostHog insights.
-- UX telemetry events:
-  - `ui_route_view`, `ui_shell_loaded` (route-level engagement)
-  - `nav_click`, `nav_search_open`, `nav_search_submit`, `nav_search_quick_filter`
-  - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
+  - UX telemetry events:
+    - `ui_route_view`, `ui_shell_loaded` (route-level engagement)
+    - `nav_click`, `nav_search_open`, `nav_search_submit`, `nav_search_quick_filter`
+    - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
   - Onboarding funnel events (see `docs/analytics/events.md`):
     - `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_scan_cancel`, `atlas_simulator_scan_error`
     - `atlas_simulator_simulate`, `atlas_simulator_health_check`, `atlas_simulator_health_template_copy`
+    - `atlas_simulator_next_step_action`, `atlas_simulator_next_step_template_copy`, `atlas_simulator_next_step_template_error`
     - `ui_route_view` with `route=/atlas/simulator` and `route=/workbench`
     - `workbench_export_download` / `workbench_export_copy` (recommended instrumentation)
 - Web vitals / RUM (set `NEXT_PUBLIC_ENABLE_RUM=true`):
@@ -34,6 +35,13 @@ Primary flow KPIs and suggested targets:
 - **Pass rate:** share of `atlas_simulator_health_check` where `errorCount = 0` → target 50%+ (improves as guidance lands)
 - **Warning rate:** share of runs with `warningCount > 0` → monitor for common misconfigurations
 - **Template copy rate:** `atlas_simulator_health_template_copy / atlas_simulator_health_check` → target 15%+ for adoption
+
+## Next steps engagement KPIs
+- **Next steps usage rate:** `atlas_simulator_next_step_action / atlas_simulator_scan_complete` → target 30%+ for first-time users.
+- **Docs click-through:** share of `atlas_simulator_next_step_action` where `actionId = open-docs` → target 10%+.
+- **Template copy rate (Next steps):** `atlas_simulator_next_step_template_copy / atlas_simulator_next_step_action` → target 5%+.
+- **Stale refresh loop:** share of `atlas_simulator_next_step_action` where `actionId = refresh-results` and `isStale = true` → alert if > 50% of actions or > 3 refreshes per scan (likely confusion).
+- **Expected volumes:** 0-3 Next steps actions per scan is typical. Alert if action rate drops to ~0 for 24h (telemetry broken) or spikes above 5 per scan (looping).
 
 Build the funnel in PostHog once the export events are instrumented (see `docs/analytics/events.md`).
 

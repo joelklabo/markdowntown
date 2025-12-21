@@ -32,6 +32,25 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `tool`, `repoSource`, `trigger`, `cwd`, `fileCount`, `issueCount`, `errorCount`, `warningCount`, `infoCount`
 - `atlas_simulator_health_template_copy`
   - Properties: `tool`, `code`, `templateId`, `templatePath`
+- `atlas_simulator_next_step_action`
+  - Properties: `tool`, `repoSource`, `actionId`, `stepId`, `isStale`, `fileCount`
+  - Action IDs:
+    - `open-docs`
+    - `refresh-results`
+    - `scan-folder`
+    - `scan-smaller-folder`
+    - `paste-paths`
+    - `set-cwd`
+    - `switch-tool`
+    - `review-extra-files`
+    - `copy-summary`
+    - `download-report`
+    - `copy-template`
+    - `copy-base-template`
+- `atlas_simulator_next_step_template_copy`
+  - Properties: `tool`, `repoSource`, `templateId`, `templatePath`, `actionId`, `stepId`
+- `atlas_simulator_next_step_template_error`
+  - Properties: `tool`, `repoSource`, `templateId`, `templatePath`, `message` (from error tracking)
 
 ### Workbench (implemented)
 - `ui_route_view` with `route=/workbench` — use as the entry signal.
