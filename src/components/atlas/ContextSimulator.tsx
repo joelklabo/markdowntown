@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -343,9 +343,20 @@ export function ContextSimulator() {
   const [actionStatus, setActionStatus] = useState<string | null>(null);
   const statusTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [directorySupport, setDirectorySupport] = useState<"unknown" | "supported" | "unsupported">("unknown");
 
   const quickUploadEnabled = featureFlags.scanQuickUploadV1;
-  const canPickDirectory = typeof window !== "undefined" && "showDirectoryPicker" in window;
+  const canPickDirectory = directorySupport === "supported";
+  const directorySupportKnown = directorySupport !== "unknown";
+  const directorySupportMessage =
+    canPickDirectory || !directorySupportKnown
+      ? "Scans locally in your browser. File contents are never uploaded."
+      : "File System Access API isn’t supported. Use the folder upload below; scans stay local.";
+
+  useEffect(() => {
+    const supported = typeof window !== "undefined" && "showDirectoryPicker" in window;
+    setDirectorySupport(supported ? "supported" : "unsupported");
+  }, []);
 
   const manualPaths = useMemo(() => parseRepoPaths(repoText), [repoText]);
   const repoFileCount = repoSource === "folder" ? scannedTree?.files.length ?? 0 : manualPaths.length;
@@ -881,11 +892,7 @@ export function ContextSimulator() {
             <div className="space-y-mdt-4">
               <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
                 <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Upload a folder</label>
-                <Text tone="muted" size="bodySm">
-                  {canPickDirectory
-                    ? "Scans locally in your browser. File contents are never uploaded."
-                    : "File System Access API isn’t supported. Use folder upload below; scans stay local."}
-                </Text>
+                <Text tone="muted" size="bodySm">{directorySupportMessage}</Text>
                 <div className="flex flex-wrap gap-mdt-2">
                   <Button
                     type="button"
@@ -1089,11 +1096,7 @@ export function ContextSimulator() {
 
               <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
                 <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Scan a folder</label>
-                <Text tone="muted" size="bodySm">
-                  {canPickDirectory
-                    ? "Scans locally in your browser. File contents are never uploaded."
-                    : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
-                </Text>
+                <Text tone="muted" size="bodySm">{directorySupportMessage}</Text>
                 <div className="space-y-mdt-3">
                   {canPickDirectory ? (
                     <Button
