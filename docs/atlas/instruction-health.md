@@ -4,11 +4,11 @@ Use the Instruction health panel to confirm instruction files are in the right p
 Next steps in the Simulator surfaces the highest-impact Instruction health issues so you can act quickly.
 
 ## How to use
-1. Open Atlas → Simulator and pick the tool you’re validating.
-2. Set **Current directory (cwd)** to where the tool runs (for CLI tools).
-3. Scan a folder (or paste repo paths).
-4. Review the Instruction health status and fixes.
-5. (Optional) Enable content linting to validate formatting locally.
+1. Open Atlas → Simulator and click **Upload a folder**.
+2. Confirm the auto-detected tool/cwd (override in Advanced if needed).
+3. Review the Instruction health status and fixes.
+4. (Optional) Enable content linting to validate formatting locally.
+5. If you can’t scan a folder, use **Paste paths** and set tool/cwd manually.
 
 ## Tool checklists
 

@@ -12,13 +12,12 @@ Use the Atlas Simulator to preview which instruction files load for each tool ba
 - File contents are never read, uploaded, or stored server-side by default.
 - Optional content linting (opt-in) reads instruction file contents locally to surface formatting issues. Content never leaves your browser.
 
-## Folder scan flow
+## Folder scan flow (quick upload)
 1. Open Atlas → Simulator.
-2. Select the tool you want to simulate.
-3. Set Current directory (cwd) to where the tool runs (for example, `src/app`).
-4. Click “Scan a folder” (or use the folder upload input in unsupported browsers).
-5. Click “Refresh results” if you change the tool, cwd, or paths.
-6. Start with Next steps, then review Instruction health, Summary, Loaded files, Insights, Warnings, and the scan metadata.
+2. Click “Upload a folder” and pick your repo (or use the folder upload input in unsupported browsers).
+3. The simulator auto-detects the tool and suggests a cwd when possible. Use the Advanced controls to override.
+4. Start with Next steps, then review Instruction health, Summary, Loaded files, Insights, Warnings, and the scan metadata.
+5. Click “Refresh results” after changing tool/cwd, or when you update files on disk.
 
 ## Next steps panel
 The Results page starts with Next steps so you always know what to do next.
@@ -42,8 +41,9 @@ Enable “Content linting (local-only)” to read instruction files locally and 
 - Files larger than 64 KB are skipped or truncated.
 - The panel summarizes warnings and suggests fixes (e.g., missing `applyTo` front matter).
 
-## Manual fallback
-If you can’t access a local folder, open “Advanced: paste repo paths” and paste one repo path per line.
+## Manual fallback (advanced)
+If you can’t access a local folder, open “Paste paths” and paste one repo path per line. You can still select a tool and cwd
+manually in the Advanced section.
 
 ## Troubleshooting
 - “File System Access API isn’t supported”: use the folder upload input instead.
