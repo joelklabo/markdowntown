@@ -28,7 +28,7 @@ const links = [
 
 type User = { name?: string | null; username?: string | null; email?: string | null; image?: string | null } | null;
 
-export function SiteNav({ user }: { user?: User }) {
+export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -196,13 +196,18 @@ export function SiteNav({ user }: { user?: User }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-mdt-border/70 bg-[color:var(--mdt-color-surface-raised)]/92 backdrop-blur-lg shadow-mdt-md">
+      <header
+        className={cn(
+          "z-30 border-b border-mdt-border/70 bg-[color:var(--mdt-color-surface-raised)]/92 backdrop-blur-lg shadow-mdt-md",
+          sticky && "sticky top-0"
+        )}
+      >
         <div className="border-b border-mdt-border/60">
           <div className="w-full overflow-hidden">
             {featureFlags.wordmarkBannerV1 ? (
               <LivingCityWordmark
                 className="mdt-wordmark--banner"
-                containerClassName="block h-mdt-12 w-full md:h-mdt-14"
+                containerClassName="mdt-site-header-banner"
                 sizeMode="fluid"
                 preserveAspectRatio="xMinYMid slice"
               />
@@ -227,7 +232,7 @@ export function SiteNav({ user }: { user?: User }) {
         <Container
           as="div"
           padding="sm"
-          className="grid min-h-14 grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 py-mdt-3 md:min-h-16 md:gap-mdt-4 md:py-mdt-4"
+          className="mdt-site-header-nav grid grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 md:gap-mdt-4"
         >
           <nav
             ref={desktopNavRef}

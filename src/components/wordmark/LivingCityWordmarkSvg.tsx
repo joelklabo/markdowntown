@@ -44,6 +44,11 @@ const SIREN_RED: Rgb = [255, 84, 84];
 const SIREN_BLUE: Rgb = [84, 148, 255];
 const BASE_VOXEL_PIXEL_SCALE = 3;
 
+function logWordmarkError(scope: string, error: unknown, context?: Record<string, unknown>) {
+  if (process.env.NODE_ENV === "production") return;
+  console.error(`[wordmark:${scope}]`, error, context ?? {});
+}
+
 function renderCelestialBodyRects(
   x: number,
   y: number,
@@ -152,10 +157,18 @@ export function LivingCityWordmarkSvg({
   const detail = renderDetail ?? "hd";
   const resolution = normalizeVoxelScale(voxelScaleProp ?? BASE_VOXEL_PIXEL_SCALE);
   const bannerScale = normalizeVoxelScale(bannerScaleProp ?? 1);
-  const layout = useMemo(
-    () => createCityWordmarkLayout({ resolution, sceneScale: bannerScale, detail }),
-    [detail, resolution, bannerScale]
-  );
+  const layout = useMemo(() => {
+    try {
+      return createCityWordmarkLayout({ resolution, sceneScale: bannerScale, detail });
+    } catch (error) {
+      logWordmarkError("layout", error, { resolution, bannerScale, detail });
+      return createCityWordmarkLayout({
+        resolution: BASE_VOXEL_PIXEL_SCALE,
+        sceneScale: 1,
+        detail: "standard",
+      });
+    }
+  }, [detail, resolution, bannerScale]);
 
   const palette = useMemo(() => getCityWordmarkPalette(timeOfDay, scheme), [scheme, timeOfDay]);
   const gridBuilding = useMemo(
@@ -191,32 +204,41 @@ export function LivingCityWordmarkSvg({
     { x: Math.round(sceneWidth * 0.78), y: 5 * resolution },
   ];
 
-  const skyline = useMemo(
-    () => {
-      const minHeight = (skylineOverrides?.minHeight ?? 2) * gridScale;
-      const maxHeight = (skylineOverrides?.maxHeight ?? 6) * gridScale;
-      const options = {
-        width: sceneWidth,
-        baselineY: layout.baselineY,
-        seed,
-        minHeight,
-        maxHeight,
-        ...(skylineOverrides?.minSegmentWidth != null
-          ? { minSegmentWidth: skylineOverrides.minSegmentWidth }
-          : {}),
-        ...(skylineOverrides?.maxSegmentWidth != null
-          ? { maxSegmentWidth: skylineOverrides.maxSegmentWidth }
-          : {}),
-      };
+  const skyline = useMemo(() => {
+    const minHeight = (skylineOverrides?.minHeight ?? 2) * gridScale;
+    const maxHeight = (skylineOverrides?.maxHeight ?? 6) * gridScale;
+    const options = {
+      width: sceneWidth,
+      baselineY: layout.baselineY,
+      seed,
+      minHeight,
+      maxHeight,
+      ...(skylineOverrides?.minSegmentWidth != null
+        ? { minSegmentWidth: skylineOverrides.minSegmentWidth }
+        : {}),
+      ...(skylineOverrides?.maxSegmentWidth != null
+        ? { maxSegmentWidth: skylineOverrides.maxSegmentWidth }
+        : {}),
+    };
+    try {
       return createCityWordmarkSkylineMask(options);
-    },
-    [layout.baselineY, gridScale, sceneWidth, seed, skylineOverrides]
-  );
+    } catch (error) {
+      logWordmarkError("skyline", error, options);
+      return [];
+    }
+  }, [layout.baselineY, gridScale, sceneWidth, seed, skylineOverrides]);
   const skylinePath = useMemo(() => voxelRectsToPath(skyline, 1), [skyline]);
 
   const wordmarkPath = useMemo(() => voxelRectsToPath(layout.rects, 1), [layout.rects]);
 
-  const windows = useMemo(() => createCityWordmarkWindows({ seed, resolution, detail }), [detail, resolution, seed]);
+  const windows = useMemo(() => {
+    try {
+      return createCityWordmarkWindows({ seed, resolution, detail });
+    } catch (error) {
+      logWordmarkError("windows", error, { seed, resolution, detail });
+      return [];
+    }
+  }, [detail, resolution, seed]);
   const windowState = useMemo(
     () => getCityWordmarkWindowLights(windows, { nowMs, timeOfDay }),
     [nowMs, timeOfDay, windows]
