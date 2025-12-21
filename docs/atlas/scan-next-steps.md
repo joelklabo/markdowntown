@@ -47,6 +47,41 @@ CTA style guidance:
 - Primary: solid button (e.g., “Copy template”, “Scan a folder”, “Refresh results”).
 - Secondary: ghost/outline (e.g., “Open docs”, “Copy summary”).
 
+## Layout guidance (wireframe)
+Desktop:
+- Place the Next steps panel near the top of Results, directly beneath the scan summary.
+- Use a card with a clear header ("Next steps") and a short helper line ("Start here to fix the biggest issue").
+- Each step row: severity pill on the left, title + body stacked, CTA row aligned to the right or under the body.
+- Default spacing: 12-16px between steps, 16-20px between title and body, 8-12px between CTAs.
+- If more than 4 steps, show the first 3 and a "Show all" toggle.
+
+Mobile:
+- Stack CTAs vertically (full-width buttons).
+- Keep severity pill and title on one line; body below.
+- Collapse step list after 2 items with "Show all" to reduce scroll.
+
+## Example panel copy (design reference)
+- Missing root instructions
+  - Title: "Add the root instruction file"
+  - Body: "This tool won't load any instructions without a root file."
+  - Primary: "Copy template"
+  - Secondary: "Open docs"
+- Mixed tools detected
+  - Title: "Multiple tool formats detected"
+  - Body: "You may be scanning the wrong tool or have extra files for other CLIs."
+  - Primary: "Switch tool"
+  - Secondary: "Review extra files"
+- Stale results
+  - Title: "Results are out of date"
+  - Body: "Your inputs changed. Re-run to refresh guidance."
+  - Primary: "Refresh results"
+  - Secondary: "Copy summary"
+- Ready state
+  - Title: "You're ready to go"
+  - Body: "These files should load for the selected tool. You can share the summary or continue."
+  - Primary: "Copy summary"
+  - Secondary: "Download report"
+
 ## State definitions and copy
 
 ### 1) No scan yet
