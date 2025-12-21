@@ -1,6 +1,7 @@
 # Instruction health check
 
 Use the Instruction health panel to confirm instruction files are in the right place for each tool and get actionable fixes.
+Next steps in the Simulator surfaces the highest-impact Instruction health issues so you can act quickly.
 
 ## How to use
 1. Open Atlas → Simulator and pick the tool you’re validating.
@@ -59,3 +60,4 @@ applyTo: "**/*.{ts,tsx}"
 - Use **Copy template** to grab a starter file for the selected tool.
 - Use the path chip to copy the expected file path.
 - Re-run the scan and confirm the status changes to **Pass**.
+- If the Next steps panel is visible, use it to jump straight to the highest-impact fix.

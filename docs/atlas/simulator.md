@@ -18,13 +18,21 @@ Use the Atlas Simulator to preview which instruction files load for each tool ba
 3. Set Current directory (cwd) to where the tool runs (for example, `src/app`).
 4. Click “Scan a folder” (or use the folder upload input in unsupported browsers).
 5. Click “Refresh results” if you change the tool, cwd, or paths.
-6. Review Instruction health, Summary, Loaded files, Insights, Warnings, and the scan metadata.
+6. Start with Next steps, then review Instruction health, Summary, Loaded files, Insights, Warnings, and the scan metadata.
+
+## Next steps panel
+The Results page starts with Next steps so you always know what to do next.
+- Prioritizes fixes (errors → warnings → info).
+- Prompts a rescan when results are stale.
+- Offers actions like Scan a folder, Paste repo paths, Refresh results, Copy template, Open docs, and Copy summary.
+- When everything looks good, it shows a “Ready to go” state so you can share or export confidently.
 
 ## Instruction health check
 The Instruction health panel validates file placement for the selected tool and highlights missing or misplaced instruction files.
 - It shows pass/warn/fail status plus actionable fixes.
 - You can copy a template file or jump to Workbench when files are missing.
 - Use the Fix summary button to share issues with teammates.
+- Next steps pulls its top fixes from Instruction health diagnostics.
 
 See the dedicated guide: `docs/atlas/instruction-health.md`.
 
