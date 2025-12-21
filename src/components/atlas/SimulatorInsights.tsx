@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import type { SimulatorInsights as SimulatorInsightsData } from "@/lib/atlas/simulators/types";
@@ -20,6 +21,13 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
               Expected patterns
             </Text>
+            <Text tone="muted" size="bodySm">
+              These are the locations this tool checks. Add files here to be loaded.{" "}
+              <Link href="/docs" className="text-mdt-text underline underline-offset-2">
+                Atlas Simulator guide
+              </Link>
+              .
+            </Text>
             {insights.expectedPatterns.length === 0 ? (
               <Text tone="muted" size="bodySm">No expected patterns available.</Text>
             ) : (
@@ -37,6 +45,9 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
           <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
               Missing instruction files
+            </Text>
+            <Text tone="muted" size="bodySm">
+              These patterns were expected but not found. Add the files or use Next steps to copy a template.
             </Text>
             {insights.missingFiles.length === 0 ? (
               <Text tone="muted" size="bodySm">No missing instruction files detected.</Text>
@@ -56,6 +67,9 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
               Extra instruction files
             </Text>
+            <Text tone="muted" size="bodySm">
+              These files exist but do not load for the selected tool. Consider removing them or switching tools.
+            </Text>
             {extraFiles.length === 0 ? (
               <Text tone="muted" size="bodySm">No extra instruction files detected for this tool.</Text>
             ) : (
@@ -72,6 +86,13 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
           <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
               Precedence notes
+            </Text>
+            <Text tone="muted" size="bodySm">
+              Shows which file wins when multiple matches apply.{" "}
+              <Link href="/docs" className="text-mdt-text underline underline-offset-2">
+                Learn more in Docs
+              </Link>
+              .
             </Text>
             {insights.precedenceNotes.length === 0 ? (
               <Text tone="muted" size="bodySm">No precedence notes for this tool.</Text>
