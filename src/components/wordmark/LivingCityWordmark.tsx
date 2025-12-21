@@ -138,7 +138,7 @@ export function LivingCityWordmark({
   const fallback = (
     <span
       className={cn(
-        "mdt-wordmark flex items-center justify-center text-caption font-semibold uppercase tracking-[0.35em] text-mdt-muted",
+        "mdt-wordmark flex h-full w-full items-center justify-center text-caption font-semibold uppercase tracking-[0.35em] text-mdt-muted",
         className
       )}
       aria-label="mark downtown"
@@ -148,13 +148,13 @@ export function LivingCityWordmark({
   );
 
   return (
-    <WordmarkErrorBoundary
-      fallback={fallback}
-      onError={(error) =>
-        trackError("wordmark_banner_error", error, { route: pathname })
-      }
-    >
-      <span ref={containerRef} className={mergedContainerClassName}>
+    <span ref={containerRef} className={mergedContainerClassName}>
+      <WordmarkErrorBoundary
+        fallback={fallback}
+        onError={(error) =>
+          trackError("wordmark_banner_error", error, { route: pathname })
+        }
+      >
         <LivingCityWordmarkSvg
           titleId={titleId}
           descId={descId}
@@ -171,8 +171,8 @@ export function LivingCityWordmark({
           preserveAspectRatio={preserveAspectRatio}
           skyline={sim.config.skyline}
         />
-      </span>
-    </WordmarkErrorBoundary>
+      </WordmarkErrorBoundary>
+    </span>
   );
 }
 
