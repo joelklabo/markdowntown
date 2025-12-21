@@ -207,7 +207,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
             {featureFlags.wordmarkBannerV1 ? (
               <LivingCityWordmark
                 className="mdt-wordmark--banner"
-                containerClassName="mdt-site-header-banner"
+                containerClassName="mdt-site-header-banner h-[var(--mdt-site-header-banner-height,var(--mdt-space-12))] md:h-[var(--mdt-site-header-banner-height-md,var(--mdt-space-14))]"
                 sizeMode="fluid"
                 preserveAspectRatio="xMinYMid slice"
               />
@@ -232,7 +232,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
         <Container
           as="div"
           padding="sm"
-          className="mdt-site-header-nav grid grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 md:gap-mdt-4"
+          className="mdt-site-header-nav grid grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 md:gap-mdt-4 min-h-[var(--mdt-site-header-nav-min-height,var(--mdt-space-14))] md:min-h-[var(--mdt-site-header-nav-min-height-md,var(--mdt-space-16))] py-[var(--mdt-site-header-nav-padding-y,var(--mdt-space-3))] md:py-[var(--mdt-site-header-nav-padding-y-md,var(--mdt-space-4))]"
         >
           <nav
             ref={desktopNavRef}
