@@ -15,6 +15,7 @@ export const featureFlags = {
   themeRefreshV1: envBool(process.env.NEXT_PUBLIC_THEME_REFRESH_V1),
   uxClarityV1: envBool(process.env.NEXT_PUBLIC_UX_CLARITY_V1),
   instructionHealthV1: envBool(process.env.NEXT_PUBLIC_INSTRUCTION_HEALTH_V1),
+  scanNextStepsV1: envBool(process.env.NEXT_PUBLIC_SCAN_NEXT_STEPS_V1),
   wordmarkAnimV1: envBoolDefaultTrue(process.env.NEXT_PUBLIC_WORDMARK_ANIM_V1),
   wordmarkBannerV1: envBoolDefaultTrue(process.env.NEXT_PUBLIC_WORDMARK_BANNER_V1),
 };

@@ -69,8 +69,12 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - OAuth callback mismatch: set `NEXTAUTH_URL` to your running URL and update GitHub OAuth callback accordingly.
 - UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
 
+## Feature flags
+- UI flags (default off): `NEXT_PUBLIC_THEME_REFRESH_V1`, `NEXT_PUBLIC_UX_CLARITY_V1`, `NEXT_PUBLIC_INSTRUCTION_HEALTH_V1`, `NEXT_PUBLIC_SCAN_NEXT_STEPS_V1`.
+- Wordmark flags (default on): `NEXT_PUBLIC_WORDMARK_ANIM_V1`, `NEXT_PUBLIC_WORDMARK_BANNER_V1`.
+
 ## Living City wordmark (labs)
 - Labs entry: `/labs/city-logo` includes controls for voxel scale, detail level, banner scale, and event simulation.
-- Feature flags: `NEXT_PUBLIC_WORDMARK_ANIM_V1` and `NEXT_PUBLIC_WORDMARK_BANNER_V1` (both default on).
+- Feature flags: see the Feature flags section (wordmark flags default on).
 
 Happy shipping! 🎉
