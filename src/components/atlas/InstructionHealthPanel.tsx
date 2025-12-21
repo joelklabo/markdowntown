@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
+import { track } from "@/lib/analytics";
 import type { InstructionDiagnostic, InstructionDiagnostics, SimulatorToolId } from "@/lib/atlas/simulators/types";
 import Link from "next/link";
 
@@ -340,6 +341,14 @@ export function InstructionHealthPanel({ diagnostics, copySummaryText }: Instruc
                           variant="secondary"
                           size="xs"
                           aria-label={`Copy ${template.label}`}
+                          onCopy={() =>
+                            track("atlas_simulator_health_template_copy", {
+                              tool: diagnostics.tool,
+                              code: item.code,
+                              templateId: template.id,
+                              templatePath: template.path,
+                            })
+                          }
                         />
                       ) : null}
                       {showWorkbench ? (

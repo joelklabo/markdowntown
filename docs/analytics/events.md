@@ -26,6 +26,12 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `method`, `tool`
 - `atlas_simulator_scan_error`
   - Properties: `method`, `tool`, `message` (from error tracking)
+- `atlas_simulator_simulate`
+  - Properties: `tool`, `repoSource`, `trigger`, `cwd`, `fileCount`
+- `atlas_simulator_health_check`
+  - Properties: `tool`, `repoSource`, `trigger`, `cwd`, `fileCount`, `issueCount`, `errorCount`, `warningCount`, `infoCount`
+- `atlas_simulator_health_template_copy`
+  - Properties: `tool`, `code`, `templateId`, `templatePath`
 
 ### Workbench (implemented)
 - `ui_route_view` with `route=/workbench` — use as the entry signal.

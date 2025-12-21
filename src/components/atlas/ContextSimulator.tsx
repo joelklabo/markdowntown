@@ -428,6 +428,9 @@ export function ContextSimulator() {
     const nextResult = simulateContextResolution({ tool, cwd, tree });
     const nextInsights = computeSimulatorInsights({ tool, cwd, tree });
     const nextDiagnostics = computeInstructionDiagnostics({ tool, cwd, tree });
+    const errorCount = nextDiagnostics.diagnostics.filter((item) => item.severity === "error").length;
+    const warningCount = nextDiagnostics.diagnostics.filter((item) => item.severity === "warning").length;
+    const infoCount = nextDiagnostics.diagnostics.filter((item) => item.severity === "info").length;
     setResult(nextResult);
     setInsights(nextInsights);
     setInstructionDiagnostics(nextDiagnostics);
@@ -442,6 +445,19 @@ export function ContextSimulator() {
       cwd: normalizePath(cwd) || undefined,
       fileCount: normalizedPaths.length,
     });
+    if (featureFlags.instructionHealthV1) {
+      track("atlas_simulator_health_check", {
+        tool,
+        repoSource: source,
+        trigger,
+        cwd: normalizePath(cwd) || undefined,
+        fileCount: normalizedPaths.length,
+        issueCount: nextDiagnostics.diagnostics.length,
+        errorCount,
+        warningCount,
+        infoCount,
+      });
+    }
   };
 
   const handleCopySummary = async () => {

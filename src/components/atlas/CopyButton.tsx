@@ -9,6 +9,7 @@ type CopyButtonProps = {
   label?: string;
   copiedLabel?: string;
   timeoutMs?: number;
+  onCopy?: () => void;
 } & Omit<ButtonProps, "children" | "onClick">;
 
 export function CopyButton({
@@ -16,6 +17,7 @@ export function CopyButton({
   label = "Copy",
   copiedLabel = "Copied",
   timeoutMs = 1200,
+  onCopy,
   className,
   ...props
 }: CopyButtonProps) {
@@ -34,6 +36,7 @@ export function CopyButton({
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      onCopy?.();
 
       if (timerRef.current !== null) {
         window.clearTimeout(timerRef.current);
@@ -51,4 +54,3 @@ export function CopyButton({
     </Button>
   );
 }
-

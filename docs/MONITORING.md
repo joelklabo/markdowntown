@@ -14,6 +14,7 @@
   - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
   - Onboarding funnel events (see `docs/analytics/events.md`):
     - `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_scan_cancel`, `atlas_simulator_scan_error`
+    - `atlas_simulator_simulate`, `atlas_simulator_health_check`, `atlas_simulator_health_template_copy`
     - `ui_route_view` with `route=/atlas/simulator` and `route=/workbench`
     - `workbench_export_download` / `workbench_export_copy` (recommended instrumentation)
 - Web vitals / RUM (set `NEXT_PUBLIC_ENABLE_RUM=true`):
@@ -27,6 +28,12 @@ Primary flow KPIs and suggested targets:
 - **Export rate:** `workbench_export_download or workbench_export_copy / ui_route_view(route=/workbench)` → target 25%+
 - **Median time to export:** time from `atlas_simulator_scan_start` to export → target < 5 minutes
 - **Scan error rate:** `atlas_simulator_scan_error / atlas_simulator_scan_start` → target < 5%
+
+## Instruction health check KPIs
+- **Health check run rate:** `atlas_simulator_health_check / atlas_simulator_simulate` → target 95%+ (feature enabled)
+- **Pass rate:** share of `atlas_simulator_health_check` where `errorCount = 0` → target 50%+ (improves as guidance lands)
+- **Warning rate:** share of runs with `warningCount > 0` → monitor for common misconfigurations
+- **Template copy rate:** `atlas_simulator_health_template_copy / atlas_simulator_health_check` → target 15%+ for adoption
 
 Build the funnel in PostHog once the export events are instrumented (see `docs/analytics/events.md`).
 
