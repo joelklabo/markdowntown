@@ -1,0 +1,128 @@
+# Scan Results Next Steps Spec
+
+This spec defines how the Atlas Simulator results page should guide first-time users toward the correct next action. The goal is to reduce ambiguity after a scan and make the next fix obvious.
+
+## Goals
+- Make the next action unambiguous for first-time users.
+- Prioritize the highest-impact fix first (errors > warnings > info).
+- Keep privacy/local-only messaging clear and consistent.
+- Keep CTAs short and action-oriented.
+
+## Non-goals
+- Changing scan/diagnostic algorithms.
+- Uploading or storing file contents server-side.
+
+## Inputs and signals
+- `tool` (selected tool id)
+- `repoSource` (folder scan vs manual paths)
+- `cwd` (current directory)
+- `isStale` (inputs changed since last run)
+- `scanMeta` (total files, matched files, truncated, root name)
+- `instructionDiagnostics` (errors/warnings/info)
+- `insights` (expected patterns, missing files, precedence notes)
+- `extraFiles` (instruction files not matched to tool)
+- `warnings` (e.g., large tree)
+
+## Step model
+Each step should include:
+- `severity`: error | warning | info | ready
+- `title`: short imperative
+- `body`: plain-language explanation + impact
+- `primaryAction`: label + action id (optional)
+- `secondaryActions`: optional list
+
+Ordering rules:
+1. Stale-results state overrides other steps and must appear first.
+2. Errors next (max 2 shown by default, with “Show all” if more).
+3. Warnings next (max 2 by default).
+4. Info steps last.
+5. Ready state shows a single “All set” step (no errors/warnings).
+
+## CTA hierarchy
+- Primary CTA: a single, high-impact action that fixes the top issue.
+- Secondary CTAs: learn more, copy summary, download report, open Workbench.
+- Avoid more than 2 CTAs in one step.
+
+CTA style guidance:
+- Primary: solid button (e.g., “Copy template”, “Scan a folder”, “Refresh results”).
+- Secondary: ghost/outline (e.g., “Open docs”, “Copy summary”).
+
+## State definitions and copy
+
+### 1) No scan yet
+**When:** `repoSource=folder` and no scan tree, or manual paths empty.
+- Title: “Scan your repo to get next steps”
+- Body: “Pick a folder (or paste paths) so we can see which instructions load.”
+- Primary CTA: “Scan a folder” (or “Upload folder” if picker unsupported)
+- Secondary CTA: “Paste repo paths” (opens Advanced)
+
+### 2) Stale results
+**When:** `isStale=true`.
+- Title: “Results are out of date”
+- Body: “Your inputs changed. Re-run to refresh guidance.”
+- Primary CTA: “Refresh results”
+- Secondary CTA: “Copy summary” (optional)
+
+### 3) Missing root instructions (error)
+**When:** diagnostics include missing root file (e.g., `missing.agents`, `missing.claude`).
+- Title: “Add the root instruction file”
+- Body: “This tool won’t load any instructions without a root file.”
+- Primary CTA: “Copy template”
+- Secondary CTA: “Open docs”
+
+### 4) Missing cwd (warning)
+**When:** diagnostics include `missing-cwd`.
+- Title: “Set the current directory (cwd)”
+- Body: “Ancestor scans depend on where the tool runs. Set cwd so we load the right instructions.”
+- Primary CTA: “Set cwd” (focus the input)
+
+### 5) Override without base (warning)
+**When:** diagnostics include `override-without-base`.
+- Title: “Add a base file for overrides”
+- Body: “Overrides replace a base file in the same folder. Add the base file so the override is valid.”
+- Primary CTA: “Copy base template”
+
+### 6) Mixed-tool instructions (warning)
+**When:** diagnostics include `mixed-tools`.
+- Title: “Multiple tool formats detected”
+- Body: “You may be scanning the wrong tool or have extra files for other CLIs.”
+- Primary CTA: “Switch tool” (open tool selector)
+- Secondary CTA: “Review extra files” (scroll to extra list)
+
+### 7) Large tree warning
+**When:** warning `scan-risk.large-tree`.
+- Title: “Limit the scan scope”
+- Body: “Large repos can bloat context. Consider scanning a narrower folder.”
+- Primary CTA: “Scan a smaller folder”
+- Secondary CTA: “Paste repo paths”
+
+### 8) Ready state
+**When:** no errors/warnings.
+- Title: “You’re ready to go”
+- Body: “These files should load for the selected tool. You can share the summary or continue.”
+- Primary CTA: “Copy summary”
+- Secondary CTA: “Download report”
+
+## Section helper text updates
+Use short, action-oriented copy beneath section headings:
+- Summary: “Quick snapshot of what loads and what’s missing.”
+- Loaded files: “These files will be read by the tool based on your cwd.”
+- Warnings: “Non-blocking issues that can still affect results.”
+- Expected patterns: “Where this tool looks for instruction files.”
+- Missing files: “Patterns that were expected but not found.”
+- Extra files: “Instruction files for other tools or unused paths.”
+- Precedence notes: “Which files override or win when multiple are found.”
+
+## Privacy messaging (results area)
+Always include (or link to) a short reminder:
+- “Scans run locally in your browser. File contents are never uploaded.”
+
+## Examples by tool (abbreviated)
+- Codex CLI: root `AGENTS.md` missing -> “Copy AGENTS.md template.”
+- Claude Code: missing `CLAUDE.md` -> “Add CLAUDE.md at repo root.”
+- Gemini CLI: missing `GEMINI.md` -> “Add GEMINI.md at repo root.”
+- Copilot CLI: missing `.github/copilot-instructions.md` -> “Copy Copilot CLI template.”
+- GitHub Copilot: missing `.github/instructions/*.instructions.md` -> “Open docs for scoped rules.”
+
+## Refactoring/bug-fix reminder
+While implementing this spec, always watch for refactoring opportunities, bug fixes, and improvements. Create new bd tasks when discovered.
