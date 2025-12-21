@@ -9,15 +9,24 @@ import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
+import { InstructionHealthPanel } from "@/components/atlas/InstructionHealthPanel";
 import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
+import { computeInstructionDiagnostics } from "@/lib/atlas/simulators/diagnostics";
 import { computeSimulatorInsights } from "@/lib/atlas/simulators/insights";
 import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
 import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsScan";
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
-import type { RepoTree, SimulationResult, SimulatorInsights as SimulatorInsightsData, SimulatorToolId } from "@/lib/atlas/simulators/types";
+import type {
+  InstructionDiagnostics,
+  RepoTree,
+  SimulationResult,
+  SimulatorInsights as SimulatorInsightsData,
+  SimulatorToolId,
+} from "@/lib/atlas/simulators/types";
 import { track, trackError } from "@/lib/analytics";
+import { featureFlags } from "@/lib/flags";
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
   { id: "github-copilot", label: "GitHub Copilot" },
@@ -229,6 +238,47 @@ function formatSummary({ tool, cwd, repoSource, result, insights, extraFiles, is
   return lines.join("\n");
 }
 
+type FixSummaryInput = {
+  tool: SimulatorToolId;
+  cwd: string;
+  diagnostics: InstructionDiagnostics;
+  isStale: boolean;
+};
+
+function formatFixSummary({ tool, cwd, diagnostics, isStale }: FixSummaryInput): string {
+  const lines: string[] = [];
+  const errorCount = diagnostics.diagnostics.filter((item) => item.severity === "error").length;
+  const warningCount = diagnostics.diagnostics.filter((item) => item.severity === "warning").length;
+  const infoCount = diagnostics.diagnostics.filter((item) => item.severity === "info").length;
+  const statusLabel = errorCount > 0 ? "Fail" : warningCount > 0 ? "Warn" : "Pass";
+
+  lines.push(`Instruction health: ${toolLabel(tool)} (${tool})`);
+  lines.push(`CWD: ${normalizePath(cwd) || "(repo root)"}`);
+  if (isStale) {
+    lines.push("Note: Results may be out of date. Re-run simulation for fresh results.");
+  }
+  lines.push(`Status: ${statusLabel}`);
+  lines.push(`Counts: ${errorCount} error(s), ${warningCount} warning(s), ${infoCount} note(s)`);
+  lines.push("");
+
+  if (diagnostics.diagnostics.length === 0) {
+    lines.push("No placement issues detected.");
+    return lines.join("\n");
+  }
+
+  lines.push("Issues:");
+  for (const issue of diagnostics.diagnostics) {
+    lines.push(`- [${issue.severity.toUpperCase()}] ${issue.message}`);
+    if (issue.suggestion) {
+      lines.push(`  Fix: ${issue.suggestion}`);
+    } else if (issue.expectedPath) {
+      lines.push(`  Expected: ${issue.expectedPath}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 export function ContextSimulator() {
   const [tool, setTool] = useState<SimulatorToolId>("github-copilot");
   const [cwd, setCwd] = useState("");
@@ -249,6 +299,9 @@ export function ContextSimulator() {
   );
   const [insights, setInsights] = useState<SimulatorInsightsData>(() =>
     computeSimulatorInsights({ tool: "github-copilot", cwd: "", tree: EMPTY_REPO_TREE }),
+  );
+  const [instructionDiagnostics, setInstructionDiagnostics] = useState<InstructionDiagnostics>(() =>
+    computeInstructionDiagnostics({ tool: "github-copilot", cwd: "", tree: EMPTY_REPO_TREE }),
   );
   const [lastSimulatedSignature, setLastSimulatedSignature] = useState(() =>
     buildInputSignature("github-copilot", "", "folder", []),
@@ -342,6 +395,10 @@ export function ContextSimulator() {
     const found = new Set(insights.foundFiles.map((path) => normalizePath(path)));
     return lastSimulatedPaths.filter((path) => isInstructionPath(path) && !found.has(path));
   }, [insights, lastSimulatedPaths]);
+  const fixSummaryText = useMemo(
+    () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
+    [cwd, instructionDiagnostics, isStale, tool],
+  );
 
   const announceStatus = (message: string) => {
     setActionStatus(message);
@@ -360,8 +417,10 @@ export function ContextSimulator() {
     const normalizedPaths = normalizePaths(sourcePaths);
     const nextResult = simulateContextResolution({ tool, cwd, tree });
     const nextInsights = computeSimulatorInsights({ tool, cwd, tree });
+    const nextDiagnostics = computeInstructionDiagnostics({ tool, cwd, tree });
     setResult(nextResult);
     setInsights(nextInsights);
+    setInstructionDiagnostics(nextDiagnostics);
     setLastSimulatedSignature(buildInputSignature(tool, cwd, source, normalizedPaths));
     setLastSimulatedPaths(normalizedPaths);
     setRepoSource(source);
@@ -670,6 +729,9 @@ export function ContextSimulator() {
           </Stack>
 
           <div className="space-y-mdt-4">
+            {featureFlags.instructionHealthV1 ? (
+              <InstructionHealthPanel diagnostics={instructionDiagnostics} copySummaryText={fixSummaryText} />
+            ) : null}
             <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
                 Summary
