@@ -7,6 +7,8 @@ describe("redactAnalyticsPayload", () => {
       content: "secret",
       paths: ["a/one", "b/two"],
       files: ["AGENTS.md"],
+      cwd: "projects/secret-repo",
+      rootName: "secret-repo",
       path: "/atlas/simulator",
       fileCount: 2,
       nested: {
@@ -29,6 +31,8 @@ describe("redactAnalyticsPayload", () => {
       content: "secret",
       paths: ["a/one", "b/two"],
       files: ["AGENTS.md"],
+      cwd: "projects/secret-repo",
+      rootName: "secret-repo",
       path: "/atlas/simulator",
       fileCount: 2,
       nested: {

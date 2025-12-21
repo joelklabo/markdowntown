@@ -21,7 +21,7 @@ export default function PrivacyPage() {
             <Heading level="display" leading="tight">Your data stays in your workspace</Heading>
             <Text tone="muted" leading="relaxed">
               mark downtown runs as a local or self-hosted preview. We only keep what you intentionally save, and Atlas
-              folder scans stay in your browser.
+              folder scans stay in your browser using local file access.
             </Text>
           </Stack>
 
@@ -32,10 +32,13 @@ export default function PrivacyPage() {
             </div>
             <ul className="list-disc space-y-mdt-2 pl-mdt-5">
               <Text as="li" size="bodySm" tone="muted">
-                Folder scans run locally in your browser; file contents are never uploaded.
+                Folder scans run locally in your browser; file contents never leave your device.
               </Text>
               <Text as="li" size="bodySm" tone="muted">
                 Simulator results use file paths only, and repo contents are not stored on our servers.
+              </Text>
+              <Text as="li" size="bodySm" tone="muted">
+                Analytics (if enabled) redact file paths, cwd values, and folder names.
               </Text>
               <Text as="li" size="bodySm" tone="muted">
                 Optional analytics (when enabled) capture event names, tool selections, and counts\u2014not file contents.

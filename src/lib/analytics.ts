@@ -5,11 +5,13 @@
 const REDACT_KEYS = new Set([
   "content",
   "contents",
+  "cwd",
   "paths",
   "filepaths",
   "filepath",
   "filelist",
   "files",
+  "rootname",
   "tree",
   "repotree",
   "repopaths",
