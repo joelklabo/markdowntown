@@ -9,6 +9,7 @@ vi.mock("@/lib/flags", () => ({
     themeRefreshV1: false,
     uxClarityV1: false,
     instructionHealthV1: true,
+    scanNextStepsV1: true,
     wordmarkAnimV1: true,
     wordmarkBannerV1: true,
   },
@@ -41,6 +42,8 @@ describe("ContextSimulator", () => {
     render(<ContextSimulator />);
     expect(screen.getByRole("heading", { name: "Scan setup" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Results" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Next steps" })).toBeInTheDocument();
+    expect(screen.getByText(/scan your repo to get next steps/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeInTheDocument();
 
@@ -52,7 +55,7 @@ describe("ContextSimulator", () => {
       ".github/copilot-instructions.md\n.github/instructions/apps-web.instructions.md\nAGENTS.md\n"
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     expect(screen.getByRole("heading", { name: "Instruction health" })).toBeInTheDocument();
     expect(screen.getByText("0 errors / 1 warning")).toBeInTheDocument();
@@ -81,7 +84,7 @@ describe("ContextSimulator", () => {
       ".github/copilot-instructions.md\n.github/copilot-instructions/apps-web.instructions.md\n.github/agents/release.agent.md\nAGENTS.md\n"
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
@@ -105,7 +108,7 @@ describe("ContextSimulator", () => {
       "AGENTS.md\nAGENTS.override.md\npackages/app/AGENTS.md\n"
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     const items = within(loadedList).getAllByRole("listitem");
@@ -130,9 +133,10 @@ describe("ContextSimulator", () => {
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");
-    await userEvent.click(screen.getByRole("button", { name: "Scan a folder" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
 
     expect(await screen.findByText(/2 file\(s\) scanned.*2 instruction file\(s\) matched/i)).toBeInTheDocument();
+    expect(await screen.findByText(/you're ready to go/i)).toBeInTheDocument();
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText("AGENTS.md")).toBeInTheDocument();
