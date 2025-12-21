@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -12,6 +13,7 @@ import { TextArea } from "@/components/ui/TextArea";
 import { InstructionHealthPanel } from "@/components/atlas/InstructionHealthPanel";
 import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
+import { DEFAULT_MAX_CONTENT_BYTES } from "@/lib/atlas/simulators/contentScan";
 import { computeInstructionDiagnostics } from "@/lib/atlas/simulators/diagnostics";
 import { computeSimulatorInsights } from "@/lib/atlas/simulators/insights";
 import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
@@ -284,6 +286,7 @@ export function ContextSimulator() {
   const [cwd, setCwd] = useState("");
   const [repoSource, setRepoSource] = useState<"manual" | "folder">("folder");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [contentLintOptIn, setContentLintOptIn] = useState(false);
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
   const [scanMeta, setScanMeta] = useState<{
@@ -325,6 +328,7 @@ export function ContextSimulator() {
   );
   const isStale = currentSignature !== lastSimulatedSignature;
   const advancedOpen = showAdvanced || repoSource === "manual";
+  const maxContentKb = Math.round(DEFAULT_MAX_CONTENT_BYTES / 1024);
 
   const scannedPreview = useMemo(() => {
     const paths = (scannedTree?.files ?? []).map((file) => file.path);
@@ -557,7 +561,8 @@ export function ContextSimulator() {
                         if (!picker) throw new Error("File System Access API not available");
                         const handle = await picker();
                         const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
-                          handle as FileSystemDirectoryHandleLike
+                          handle as FileSystemDirectoryHandleLike,
+                          { includeContent: contentLintOptIn },
                         );
                         const rootName = (handle as { name?: string }).name;
                         setScannedTree(tree);
@@ -607,13 +612,15 @@ export function ContextSimulator() {
                     // @ts-expect-error - non-standard attribute for directory uploads
                     webkitdirectory="true"
                     aria-label="Upload folder"
-                    onChange={(event) => {
+                    onChange={async (event) => {
                       setScanError(null);
                       const files = event.target.files;
                       if (!files || files.length === 0) return;
                       try {
                         track("atlas_simulator_scan_start", { method: "file_input", tool });
-                        const { tree, totalFiles, matchedFiles, truncated } = scanFileList(files);
+                        const { tree, totalFiles, matchedFiles, truncated } = await scanFileList(files, {
+                          includeContent: contentLintOptIn,
+                        });
                         const rootName = files[0]?.webkitRelativePath?.split("/")[0];
                         setScannedTree(tree);
                         setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
@@ -659,6 +666,24 @@ export function ContextSimulator() {
                   readOnly
                   placeholder="Scanned paths will appear here."
                 />
+
+                <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                  <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                    Optional: content linting
+                  </Text>
+                  <Text tone="muted" size="bodySm">
+                    Opt in to read instruction file contents locally for linting. Files never leave your browser.
+                  </Text>
+                  <Checkbox
+                    checked={contentLintOptIn}
+                    onChange={(event) => setContentLintOptIn(event.target.checked)}
+                  >
+                    Enable content linting (local-only)
+                  </Checkbox>
+                  <Text tone="muted" size="bodySm">
+                    Only instruction files are read. Files larger than {maxContentKb} KB are skipped.
+                  </Text>
+                </div>
               </div>
 
               <details

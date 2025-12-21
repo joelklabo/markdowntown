@@ -1,9 +1,12 @@
-import type { RepoScanResult, RepoTree } from './types.ts';
+import type { RepoScanResult, RepoTree, RepoTreeFile } from './types.ts';
 import { DEFAULT_IGNORE_DIRS, DEFAULT_MAX_FILES } from './fsScan.ts';
+import { readInstructionContent, type ContentScanOptions } from './contentScan.ts';
 
 export type FileLike = {
   name: string;
   webkitRelativePath?: string;
+  size?: number;
+  text?: () => Promise<string>;
 };
 
 export type FileListLike = Array<FileLike> | { length: number; item: (index: number) => FileLike | null };
@@ -12,6 +15,9 @@ export type FileListScanOptions = {
   ignoreDirs?: string[];
   maxFiles?: number;
   includeOnly?: RegExp[];
+  includeContent?: boolean;
+  contentAllowlist?: RegExp[];
+  maxContentBytes?: number;
 };
 
 function normalizePath(value: string): string {
@@ -55,11 +61,16 @@ function toRepoPath(file: FileLike): string {
   return stripRootFolder(normalized, hasRelative);
 }
 
-export function scanFileList(files: FileListLike, options: FileListScanOptions = {}): RepoScanResult {
+export async function scanFileList(files: FileListLike, options: FileListScanOptions = {}): Promise<RepoScanResult> {
   const ignoreDirs = new Set(options.ignoreDirs ?? DEFAULT_IGNORE_DIRS);
   const maxFiles = options.maxFiles ?? DEFAULT_MAX_FILES;
   const includeOnly = options.includeOnly;
-  const paths: string[] = [];
+  const includeContent = options.includeContent ?? false;
+  const contentOptions: ContentScanOptions = {
+    allowlist: options.contentAllowlist,
+    maxBytes: options.maxContentBytes,
+  };
+  const entries: RepoTreeFile[] = [];
 
   let totalFiles = 0;
   let matchedFiles = 0;
@@ -71,7 +82,7 @@ export function scanFileList(files: FileListLike, options: FileListScanOptions =
       break;
     }
 
-    // Guardrail: only read path metadata, never file contents.
+    // Guardrail: only read content when opted-in and allowlisted.
     const path = toRepoPath(file);
     if (!path) continue;
     if (containsIgnoredDir(path, ignoreDirs)) continue;
@@ -79,13 +90,24 @@ export function scanFileList(files: FileListLike, options: FileListScanOptions =
     totalFiles += 1;
 
     if (shouldInclude(path, includeOnly)) {
-      paths.push(path);
+      let content = '';
+      if (includeContent && typeof file.text === 'function') {
+        const text = await readInstructionContent(
+          path,
+          async () => ({ size: file.size, text: file.text!.bind(file) }),
+          contentOptions,
+        );
+        if (text !== null) {
+          content = text;
+        }
+      }
+      entries.push({ path, content });
       matchedFiles += 1;
     }
   }
 
   const tree: RepoTree = {
-    files: paths.map((path) => ({ path, content: '' })),
+    files: entries,
   };
 
   return { tree, totalFiles, matchedFiles, truncated };

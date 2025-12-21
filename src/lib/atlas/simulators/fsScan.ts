@@ -1,8 +1,14 @@
-import type { RepoTree } from './types.ts';
+import type { RepoTree, RepoTreeFile } from './types.ts';
+import { readInstructionContent, type ContentScanOptions } from './contentScan.ts';
 
 export type FileSystemHandleLike = {
   kind: 'file' | 'directory';
   name: string;
+};
+
+export type FileSystemFileHandleLike = FileSystemHandleLike & {
+  kind: 'file';
+  getFile?: () => Promise<{ size?: number; text: () => Promise<string> }>;
 };
 
 export type FileSystemDirectoryHandleLike = FileSystemHandleLike & {
@@ -14,6 +20,9 @@ export type FsScanOptions = {
   ignoreDirs?: string[];
   maxFiles?: number;
   includeOnly?: RegExp[];
+  includeContent?: boolean;
+  contentAllowlist?: RegExp[];
+  maxContentBytes?: number;
 };
 
 export type FsScanResult = {
@@ -46,7 +55,9 @@ async function walk(
   ignoreDirs: Set<string>,
   maxFiles: number,
   includeOnly: RegExp[] | undefined,
-  out: string[],
+  includeContent: boolean,
+  contentOptions: ContentScanOptions,
+  out: RepoTreeFile[],
 ): Promise<{ totalFiles: number; matchedFiles: number; truncated: boolean }> {
   let totalFiles = 0;
   let matchedFiles = 0;
@@ -67,6 +78,8 @@ async function walk(
         ignoreDirs,
         maxFiles,
         includeOnly,
+        includeContent,
+        contentOptions,
         out,
       );
       totalFiles += result.totalFiles;
@@ -76,11 +89,21 @@ async function walk(
     }
 
     if (handle.kind === 'file') {
-      // Guardrail: never read file contents; collect paths only.
+      // Guardrail: read contents only when opted-in and allowlisted.
       totalFiles += 1;
       const path = joinPath(prefix, name);
       if (!includeOnly || includeOnly.some((pattern) => pattern.test(path))) {
-        out.push(path);
+        let content = '';
+        if (includeContent) {
+          const fileHandle = handle as FileSystemFileHandleLike;
+          if (typeof fileHandle.getFile === 'function') {
+            const text = await readInstructionContent(path, () => fileHandle.getFile!(), contentOptions);
+            if (text !== null) {
+              content = text;
+            }
+          }
+        }
+        out.push({ path, content });
         matchedFiles += 1;
       }
     }
@@ -96,12 +119,26 @@ export async function scanRepoTree(
   const ignoreDirs = new Set(options.ignoreDirs ?? DEFAULT_IGNORE_DIRS);
   const maxFiles = options.maxFiles ?? DEFAULT_MAX_FILES;
   const includeOnly = options.includeOnly;
-  const paths: string[] = [];
+  const includeContent = options.includeContent ?? false;
+  const contentOptions: ContentScanOptions = {
+    allowlist: options.contentAllowlist,
+    maxBytes: options.maxContentBytes,
+  };
+  const files: RepoTreeFile[] = [];
 
-  const { totalFiles, matchedFiles, truncated } = await walk(root, '', ignoreDirs, maxFiles, includeOnly, paths);
+  const { totalFiles, matchedFiles, truncated } = await walk(
+    root,
+    '',
+    ignoreDirs,
+    maxFiles,
+    includeOnly,
+    includeContent,
+    contentOptions,
+    files,
+  );
 
   const tree: RepoTree = {
-    files: paths.map((path) => ({ path, content: '' })),
+    files,
   };
 
   return { tree, totalFiles, matchedFiles, truncated };

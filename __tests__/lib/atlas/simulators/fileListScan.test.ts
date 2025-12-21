@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { scanFileList } from '@/lib/atlas/simulators/fileListScan';
 
 describe('atlas/simulators/fileListScan', () => {
-  it('normalizes relative paths, ignores directories, and returns metadata', () => {
+  it('normalizes relative paths, ignores directories, and returns metadata', async () => {
     const guardedFile = { name: 'AGENTS.md', webkitRelativePath: 'repo/AGENTS.md' };
     Object.defineProperty(guardedFile, 'text', {
       value: () => {
@@ -10,7 +10,7 @@ describe('atlas/simulators/fileListScan', () => {
       },
     });
 
-    const result = scanFileList(
+    const result = await scanFileList(
       [
         guardedFile,
         { name: 'ignored.txt', webkitRelativePath: 'repo/node_modules/ignored.txt' },
@@ -26,8 +26,8 @@ describe('atlas/simulators/fileListScan', () => {
     expect(result.tree.files.every(file => file.content === '')).toBe(true);
   });
 
-  it('applies includeOnly patterns and truncates at maxFiles', () => {
-    const result = scanFileList(
+  it('applies includeOnly patterns and truncates at maxFiles', async () => {
+    const result = await scanFileList(
       [
         { name: 'AGENTS.md', webkitRelativePath: 'repo/AGENTS.md' },
         { name: 'README.md', webkitRelativePath: 'repo/README.md' },
