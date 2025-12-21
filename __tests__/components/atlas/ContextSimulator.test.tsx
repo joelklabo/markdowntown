@@ -1,7 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContextSimulator } from "@/components/atlas/ContextSimulator";
+import { featureFlags } from "@/lib/flags";
 
 vi.mock("@/lib/flags", () => ({
   featureFlags: {
@@ -10,6 +11,7 @@ vi.mock("@/lib/flags", () => ({
     uxClarityV1: false,
     instructionHealthV1: true,
     scanNextStepsV1: true,
+    scanQuickUploadV1: false,
     wordmarkAnimV1: true,
     wordmarkBannerV1: true,
   },
@@ -37,7 +39,22 @@ function dir(name: string, children: MockHandle[]): MockHandle {
   };
 }
 
+function restorePicker(originalPicker: unknown) {
+  if (originalPicker) {
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: originalPicker,
+      configurable: true,
+    });
+  } else {
+    // @ts-expect-error remove the stub when not present
+    delete window.showDirectoryPicker;
+  }
+}
+
 describe("ContextSimulator", () => {
+  beforeEach(() => {
+    featureFlags.scanQuickUploadV1 = false;
+  });
   it("simulates loaded files for GitHub Copilot", async () => {
     render(<ContextSimulator />);
     expect(screen.getByRole("heading", { name: "Scan setup" })).toBeInTheDocument();
@@ -146,14 +163,79 @@ describe("ContextSimulator", () => {
     expect(screen.getByText("Missing instruction files")).toBeInTheDocument();
     expect(screen.getAllByText("AGENTS.override.md").length).toBeGreaterThan(0);
 
-    if (originalPicker) {
-      Object.defineProperty(window, "showDirectoryPicker", {
-        value: originalPicker,
-        configurable: true,
-      });
-    } else {
-      // @ts-expect-error remove the stub when not present
-      delete window.showDirectoryPicker;
-    }
+    restorePicker(originalPicker);
+  });
+
+  it("auto-detects tool and cwd after quick upload scan", async () => {
+    featureFlags.scanQuickUploadV1 = true;
+    const rootHandle = dir("repo", [file("AGENTS.md"), dir("apps", [dir("web", [file("AGENTS.md")])])]);
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: async () => rootHandle,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+
+    expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
+
+    const loadedList = await screen.findByRole("list", { name: "Loaded files" });
+    expect(within(loadedList).getByText("apps/web/AGENTS.md")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText(/show advanced/i));
+    expect(screen.getByLabelText("Tool")).toHaveValue("codex-cli");
+    expect(screen.getByLabelText("Current directory (cwd)")).toHaveValue("apps/web");
+
+    restorePicker(originalPicker);
+  });
+
+  it("shows mixed-tool detection guidance when multiple tools match", async () => {
+    featureFlags.scanQuickUploadV1 = true;
+    const rootHandle = dir("repo", [file("AGENTS.md"), file("CLAUDE.md")]);
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: async () => rootHandle,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+
+    const mixedToolNotices = await screen.findAllByText(/multiple tool formats detected/i);
+    expect(mixedToolNotices.length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Change tool" })).toBeInTheDocument();
+
+    restorePicker(originalPicker);
+  });
+
+  it("surfaces scan errors and allows retry", async () => {
+    featureFlags.scanQuickUploadV1 = true;
+    const rootHandle = dir("repo", [file("AGENTS.md")]);
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+    const picker = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Access denied"))
+      .mockResolvedValueOnce(rootHandle);
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: picker,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+    expect(await screen.findByText(/access denied/i)).toBeInTheDocument();
+
+    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+    expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
+    expect(screen.queryByText(/access denied/i)).not.toBeInTheDocument();
+
+    restorePicker(originalPicker);
   });
 });
