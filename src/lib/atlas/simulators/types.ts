@@ -1,5 +1,21 @@
 export type SimulatorToolId = 'github-copilot' | 'copilot-cli' | 'claude-code' | 'gemini-cli' | 'codex-cli';
 
+export type ToolDetectionConfidence = 'high' | 'medium' | 'low' | 'none';
+
+export type ToolDetectionCandidate = {
+  tool: SimulatorToolId;
+  score: number;
+  paths: string[];
+  reason: string;
+};
+
+export type ToolDetectionResult = {
+  tool: SimulatorToolId | null;
+  confidence: ToolDetectionConfidence;
+  candidates: ToolDetectionCandidate[];
+  isMixed: boolean;
+};
+
 export type RepoTreeFile = {
   path: string;
   content: string;
