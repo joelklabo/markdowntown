@@ -53,3 +53,19 @@ export type SimulatorInsights = {
   missingFiles: SimulatorInsightPattern[];
   precedenceNotes: string[];
 };
+
+export type InstructionDiagnosticSeverity = 'error' | 'warning' | 'info';
+
+export type InstructionDiagnostic = {
+  code: string;
+  severity: InstructionDiagnosticSeverity;
+  message: string;
+  suggestion?: string;
+  path?: string;
+  expectedPath?: string;
+};
+
+export type InstructionDiagnostics = {
+  tool: SimulatorToolId;
+  diagnostics: InstructionDiagnostic[];
+};
