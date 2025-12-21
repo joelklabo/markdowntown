@@ -1,7 +1,18 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ContextSimulator } from "@/components/atlas/ContextSimulator";
+
+vi.mock("@/lib/flags", () => ({
+  featureFlags: {
+    publicLibrary: false,
+    themeRefreshV1: false,
+    uxClarityV1: false,
+    instructionHealthV1: true,
+    wordmarkAnimV1: true,
+    wordmarkBannerV1: true,
+  },
+}));
 
 type MockHandle = {
   kind: "file" | "directory";
@@ -42,6 +53,14 @@ describe("ContextSimulator", () => {
     );
 
     await userEvent.click(screen.getByRole("button", { name: "Refresh results" }));
+
+    expect(screen.getByRole("heading", { name: "Instruction health" })).toBeInTheDocument();
+    expect(screen.getByText("0 errors / 1 warning")).toBeInTheDocument();
+    const issuesList = screen.getByRole("list", { name: "Instruction health issues" });
+    expect(within(issuesList).getByText(/instruction files for other tools/i)).toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { name: "Content lint" })).toBeInTheDocument();
+    expect(screen.getByText("Enable content linting to see results")).toBeInTheDocument();
 
     const loadedList = screen.getByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
