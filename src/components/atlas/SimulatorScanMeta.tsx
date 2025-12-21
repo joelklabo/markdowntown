@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/Badge";
+
 type SimulatorScanMetaProps = {
   totalFiles: number;
   matchedFiles: number;
@@ -6,16 +8,16 @@ type SimulatorScanMetaProps = {
 };
 
 export function SimulatorScanMeta({ totalFiles, matchedFiles, truncated, rootName }: SimulatorScanMetaProps) {
-  const summary: string[] = [`${totalFiles} file(s) scanned`, `${matchedFiles} instruction file(s) matched`];
-  if (truncated) summary.push("truncated");
+  const matchedLabel = `${matchedFiles} instruction file${matchedFiles === 1 ? "" : "s"} matched`;
+  const totalLabel = `${totalFiles} file${totalFiles === 1 ? "" : "s"} scanned`;
+  const summary = [matchedLabel, totalLabel];
 
   return (
-    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
-      {rootName ? (
-        <span className="font-mono text-mdt-text">{rootName}</span>
-      ) : null}
+    <div className="flex flex-wrap items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
+      {rootName ? <span className="font-mono text-mdt-text">{rootName}</span> : null}
       {rootName ? <span className="text-mdt-muted">: </span> : null}
-      {summary.join(" · ")}.
+      <span>{summary.join(" · ")}.</span>
+      {truncated ? <Badge tone="warning">Scan truncated</Badge> : null}
     </div>
   );
 }

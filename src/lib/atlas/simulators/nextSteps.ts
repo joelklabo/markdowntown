@@ -37,17 +37,17 @@ const action = (id: NextStepActionId, label: string): NextStepAction => ({ id, l
 
 function buildNoScanStep(repoSource: RepoSource): NextStep {
   const primary = repoSource === 'manual'
-    ? action('paste-paths', 'Paste repo paths')
-    : action('scan-folder', 'Scan a folder');
+    ? action('paste-paths', 'Paste paths')
+    : action('scan-folder', 'Upload a folder');
   const secondary = repoSource === 'manual'
-    ? action('scan-folder', 'Scan a folder')
-    : action('paste-paths', 'Paste repo paths');
+    ? action('scan-folder', 'Upload a folder')
+    : action('paste-paths', 'Paste paths');
 
   return {
     id: 'no-scan',
     severity: 'info',
-    title: 'Scan your repo to get next steps',
-    body: 'Pick a folder (or paste paths) so we can see which instructions load.',
+    title: 'Upload a folder to get next steps',
+    body: 'Upload a folder (or paste paths) so we can detect your tool and show what to fix.',
     primaryAction: primary,
     secondaryActions: [secondary],
   };

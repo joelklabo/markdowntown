@@ -17,6 +17,7 @@ import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
 import { lintInstructionContent } from "@/lib/atlas/simulators/contentLint";
 import { DEFAULT_MAX_CONTENT_BYTES } from "@/lib/atlas/simulators/contentScan";
+import { detectTool } from "@/lib/atlas/simulators/detectTool";
 import { computeInstructionDiagnostics } from "@/lib/atlas/simulators/diagnostics";
 import { computeSimulatorInsights } from "@/lib/atlas/simulators/insights";
 import { computeNextSteps } from "@/lib/atlas/simulators/nextSteps";
@@ -32,6 +33,7 @@ import type {
   SimulationResult,
   SimulatorInsights as SimulatorInsightsData,
   SimulatorToolId,
+  ToolDetectionResult,
 } from "@/lib/atlas/simulators/types";
 import { track, trackError } from "@/lib/analytics";
 import { featureFlags } from "@/lib/flags";
@@ -173,6 +175,27 @@ function toolLabel(tool: SimulatorToolId): string {
   return TOOL_OPTIONS.find((option) => option.id === tool)?.label ?? tool;
 }
 
+function pickDeepestPath(paths: string[]): string | null {
+  if (paths.length === 0) return null;
+  const normalized = paths.map((path) => normalizePath(path)).filter(Boolean);
+  if (normalized.length === 0) return null;
+  return normalized.sort((a, b) => {
+    const depthDiff = b.split("/").length - a.split("/").length;
+    return depthDiff !== 0 ? depthDiff : a.localeCompare(b);
+  })[0];
+}
+
+function suggestCwdFromDetection(detection: ToolDetectionResult): string {
+  if (!detection.tool) return "";
+  if (detection.tool === "github-copilot" || detection.tool === "copilot-cli") return "";
+  const candidate = detection.candidates.find((item) => item.tool === detection.tool);
+  const path = candidate ? pickDeepestPath(candidate.paths) : null;
+  if (!path) return "";
+  const parts = path.split("/");
+  parts.pop();
+  return parts.join("/");
+}
+
 type SummaryInput = {
   tool: SimulatorToolId;
   cwd: string;
@@ -295,6 +318,7 @@ export function ContextSimulator() {
   const [contentLintOptIn, setContentLintOptIn] = useState(false);
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
+  const [toolDetection, setToolDetection] = useState<ToolDetectionResult | null>(null);
   const [scanMeta, setScanMeta] = useState<{
     totalFiles: number;
     matchedFiles: number;
@@ -320,6 +344,7 @@ export function ContextSimulator() {
   const statusTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const quickUploadEnabled = featureFlags.scanQuickUploadV1;
   const canPickDirectory = typeof window !== "undefined" && "showDirectoryPicker" in window;
 
   const manualPaths = useMemo(() => parseRepoPaths(repoText), [repoText]);
@@ -406,6 +431,34 @@ export function ContextSimulator() {
     const found = new Set(insights.foundFiles.map((path) => normalizePath(path)));
     return lastSimulatedPaths.filter((path) => isInstructionPath(path) && !found.has(path));
   }, [insights, lastSimulatedPaths]);
+  const detectionSummary = useMemo(() => {
+    if (!toolDetection) return null;
+    if (toolDetection.tool) {
+      const candidate = toolDetection.candidates.find((item) => item.tool === toolDetection.tool);
+      return {
+        title: `Detected: ${toolLabel(toolDetection.tool)}`,
+        body: candidate?.reason ? `${candidate.reason}.` : "Matched known instruction files.",
+      };
+    }
+    if (toolDetection.isMixed) {
+      return {
+        title: "Multiple tool formats detected",
+        body: "Choose which tool to validate.",
+      };
+    }
+    return {
+      title: "No instruction files detected yet",
+      body: "Pick a tool or paste paths to continue.",
+    };
+  }, [toolDetection]);
+  const scanCounts = useMemo(() => {
+    const foundCount = insights.foundFiles.length;
+    const missingCount = insights.missingFiles.length;
+    const foundLabel = `${foundCount} file${foundCount === 1 ? "" : "s"} found`;
+    const missingLabel = `${missingCount} missing`;
+    return `${foundLabel} · ${missingLabel}`;
+  }, [insights.foundFiles.length, insights.missingFiles.length]);
+  const showQuickSummary = quickUploadEnabled && repoSource === "folder" && repoFileCount > 0;
   const fixSummaryText = useMemo(
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
@@ -469,39 +522,49 @@ export function ContextSimulator() {
     }
   };
 
+  const openAdvancedField = (id: string) => {
+    setShowAdvanced(true);
+    window.setTimeout(() => scrollToElement(id, true), 50);
+  };
+
   const runSimulationWithTree = (
     tree: RepoTree,
     sourcePaths: string[],
     source: "manual" | "folder",
     trigger: "manual" | "scan",
+    overrides?: { tool?: SimulatorToolId; cwd?: string },
   ) => {
     const normalizedPaths = normalizePaths(sourcePaths);
-    const nextResult = simulateContextResolution({ tool, cwd, tree });
-    const nextInsights = computeSimulatorInsights({ tool, cwd, tree });
-    const nextDiagnostics = computeInstructionDiagnostics({ tool, cwd, tree });
+    const nextTool = overrides?.tool ?? tool;
+    const nextCwd = overrides?.cwd ?? cwd;
+    const nextResult = simulateContextResolution({ tool: nextTool, cwd: nextCwd, tree });
+    const nextInsights = computeSimulatorInsights({ tool: nextTool, cwd: nextCwd, tree });
+    const nextDiagnostics = computeInstructionDiagnostics({ tool: nextTool, cwd: nextCwd, tree });
     const errorCount = nextDiagnostics.diagnostics.filter((item) => item.severity === "error").length;
     const warningCount = nextDiagnostics.diagnostics.filter((item) => item.severity === "warning").length;
     const infoCount = nextDiagnostics.diagnostics.filter((item) => item.severity === "info").length;
     setResult(nextResult);
     setInsights(nextInsights);
     setInstructionDiagnostics(nextDiagnostics);
-    setLastSimulatedSignature(buildInputSignature(tool, cwd, source, normalizedPaths));
+    setTool(nextTool);
+    setCwd(nextCwd);
+    setLastSimulatedSignature(buildInputSignature(nextTool, nextCwd, source, normalizedPaths));
     setLastSimulatedPaths(normalizedPaths);
     setRepoSource(source);
     setShowAdvanced(source === "manual");
     track("atlas_simulator_simulate", {
-      tool,
+      tool: nextTool,
       repoSource: source,
       trigger,
-      cwd: normalizePath(cwd) || undefined,
+      cwd: normalizePath(nextCwd) || undefined,
       fileCount: normalizedPaths.length,
     });
     if (featureFlags.instructionHealthV1) {
       track("atlas_simulator_health_check", {
-        tool,
+        tool: nextTool,
         repoSource: source,
         trigger,
-        cwd: normalizePath(cwd) || undefined,
+        cwd: normalizePath(nextCwd) || undefined,
         fileCount: normalizedPaths.length,
         issueCount: nextDiagnostics.diagnostics.length,
         errorCount,
@@ -521,6 +584,19 @@ export function ContextSimulator() {
     if (shouldAnnounce) {
       announceStatus("Results refreshed.");
     }
+  };
+
+  const applyToolDetection = (paths: string[]) => {
+    if (!quickUploadEnabled) return {};
+    const detection = detectTool(paths);
+    setToolDetection(detection);
+    if (detection.tool && !detection.isMixed) {
+      return {
+        tool: detection.tool,
+        cwd: suggestCwdFromDetection(detection),
+      };
+    }
+    return {};
   };
 
   const handleDirectoryPickerScan = async () => {
@@ -543,15 +619,13 @@ export function ContextSimulator() {
         truncated,
         rootName,
       });
-      runSimulationWithTree(
-        tree,
-        tree.files.map((file) => file.path),
-        "folder",
-        "scan",
-      );
+      const paths = tree.files.map((file) => file.path);
+      const overrides = applyToolDetection(paths);
+      const nextTool = overrides.tool ?? tool;
+      runSimulationWithTree(tree, paths, "folder", "scan", overrides);
       track("atlas_simulator_scan_complete", {
         method: "directory_picker",
-        tool,
+        tool: nextTool,
         totalFiles,
         matchedFiles,
         truncated,
@@ -586,15 +660,13 @@ export function ContextSimulator() {
       const rootName = files[0]?.webkitRelativePath?.split("/")[0];
       setScannedTree(tree);
       setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
-      runSimulationWithTree(
-        tree,
-        tree.files.map((file) => file.path),
-        "folder",
-        "scan",
-      );
+      const paths = tree.files.map((file) => file.path);
+      const overrides = applyToolDetection(paths);
+      const nextTool = overrides.tool ?? tool;
+      runSimulationWithTree(tree, paths, "folder", "scan", overrides);
       track("atlas_simulator_scan_complete", {
         method: "file_input",
-        tool,
+        tool: nextTool,
         totalFiles,
         matchedFiles,
         truncated,
@@ -736,13 +808,13 @@ export function ContextSimulator() {
     }
 
     if (action.id === "set-cwd") {
-      scrollToElement("sim-cwd", true);
+      openAdvancedField("sim-cwd");
       announceStatus("Set the current directory to continue.");
       return;
     }
 
     if (action.id === "switch-tool") {
-      scrollToElement("sim-tool", true);
+      openAdvancedField("sim-tool");
       announceStatus("Choose the tool you want to simulate.");
       return;
     }
@@ -797,71 +869,62 @@ export function ContextSimulator() {
       <Card className="p-mdt-5">
         <Stack gap={5}>
           <Stack gap={1}>
-            <Heading level="h2">Scan setup</Heading>
-            <Text tone="muted">Choose a tool, set the working directory, and scan a folder.</Text>
+            <Heading level="h2">{quickUploadEnabled ? "Scan your repo" : "Scan setup"}</Heading>
+            <Text tone="muted">
+              {quickUploadEnabled
+                ? "Upload a folder to see what your tool will load. Scans stay in your browser."
+                : "Choose a tool, set the working directory, and scan a folder."}
+            </Text>
           </Stack>
 
-          <div className="space-y-mdt-4">
-            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                Tool
-              </label>
-              <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
-                {TOOL_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <label htmlFor="sim-cwd" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                Current directory (cwd)
-              </label>
-              <Input
-                id="sim-cwd"
-                placeholder="e.g. src/app"
-                value={cwd}
-                onChange={(e) => setCwd(e.target.value)}
-              />
-              <Text tone="muted" size="bodySm">
-                Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
-              </Text>
-            </div>
-
-            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Scan a folder</label>
-              <Text tone="muted" size="bodySm">
-                {canPickDirectory
-                  ? "Scans locally in your browser. File contents are never uploaded."
-                  : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
-              </Text>
-              <div className="space-y-mdt-3">
-                {canPickDirectory ? (
+          {quickUploadEnabled ? (
+            <div className="space-y-mdt-4">
+              <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+                <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Upload a folder</label>
+                <Text tone="muted" size="bodySm">
+                  {canPickDirectory
+                    ? "Scans locally in your browser. File contents are never uploaded."
+                    : "File System Access API isn’t supported. Use folder upload below; scans stay local."}
+                </Text>
+                <div className="flex flex-wrap gap-mdt-2">
                   <Button
                     type="button"
                     className="w-full sm:w-auto"
                     disabled={isScanning}
                     onClick={() => {
-                      void handleDirectoryPickerScan();
+                      if (canPickDirectory) {
+                        void handleDirectoryPickerScan();
+                      } else {
+                        fileInputRef.current?.click();
+                      }
                     }}
                   >
-                    {isScanning ? "Scanning…" : "Scan a folder"}
+                    {isScanning ? "Scanning…" : "Upload a folder"}
                   </Button>
-                ) : (
-                  <Input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    // @ts-expect-error - non-standard attribute for directory uploads
-                    webkitdirectory="true"
-                    aria-label="Upload folder"
-                    onChange={async (event) => {
-                      await handleFileInputScan(event.target.files);
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full sm:w-auto"
+                    onClick={() => {
+                      setRepoSource("manual");
+                      openAdvancedField("sim-tree-manual");
                     }}
-                  />
-                )}
+                  >
+                    Paste paths
+                  </Button>
+                </div>
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  className={canPickDirectory ? "sr-only" : undefined}
+                  // @ts-expect-error - non-standard attribute for directory uploads
+                  webkitdirectory="true"
+                  aria-label="Upload folder"
+                  onChange={async (event) => {
+                    await handleFileInputScan(event.target.files);
+                  }}
+                />
 
                 {scanError ? (
                   <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
@@ -869,74 +932,271 @@ export function ContextSimulator() {
                   </div>
                 ) : null}
 
-                {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
-
-                <TextArea
-                  id="sim-tree-preview"
-                  rows={8}
-                  value={scannedPreview}
-                  readOnly
-                  placeholder="Scanned paths will appear here."
-                />
-
-                <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-                  <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-                    Optional: content linting
-                  </Text>
-                  <Text tone="muted" size="bodySm">
-                    Opt in to read instruction file contents locally for linting. Files never leave your browser.
-                  </Text>
-                  <Checkbox
-                    checked={contentLintOptIn}
-                    onChange={(event) => setContentLintOptIn(event.target.checked)}
-                  >
-                    Enable content linting (local-only)
-                  </Checkbox>
-                  <Text tone="muted" size="bodySm">
-                    Only instruction files are read. Files larger than {maxContentKb} KB are skipped.
-                  </Text>
-                </div>
+                {showQuickSummary ? (
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text size="bodySm" weight="semibold">
+                      {detectionSummary?.title ?? `Detected: ${toolLabel(tool)}`}
+                    </Text>
+                    <Text tone="muted" size="bodySm">{scanCounts}</Text>
+                    {detectionSummary?.body ? (
+                      <Text tone="muted" size="bodySm">{detectionSummary.body}</Text>
+                    ) : null}
+                    <div className="flex flex-wrap gap-mdt-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => openAdvancedField("sim-tool")}
+                      >
+                        Change tool
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => openAdvancedField("sim-cwd")}
+                      >
+                        Change cwd
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <details
-                className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2"
+                className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3"
                 open={advancedOpen}
                 onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
               >
                 <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                  Advanced: paste repo paths
+                  Show advanced
                 </summary>
                 <div className="mt-mdt-3 space-y-mdt-3">
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                      Tool
+                    </label>
+                    <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+                      {TOOL_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <label htmlFor="sim-cwd" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                      Current directory (cwd)
+                    </label>
+                    <Input
+                      id="sim-cwd"
+                      placeholder="e.g. src/app"
+                      value={cwd}
+                      onChange={(e) => setCwd(e.target.value)}
+                    />
+                    <Text tone="muted" size="bodySm">
+                      Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
+                    </Text>
+                  </div>
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                      Scan preview
+                    </Text>
+                    {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+                    <TextArea
+                      id="sim-tree-preview"
+                      rows={8}
+                      value={scannedPreview}
+                      readOnly
+                      placeholder="Scanned paths will appear here."
+                    />
+                  </div>
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                      Optional: content linting
+                    </Text>
+                    <Text tone="muted" size="bodySm">
+                      Opt in to read instruction file contents locally for linting. Files never leave your browser.
+                    </Text>
+                    <Checkbox
+                      checked={contentLintOptIn}
+                      onChange={(event) => setContentLintOptIn(event.target.checked)}
+                    >
+                      Enable content linting (local-only)
+                    </Checkbox>
+                    <Text tone="muted" size="bodySm">
+                      Only instruction files are read. Files larger than {maxContentKb} KB are skipped.
+                    </Text>
+                  </div>
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                      Paste repo paths
+                    </Text>
+                    <Text tone="muted" size="bodySm">
+                      Use this when you can’t scan a folder. One path per line.
+                    </Text>
+                    <TextArea
+                      id="sim-tree-manual"
+                      rows={8}
+                      value={repoText}
+                      onChange={(e) => {
+                        if (repoSource !== "manual") setRepoSource("manual");
+                        setShowAdvanced(true);
+                        setRepoText(e.target.value);
+                      }}
+                      placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+                    />
+                  </div>
+
                   <Text tone="muted" size="bodySm">
-                    Use this when you can’t scan a folder. One path per line.
+                    {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
                   </Text>
-                  <TextArea
-                    id="sim-tree-manual"
-                    rows={8}
-                    value={repoText}
-                    onChange={(e) => {
-                      if (repoSource !== "manual") setRepoSource("manual");
-                      setShowAdvanced(true);
-                      setRepoText(e.target.value);
-                    }}
-                    placeholder="One path per line (e.g. .github/copilot-instructions.md)"
-                  />
                 </div>
               </details>
 
-              <Text tone="muted" size="bodySm">
-                {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
-              </Text>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-mdt-4">
+              <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+                <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                  Tool
+                </label>
+                <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+                  {TOOL_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
 
-          <Button
-            type="button"
-            className="w-full sm:w-auto"
-            onClick={() => refreshResults()}
-          >
-            Refresh results
-          </Button>
+              <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+                <label htmlFor="sim-cwd" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                  Current directory (cwd)
+                </label>
+                <Input
+                  id="sim-cwd"
+                  placeholder="e.g. src/app"
+                  value={cwd}
+                  onChange={(e) => setCwd(e.target.value)}
+                />
+                <Text tone="muted" size="bodySm">
+                  Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
+                </Text>
+              </div>
+
+              <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+                <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Scan a folder</label>
+                <Text tone="muted" size="bodySm">
+                  {canPickDirectory
+                    ? "Scans locally in your browser. File contents are never uploaded."
+                    : "File System Access API isn’t supported. Use the folder upload below; scans stay local."}
+                </Text>
+                <div className="space-y-mdt-3">
+                  {canPickDirectory ? (
+                    <Button
+                      type="button"
+                      className="w-full sm:w-auto"
+                      disabled={isScanning}
+                      onClick={() => {
+                        void handleDirectoryPickerScan();
+                      }}
+                    >
+                      {isScanning ? "Scanning…" : "Scan a folder"}
+                    </Button>
+                  ) : (
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      // @ts-expect-error - non-standard attribute for directory uploads
+                      webkitdirectory="true"
+                      aria-label="Upload folder"
+                      onChange={async (event) => {
+                        await handleFileInputScan(event.target.files);
+                      }}
+                    />
+                  )}
+
+                  {scanError ? (
+                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
+                      {scanError}
+                    </div>
+                  ) : null}
+
+                  {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+
+                  <TextArea
+                    id="sim-tree-preview"
+                    rows={8}
+                    value={scannedPreview}
+                    readOnly
+                    placeholder="Scanned paths will appear here."
+                  />
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                      Optional: content linting
+                    </Text>
+                    <Text tone="muted" size="bodySm">
+                      Opt in to read instruction file contents locally for linting. Files never leave your browser.
+                    </Text>
+                    <Checkbox
+                      checked={contentLintOptIn}
+                      onChange={(event) => setContentLintOptIn(event.target.checked)}
+                    >
+                      Enable content linting (local-only)
+                    </Checkbox>
+                    <Text tone="muted" size="bodySm">
+                      Only instruction files are read. Files larger than {maxContentKb} KB are skipped.
+                    </Text>
+                  </div>
+                </div>
+
+                <details
+                  className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2"
+                  open={advancedOpen}
+                  onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
+                >
+                  <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                    Advanced: paste repo paths
+                  </summary>
+                  <div className="mt-mdt-3 space-y-mdt-3">
+                    <Text tone="muted" size="bodySm">
+                      Use this when you can’t scan a folder. One path per line.
+                    </Text>
+                    <TextArea
+                      id="sim-tree-manual"
+                      rows={8}
+                      value={repoText}
+                      onChange={(e) => {
+                        if (repoSource !== "manual") setRepoSource("manual");
+                        setShowAdvanced(true);
+                        setRepoText(e.target.value);
+                      }}
+                      placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+                    />
+                  </div>
+                </details>
+
+                <Text tone="muted" size="bodySm">
+                  {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
+                </Text>
+              </div>
+            </div>
+          )}
+
+          {!quickUploadEnabled || isStale ? (
+            <Button
+              type="button"
+              className="w-full sm:w-auto"
+              onClick={() => refreshResults()}
+            >
+              Refresh results
+            </Button>
+          ) : null}
         </Stack>
       </Card>
 

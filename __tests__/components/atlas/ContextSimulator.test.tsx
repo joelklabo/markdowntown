@@ -43,7 +43,7 @@ describe("ContextSimulator", () => {
     expect(screen.getByRole("heading", { name: "Scan setup" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Results" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Next steps" })).toBeInTheDocument();
-    expect(screen.getByText(/scan your repo to get next steps/i)).toBeInTheDocument();
+    expect(screen.getByText(/upload a folder to get next steps/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeInTheDocument();
 
@@ -135,7 +135,7 @@ describe("ContextSimulator", () => {
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
 
-    expect(await screen.findByText(/2 file\(s\) scanned.*2 instruction file\(s\) matched/i)).toBeInTheDocument();
+    expect(await screen.findByText(/2 instruction files matched.*2 files scanned/i)).toBeInTheDocument();
     expect(await screen.findByText(/you're ready to go/i)).toBeInTheDocument();
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
