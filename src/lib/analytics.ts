@@ -2,11 +2,65 @@
  * Lightweight PostHog wrapper used in client components.
  * Safe to call in SSR/ISR contexts; no-ops when posthog is unavailable.
  */
+const REDACT_KEYS = new Set([
+  "content",
+  "contents",
+  "paths",
+  "filepaths",
+  "filepath",
+  "filelist",
+  "files",
+  "tree",
+  "repotree",
+  "repopaths",
+  "sourcepaths",
+  "scannedpaths",
+  "scannedtree",
+]);
+
+type AnalyticsRecord = Record<string, unknown>;
+
+export function redactAnalyticsPayload(properties?: AnalyticsRecord): AnalyticsRecord | undefined {
+  if (!properties) return properties;
+  return redactObject(properties);
+}
+
+function redactObject(input: AnalyticsRecord): AnalyticsRecord {
+  const output: AnalyticsRecord = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (shouldRedactKey(key)) continue;
+    const nextValue = redactValue(value);
+    if (nextValue !== undefined) output[key] = nextValue;
+  }
+  return output;
+}
+
+function redactValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => {
+      if (isRecord(entry)) return redactObject(entry);
+      return entry;
+    });
+  }
+  if (isRecord(value)) {
+    return redactObject(value);
+  }
+  return value;
+}
+
+function shouldRedactKey(key: string) {
+  return REDACT_KEYS.has(key.toLowerCase());
+}
+
+function isRecord(value: unknown): value is AnalyticsRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function track(event: string, properties?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
     const ph = (window as unknown as { posthog?: { capture: (e: string, p?: Record<string, unknown>) => void } }).posthog;
-    ph?.capture?.(event, properties);
+    ph?.capture?.(event, redactAnalyticsPayload(properties));
   } catch {
     // swallow analytics errors to avoid UI impact
   }
