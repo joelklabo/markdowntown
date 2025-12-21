@@ -25,6 +25,8 @@
 ## Onboarding funnel (scan → build → export)
 Primary flow KPIs and suggested targets:
 - **Scan completion rate:** `atlas_simulator_scan_complete / atlas_simulator_scan_start` → target 70%+
+- **Auto-detect adoption:** `atlas_simulator_simulate(repoSource=folder, trigger=scan) / atlas_simulator_scan_complete` → target 90%+
+- **Override rate:** `atlas_simulator_simulate(repoSource=folder, trigger=manual) / atlas_simulator_scan_complete` → target < 25%
 - **Workbench entry rate:** `ui_route_view(route=/workbench) / atlas_simulator_scan_complete` → target 40%+
 - **Export rate:** `workbench_export_download or workbench_export_copy / ui_route_view(route=/workbench)` → target 25%+
 - **Median time to export:** time from `atlas_simulator_scan_start` to export → target < 5 minutes

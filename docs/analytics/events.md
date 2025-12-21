@@ -20,8 +20,10 @@ This file defines canonical event names and properties for the UX and onboarding
 ### Atlas Simulator (implemented)
 - `atlas_simulator_scan_start`
   - Properties: `method` (`directory_picker` | `file_input`), `tool`
+  - Notes: Represents the user initiating the upload/scan action.
 - `atlas_simulator_scan_complete`
   - Properties: `method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`, `rootName`
+  - Notes: `rootName` is redacted in analytics payloads; use file counts for volume tracking.
 - `atlas_simulator_scan_cancel`
   - Properties: `method`, `tool`
 - `atlas_simulator_scan_error`
@@ -51,6 +53,12 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `tool`, `repoSource`, `templateId`, `templatePath`, `actionId`, `stepId`
 - `atlas_simulator_next_step_template_error`
   - Properties: `tool`, `repoSource`, `templateId`, `templatePath`, `message` (from error tracking)
+
+#### Quick upload signals (derived)
+- **Auto-detect choice:** `atlas_simulator_simulate` where `repoSource=folder` and `trigger=scan`. Use the `tool`/`cwd`
+  values as the detected choice.
+- **Manual overrides:** subsequent `atlas_simulator_simulate` events where `repoSource=folder` and `trigger=manual`.
+- **Upload completion:** `atlas_simulator_scan_complete` relative to `atlas_simulator_scan_start`.
 
 ### Workbench (implemented)
 - `ui_route_view` with `route=/workbench` — use as the entry signal.
