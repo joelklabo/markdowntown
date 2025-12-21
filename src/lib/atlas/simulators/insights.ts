@@ -63,6 +63,74 @@ function uniqueOrdered(items: string[]): string[] {
   return out;
 }
 
+type InsightsSummary = {
+  title: string;
+  body: string;
+  nextStep: string;
+  note?: string;
+};
+
+const TOOL_LABELS: Record<SimulatorToolId, string> = {
+  "github-copilot": "GitHub Copilot",
+  "copilot-cli": "Copilot CLI",
+  "codex-cli": "Codex CLI",
+  "claude-code": "Claude Code",
+  "gemini-cli": "Gemini CLI",
+};
+
+function formatCount(count: number, label: string): string {
+  return `${count} ${label}${count === 1 ? "" : "s"}`;
+}
+
+export function formatInsightsSummary(insights: SimulatorInsights, extraFilesCount: number): InsightsSummary {
+  const toolLabel = TOOL_LABELS[insights.tool] ?? insights.tool;
+  const foundCount = insights.foundFiles.length;
+  const missingCount = insights.missingFiles.length;
+  const expectedCount = insights.expectedPatterns.length;
+
+  const bodyParts: string[] = [];
+  if (foundCount === 0) {
+    bodyParts.push("No instruction files found.");
+  } else {
+    bodyParts.push(`Found ${formatCount(foundCount, "instruction file")}.`);
+  }
+
+  if (expectedCount > 0) {
+    if (missingCount === 0) {
+      bodyParts.push("All expected files are present.");
+    } else {
+      bodyParts.push(`${formatCount(missingCount, "expected file")} missing.`);
+    }
+  }
+
+  if (extraFilesCount > 0) {
+    bodyParts.push(`${formatCount(extraFilesCount, "extra instruction file")} won't load for this tool.`);
+  }
+
+  let nextStep = "";
+  if (missingCount > 0) {
+    nextStep = `Next step: add the missing instruction file${missingCount === 1 ? "" : "s"} or copy a template, then rescan.`;
+  } else if (extraFilesCount > 0) {
+    nextStep = "Next step: switch tools or remove extra files to avoid conflicts.";
+  } else if (foundCount === 0) {
+    nextStep = "Next step: add a tool instruction file to get guidance, then rescan.";
+  } else {
+    nextStep = "Next step: review precedence notes and any warnings below.";
+  }
+
+  const note =
+    foundCount === 0 && expectedCount > 0
+      ? "If your scan was truncated due to file limits, try scanning a smaller folder."
+      : undefined;
+
+  return {
+    title: `Detected tool: ${toolLabel}`,
+    body: bodyParts.join(" "),
+    nextStep,
+    note,
+  };
+}
+
 function exactPattern(id: string, label: string, path: string): PatternDefinition {
   return {
     id,

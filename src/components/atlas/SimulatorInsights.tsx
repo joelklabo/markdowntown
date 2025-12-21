@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
+import { formatInsightsSummary } from "@/lib/atlas/simulators/insights";
 import type { SimulatorInsights as SimulatorInsightsData } from "@/lib/atlas/simulators/types";
 
 type SimulatorInsightsProps = {
@@ -9,6 +10,8 @@ type SimulatorInsightsProps = {
 };
 
 export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsProps) {
+  const summary = formatInsightsSummary(insights, extraFiles.length);
+
   return (
     <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
       <Stack gap={3}>
@@ -17,6 +20,18 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
         </Text>
 
         <Stack gap={3}>
+          <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+            <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+              Summary
+            </Text>
+            <Stack gap={1}>
+              <Text size="bodySm" weight="semibold">{summary.title}</Text>
+              <Text tone="muted" size="bodySm">{summary.body}</Text>
+              <Text size="bodySm">{summary.nextStep}</Text>
+              {summary.note ? <Text tone="muted" size="bodySm">{summary.note}</Text> : null}
+            </Stack>
+          </div>
+
           <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
               Expected patterns
