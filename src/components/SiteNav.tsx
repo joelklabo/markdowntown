@@ -231,7 +231,7 @@ export function SiteNav({ user }: { user?: User }) {
         >
           <nav
             ref={desktopNavRef}
-            className="relative hidden w-full items-center justify-center gap-mdt-4 text-body-sm font-medium text-mdt-muted md:flex"
+            className="relative hidden w-full items-center justify-start gap-mdt-4 text-body-sm font-medium text-mdt-muted md:flex"
             aria-label="Primary"
           >
             <NavActiveIndicator containerRef={desktopNavRef} activeKey={pathname} />
