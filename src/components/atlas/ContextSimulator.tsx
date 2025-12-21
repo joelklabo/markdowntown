@@ -12,18 +12,22 @@ import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
 import { InstructionContentLint } from "@/components/atlas/InstructionContentLint";
 import { InstructionHealthPanel } from "@/components/atlas/InstructionHealthPanel";
+import { NextStepsPanel } from "@/components/atlas/NextStepsPanel";
 import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
 import { lintInstructionContent } from "@/lib/atlas/simulators/contentLint";
 import { DEFAULT_MAX_CONTENT_BYTES } from "@/lib/atlas/simulators/contentScan";
 import { computeInstructionDiagnostics } from "@/lib/atlas/simulators/diagnostics";
 import { computeSimulatorInsights } from "@/lib/atlas/simulators/insights";
+import { computeNextSteps } from "@/lib/atlas/simulators/nextSteps";
 import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
 import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsScan";
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
+import { INSTRUCTION_TEMPLATES } from "@/lib/atlas/simulators/templates";
 import type {
   InstructionDiagnostics,
+  NextStepAction,
   RepoTree,
   SimulationResult,
   SimulatorInsights as SimulatorInsightsData,
@@ -314,6 +318,7 @@ export function ContextSimulator() {
   const [lastSimulatedPaths, setLastSimulatedPaths] = useState<string[]>(() => []);
   const [actionStatus, setActionStatus] = useState<string | null>(null);
   const statusTimeoutRef = useRef<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const canPickDirectory = typeof window !== "undefined" && "showDirectoryPicker" in window;
 
@@ -409,6 +414,29 @@ export function ContextSimulator() {
     if (!contentLintOptIn || repoSource !== "folder") return null;
     return lintInstructionContent(scannedTree ?? { files: [] });
   }, [contentLintOptIn, repoSource, scannedTree]);
+  const nextSteps = useMemo(
+    () =>
+      computeNextSteps({
+        tool,
+        repoSource,
+        repoFileCount,
+        isStale,
+        diagnostics: instructionDiagnostics,
+        warnings: result.warnings,
+        insights,
+        extraFiles: extraInstructionFiles,
+      }),
+    [
+      extraInstructionFiles,
+      instructionDiagnostics,
+      insights,
+      isStale,
+      repoFileCount,
+      repoSource,
+      result.warnings,
+      tool,
+    ],
+  );
 
   const announceStatus = (message: string) => {
     setActionStatus(message);
@@ -416,6 +444,29 @@ export function ContextSimulator() {
       window.clearTimeout(statusTimeoutRef.current);
     }
     statusTimeoutRef.current = window.setTimeout(() => setActionStatus(null), 3000);
+  };
+
+  const copyToClipboard = async (text: string, successMessage: string, errorMessage: string) => {
+    try {
+      if (!navigator?.clipboard?.writeText) {
+        throw new Error("Clipboard unavailable");
+      }
+      await navigator.clipboard.writeText(text);
+      announceStatus(successMessage);
+      return null;
+    } catch (err) {
+      announceStatus(errorMessage);
+      return err instanceof Error ? err : new Error("Copy failed");
+    }
+  };
+
+  const scrollToElement = (id: string, focus = false) => {
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (focus && "focus" in element) {
+      (element as HTMLElement).focus();
+    }
   };
 
   const runSimulationWithTree = (
@@ -460,6 +511,117 @@ export function ContextSimulator() {
     }
   };
 
+  const refreshResults = (shouldAnnounce = false) => {
+    const tree = repoSource === "folder" ? scannedTree ?? { files: [] } : toRepoTree(manualPaths);
+    const sourcePaths =
+      repoSource === "folder"
+        ? (scannedTree?.files ?? []).map((file) => file.path)
+        : manualPaths;
+    runSimulationWithTree(tree, sourcePaths, repoSource, "manual");
+    if (shouldAnnounce) {
+      announceStatus("Results refreshed.");
+    }
+  };
+
+  const handleDirectoryPickerScan = async () => {
+    setScanError(null);
+    setIsScanning(true);
+    track("atlas_simulator_scan_start", { method: "directory_picker", tool });
+    try {
+      const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+      if (!picker) throw new Error("File System Access API not available");
+      const handle = await picker();
+      const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
+        handle as FileSystemDirectoryHandleLike,
+        { includeContent: contentLintOptIn },
+      );
+      const rootName = (handle as { name?: string }).name;
+      setScannedTree(tree);
+      setScanMeta({
+        totalFiles,
+        matchedFiles,
+        truncated,
+        rootName,
+      });
+      runSimulationWithTree(
+        tree,
+        tree.files.map((file) => file.path),
+        "folder",
+        "scan",
+      );
+      track("atlas_simulator_scan_complete", {
+        method: "directory_picker",
+        tool,
+        totalFiles,
+        matchedFiles,
+        truncated,
+        rootName,
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
+        return;
+      }
+      if (err instanceof Error) {
+        trackError("atlas_simulator_scan_error", err, {
+          method: "directory_picker",
+          tool,
+        });
+      }
+      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleFileInputScan = async (files: FileList | null) => {
+    setScanError(null);
+    if (!files || files.length === 0) return;
+    setIsScanning(true);
+    try {
+      track("atlas_simulator_scan_start", { method: "file_input", tool });
+      const { tree, totalFiles, matchedFiles, truncated } = await scanFileList(files, {
+        includeContent: contentLintOptIn,
+      });
+      const rootName = files[0]?.webkitRelativePath?.split("/")[0];
+      setScannedTree(tree);
+      setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
+      runSimulationWithTree(
+        tree,
+        tree.files.map((file) => file.path),
+        "folder",
+        "scan",
+      );
+      track("atlas_simulator_scan_complete", {
+        method: "file_input",
+        tool,
+        totalFiles,
+        matchedFiles,
+        truncated,
+        rootName,
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        trackError("atlas_simulator_scan_error", err, {
+          method: "file_input",
+          tool,
+        });
+      }
+      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleOpenDocs = () => {
+    const docsUrl = "/docs";
+    const opened = window.open(docsUrl, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      window.location.href = docsUrl;
+    }
+    announceStatus("Opening docs.");
+  };
+
   const handleCopySummary = async () => {
     const summary = formatSummary({
       tool,
@@ -470,22 +632,19 @@ export function ContextSimulator() {
       extraFiles: extraInstructionFiles,
       isStale,
     });
-    try {
-      if (!navigator?.clipboard?.writeText) {
-        throw new Error("Clipboard unavailable");
-      }
-      await navigator.clipboard.writeText(summary);
-      announceStatus("Summary copied to clipboard.");
+    const copyError = await copyToClipboard(
+      summary,
+      "Summary copied to clipboard.",
+      "Unable to copy summary.",
+    );
+    if (!copyError) {
       track("atlas_simulator_copy_summary", {
         tool,
         repoSource,
         fileCount: lastSimulatedPaths.length,
       });
-    } catch (err) {
-      announceStatus("Unable to copy summary.");
-      if (err instanceof Error) {
-        trackError("atlas_simulator_copy_error", err, { tool, repoSource });
-      }
+    } else {
+      trackError("atlas_simulator_copy_error", copyError, { tool, repoSource });
     }
   };
 
@@ -521,6 +680,116 @@ export function ContextSimulator() {
         trackError("atlas_simulator_download_error", err, { tool, repoSource });
       }
     }
+  };
+
+  const handleNextStepAction = async (action: NextStepAction, stepId: string) => {
+    track("atlas_simulator_next_step_action", {
+      tool,
+      repoSource,
+      actionId: action.id,
+      stepId,
+      isStale,
+      fileCount: lastSimulatedPaths.length,
+    });
+
+    if (action.id === "copy-summary") {
+      await handleCopySummary();
+      return;
+    }
+
+    if (action.id === "download-report") {
+      handleDownloadReport();
+      return;
+    }
+
+    if (action.id === "refresh-results") {
+      refreshResults(true);
+      return;
+    }
+
+    if (action.id === "scan-folder") {
+      announceStatus("Choose a folder to scan.");
+      if (canPickDirectory) {
+        await handleDirectoryPickerScan();
+      } else {
+        fileInputRef.current?.click();
+      }
+      return;
+    }
+
+    if (action.id === "scan-smaller-folder") {
+      announceStatus("Pick a smaller folder to scan.");
+      if (canPickDirectory) {
+        await handleDirectoryPickerScan();
+      } else {
+        fileInputRef.current?.click();
+      }
+      return;
+    }
+
+    if (action.id === "paste-paths") {
+      setRepoSource("manual");
+      setShowAdvanced(true);
+      requestAnimationFrame(() => scrollToElement("sim-tree-manual", true));
+      announceStatus("Paste repo paths to simulate.");
+      return;
+    }
+
+    if (action.id === "set-cwd") {
+      scrollToElement("sim-cwd", true);
+      announceStatus("Set the current directory to continue.");
+      return;
+    }
+
+    if (action.id === "switch-tool") {
+      scrollToElement("sim-tool", true);
+      announceStatus("Choose the tool you want to simulate.");
+      return;
+    }
+
+    if (action.id === "review-extra-files") {
+      scrollToElement("sim-insights");
+      announceStatus("Review extra instruction files below.");
+      return;
+    }
+
+    if (action.id === "open-docs") {
+      handleOpenDocs();
+      return;
+    }
+
+    if (action.id === "copy-template" || action.id === "copy-base-template") {
+      const template = INSTRUCTION_TEMPLATES[tool]?.root;
+      if (!template) {
+        announceStatus("No template available for this tool.");
+        return;
+      }
+      const copyError = await copyToClipboard(
+        template.content,
+        `Copied ${template.path} template.`,
+        "Unable to copy template.",
+      );
+      if (copyError) {
+        trackError("atlas_simulator_next_step_template_error", copyError, {
+          tool,
+          repoSource,
+          templateId: template.id,
+          templatePath: template.path,
+        });
+      } else {
+        track("atlas_simulator_next_step_template_copy", {
+          tool,
+          repoSource,
+          templateId: template.id,
+          templatePath: template.path,
+          actionId: action.id,
+          stepId,
+        });
+      }
+      return;
+    }
+
+    announceStatus("Action not available yet.");
   };
 
   return (
@@ -574,101 +843,22 @@ export function ContextSimulator() {
                     type="button"
                     className="w-full sm:w-auto"
                     disabled={isScanning}
-                    onClick={async () => {
-                      setScanError(null);
-                      setIsScanning(true);
-                      track("atlas_simulator_scan_start", { method: "directory_picker", tool });
-                      try {
-                        const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
-                        if (!picker) throw new Error("File System Access API not available");
-                        const handle = await picker();
-                        const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
-                          handle as FileSystemDirectoryHandleLike,
-                          { includeContent: contentLintOptIn },
-                        );
-                        const rootName = (handle as { name?: string }).name;
-                        setScannedTree(tree);
-                        setScanMeta({
-                          totalFiles,
-                          matchedFiles,
-                          truncated,
-                          rootName,
-                        });
-                        runSimulationWithTree(
-                          tree,
-                          tree.files.map((file) => file.path),
-                          "folder",
-                          "scan",
-                        );
-                        track("atlas_simulator_scan_complete", {
-                          method: "directory_picker",
-                          tool,
-                          totalFiles,
-                          matchedFiles,
-                          truncated,
-                          rootName,
-                        });
-                      } catch (err) {
-                        if (err instanceof DOMException && err.name === "AbortError") {
-                          track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
-                          return;
-                        }
-                        if (err instanceof Error) {
-                          trackError("atlas_simulator_scan_error", err, {
-                            method: "directory_picker",
-                            tool,
-                          });
-                        }
-                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-                      } finally {
-                        setIsScanning(false);
-                      }
+                    onClick={() => {
+                      void handleDirectoryPickerScan();
                     }}
                   >
                     {isScanning ? "Scanning…" : "Scan a folder"}
                   </Button>
                 ) : (
                   <Input
+                    ref={fileInputRef}
                     type="file"
                     multiple
                     // @ts-expect-error - non-standard attribute for directory uploads
                     webkitdirectory="true"
                     aria-label="Upload folder"
                     onChange={async (event) => {
-                      setScanError(null);
-                      const files = event.target.files;
-                      if (!files || files.length === 0) return;
-                      try {
-                        track("atlas_simulator_scan_start", { method: "file_input", tool });
-                        const { tree, totalFiles, matchedFiles, truncated } = await scanFileList(files, {
-                          includeContent: contentLintOptIn,
-                        });
-                        const rootName = files[0]?.webkitRelativePath?.split("/")[0];
-                        setScannedTree(tree);
-                        setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
-                        runSimulationWithTree(
-                          tree,
-                          tree.files.map((file) => file.path),
-                          "folder",
-                          "scan",
-                        );
-                        track("atlas_simulator_scan_complete", {
-                          method: "file_input",
-                          tool,
-                          totalFiles,
-                          matchedFiles,
-                          truncated,
-                          rootName,
-                        });
-                      } catch (err) {
-                        if (err instanceof Error) {
-                          trackError("atlas_simulator_scan_error", err, {
-                            method: "file_input",
-                            tool,
-                          });
-                        }
-                        setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-                      }
+                      await handleFileInputScan(event.target.files);
                     }}
                   />
                 )}
@@ -743,17 +933,7 @@ export function ContextSimulator() {
           <Button
             type="button"
             className="w-full sm:w-auto"
-            onClick={() => {
-              const tree =
-                repoSource === "folder"
-                  ? scannedTree ?? { files: [] }
-                  : toRepoTree(manualPaths);
-              const sourcePaths =
-                repoSource === "folder"
-                  ? (scannedTree?.files ?? []).map((file) => file.path)
-                  : manualPaths;
-              runSimulationWithTree(tree, sourcePaths, repoSource, "manual");
-            }}
+            onClick={() => refreshResults()}
           >
             Refresh results
           </Button>
@@ -764,18 +944,27 @@ export function ContextSimulator() {
         <Stack gap={5}>
           <Stack gap={2}>
             <Heading level="h2">Results</Heading>
-            <Text tone="muted">See what loads, what is missing, and any warnings.</Text>
+            <Text tone="muted">Start with Next steps, then review what loads and any warnings.</Text>
             {isStale ? (
               <div
                 className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted"
                 role="status"
               >
-                Results are out of date. Run Simulate to refresh.
+                Results are out of date. Refresh results to update.
               </div>
             ) : null}
           </Stack>
 
           <div className="space-y-mdt-4">
+            {featureFlags.scanNextStepsV1 ? (
+              <NextStepsPanel
+                steps={nextSteps}
+                subtitle="Start with the highest-impact fix, then refresh results."
+                onAction={(action, step) => {
+                  void handleNextStepAction(action, step.id);
+                }}
+              />
+            ) : null}
             {featureFlags.instructionHealthV1 ? (
               <InstructionHealthPanel diagnostics={instructionDiagnostics} copySummaryText={fixSummaryText} />
             ) : null}
@@ -837,7 +1026,9 @@ export function ContextSimulator() {
               )}
             </div>
 
-            <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
+            <div id="sim-insights">
+              <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
+            </div>
 
             <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
