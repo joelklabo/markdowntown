@@ -12,8 +12,7 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
+function resolveThemePreference(): Theme {
   const stored = window.localStorage.getItem("theme");
   if (stored === "light" || stored === "dark") return stored;
   const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
@@ -21,9 +20,17 @@ function getInitialTheme(): Theme {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const [theme, setTheme] = useState<Theme>("light");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(resolveThemePreference());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");
@@ -31,7 +38,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove("dark");
     }
     window.localStorage.setItem("theme", theme);
-  }, [theme]);
+  }, [theme, hydrated]);
 
   const toggle = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 

@@ -34,12 +34,22 @@ function writeStoredDensity(density: Density) {
 }
 
 export function DensityProvider({ children }: { children: React.ReactNode }) {
-  const [density, setDensityState] = React.useState<Density>(() => readStoredDensity() ?? "comfortable");
+  const [density, setDensityState] = React.useState<Density>("comfortable");
+  const [hydrated, setHydrated] = React.useState(false);
 
   React.useEffect(() => {
+    const stored = readStoredDensity();
+    if (stored) {
+      setDensityState(stored);
+    }
+    setHydrated(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!hydrated) return;
     document.documentElement.dataset.density = density;
     writeStoredDensity(density);
-  }, [density]);
+  }, [density, hydrated]);
 
   const setDensity = React.useCallback((next: Density) => {
     setDensityState(next);
@@ -61,4 +71,3 @@ export function useDensity(): DensityContextValue {
   }
   return value;
 }
-
