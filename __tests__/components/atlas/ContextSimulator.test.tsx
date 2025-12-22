@@ -82,7 +82,7 @@ describe("ContextSimulator", () => {
     expect(screen.getByRole("heading", { name: "Content lint" })).toBeInTheDocument();
     expect(screen.getByText("Enable content linting to see results")).toBeInTheDocument();
 
-    const loadedList = screen.getByRole("list", { name: "Loaded files" });
+    const loadedList = await screen.findByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
@@ -103,7 +103,7 @@ describe("ContextSimulator", () => {
 
     await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
-    const loadedList = screen.getByRole("list", { name: "Loaded files" });
+    const loadedList = await screen.findByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/copilot-instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/agents/release.agent.md")).toBeInTheDocument();
