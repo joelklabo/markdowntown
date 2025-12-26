@@ -8,10 +8,10 @@ Use Atlas Simulator to confirm which instruction files load for a tool and what 
 
 ## 5-minute flow
 1. Open **Atlas → Simulator**.
-2. Click **Scan a folder** (or use the folder upload input) and select your repo root.
-3. Confirm the detected tool and cwd (adjust in **Advanced** if needed).
+2. Click **Scan a folder** and select your repo root. If the picker is unavailable, use the folder upload input.
+3. Confirm the detected tool and cwd (adjust in **Advanced** if needed). Retry if you hit a permission prompt.
 4. Start with **Next steps** and follow the top action.
-5. Open **Workbench** when you’re ready to build or export `agents.md`.
+5. Open **Workbench** when you’re ready to build or export `agents.md` (scan context carries over).
 
 ## What you’ll see
 - **Summary badges**: Loaded, Missing, Extra, Warnings.
@@ -26,6 +26,7 @@ Use Atlas Simulator to confirm which instruction files load for a tool and what 
 
 ## Troubleshooting
 - **Directory picker not supported** → use the folder upload input (`webkitdirectory`).
+- **Permission error** → re-open the picker, grant access, and click **Retry scan**.
 - **No instruction files found** → add tool-specific files like `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or `.github/copilot-instructions.md`.
 - **Results are out of date** → adjust tool/cwd and click **Refresh results**.
 - **Scan truncated** → scan a smaller folder or exclude large directories.
