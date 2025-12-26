@@ -26,3 +26,4 @@ Use these NEXT_PUBLIC flags to stage UI changes safely in development. Flags are
 
 - Header stability work should be tested with wordmark animation on and off.
 - Scan clarity work should be tested with empty folders and missing instruction files.
+- If you see hydration mismatch warnings tied to theme or motion, verify cookies/localStorage values. The UI now defaults to stable SSR values and updates client preferences after hydration to avoid mismatches.

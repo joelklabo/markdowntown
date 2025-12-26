@@ -75,13 +75,11 @@ export function ThemeProvider({
   children: React.ReactNode;
   initialTheme?: Theme | null;
 }) {
-  const [theme, setTheme] = useState<Theme>(
-    () => initialTheme ?? readDocumentTheme() ?? "light"
-  );
+  const [theme, setTheme] = useState<Theme>(() => initialTheme ?? "light");
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = readStoredTheme() ?? readCookieTheme();
+    const stored = readStoredTheme() ?? readCookieTheme() ?? readDocumentTheme();
     const preferred = stored ?? readPreferredTheme();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme((prev) => (prev === preferred ? prev : preferred));
