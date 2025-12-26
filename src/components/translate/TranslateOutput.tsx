@@ -123,15 +123,22 @@ export function TranslateOutput({
 
           {showAdvanced && targets.length > 0 ? (
             <Surface tone="subtle" padding="md" className="space-y-mdt-3">
-              {targets.map((target) => (
+              {targets.map((target) => {
+                const adapterId = `translate-${target.targetId}-adapter`;
+                const optionsId = `translate-${target.targetId}-options`;
+                return (
                 <Surface key={target.targetId} padding="md" className="space-y-mdt-3">
                   <div className="flex flex-wrap items-center justify-between gap-mdt-3">
                     <Text size="bodySm" weight="semibold" className="font-mono">
                       {target.targetId}
                     </Text>
                     <div className="flex items-center gap-mdt-2">
-                      <Text size="caption" tone="muted">Adapter</Text>
+                      <Text as="label" htmlFor={adapterId} size="caption" tone="muted">
+                        Adapter
+                      </Text>
                       <Input
+                        id={adapterId}
+                        name={adapterId}
                         size="sm"
                         value={target.adapterVersion}
                         onChange={(e) => {
@@ -139,14 +146,17 @@ export function TranslateOutput({
                           onUpdateTarget(target.targetId, { adapterVersion: next.length > 0 ? next : DEFAULT_ADAPTER_VERSION });
                         }}
                         className="w-24 font-mono"
-                        aria-label={`Adapter version for ${target.targetId}`}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-mdt-2">
-                    <Text size="caption" tone="muted">Options (JSON)</Text>
+                    <Text as="label" htmlFor={optionsId} size="caption" tone="muted">
+                      Options (JSON)
+                    </Text>
                     <TextArea
+                      id={optionsId}
+                      name={optionsId}
                       defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
                       rows={4}
                       className="font-mono text-body-sm"
@@ -165,7 +175,6 @@ export function TranslateOutput({
                           setOptionsErrors((prev) => ({ ...prev, [target.targetId]: 'Invalid JSON options' }));
                         }
                       }}
-                      aria-label={`Options for ${target.targetId}`}
                     />
                     {optionsErrors[target.targetId] ? (
                       <Text size="caption" className="text-[color:var(--mdt-color-danger)]">
@@ -174,7 +183,8 @@ export function TranslateOutput({
                     ) : null}
                   </div>
                 </Surface>
-              ))}
+              );
+              })}
             </Surface>
           ) : null}
         </Surface>

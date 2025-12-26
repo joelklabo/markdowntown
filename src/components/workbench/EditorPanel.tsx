@@ -103,12 +103,16 @@ export function EditorPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="mb-mdt-4 flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
+        <label htmlFor="workbench-block-title" className="sr-only">
+          Block title
+        </label>
         <Input
+          id="workbench-block-title"
+          name="blockTitle"
           value={block.title ?? ''}
           onChange={(e) => updateBlockTitle(block.id, e.target.value || undefined)}
           placeholder="Block title (optional)"
           size="sm"
-          aria-label="Block title"
           className="w-full sm:max-w-lg"
         />
         <Badge tone="neutral" className="w-fit font-mono uppercase tracking-wide">
@@ -116,7 +120,12 @@ export function EditorPanel() {
         </Badge>
       </div>
 
+      <label htmlFor="workbench-block-body" className="sr-only">
+        Block content
+      </label>
       <CodeEditor
+        id="workbench-block-body"
+        name="blockBody"
         value={block.body}
         onChange={handleBodyChange}
         size="sm"

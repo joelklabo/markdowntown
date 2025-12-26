@@ -70,11 +70,15 @@ export function ScopesPanel() {
 
       {adding && (
         <div className="mb-mdt-3 space-y-mdt-2">
+          <label htmlFor="workbench-scope-pattern" className="sr-only">
+            Scope glob pattern
+          </label>
           <Input
+            id="workbench-scope-pattern"
+            name="scopePattern"
             value={pattern}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="src/**/*.ts"
-            aria-label="Scope glob pattern"
             size="sm"
           />
           {validation.message && <div className="text-caption text-mdt-danger">{validation.message}</div>}

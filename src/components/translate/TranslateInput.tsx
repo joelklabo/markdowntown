@@ -42,7 +42,9 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
     <Surface padding="lg" className="flex h-full flex-col gap-mdt-4">
       <div className="flex flex-wrap items-center justify-between gap-mdt-3">
         <div className="space-y-mdt-1">
-          <Text size="caption" tone="muted">Input</Text>
+          <Text as="label" htmlFor="translate-input-content" size="caption" tone="muted">
+            Input
+          </Text>
           <Text size="bodySm" tone="muted">
             Paste Markdown or UAM v1 JSON. You can also drop a file into this panel.
           </Text>
@@ -53,8 +55,13 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
               {fileName}
             </Text>
           )}
+          <label htmlFor="translate-input-file" className="sr-only">
+            Upload a file
+          </label>
           <input
             ref={fileInputRef}
+            id="translate-input-file"
+            name="translateInputFile"
             type="file"
             className="hidden"
             onChange={async (e) => {
@@ -81,12 +88,13 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
         onDrop={onDrop}
       >
         <TextArea
+          id="translate-input-content"
+          name="translateInputContent"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="min-h-[320px] flex-1 font-mono text-body-sm resize-none"
           placeholder="Paste Markdown or UAM v1 JSON…"
           disabled={disabled}
-          aria-label="Input content"
         />
         <div className="space-y-mdt-1">
           {helperText && (

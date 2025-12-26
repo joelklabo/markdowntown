@@ -176,16 +176,23 @@ export function ExportPanel() {
 
         {showAdvanced && uam.targets.length > 0 ? (
           <div className="mt-mdt-3 space-y-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-            {uam.targets.map((target) => (
-              <div
-                key={target.targetId}
-                className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-3"
-              >
+            {uam.targets.map((target) => {
+              const adapterId = `workbench-${target.targetId}-adapter`;
+              const optionsId = `workbench-${target.targetId}-options`;
+              return (
+                <div
+                  key={target.targetId}
+                  className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-3"
+                >
                 <div className="flex flex-wrap items-center gap-mdt-3">
                   <div className="font-mono text-caption text-mdt-text">{target.targetId}</div>
                   <div className="flex items-center gap-mdt-2">
-                    <div className="text-caption text-mdt-muted">Adapter</div>
+                    <label htmlFor={adapterId} className="text-caption text-mdt-muted">
+                      Adapter
+                    </label>
                     <Input
+                      id={adapterId}
+                      name={adapterId}
                       size="sm"
                       value={target.adapterVersion}
                       onChange={(e) => {
@@ -199,8 +206,12 @@ export function ExportPanel() {
                 </div>
 
                 <div>
-                  <div className="mb-mdt-1 text-caption text-mdt-muted">Options (JSON)</div>
+                  <label htmlFor={optionsId} className="mb-mdt-1 text-caption text-mdt-muted">
+                    Options (JSON)
+                  </label>
                   <TextArea
+                    id={optionsId}
+                    name={optionsId}
                     defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
                     rows={4}
                     className="font-mono text-xs"
@@ -228,7 +239,8 @@ export function ExportPanel() {
                   ) : null}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : null}
       </div>

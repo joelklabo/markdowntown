@@ -66,12 +66,16 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
     <div className="border-b border-mdt-border bg-mdt-surface">
       <div className="flex flex-col gap-mdt-4 px-mdt-4 py-mdt-4 md:flex-row md:items-center md:justify-between md:px-mdt-6">
         <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <label htmlFor="workbench-title" className="sr-only">
+            Agent Title
+          </label>
           <Input
+            id="workbench-title"
+            name="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             size="sm"
             className="w-full font-semibold sm:w-72 md:w-80"
-            aria-label="Agent Title"
           />
           <Badge
             tone={visibilityBadge.tone}
@@ -84,10 +88,14 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
 
         <div className="flex flex-col gap-mdt-4 md:flex-row md:flex-wrap md:items-center md:justify-end">
           <div className="flex flex-1 flex-wrap items-center gap-mdt-2">
+            <label htmlFor="workbench-visibility" className="sr-only">
+              Visibility
+            </label>
             <Select
+              id="workbench-visibility"
+              name="visibility"
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as ArtifactVisibility)}
-              aria-label="Visibility"
               size="sm"
               className="w-full sm:w-36"
             >
@@ -95,7 +103,12 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
               <option value="UNLISTED">Unlisted</option>
               <option value="PUBLIC">Public</option>
             </Select>
+            <label htmlFor="workbench-tags" className="sr-only">
+              Tags
+            </label>
             <Input
+              id="workbench-tags"
+              name="tags"
               value={tagsDraft}
               onChange={(e) => {
                 const value = e.target.value;
