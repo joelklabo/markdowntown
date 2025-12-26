@@ -25,6 +25,9 @@ export type FileListScanOptions = {
   includeContent?: boolean;
   contentAllowlist?: RegExp[];
   maxContentBytes?: number;
+  signal?: AbortSignal;
+  onProgress?: (progress: { totalFiles: number; matchedFiles: number }) => void;
+  progressInterval?: number;
 };
 
 function normalizePath(value: string): string {
@@ -73,6 +76,9 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
   const maxFiles = options.maxFiles ?? DEFAULT_MAX_FILES;
   const includeOnly = options.includeOnly;
   const includeContent = options.includeContent ?? false;
+  const signal = options.signal;
+  const onProgress = options.onProgress;
+  const progressInterval = options.progressInterval ?? 50;
   const contentOptions: ContentScanOptions = {
     allowlist: options.contentAllowlist ?? DEFAULT_INSTRUCTION_ALLOWLIST,
     maxBytes: options.maxContentBytes ?? DEFAULT_MAX_CONTENT_BYTES,
@@ -84,6 +90,9 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
   let truncated = false;
 
   for (const file of toArray(files)) {
+    if (signal?.aborted) {
+      throw new DOMException('Scan aborted', 'AbortError');
+    }
     if (totalFiles >= maxFiles) {
       truncated = true;
       break;
@@ -95,6 +104,9 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
     if (containsIgnoredDir(path, ignoreDirs)) continue;
 
     totalFiles += 1;
+    if (onProgress && totalFiles % progressInterval === 0) {
+      onProgress({ totalFiles, matchedFiles });
+    }
 
     if (shouldInclude(path, includeOnly)) {
       let content = '';
@@ -137,5 +149,8 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
     files: entries,
   };
 
+  if (onProgress) {
+    onProgress({ totalFiles, matchedFiles });
+  }
   return { tree, totalFiles, matchedFiles, truncated };
 }

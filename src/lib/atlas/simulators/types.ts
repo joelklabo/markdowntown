@@ -32,6 +32,7 @@ export type RepoScanMeta = {
   totalFiles: number;
   matchedFiles: number;
   truncated: boolean;
+  rootName?: string;
 };
 
 export type RepoScanResult = RepoScanMeta & {

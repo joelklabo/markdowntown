@@ -31,6 +31,7 @@ import { INSTRUCTION_TEMPLATES } from "@/lib/atlas/simulators/templates";
 import type {
   InstructionDiagnostics,
   NextStepAction,
+  RepoScanMeta,
   RepoTree,
   SimulationResult,
   SimulatorInsights as SimulatorInsightsData,
@@ -332,13 +333,10 @@ export function ContextSimulator() {
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
   const [toolDetection, setToolDetection] = useState<ToolDetectionResult | null>(null);
-  const [scanMeta, setScanMeta] = useState<{
-    totalFiles: number;
-    matchedFiles: number;
-    truncated: boolean;
-    rootName?: string;
-  } | null>(null);
+  const [scanMeta, setScanMeta] = useState<RepoScanMeta | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [scanNotice, setScanNotice] = useState<string | null>(null);
+  const [scanProgress, setScanProgress] = useState<RepoScanMeta | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<SimulationResult>(() =>
     simulateContextResolution({ tool: "github-copilot", cwd: "", tree: EMPTY_REPO_TREE }),
@@ -357,6 +355,8 @@ export function ContextSimulator() {
   const statusTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [directorySupport, setDirectorySupport] = useState<"unknown" | "supported" | "unsupported">("unknown");
+  const scanAbortRef = useRef<AbortController | null>(null);
+  const scanIdRef = useRef(0);
 
   const scanClarityEnabled = featureFlags.scanClarityV1;
   const quickUploadEnabled = featureFlags.scanQuickUploadV1;
@@ -483,6 +483,12 @@ export function ContextSimulator() {
     const missingLabel = `${missingCount} missing`;
     return `${foundLabel} · ${missingLabel}`;
   }, [insights.foundFiles.length, insights.missingFiles.length]);
+  const scanProgressLabel = useMemo(() => {
+    if (!scanProgress) return "";
+    const scannedLabel = `${scanProgress.totalFiles} file${scanProgress.totalFiles === 1 ? "" : "s"} scanned`;
+    const matchedLabel = scanProgress.matchedFiles > 0 ? `, ${scanProgress.matchedFiles} matched` : "";
+    return `${scannedLabel}${matchedLabel}.`;
+  }, [scanProgress]);
   const showQuickSummary = quickUploadEnabled && repoSource === "folder" && repoFileCount > 0;
   const showPostScanCta = lastSimulatedPaths.length > 0 && !isStale;
   const fixSummaryText = useMemo(
@@ -661,46 +667,60 @@ export function ContextSimulator() {
     return {};
   };
 
-  const handleDirectoryPickerScan = async () => {
+  const runFolderScan = async (
+    method: "directory_picker" | "file_input",
+    scan: (signal: AbortSignal, onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void) => Promise<{
+      tree: RepoTree;
+      totalFiles: number;
+      matchedFiles: number;
+      truncated: boolean;
+    }>,
+    rootName?: string,
+  ) => {
+    scanAbortRef.current?.abort();
+    const controller = new AbortController();
+    scanAbortRef.current = controller;
+    scanIdRef.current += 1;
+    const scanId = scanIdRef.current;
     setScanError(null);
+    setScanNotice(null);
     setIsScanning(true);
-    track("atlas_simulator_scan_start", { method: "directory_picker", tool });
+    setScanProgress({ totalFiles: 0, matchedFiles: 0, truncated: false });
+    track("atlas_simulator_scan_start", { method, tool });
     emitUiTelemetryEvent({
       name: "scan_start",
-      properties: { method: "directory_picker", tool },
+      properties: { method, tool },
     });
     try {
-      const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
-      if (!picker) throw new Error("File System Access API not available");
-      const handle = await picker();
-      const { tree, totalFiles, matchedFiles, truncated } = await scanRepoTree(
-        handle as FileSystemDirectoryHandleLike,
-        { includeContent: contentLintOptIn },
-      );
-      const rootName = (handle as { name?: string }).name;
+      const { tree, totalFiles, matchedFiles, truncated } = await scan(controller.signal, (progress) => {
+        if (scanId !== scanIdRef.current) return;
+        setScanProgress({ totalFiles: progress.totalFiles, matchedFiles: progress.matchedFiles, truncated: false });
+      });
+      if (scanId !== scanIdRef.current) return;
+      const resolvedRootName = rootName;
       setScannedTree(tree);
       setScanMeta({
         totalFiles,
         matchedFiles,
         truncated,
-        rootName,
+        rootName: resolvedRootName,
       });
       const paths = tree.files.map((file) => file.path);
       const overrides = applyToolDetection(paths);
       const nextTool = overrides.tool ?? tool;
       runSimulationWithTree(tree, paths, "folder", "scan", overrides);
       track("atlas_simulator_scan_complete", {
-        method: "directory_picker",
+        method,
         tool: nextTool,
         totalFiles,
         matchedFiles,
         truncated,
-        rootName,
+        rootName: resolvedRootName,
       });
       emitUiTelemetryEvent({
         name: "scan_complete",
         properties: {
-          method: "directory_picker",
+          method,
           tool: nextTool,
           totalFiles,
           matchedFiles,
@@ -708,8 +728,58 @@ export function ContextSimulator() {
         },
       });
     } catch (err) {
+      if (scanId !== scanIdRef.current) return;
+      if (err instanceof DOMException && err.name === "AbortError") {
+        track("atlas_simulator_scan_cancel", { method, tool });
+        emitUiTelemetryEvent({
+          name: "scan_cancel",
+          properties: { method, tool },
+        });
+        setScanNotice("Scan canceled. Scan a folder to continue.");
+        return;
+      }
+      if (err instanceof Error) {
+        trackError("atlas_simulator_scan_error", err, {
+          method,
+          tool,
+        });
+      }
+      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+    } finally {
+      if (scanId !== scanIdRef.current) return;
+      setIsScanning(false);
+      setScanProgress(null);
+      scanAbortRef.current = null;
+    }
+  };
+
+  const handleDirectoryPickerScan = async () => {
+    const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+    if (!picker) {
+      setScanError("File System Access API not available");
+      return;
+    }
+    try {
+      const handle = await picker();
+      const rootName = (handle as { name?: string }).name;
+      await runFolderScan(
+        "directory_picker",
+        (signal, onProgress) =>
+          scanRepoTree(handle as FileSystemDirectoryHandleLike, {
+            includeContent: contentLintOptIn,
+            signal,
+            onProgress,
+          }),
+        rootName,
+      );
+    } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
         track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
+        emitUiTelemetryEvent({
+          name: "scan_cancel",
+          properties: { method: "directory_picker", tool },
+        });
+        setScanNotice("Scan canceled. Scan a folder to continue.");
         return;
       }
       if (err instanceof Error) {
@@ -719,60 +789,31 @@ export function ContextSimulator() {
         });
       }
       setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-    } finally {
-      setIsScanning(false);
     }
   };
 
   const handleFileInputScan = async (files: FileList | null) => {
     setScanError(null);
-    if (!files || files.length === 0) return;
-    setIsScanning(true);
-    try {
-      track("atlas_simulator_scan_start", { method: "file_input", tool });
+    if (!files || files.length === 0) {
+      setScanNotice("Scan canceled. Scan a folder to continue.");
+      track("atlas_simulator_scan_cancel", { method: "file_input", tool });
       emitUiTelemetryEvent({
-        name: "scan_start",
+        name: "scan_cancel",
         properties: { method: "file_input", tool },
       });
-      const { tree, totalFiles, matchedFiles, truncated } = await scanFileList(files, {
-        includeContent: contentLintOptIn,
-      });
-      const rootName = files[0]?.webkitRelativePath?.split("/")[0];
-      setScannedTree(tree);
-      setScanMeta({ totalFiles, matchedFiles, truncated, rootName });
-      const paths = tree.files.map((file) => file.path);
-      const overrides = applyToolDetection(paths);
-      const nextTool = overrides.tool ?? tool;
-      runSimulationWithTree(tree, paths, "folder", "scan", overrides);
-      track("atlas_simulator_scan_complete", {
-        method: "file_input",
-        tool: nextTool,
-        totalFiles,
-        matchedFiles,
-        truncated,
-        rootName,
-      });
-      emitUiTelemetryEvent({
-        name: "scan_complete",
-        properties: {
-          method: "file_input",
-          tool: nextTool,
-          totalFiles,
-          matchedFiles,
-          truncated,
-        },
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        trackError("atlas_simulator_scan_error", err, {
-          method: "file_input",
-          tool,
-        });
-      }
-      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
-    } finally {
-      setIsScanning(false);
+      return;
     }
+    const rootName = files[0]?.webkitRelativePath?.split("/")[0];
+    await runFolderScan(
+      "file_input",
+      (signal, onProgress) =>
+        scanFileList(files, {
+          includeContent: contentLintOptIn,
+          signal,
+          onProgress,
+        }),
+      rootName,
+    );
   };
 
   const handleOpenDocs = () => {
@@ -1109,9 +1150,25 @@ export function ContextSimulator() {
                   }}
                 />
 
+                {isScanning ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text size="bodySm" weight="semibold">
+                      Scanning…
+                    </Text>
+                    <Text tone="muted" size="bodySm">
+                      {scanProgressLabel || "Reading files from your folder."}
+                    </Text>
+                  </div>
+                ) : null}
+
                 {scanError ? (
                   <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
                     {scanError}
+                  </div>
+                ) : null}
+                {scanNotice ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
+                    {scanNotice}
                   </div>
                 ) : null}
 
@@ -1327,9 +1384,25 @@ export function ContextSimulator() {
                     />
                   )}
 
+                  {isScanning ? (
+                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                      <Text size="bodySm" weight="semibold">
+                        Scanning…
+                      </Text>
+                      <Text tone="muted" size="bodySm">
+                        {scanProgressLabel || "Reading files from your folder."}
+                      </Text>
+                    </div>
+                  ) : null}
+
                   {scanError ? (
                     <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
                       {scanError}
+                    </div>
+                  ) : null}
+                  {scanNotice ? (
+                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
+                      {scanNotice}
                     </div>
                   ) : null}
 

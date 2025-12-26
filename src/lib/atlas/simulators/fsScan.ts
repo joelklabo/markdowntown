@@ -29,6 +29,9 @@ export type FsScanOptions = {
   includeContent?: boolean;
   contentAllowlist?: RegExp[];
   maxContentBytes?: number;
+  signal?: AbortSignal;
+  onProgress?: (progress: { totalFiles: number; matchedFiles: number }) => void;
+  progressInterval?: number;
 };
 
 export type FsScanResult = {
@@ -63,12 +66,18 @@ async function walk(
   includeOnly: RegExp[] | undefined,
   includeContent: boolean,
   contentOptions: ContentScanOptions,
+  signal: AbortSignal | undefined,
+  onProgress: FsScanOptions['onProgress'],
+  progressInterval: number,
   out: RepoTreeFile[],
 ): Promise<{ totalFiles: number; matchedFiles: number; truncated: boolean }> {
   let totalFiles = 0;
   let matchedFiles = 0;
 
   for await (const [name, handle] of dir.entries()) {
+    if (signal?.aborted) {
+      throw new DOMException('Scan aborted', 'AbortError');
+    }
     if (totalFiles >= maxFiles) {
       return { totalFiles, matchedFiles, truncated: true };
     }
@@ -86,6 +95,9 @@ async function walk(
         includeOnly,
         includeContent,
         contentOptions,
+        signal,
+        onProgress,
+        progressInterval,
         out,
       );
       totalFiles += result.totalFiles;
@@ -97,6 +109,9 @@ async function walk(
     if (handle.kind === 'file') {
       // Guardrail: read contents only when opted-in and allowlisted.
       totalFiles += 1;
+      if (onProgress && totalFiles % progressInterval === 0) {
+        onProgress({ totalFiles, matchedFiles });
+      }
       const path = joinPath(prefix, name);
       const displayPath = redactSensitivePath(path);
       if (!includeOnly || includeOnly.some((pattern) => pattern.test(path))) {
@@ -131,6 +146,9 @@ async function walk(
     }
   }
 
+  if (onProgress) {
+    onProgress({ totalFiles, matchedFiles });
+  }
   return { totalFiles, matchedFiles, truncated: false };
 }
 
@@ -142,6 +160,9 @@ export async function scanRepoTree(
   const maxFiles = options.maxFiles ?? DEFAULT_MAX_FILES;
   const includeOnly = options.includeOnly;
   const includeContent = options.includeContent ?? false;
+  const signal = options.signal;
+  const onProgress = options.onProgress;
+  const progressInterval = options.progressInterval ?? 50;
   const contentOptions: ContentScanOptions = {
     allowlist: options.contentAllowlist ?? DEFAULT_INSTRUCTION_ALLOWLIST,
     maxBytes: options.maxContentBytes ?? DEFAULT_MAX_CONTENT_BYTES,
@@ -156,6 +177,9 @@ export async function scanRepoTree(
     includeOnly,
     includeContent,
     contentOptions,
+    signal,
+    onProgress,
+    progressInterval,
     files,
   );
 
