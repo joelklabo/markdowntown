@@ -33,9 +33,11 @@ Add shared URLs to README-perf-links.md once published.
 | /builder | mobile | ≤ 4.2s | ≤ 1200ms | ≤ 220ms | ≤ 0.10 |
 | /builder | desktop | ≤ 3.4s | ≤ 900ms | ≤ 180ms | ≤ 0.07 |
 
+Lighthouse CI also covers `/atlas/simulator`, `/translate`, and `/docs` as of 2025-12-19; add SLO targets once the baselines stabilize.
+
 
 ## CI Lighthouse automation
-- Workflow: `.github/workflows/lighthouse.yml` runs desktop+mobile Lighthouse on `/`, `/browse`, `/builder`.
+- Workflow: `.github/workflows/lighthouse.yml` runs desktop+mobile Lighthouse on `/`, `/browse`, `/builder`, `/atlas/simulator`, `/translate`, `/docs`.
 - Each matrix run uploads `lh-metrics-<slug>-<form_factor>.csv` and `lh-summary-...md` artifacts with perf, LCP, TTI, TTFB, CLS; combined `lh-trends` artifact aggregates all rows for the run.
 - On pull requests a bot comment summarizes the latest run across all URLs/form factors.
 - Artifacts retained for 30 days; download per run to maintain a longer-lived trend spreadsheet if needed.

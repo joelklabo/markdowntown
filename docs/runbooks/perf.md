@@ -3,7 +3,7 @@
 ## Check live health
 - RUM dashboards (PostHog): see links in `docs/perf-report.md` (Navigation/TTFB, Core Web Vitals, API latency).
 - Server-Timing headers: `x-trace-id`, `Server-Timing: app, cache, total` on public APIs/pages.
-- CI Lighthouse: `Lighthouse Perf Budget` workflow uploads `lh-metrics-*.csv` and comments on PRs.
+- CI Lighthouse: `Lighthouse Perf Budget` workflow uploads `lh-metrics-*.csv` and comments on PRs (routes `/`, `/browse`, `/builder`, `/atlas/simulator`, `/translate`, `/docs`).
 
 ## Quick tests
 - Local throttled Lighthouse: `pnpm exec bash scripts/lighthouse-baseline.sh .lighthouse-local`
