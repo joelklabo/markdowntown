@@ -22,7 +22,9 @@ const config = {
       spacing: {
         "mdt-11": "var(--mdt-space-11)",
         "mdt-12": "var(--mdt-space-12)",
+        "mdt-13": "var(--mdt-space-13)",
         "mdt-14": "var(--mdt-space-14)",
+        "mdt-15": "var(--mdt-space-15)",
         "mdt-16": "var(--mdt-space-16)",
       },
     },
