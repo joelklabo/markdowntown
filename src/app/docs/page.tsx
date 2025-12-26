@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 };
 
 const repoBase = "https://github.com/joelklabo/markdowntown/blob/main";
-const docsLinks = [
-  {
-    label: "User guide (Start here)",
-    description: "Scan a folder, review loaded instructions, and export agents.md.",
-    href: `${repoBase}/docs/USER_GUIDE.md`,
-  },
+const getStartedLink = {
+  label: "User guide",
+  description: "Scan a folder, review loaded instructions, and export agents.md.",
+  href: `${repoBase}/docs/USER_GUIDE.md`,
+};
+
+const referenceLinks = [
   {
     label: "AGENTS.md",
     description: "Project-specific agent instructions and workflow defaults.",
@@ -60,63 +61,80 @@ export default function DocsPage() {
             </Text>
           </Stack>
 
-          <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)]">
-            <Stack gap={4}>
-              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
-                <Heading level="h3" as="h2">Quick links</Heading>
-                <Text size="caption" tone="muted">{docsLinks.length} resources</Text>
-              </div>
-              <div className="grid gap-mdt-4">
-                {docsLinks.map((link) => (
-                  <Card
-                    key={link.href}
-                    padding="lg"
-                    className="flex flex-col gap-mdt-4 md:flex-row md:items-center md:justify-between focus-within:border-mdt-border-strong focus-within:shadow-mdt-md motion-reduce:transition-none"
-                  >
-                    <div className="space-y-mdt-1">
-                      <Heading level="h3" as="h3">{link.label}</Heading>
-                      <Text size="bodySm" tone="muted" leading="relaxed">{link.description}</Text>
-                    </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      asChild
-                      className="group self-start md:self-auto motion-reduce:transition-none"
-                    >
-                      <Link href={link.href}>
-                        <span>Open</span>
-                        <span
-                          aria-hidden="true"
-                          className="transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus:translate-x-0.5 motion-reduce:transform-none"
-                        >
-                          →
-                        </span>
-                      </Link>
-                    </Button>
-                  </Card>
-                ))}
-              </div>
-            </Stack>
-
-            <Card tone="subtle" padding="lg" className="space-y-mdt-5">
-              <Text size="caption" tone="muted">How to use</Text>
-              <Heading level="h3" as="h3">Start with the primary flow</Heading>
+          <div className="grid gap-mdt-6 lg:grid-cols-2">
+            <Card id="get-started" tone="subtle" padding="lg" className="space-y-mdt-5">
+              <Text size="caption" tone="muted">Get started</Text>
+              <Heading level="h3" as="h3">Launch the scan → export flow</Heading>
               <Text tone="muted" leading="relaxed">
-                Use the user guide to follow the scan → build → export path, then reference the rest as needed.
+                Follow the user guide to run your first scan, review what loads, and export a clean agents.md.
               </Text>
               <ul className="space-y-mdt-3 list-disc pl-mdt-5">
                 <Text as="li" size="bodySm" tone="muted" leading="relaxed">
-                  Read the User guide first to understand the scan-to-export workflow.
+                  Scan your repo in Atlas Simulator and confirm the loaded files.
                 </Text>
                 <Text as="li" size="bodySm" tone="muted" leading="relaxed">
-                  Use the Atlas Simulator guide to preview which instruction files load.
+                  Resolve missing instruction files with the provided templates.
                 </Text>
                 <Text as="li" size="bodySm" tone="muted" leading="relaxed">
-                  Open Workbench to assemble scopes and export agents.md.
+                  Open Workbench to compile and export your instruction bundle.
                 </Text>
               </ul>
+              <Button asChild className="self-start">
+                <Link href={getStartedLink.href}>{getStartedLink.label}</Link>
+              </Button>
+            </Card>
+
+            <Card tone="subtle" padding="lg" className="space-y-mdt-5">
+              <Text size="caption" tone="muted">Reference</Text>
+              <Heading level="h3" as="h3">Deep dive on formats and tooling</Heading>
+              <Text tone="muted" leading="relaxed">
+                Use the reference library for instruction formats, Atlas Simulator specifics, and developer setup.
+              </Text>
+              <Button variant="secondary" asChild className="self-start">
+                <Link href="#reference">Browse reference links</Link>
+              </Button>
+              <Text size="bodySm" tone="muted">
+                {referenceLinks.length} reference resources available.
+              </Text>
             </Card>
           </div>
+
+          <Stack gap={4} id="reference">
+            <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
+              <Heading level="h3" as="h2">Reference library</Heading>
+              <Text size="caption" tone="muted">{referenceLinks.length} resources</Text>
+            </div>
+            <div className="grid gap-mdt-4">
+              {referenceLinks.map((link) => (
+                <Card
+                  key={link.href}
+                  padding="lg"
+                  className="flex flex-col gap-mdt-4 md:flex-row md:items-center md:justify-between focus-within:border-mdt-border-strong focus-within:shadow-mdt-md motion-reduce:transition-none"
+                >
+                  <div className="space-y-mdt-1">
+                    <Heading level="h3" as="h3">{link.label}</Heading>
+                    <Text size="bodySm" tone="muted" leading="relaxed">{link.description}</Text>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    asChild
+                    className="group self-start md:self-auto motion-reduce:transition-none"
+                  >
+                    <Link href={link.href}>
+                      <span>Open</span>
+                      <span
+                        aria-hidden="true"
+                        className="transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus:translate-x-0.5 motion-reduce:transform-none"
+                      >
+                        →
+                      </span>
+                    </Link>
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </Stack>
         </Stack>
       </Container>
     </main>
