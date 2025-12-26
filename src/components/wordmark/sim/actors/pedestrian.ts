@@ -182,7 +182,7 @@ export function spawnPedestrianActors(ctx: CityWordmarkActorContext): CityWordma
     const minX = clampInt(centerX - Math.floor(length / 2), minXLimit, maxMinX);
     const maxX = Math.min(xMax, minX + length - 1);
 
-    const speedVps = 1.2 + rng.nextFloat() * 2.1;
+    const speedVps = 0.9 + rng.nextFloat() * 1.6;
     const phase = rng.nextFloat() * Math.max(1, (maxX - minX) * 2);
     const dogOffset = rng.nextFloat() < 0.3 ? 1 : -1;
     const hasDog = ctx.config.actors.dogs ? rng.nextFloat() < 0.35 : false;

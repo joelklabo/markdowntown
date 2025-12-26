@@ -25,9 +25,9 @@ export type CityWordmarkEngineSnapshot = Readonly<{
 const FIXED_STEP_MS = 50;
 const DAY_CYCLE_MS = 240_000;
 const MAX_FRAME_MS = 250;
-const EVENT_COOLDOWN_MS = 900;
-const EVENT_ACTOR_TTL_MS = 7_000;
-const EVENT_ACTOR_LIMIT = 8;
+const EVENT_COOLDOWN_MS = 1_200;
+const EVENT_ACTOR_TTL_MS = 5_500;
+const EVENT_ACTOR_LIMIT = 6;
 
 export type CityWordmarkEngine = Readonly<{
   getSnapshot: () => CityWordmarkEngineSnapshot;

@@ -8,6 +8,7 @@ import { LivingCityWordmarkSvg } from "./LivingCityWordmarkSvg";
 import { createCityWordmarkLayout } from "./sim/layout";
 import { useCityWordmarkSim } from "./sim/useCityWordmarkSim";
 import { trackError } from "@/lib/analytics";
+import { usePrefersReducedMotion } from "@/components/motion/usePrefersReducedMotion";
 
 type LivingCityWordmarkProps = {
   className?: string;
@@ -18,28 +19,6 @@ type LivingCityWordmarkProps = {
 };
 
 const MAX_BANNER_SCALE = 32;
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(media.matches);
-    update();
-    if (media.addEventListener) {
-      media.addEventListener("change", update);
-      return () => media.removeEventListener("change", update);
-    }
-    media.addListener(update);
-    return () => media.removeListener(update);
-  }, []);
-
-  return reduced;
-}
 
 export function LivingCityWordmark({
   className,

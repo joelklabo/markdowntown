@@ -178,7 +178,7 @@ export function spawnTruckActors(ctx: CityWordmarkActorContext): CityWordmarkAct
   const cabWidth = 4 * scale;
   const period = ctx.layout.sceneWidth + width + 12 * scale;
   for (let i = 0; i < count; i++) {
-    const speedVps = 2.5 + rng.nextFloat() * 2.5;
+    const speedVps = 2 + rng.nextFloat() * 2;
     const x0 = (i / count) * period + rng.nextFloat() * 6 * scale;
     actors.push(createTruckActor({ x0, speedVps, width, cabWidth, y: laneY }));
   }

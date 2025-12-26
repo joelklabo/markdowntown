@@ -106,7 +106,7 @@ const skylineOverridesSchema = z
 const configSchema = z.object({
   seed: z.string().min(1).default("markdowntown"),
   timeOfDay: z.number().min(0).max(1).default(0.78),
-  timeScale: z.number().positive().default(1),
+  timeScale: z.number().positive().default(0.85),
   density: densitySchema.default("normal"),
   scheme: schemeSchema.default("classic"),
   render: renderSchema.default(defaultRender),

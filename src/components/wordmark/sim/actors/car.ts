@@ -143,7 +143,7 @@ export function spawnCarActors(ctx: CityWordmarkActorContext): CityWordmarkActor
   const actors: CityWordmarkActor[] = [];
   const period = ctx.layout.sceneWidth + width + 8 * scale;
   for (let i = 0; i < count; i++) {
-    const speedVps = 3 + rng.nextFloat() * 6;
+    const speedVps = 2.4 + rng.nextFloat() * 4.0;
     const x0 = (i / count) * period + rng.nextFloat() * 4 * scale;
     actors.push(createCarActor({ x0, speedVps, width, y: laneY }));
   }

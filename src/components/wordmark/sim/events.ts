@@ -1,4 +1,5 @@
 import { featureFlags } from "@/lib/flags";
+import { getPrefersReducedMotion } from "@/components/motion/usePrefersReducedMotion";
 import type { CityWordmarkEvent } from "./types";
 import { parseCityWordmarkEvent } from "./types";
 
@@ -34,6 +35,7 @@ function normalizeEventTs(ts?: number): number {
 
 export function dispatchCityWordmarkEvent(event: CityWordmarkEvent) {
   if (typeof window === "undefined") return;
+  if (getPrefersReducedMotion()) return;
   if (!featureFlags.wordmarkAnimV1 || !featureFlags.wordmarkBannerV1) return;
   const parsed = parseCityWordmarkEvent(event);
   if (!parsed) return;

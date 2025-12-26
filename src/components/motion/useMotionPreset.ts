@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 type Tier = "micro" | "component" | "panel";
 
@@ -21,12 +22,17 @@ export type MotionPreset = {
 };
 
 export function useMotionPreset(tier: Tier = "component", axis: "x" | "y" = "y"): MotionPreset {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   return useMemo(
-    () => ({
-      duration: durations[tier],
-      easing: "var(--mdt-motion-ease-emphasized)",
-      translate: `translate${axis.toUpperCase()}(${distances[tier]})`,
-    }),
-    [tier, axis]
+    () => {
+      const reducedTranslate = `translate${axis.toUpperCase()}(0px)`;
+      return {
+        duration: prefersReducedMotion ? "1ms" : durations[tier],
+        easing: "var(--mdt-motion-ease-emphasized)",
+        translate: prefersReducedMotion ? reducedTranslate : `translate${axis.toUpperCase()}(${distances[tier]})`,
+      };
+    },
+    [tier, axis, prefersReducedMotion]
   );
 }
