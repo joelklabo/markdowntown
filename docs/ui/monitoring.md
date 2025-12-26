@@ -11,9 +11,13 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 ## Core UI telemetry events
 - `ui_route_view`: page views with path/referrer/viewport context.
 - `ui_shell_loaded`: first shell render per session.
+- `ui_header_ready`: header render metrics (`status`, `bannerHeight`, `navHeight`, `elapsedMs`, `hasWordmark`).
 - `ui_theme_change`: theme toggles (`theme`, `previous`).
 - `ui_density_change`: density toggles (`density`, `previous`).
 - `ui_command_palette_open`: command palette entry (`origin`).
+- `ui_scan_start`: scan funnel entry (`method`, `tool`).
+- `ui_scan_complete`: scan funnel completion (`method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`).
+- `ui_scan_results_cta`: results CTA clicks (`source`, `tool`, `repoSource`, `loaded`, `missing`).
 
 ## Critical action events (track)
 These are emitted by specific surfaces and should be reviewed by feature area:

@@ -38,6 +38,7 @@ import type {
   ToolDetectionResult,
 } from "@/lib/atlas/simulators/types";
 import { track, trackError } from "@/lib/analytics";
+import { emitUiTelemetryEvent } from "@/lib/telemetry";
 import { featureFlags } from "@/lib/flags";
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
@@ -663,6 +664,10 @@ export function ContextSimulator() {
     setScanError(null);
     setIsScanning(true);
     track("atlas_simulator_scan_start", { method: "directory_picker", tool });
+    emitUiTelemetryEvent({
+      name: "scan_start",
+      properties: { method: "directory_picker", tool },
+    });
     try {
       const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
       if (!picker) throw new Error("File System Access API not available");
@@ -691,6 +696,16 @@ export function ContextSimulator() {
         truncated,
         rootName,
       });
+      emitUiTelemetryEvent({
+        name: "scan_complete",
+        properties: {
+          method: "directory_picker",
+          tool: nextTool,
+          totalFiles,
+          matchedFiles,
+          truncated,
+        },
+      });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
         track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
@@ -714,6 +729,10 @@ export function ContextSimulator() {
     setIsScanning(true);
     try {
       track("atlas_simulator_scan_start", { method: "file_input", tool });
+      emitUiTelemetryEvent({
+        name: "scan_start",
+        properties: { method: "file_input", tool },
+      });
       const { tree, totalFiles, matchedFiles, truncated } = await scanFileList(files, {
         includeContent: contentLintOptIn,
       });
@@ -731,6 +750,16 @@ export function ContextSimulator() {
         matchedFiles,
         truncated,
         rootName,
+      });
+      emitUiTelemetryEvent({
+        name: "scan_complete",
+        properties: {
+          method: "file_input",
+          tool: nextTool,
+          totalFiles,
+          matchedFiles,
+          truncated,
+        },
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -845,6 +874,19 @@ export function ContextSimulator() {
         trackError("atlas_simulator_view_report_error", err, { tool, repoSource });
       }
     }
+  };
+
+  const handleOpenWorkbenchCta = (source: "post_scan" | "actions") => {
+    emitUiTelemetryEvent({
+      name: "scan_results_cta",
+      properties: {
+        source,
+        tool,
+        repoSource,
+        loaded: result.loaded.length,
+        missing: insights.missingFiles.length,
+      },
+    });
   };
 
   const handleNextStepAction = async (action: NextStepAction, stepId: string) => {
@@ -1412,7 +1454,9 @@ export function ContextSimulator() {
                 </div>
                 <div className="flex flex-wrap gap-mdt-2">
                   <Button size="sm" asChild>
-                    <Link href="/workbench">Open Workbench</Link>
+                    <Link href="/workbench" onClick={() => handleOpenWorkbenchCta("post_scan")}>
+                      Open Workbench
+                    </Link>
                   </Button>
                   <Button size="sm" variant="secondary" onClick={handleViewReport}>
                     View report
@@ -1517,7 +1561,9 @@ export function ContextSimulator() {
               <div className="flex flex-wrap gap-mdt-2">
                 {lastSimulatedPaths.length > 0 ? (
                   <Button type="button" asChild>
-                    <Link href="/workbench">Open Workbench</Link>
+                    <Link href="/workbench" onClick={() => handleOpenWorkbenchCta("actions")}>
+                      Open Workbench
+                    </Link>
                   </Button>
                 ) : null}
                 <Button type="button" variant="secondary" onClick={handleCopySummary}>
