@@ -18,7 +18,7 @@ Last updated: Dec 20, 2025
    - User action: read what loaded, what did not, and why.
    - Output: clear next step prompt (primary CTA).
 3. **Build in Workbench**
-   - Entry: `/workbench` (optionally with pre-filled context from the scan).
+   - Entry: `/workbench` (prefilled with scan context when available).
    - User action: assemble scopes and blocks; edit text.
    - Output: updated agents.md preview.
 4. **Export or copy**
@@ -43,6 +43,7 @@ Last updated: Dec 20, 2025
 - One primary CTA per surface (scan, then build, then export).
 - Show the scan results summary above the first next-step CTA.
 - Use consistent language: "Scan", "Workbench", "Export".
+- Preserve scan context (tool + cwd) when sending users to Workbench.
 
 ## Critical edge cases
 - **No instruction files found**: explain what is expected and link to Docs.

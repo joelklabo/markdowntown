@@ -24,19 +24,18 @@ Scope: Atlas Simulator scan flow (first-time user to value).
    - Page headline: "Scan a folder"
    - Subhead: "Preview which instruction files a tool would load."
    - Local-only callout visible above the CTA.
-2. **Choose tool**
-   - Tool selector (e.g., GitHub Copilot, Claude Code, Codex CLI, etc.).
-   - Inline helper text: which file patterns are expected.
-3. **Set working directory**
-   - CWD input with example (e.g., `src/`, `.`).
-   - Inline validation for empty or invalid path.
-4. **Scan a folder**
+2. **Scan a folder**
    - Primary CTA: "Scan a folder" (Directory Picker).
-   - Secondary: "Upload folder" (file input fallback) if picker unsupported.
-5. **Results summary**
+   - Secondary: "Paste paths" (manual input).
+   - Advanced controls (tool selector + cwd input) collapsed by default.
+3. **Auto-detect tool + cwd**
+   - After scan completes, detect likely tool based on instruction files.
+   - Suggest a cwd when nested paths are detected.
+   - Allow overrides via Advanced controls.
+4. **Results summary**
    - Summary card: loaded, missing, extra, warnings.
    - Show missing patterns first with fix suggestions.
-6. **Next steps**
+5. **Next steps**
    - Primary action: "Open in Workbench"
    - Secondary action: "Rescan with different tool" / "Adjust CWD"
    - Tertiary: "Export report" or "Copy results"
@@ -53,6 +52,7 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 - Permission denied: "Access denied" with retry hint.
 - Truncated scan: show "Scan truncated" + suggest narrowing directory.
 - Unknown tool: show default patterns and allow user to choose tool.
+- Mixed tools: explain multiple formats found and prompt tool selection.
 
 ## Acceptance metrics (for UX validation)
 - Time to first insight: < 60 seconds from landing.
@@ -65,4 +65,3 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 - scan_complete (loaded_count, missing_count, warning_count, truncated)
 - scan_error (type, reason)
 - scan_next_step_click (cta, tool, missing_count)
-

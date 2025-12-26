@@ -1,7 +1,7 @@
 # Atlas scan quickstart UX + copy
 
 ## Goals
-- One clear primary action: upload a folder.
+- One clear primary action: scan a folder.
 - Immediate feedback: auto-scan, tool detection, summary, next steps.
 - Progressive disclosure for advanced controls.
 
@@ -9,9 +9,9 @@
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ Scan your repo                                                            ⚙ │
-│ Upload a folder to see what your tool will load. Scans stay in your browser.│
+│ Scan a folder to see what your tool will load. Scans stay in your browser.  │
 │                                                                             │
-│ [ Upload a folder ]   or   [ Paste paths ] (secondary)                      │
+│ [ Scan a folder ]   or   [ Paste paths ] (secondary)                        │
 │                                                                             │
 │ Detected: GitHub Copilot  •  4 files found  •  2 missing                    │
 │ [Change tool]  [Change cwd]                                                │
@@ -29,10 +29,10 @@
 ## Mobile wireframe (stacked)
 ```text
 Scan your repo
-Upload a folder to see what your tool will load.
+Scan a folder to see what your tool will load.
 Scans stay in your browser.
 
-[ Upload a folder ]
+[ Scan a folder ]
 [ Paste paths ]
 
 Detected: GitHub Copilot
@@ -58,8 +58,8 @@ Show advanced ▸
 ## Copy variants
 ### Empty state
 - Title: “Scan your repo”
-- Helper: “Upload a folder to see what your tool will load. Scans stay in your browser.”
-- Primary CTA: “Upload a folder”
+- Helper: “Scan a folder to see what your tool will load. Scans stay in your browser.”
+- Primary CTA: “Scan a folder”
 - Secondary CTA: “Paste paths”
 
 ### Scanning
@@ -76,7 +76,7 @@ Show advanced ▸
 - Helper: “We found instruction files for more than one CLI.”
 
 ### Error states
-- Canceled: “Scan canceled. Upload a folder to continue.”
+- Canceled: “Scan canceled. Scan a folder to continue.”
 - Unsupported picker: “Your browser doesn’t support folder picking. Use folder upload below.”
 - Scan error: “We couldn’t scan that folder. Try again or paste paths.”
 

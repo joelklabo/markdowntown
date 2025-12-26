@@ -5,7 +5,8 @@ Reduce time-to-value by letting a first-time user upload a folder and immediatel
 
 ## Flow overview
 1. **Idle state**
-   - Primary CTA: “Upload a folder”.
+   - Primary CTA: “Scan a folder”.
+   - Secondary CTA: “Paste paths”.
    - Helper text: local-only scan, no uploads.
    - Advanced controls collapsed by default.
 
@@ -17,11 +18,13 @@ Reduce time-to-value by letting a first-time user upload a folder and immediatel
 3. **Auto-detect tool + cwd**
    - After scan completes, detect likely tool based on known instruction files.
    - Infer cwd when possible (e.g., if instructions live under a nested path).
-   - Show detected values with a visible override control.
+   - If multiple tools are detected, prompt the user to choose.
+   - Show detected values with visible override controls.
 
 4. **Results + summary**
    - Summarize: tool detected, number of instruction files found, missing critical files.
    - Show prioritized next steps (copy template, open docs, rescan smaller scope).
+   - Include a primary CTA to open Workbench with scan context.
 
 5. **Advanced controls (optional)**
    - Tool selector, cwd input, manual paths input, and content linting opt-in.
@@ -52,10 +55,11 @@ Reduce time-to-value by letting a first-time user upload a folder and immediatel
   - Show a tool picker prompt and explain why.
 
 ## Copy requirements
-- “Upload a folder to see what your tool will load. Scans stay in your browser.”
+- “Scan a folder to see what your tool will load. Scans stay in your browser.”
 - “We detected **{tool}** based on **{file}**. Change if needed.”
 - “Found {countFound} instruction files. {countMissing} expected files missing.”
 - “Next steps: copy a template, open docs, or rescan a smaller folder.”
+- Primary CTA: “Scan a folder”
 
 ## Notes for refactoring opportunities
 - If duplicate scan logic exists between picker and input, consolidate.
