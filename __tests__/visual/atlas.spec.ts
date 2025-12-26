@@ -3,6 +3,7 @@ import { gotoVisualPage } from "./utils";
 
 const pages = [
   { name: "atlas", url: "/atlas" },
+  { name: "atlas-simulator", url: "/atlas/simulator" },
   { name: "atlas-compare", url: "/atlas/compare" },
   { name: "docs", url: "/docs" },
   { name: "changelog", url: "/changelog" },

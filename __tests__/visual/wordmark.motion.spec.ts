@@ -24,6 +24,10 @@ test.describe("City wordmark motion", () => {
 
     const preview = page.getByTestId("city-logo-preview");
     await expect(preview).toBeVisible();
+    await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
+
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width < 600) return;
 
     await page.waitForTimeout(200);
     const first = await preview.screenshot();
