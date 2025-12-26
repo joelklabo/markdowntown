@@ -19,6 +19,7 @@ describe("DensityProvider", () => {
   beforeEach(() => {
     localStorage.clear();
     delete document.documentElement.dataset.density;
+    document.cookie = "mdt_density=; path=/; max-age=0";
   });
 
   it("defaults to comfortable", async () => {
@@ -70,5 +71,18 @@ describe("DensityProvider", () => {
 
     expect(localStorage.getItem("mdt_density")).toBe("compact");
   });
-});
 
+  it("uses the initial density when provided", async () => {
+    render(
+      <DensityProvider initialDensity="compact">
+        <DensityTester />
+      </DensityProvider>
+    );
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.density).toBe("compact");
+    });
+
+    expect(screen.getByTestId("density")).toHaveTextContent("compact");
+  });
+});

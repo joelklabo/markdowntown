@@ -5,6 +5,7 @@ import React from "react";
 export type Density = "comfortable" | "compact";
 
 const STORAGE_KEY = "mdt_density";
+const COOKIE_KEY = "mdt_density";
 
 type DensityContextValue = {
   density: Density;
@@ -25,25 +26,48 @@ function readStoredDensity(): Density | null {
   }
 }
 
+function readCookieDensity(): Density | null {
+  if (typeof document === "undefined") return null;
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${COOKIE_KEY}=([^;]+)`));
+    if (!match) return null;
+    const value = decodeURIComponent(match[1] ?? "");
+    return value === "compact" || value === "comfortable" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 function writeStoredDensity(density: Density) {
   try {
     window.localStorage.setItem(STORAGE_KEY, density);
   } catch {
     // ignore
   }
+  try {
+    document.cookie = `${COOKIE_KEY}=${encodeURIComponent(density)}; path=/; max-age=31536000; samesite=lax`;
+  } catch {
+    // ignore
+  }
 }
 
-export function DensityProvider({ children }: { children: React.ReactNode }) {
-  const [density, setDensityState] = React.useState<Density>("comfortable");
+export function DensityProvider({
+  children,
+  initialDensity = "comfortable",
+}: {
+  children: React.ReactNode;
+  initialDensity?: Density;
+}) {
+  const [density, setDensityState] = React.useState<Density>(initialDensity);
   const [hydrated, setHydrated] = React.useState(false);
 
   React.useEffect(() => {
-    const stored = readStoredDensity();
-    if (stored) {
+    const stored = readStoredDensity() ?? readCookieDensity();
+    if (stored && stored !== initialDensity) {
       setDensityState(stored);
     }
     setHydrated(true);
-  }, []);
+  }, [initialDensity]);
 
   React.useEffect(() => {
     if (!hydrated) return;

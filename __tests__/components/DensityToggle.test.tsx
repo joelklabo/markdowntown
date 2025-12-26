@@ -7,6 +7,7 @@ describe("DensityToggle", () => {
   beforeEach(() => {
     localStorage.clear();
     delete document.documentElement.dataset.density;
+    document.cookie = "mdt_density=; path=/; max-age=0";
   });
 
   it("toggles density and updates the label", async () => {
@@ -35,4 +36,3 @@ describe("DensityToggle", () => {
     );
   });
 });
-

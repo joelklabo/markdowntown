@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Script from "next/script";
+import { cookies } from "next/headers";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { PosthogProviderLazy } from "@/providers/PosthogProviderLazy";
@@ -83,24 +85,37 @@ export default async function RootLayout({
 }>) {
   const session = await getSession();
   const user = session?.user ?? null;
+  const cookieStore = await cookies();
+  const densityCookie = cookieStore.get("mdt_density")?.value;
+  const initialDensity = densityCookie === "compact" ? "compact" : "comfortable";
 
   return (
     <html
       lang="en"
       className={[inter.variable, display.variable, mono.variable].join(" ")}
+      data-density={initialDensity}
       data-theme-refresh={featureFlags.themeRefreshV1 ? "true" : undefined}
       data-ux-clarity={featureFlags.uxClarityV1 ? "true" : undefined}
       data-instruction-health={featureFlags.instructionHealthV1 ? "true" : undefined}
+      suppressHydrationWarning
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <Script
+          id="density-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var d=localStorage.getItem('mdt_density');if(d==='compact'||d==='comfortable'){document.documentElement.dataset.density=d;}}catch(e){}",
+          }}
+        />
       </head>
       <body className="bg-mdt-bg text-mdt-text font-sans antialiased min-h-screen pb-20 md:pb-0">
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <DensityProvider>
+        <DensityProvider initialDensity={initialDensity}>
           <ThemeProvider>
             <PosthogProviderLazy>
               <UxTelemetry />
