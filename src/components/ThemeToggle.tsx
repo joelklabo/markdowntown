@@ -2,24 +2,21 @@
 
 import { useTheme } from "@/providers/ThemeProvider";
 import { Button } from "./ui/Button";
-import { useSyncExternalStore } from "react";
-
-const subscribe = (onStoreChange: () => void) => {
-  if (typeof window !== "undefined") {
-    if (typeof queueMicrotask === "function") {
-      queueMicrotask(onStoreChange);
-    } else {
-      setTimeout(onStoreChange, 0);
-    }
-  }
-  return () => {};
-};
-
-const getSnapshot = () => true;
-const getServerSnapshot = () => false;
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const mountedRef = useRef(false);
+  const subscribe = useCallback((onStoreChange: () => void) => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      const schedule = typeof queueMicrotask === "function" ? queueMicrotask : (cb: () => void) => setTimeout(cb, 0);
+      schedule(onStoreChange);
+    }
+    return () => {};
+  }, []);
+  const getSnapshot = useCallback(() => mountedRef.current, []);
+  const getServerSnapshot = useCallback(() => false, []);
   const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const isDark = mounted ? theme === "dark" : false;

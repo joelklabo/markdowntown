@@ -193,12 +193,15 @@ export function CityLogoLabClient({
 
     if (!applyHeaderToShell) {
       entries.forEach(([key]) => root.style.removeProperty(key));
+      root.removeAttribute("data-header-lab");
       return;
     }
 
+    root.dataset.headerLab = "true";
     entries.forEach(([key, value]) => root.style.setProperty(key, value));
     return () => {
       entries.forEach(([key]) => root.style.removeProperty(key));
+      root.removeAttribute("data-header-lab");
     };
   }, [applyHeaderToShell, headerVars, snapshotMode]);
 

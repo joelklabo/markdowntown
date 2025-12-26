@@ -174,7 +174,9 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     const navEl = headerEl.querySelector<HTMLElement>(".mdt-site-header-nav");
     if (!bannerEl || !navEl) return;
 
-    const collapseThreshold = 8;
+    const root = document.documentElement;
+    const collapseThreshold = 6;
+    const guardDurationMs = 18_000;
     const readHeight = (el: HTMLElement) => {
       const rect = el.getBoundingClientRect();
       if (Number.isFinite(rect.height) && rect.height > 0) return rect.height;
@@ -196,18 +198,32 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
         navMin: readMinHeight(navEl, navFallback),
       };
     };
+    const clearLocks = () => {
+      bannerEl.style.removeProperty("min-height");
+      bannerEl.style.removeProperty("height");
+      navEl.style.removeProperty("min-height");
+      navEl.style.removeProperty("height");
+    };
+    const applyBannerLock = (height: number) => {
+      if (!Number.isFinite(height) || height <= 0) return;
+      bannerEl.style.minHeight = `${height}px`;
+      bannerEl.style.height = `${height}px`;
+    };
+    const applyNavLock = (height: number) => {
+      if (!Number.isFinite(height) || height <= 0) return;
+      navEl.style.minHeight = `${height}px`;
+      navEl.style.removeProperty("height");
+    };
 
     const initial = resolveMinHeights();
     let stableBanner = Math.max(readHeight(bannerEl), initial.bannerMin);
     let stableNav = Math.max(readHeight(navEl), initial.navMin);
 
-    const lockHeight = (el: HTMLElement, height: number) => {
-      if (!Number.isFinite(height) || height <= 0) return;
-      el.style.minHeight = `${height}px`;
-      el.style.height = `${height}px`;
-    };
-
     const measure = (force = false) => {
+      if (root.dataset.headerLab === "true") {
+        clearLocks();
+        return;
+      }
       const { bannerMin, navMin } = resolveMinHeights();
       const bannerHeight = readHeight(bannerEl);
       const navHeight = readHeight(navEl);
@@ -219,17 +235,49 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
       const navCollapsed = stableNav > 0 && navHeight + collapseThreshold < stableNav;
 
       if (bannerCollapsed || (force && bannerHeight < bannerMin)) {
-        lockHeight(bannerEl, Math.max(stableBanner, bannerMin));
+        applyBannerLock(Math.max(stableBanner, bannerMin));
+      } else {
+        applyBannerLock(Math.max(stableBanner, bannerMin));
       }
 
       if (navCollapsed || (force && navHeight < navMin)) {
-        lockHeight(navEl, Math.max(stableNav, navMin));
+        applyNavLock(Math.max(stableNav, navMin));
+      } else {
+        applyNavLock(Math.max(stableNav, navMin));
       }
     };
 
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => measure()) : null;
     observer?.observe(bannerEl);
     observer?.observe(navEl);
+
+    const rootObserver =
+      typeof MutationObserver !== "undefined"
+        ? new MutationObserver(() => measure(true))
+        : null;
+    rootObserver?.observe(root, {
+      attributes: true,
+      attributeFilter: ["style", "data-density", "data-theme", "data-header-lab"],
+    });
+
+    const media = window.matchMedia?.("(min-width: 768px)");
+    const onMediaChange = () => measure(true);
+    if (media) {
+      if (media.addEventListener) {
+        media.addEventListener("change", onMediaChange);
+      } else if (media.addListener) {
+        media.addListener(onMediaChange);
+      }
+    }
+
+    const guardStarted = performance.now();
+    const guardInterval = window.setInterval(() => {
+      if (performance.now() - guardStarted > guardDurationMs) {
+        window.clearInterval(guardInterval);
+        return;
+      }
+      measure(true);
+    }, 1500);
 
     const lateCheck = window.setTimeout(() => measure(true), 5200);
     requestAnimationFrame(() => measure(true));
@@ -240,11 +288,17 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
 
     return () => {
       observer?.disconnect();
+      rootObserver?.disconnect();
       window.clearTimeout(lateCheck);
-      bannerEl.style.removeProperty("min-height");
-      bannerEl.style.removeProperty("height");
-      navEl.style.removeProperty("min-height");
-      navEl.style.removeProperty("height");
+      window.clearInterval(guardInterval);
+      if (media) {
+        if (media.removeEventListener) {
+          media.removeEventListener("change", onMediaChange);
+        } else if (media.removeListener) {
+          media.removeListener(onMediaChange);
+        }
+      }
+      clearLocks();
     };
   }, [pathname]);
 
