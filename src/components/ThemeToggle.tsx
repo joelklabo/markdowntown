@@ -4,17 +4,25 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { Button } from "./ui/Button";
 import { useSyncExternalStore } from "react";
 
-const emptySubscribe = () => () => {};
+const subscribe = (onStoreChange: () => void) => {
+  if (typeof window !== "undefined") {
+    if (typeof queueMicrotask === "function") {
+      queueMicrotask(onStoreChange);
+    } else {
+      setTimeout(onStoreChange, 0);
+    }
+  }
+  return () => {};
+};
+
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const isDark = mounted && theme === "dark";
+  const isDark = mounted ? theme === "dark" : false;
 
   return (
     <Button

@@ -88,12 +88,23 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const densityCookie = cookieStore.get("mdt_density")?.value;
   const initialDensity = densityCookie === "compact" ? "compact" : "comfortable";
+  const themeCookie = cookieStore.get("mdt_theme")?.value;
+  const initialTheme = themeCookie === "light" || themeCookie === "dark" ? themeCookie : null;
+  const htmlClassName = [
+    inter.variable,
+    display.variable,
+    mono.variable,
+    initialTheme === "dark" ? "dark" : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <html
       lang="en"
-      className={[inter.variable, display.variable, mono.variable].join(" ")}
+      className={htmlClassName}
       data-density={initialDensity}
+      data-theme={initialTheme ?? undefined}
       data-theme-refresh={featureFlags.themeRefreshV1 ? "true" : undefined}
       data-ux-clarity={featureFlags.uxClarityV1 ? "true" : undefined}
       data-instruction-health={featureFlags.instructionHealthV1 ? "true" : undefined}
@@ -110,13 +121,21 @@ export default async function RootLayout({
               "try{var d=localStorage.getItem('mdt_density');if(d==='compact'||d==='comfortable'){document.documentElement.dataset.density=d;}}catch(e){}",
           }}
         />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var d=document.documentElement;var t=d.dataset.theme;if(t!=='light'&&t!=='dark'){var stored=null;try{stored=localStorage.getItem('theme');}catch(e){}if(stored!=='light'&&stored!=='dark'){var prefersDark=false;try{prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;}catch(e){}stored=prefersDark?'dark':'light';}d.dataset.theme=stored;t=stored;}if(t==='dark'){d.classList.add('dark');}else{d.classList.remove('dark');}}catch(e){}",
+          }}
+        />
       </head>
       <body className="bg-mdt-bg text-mdt-text font-sans antialiased min-h-screen pb-20 md:pb-0">
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
         <DensityProvider initialDensity={initialDensity}>
-          <ThemeProvider>
+          <ThemeProvider initialTheme={initialTheme ?? undefined}>
             <PosthogProviderLazy>
               <UxTelemetry />
               <SiteNav user={user} />
