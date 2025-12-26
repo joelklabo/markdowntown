@@ -6,6 +6,10 @@ const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+if (process.env.NODE_ENV === "development") {
+  process.env.SENTRY_SUPPRESS_TURBOPACK_WARNING ??= "1";
+}
+
 const staticAssetCacheControl =
   process.env.NODE_ENV === "development"
     ? "no-store"
