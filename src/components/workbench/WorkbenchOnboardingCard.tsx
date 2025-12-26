@@ -22,7 +22,7 @@ export function WorkbenchOnboardingCard() {
     <Card className="p-mdt-4 md:p-mdt-5">
       <Stack gap={3}>
         <div className="space-y-mdt-1">
-          <Text size="caption" tone="muted">Quick start</Text>
+          <Text size="caption" tone="muted">Start here</Text>
           <Heading level="h3" as="h2">Build an agents.md</Heading>
           <Text tone="muted">Add scopes, write instruction blocks, then export.</Text>
         </div>
