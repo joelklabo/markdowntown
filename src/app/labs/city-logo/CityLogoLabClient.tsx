@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useId, useMemo, useState, type CSSProperties } from "react";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { SiteNav } from "@/components/SiteNav";
 import { CityLogoControls, type CityLogoPreviewWidthMode } from "@/components/wordmark/CityLogoControls";
@@ -25,6 +27,14 @@ export type CityLogoLabClientProps = {
 
 const DEFAULT_CONFIG = getDefaultCityWordmarkConfig();
 const SNAPSHOT_BASE_VOXEL_SCALE = 3;
+const HEADER_DEFAULTS = {
+  bannerHeight: 48,
+  bannerHeightMd: 56,
+  navMinHeight: 56,
+  navMinHeightMd: 64,
+  navPaddingY: 12,
+  navPaddingYMd: 16,
+};
 
 function formatFloat(value: number, digits: number): string {
   return Number(value.toFixed(digits)).toString();
@@ -100,23 +110,23 @@ export function CityLogoLabClient({
   const id = useId();
   const [previewWidthMode, setPreviewWidthMode] = useState<CityLogoPreviewWidthMode>(initialPreviewWidthMode ?? "fixed");
   const [shareTimeOfDay, setShareTimeOfDay] = useState(() => initialConfig.timeOfDay);
-  const [headerBannerHeight, setHeaderBannerHeight] = useState(48);
-  const [headerBannerHeightMd, setHeaderBannerHeightMd] = useState(56);
-  const [headerNavMinHeight, setHeaderNavMinHeight] = useState(56);
-  const [headerNavMinHeightMd, setHeaderNavMinHeightMd] = useState(64);
-  const [headerNavPaddingY, setHeaderNavPaddingY] = useState(12);
-  const [headerNavPaddingYMd, setHeaderNavPaddingYMd] = useState(16);
+  const [headerBannerHeight, setHeaderBannerHeight] = useState(HEADER_DEFAULTS.bannerHeight);
+  const [headerBannerHeightMd, setHeaderBannerHeightMd] = useState(HEADER_DEFAULTS.bannerHeightMd);
+  const [headerNavMinHeight, setHeaderNavMinHeight] = useState(HEADER_DEFAULTS.navMinHeight);
+  const [headerNavMinHeightMd, setHeaderNavMinHeightMd] = useState(HEADER_DEFAULTS.navMinHeightMd);
+  const [headerNavPaddingY, setHeaderNavPaddingY] = useState(HEADER_DEFAULTS.navPaddingY);
+  const [headerNavPaddingYMd, setHeaderNavPaddingYMd] = useState(HEADER_DEFAULTS.navPaddingYMd);
+  const [applyHeaderToShell, setApplyHeaderToShell] = useState(false);
 
-  const headerStyle = useMemo(
-    () =>
-      ({
-        "--mdt-site-header-banner-height": `${headerBannerHeight}px`,
-        "--mdt-site-header-banner-height-md": `${headerBannerHeightMd}px`,
-        "--mdt-site-header-nav-min-height": `${headerNavMinHeight}px`,
-        "--mdt-site-header-nav-min-height-md": `${headerNavMinHeightMd}px`,
-        "--mdt-site-header-nav-padding-y": `${headerNavPaddingY}px`,
-        "--mdt-site-header-nav-padding-y-md": `${headerNavPaddingYMd}px`,
-      }) as CSSProperties,
+  const headerVars = useMemo(
+    () => ({
+      "--mdt-site-header-banner-height": `${headerBannerHeight}px`,
+      "--mdt-site-header-banner-height-md": `${headerBannerHeightMd}px`,
+      "--mdt-site-header-nav-min-height": `${headerNavMinHeight}px`,
+      "--mdt-site-header-nav-min-height-md": `${headerNavMinHeightMd}px`,
+      "--mdt-site-header-nav-padding-y": `${headerNavPaddingY}px`,
+      "--mdt-site-header-nav-padding-y-md": `${headerNavPaddingYMd}px`,
+    }),
     [
       headerBannerHeight,
       headerBannerHeightMd,
@@ -126,12 +136,71 @@ export function CityLogoLabClient({
       headerNavPaddingYMd,
     ]
   );
+  const headerStyle = useMemo(() => headerVars as CSSProperties, [headerVars]);
   const shareQuery = buildCityLogoLabSearchParams({
     config: sim.config,
     shareTimeOfDay,
     previewWidthMode,
     playing: sim.playing,
   }).toString();
+  const headerCssSnippet = useMemo(() => {
+    return [
+      ":root {",
+      `  --mdt-site-header-banner-height: ${headerBannerHeight}px;`,
+      `  --mdt-site-header-nav-min-height: ${headerNavMinHeight}px;`,
+      `  --mdt-site-header-nav-padding-y: ${headerNavPaddingY}px;`,
+      "}",
+      "",
+      "@media (min-width: 768px) {",
+      "  :root {",
+      `    --mdt-site-header-banner-height-md: ${headerBannerHeightMd}px;`,
+      `    --mdt-site-header-nav-min-height-md: ${headerNavMinHeightMd}px;`,
+      `    --mdt-site-header-nav-padding-y-md: ${headerNavPaddingYMd}px;`,
+      "  }",
+      "}",
+    ].join("\n");
+  }, [
+    headerBannerHeight,
+    headerBannerHeightMd,
+    headerNavMinHeight,
+    headerNavMinHeightMd,
+    headerNavPaddingY,
+    headerNavPaddingYMd,
+  ]);
+
+  const resetHeaderVars = useCallback(() => {
+    setHeaderBannerHeight(HEADER_DEFAULTS.bannerHeight);
+    setHeaderBannerHeightMd(HEADER_DEFAULTS.bannerHeightMd);
+    setHeaderNavMinHeight(HEADER_DEFAULTS.navMinHeight);
+    setHeaderNavMinHeightMd(HEADER_DEFAULTS.navMinHeightMd);
+    setHeaderNavPaddingY(HEADER_DEFAULTS.navPaddingY);
+    setHeaderNavPaddingYMd(HEADER_DEFAULTS.navPaddingYMd);
+  }, []);
+
+  const copyHeaderCss = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(headerCssSnippet);
+    } catch {
+      window.prompt("Copy header CSS:", headerCssSnippet);
+    }
+  }, [headerCssSnippet]);
+
+  useEffect(() => {
+    if (snapshotMode) return;
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    const entries = Object.entries(headerVars);
+
+    if (!applyHeaderToShell) {
+      entries.forEach(([key]) => root.style.removeProperty(key));
+      return;
+    }
+
+    entries.forEach(([key, value]) => root.style.setProperty(key, value));
+    return () => {
+      entries.forEach(([key]) => root.style.removeProperty(key));
+    };
+  }, [applyHeaderToShell, headerVars, snapshotMode]);
 
   useEffect(() => {
     if (snapshotMode) return;
@@ -285,26 +354,39 @@ export function CityLogoLabClient({
         eventOrigin="labs"
         preview={{ widthMode: previewWidthMode, setWidthMode: setPreviewWidthMode }}
         share={{ onCopyLink: copyLink, onShareTimeOfDay: setShareTimeOfDay }}
+        actions={
+          <Button size="xs" variant="ghost" onClick={copyHeaderCss}>
+            Copy header CSS
+          </Button>
+        }
         legend={<WordmarkLegend />}
       />
 
       <Card className="p-mdt-6 space-y-mdt-4">
-        <div className="flex flex-wrap items-center justify-between gap-mdt-2">
-          <div className="text-body-sm font-medium text-mdt-text">Header preview</div>
-          <div className="text-caption text-mdt-muted">Adjusts live header sizing variables.</div>
+        <div className="flex flex-wrap items-start justify-between gap-mdt-2">
+          <div className="space-y-1">
+            <div className="text-body-sm font-medium text-mdt-text">Header preview</div>
+            <div className="text-caption text-mdt-muted">Adjust banner + nav sizing variables.</div>
+          </div>
+          <Button size="xs" variant="secondary" onClick={resetHeaderVars}>
+            Reset defaults
+          </Button>
         </div>
+        <Checkbox checked={applyHeaderToShell} onChange={(e) => setApplyHeaderToShell(e.target.checked)}>
+          <span className="text-caption text-mdt-muted">Apply to live header</span>
+        </Checkbox>
         <div className="grid gap-mdt-3 md:grid-cols-3 xl:grid-cols-6">
           <div className="space-y-mdt-1">
             <div className="text-caption text-mdt-muted">Banner height</div>
             <Input
               type="number"
-              min={24}
-              max={96}
+              min={48}
+              max={120}
               value={headerBannerHeight}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 if (!Number.isFinite(next)) return;
-                setHeaderBannerHeight(Math.min(96, Math.max(24, next)));
+                setHeaderBannerHeight(Math.min(120, Math.max(48, next)));
               }}
             />
           </div>
@@ -312,13 +394,13 @@ export function CityLogoLabClient({
             <div className="text-caption text-mdt-muted">Banner height (md)</div>
             <Input
               type="number"
-              min={24}
-              max={120}
+              min={56}
+              max={140}
               value={headerBannerHeightMd}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 if (!Number.isFinite(next)) return;
-                setHeaderBannerHeightMd(Math.min(120, Math.max(24, next)));
+                setHeaderBannerHeightMd(Math.min(140, Math.max(56, next)));
               }}
             />
           </div>
@@ -326,13 +408,13 @@ export function CityLogoLabClient({
             <div className="text-caption text-mdt-muted">Nav min height</div>
             <Input
               type="number"
-              min={32}
-              max={120}
+              min={56}
+              max={140}
               value={headerNavMinHeight}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 if (!Number.isFinite(next)) return;
-                setHeaderNavMinHeight(Math.min(120, Math.max(32, next)));
+                setHeaderNavMinHeight(Math.min(140, Math.max(56, next)));
               }}
             />
           </div>
@@ -340,13 +422,13 @@ export function CityLogoLabClient({
             <div className="text-caption text-mdt-muted">Nav min height (md)</div>
             <Input
               type="number"
-              min={32}
-              max={140}
+              min={64}
+              max={160}
               value={headerNavMinHeightMd}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 if (!Number.isFinite(next)) return;
-                setHeaderNavMinHeightMd(Math.min(140, Math.max(32, next)));
+                setHeaderNavMinHeightMd(Math.min(160, Math.max(64, next)));
               }}
             />
           </div>
@@ -354,13 +436,13 @@ export function CityLogoLabClient({
             <div className="text-caption text-mdt-muted">Nav padding Y</div>
             <Input
               type="number"
-              min={4}
-              max={40}
+              min={12}
+              max={32}
               value={headerNavPaddingY}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 if (!Number.isFinite(next)) return;
-                setHeaderNavPaddingY(Math.min(40, Math.max(4, next)));
+                setHeaderNavPaddingY(Math.min(32, Math.max(12, next)));
               }}
             />
           </div>
@@ -368,13 +450,13 @@ export function CityLogoLabClient({
             <div className="text-caption text-mdt-muted">Nav padding Y (md)</div>
             <Input
               type="number"
-              min={4}
-              max={48}
+              min={16}
+              max={40}
               value={headerNavPaddingYMd}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 if (!Number.isFinite(next)) return;
-                setHeaderNavPaddingYMd(Math.min(48, Math.max(4, next)));
+                setHeaderNavPaddingYMd(Math.min(40, Math.max(16, next)));
               }}
             />
           </div>

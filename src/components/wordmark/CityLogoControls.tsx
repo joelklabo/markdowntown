@@ -36,10 +36,11 @@ export type CityLogoControlsProps = {
     onCopyLink?: () => void;
     onShareTimeOfDay?: (timeOfDay: number) => void;
   };
+  actions?: ReactNode;
   legend?: ReactNode;
 };
 
-export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, legend }: CityLogoControlsProps) {
+export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, actions, legend }: CityLogoControlsProps) {
   const [seedDraft, setSeedDraft] = useState(sim.config.seed);
   const [timeScaleDraft, setTimeScaleDraft] = useState(String(sim.config.timeScale));
   const [voxelScaleDraft, setVoxelScaleDraft] = useState(String(sim.config.render.voxelScale));
@@ -194,6 +195,7 @@ export function CityLogoControls({ sim, eventOrigin = "labs", preview, share, le
                 Copy link
               </Button>
             ) : null}
+            {actions}
           </div>
         </div>
 
