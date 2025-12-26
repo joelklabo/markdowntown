@@ -10,32 +10,32 @@ export const metadata = {
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-mdt-bg-soft text-mdt-text">
-      <header className="border-b border-mdt-border bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <main className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-4 py-mdt-12 text-center">
+        <div className="mb-mdt-6 flex items-center justify-center">
           <BrandLogo />
-          <Button variant="secondary" size="sm" asChild>
-            <Link href="/">Back to home</Link>
-          </Button>
         </div>
-      </header>
-
-      <main className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-16">
-        <Card className="w-full max-w-xl space-y-4 text-center">
+        <Card className="w-full max-w-xl space-y-5" padding="lg" tone="raised">
           <div className="flex justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-mdt-lg bg-[rgba(0,87,217,0.08)] text-mdt-blue text-2xl font-semibold">
+            <div className="flex h-14 w-14 items-center justify-center rounded-mdt-lg bg-mdt-info-soft text-mdt-info text-2xl font-semibold">
               404
             </div>
           </div>
-          <h1 className="text-h1">Page not found</h1>
-          <p className="text-body text-mdt-muted">
-            The page you’re looking for doesn’t exist. Head back to the town square to keep composing.
-          </p>
-          <div className="flex justify-center gap-3">
+          <div className="space-y-2">
+            <h1 className="text-h1">Page not found</h1>
+            <p className="text-body text-mdt-muted">
+              That link doesn’t exist. Jump back to the town square, or scan a folder to get quick
+              guidance.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
             <Button asChild>
               <Link href="/">Go home</Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link href="/signin?callbackUrl=/">Sign in</Link>
+              <Link href="/atlas/simulator">Scan a folder</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href="/docs">Read docs</Link>
             </Button>
           </div>
         </Card>
