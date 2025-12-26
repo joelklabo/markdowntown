@@ -35,7 +35,7 @@ export default async function ChangelogPage() {
           <Stack gap={4} className="max-w-2xl">
             <Text size="caption" tone="muted">Changelog</Text>
             <Heading level="display" leading="tight">What\u2019s new in mark downtown</Heading>
-            <Text tone="muted">
+            <Text tone="muted" leading="relaxed">
               Recent releases, fixes, and improvements. View the complete history on GitHub.
             </Text>
             <div className="flex flex-wrap items-center gap-mdt-3">
@@ -53,7 +53,7 @@ export default async function ChangelogPage() {
           </Stack>
 
           <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.5fr)]">
-            <Surface padding="lg" className="space-y-mdt-4">
+            <Surface padding="lg" className="space-y-mdt-5">
               <div className="flex items-center justify-between">
                 <Heading level="h3" as="h2">Latest entries</Heading>
                 <Text size="caption" tone="muted">Newest release notes</Text>
@@ -67,20 +67,20 @@ export default async function ChangelogPage() {
               )}
             </Surface>
 
-            <Surface tone="subtle" padding="lg" className="space-y-mdt-4">
+            <Surface tone="subtle" padding="lg" className="space-y-mdt-5">
               <Text size="caption" tone="muted">Release notes</Text>
               <Heading level="h3" as="h3">Quick scan tips</Heading>
-              <Text tone="muted">
+              <Text tone="muted" leading="relaxed">
                 Skim the first headings for major updates, then dig into bullet lists for fixes and smaller changes.
               </Text>
               <ul className="space-y-mdt-3 list-disc pl-mdt-5">
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Use search to find terms like \u201cAtlas\u201d, \u201cWorkbench\u201d, or \u201cBuild\u201d.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Check for migration notes before upgrading local environments.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Review the full GitHub changelog for historical context.
                 </Text>
               </ul>

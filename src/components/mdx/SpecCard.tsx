@@ -21,14 +21,17 @@ function pillTone(tone: SpecTone): React.ComponentProps<typeof Pill>["tone"] {
 export function SpecCard({ title, value, tone = "neutral", children, className, ...props }: SpecCardProps) {
   return (
     <div
-      className={cn("rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3 text-mdt-text", className)}
+      className={cn(
+        "rounded-mdt-lg border border-mdt-border/80 bg-mdt-surface-subtle p-mdt-4 text-mdt-text shadow-mdt-sm",
+        className
+      )}
       {...props}
     >
       <div className="flex items-start justify-between gap-mdt-3">
-        <div className="text-body-sm font-medium">{title}</div>
+        <div className="text-body-sm font-semibold text-mdt-text">{title}</div>
         {value ? <Pill tone={pillTone(tone)}>{value}</Pill> : null}
       </div>
-      {children ? <div className="mt-mdt-2 text-body-sm text-mdt-muted">{children}</div> : null}
+      {children ? <div className="mt-mdt-2 text-body-sm leading-relaxed text-mdt-muted">{children}</div> : null}
     </div>
   );
 }

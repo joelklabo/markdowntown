@@ -54,7 +54,7 @@ export default function DocsPage() {
           <Stack gap={4} className="max-w-2xl">
             <Text size="caption" tone="muted">Docs</Text>
             <Heading level="display" leading="tight">mark downtown documentation</Heading>
-            <Text tone="muted">
+            <Text tone="muted" leading="relaxed">
               Start here with the user guide, then dive into Atlas Simulator and Workbench when you’re ready to ship
               agents.md.
             </Text>
@@ -75,7 +75,7 @@ export default function DocsPage() {
                   >
                     <div className="space-y-mdt-1">
                       <Heading level="h3" as="h3">{link.label}</Heading>
-                      <Text size="bodySm" tone="muted">{link.description}</Text>
+                      <Text size="bodySm" tone="muted" leading="relaxed">{link.description}</Text>
                     </div>
                     <Button
                       variant="secondary"
@@ -98,20 +98,20 @@ export default function DocsPage() {
               </div>
             </Stack>
 
-            <Card tone="subtle" padding="lg" className="space-y-mdt-4">
+            <Card tone="subtle" padding="lg" className="space-y-mdt-5">
               <Text size="caption" tone="muted">How to use</Text>
               <Heading level="h3" as="h3">Start with the primary flow</Heading>
-              <Text tone="muted">
+              <Text tone="muted" leading="relaxed">
                 Use the user guide to follow the scan → build → export path, then reference the rest as needed.
               </Text>
               <ul className="space-y-mdt-3 list-disc pl-mdt-5">
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Read the User guide first to understand the scan-to-export workflow.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Use the Atlas Simulator guide to preview which instruction files load.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Open Workbench to assemble scopes and export agents.md.
                 </Text>
               </ul>

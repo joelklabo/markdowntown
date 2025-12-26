@@ -10,7 +10,7 @@ export function CodeBlock({ className, children, ...props }: CodeBlockProps) {
     <pre
       data-mdx-code-block
       className={cn(
-        "mdx-code-block overflow-x-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-[11px] leading-relaxed text-mdt-text",
+        "mdx-code-block overflow-x-auto rounded-mdt-lg border border-mdt-border/80 bg-mdt-surface px-mdt-4 py-mdt-3 font-mono text-body-xs leading-relaxed text-mdt-text shadow-mdt-sm",
         className
       )}
       {...props}

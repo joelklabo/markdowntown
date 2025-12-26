@@ -13,7 +13,7 @@ export function Evidence({ url, label, children, className, ...props }: Evidence
     <div className={cn("inline-flex flex-col gap-mdt-2", className)} {...props}>
       <EvidenceBadge url={url} label={label} />
       {children ? (
-        <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-xs text-mdt-muted">
+        <div className="rounded-mdt-md border border-mdt-border/70 bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-body-xs leading-relaxed text-mdt-muted">
           {children}
         </div>
       ) : null}

@@ -26,41 +26,41 @@ export default function TermsPage() {
           </Stack>
 
           <div className="grid gap-mdt-6 lg:grid-cols-2">
-            <Surface padding="lg" className="space-y-mdt-4">
+            <Surface padding="lg" className="space-y-mdt-5">
               <Heading level="h3" as="h2">Acceptable use</Heading>
-              <ul className="list-disc space-y-mdt-2 pl-mdt-5">
-                <Text as="li" size="bodySm" tone="muted">
+              <ul className="list-disc space-y-mdt-3 pl-mdt-5">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Use the app for composing, copying, or testing markdown content.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Avoid uploading sensitive or production data in this preview environment.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Respect third-party licenses when importing, exporting, or sharing content.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Keep automated scripts or bots respectful of rate limits and shared resources.
                 </Text>
               </ul>
             </Surface>
 
-            <Surface padding="lg" className="space-y-mdt-4">
+            <Surface padding="lg" className="space-y-mdt-5">
               <Heading level="h3" as="h2">Local-only expectations</Heading>
-              <ul className="list-disc space-y-mdt-2 pl-mdt-5">
-                <Text as="li" size="bodySm" tone="muted">
+              <ul className="list-disc space-y-mdt-3 pl-mdt-5">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Atlas Simulator scans run locally in your browser and only read file paths.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   File contents remain on your machine; simulations do not upload repo data.
                 </Text>
-                <Text as="li" size="bodySm" tone="muted">
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Optional analytics capture high-level events only when configured.
                 </Text>
               </ul>
             </Surface>
           </div>
 
-          <Surface tone="subtle" padding="lg" className="space-y-mdt-4">
+          <Surface tone="subtle" padding="lg" className="space-y-mdt-5">
             <Heading level="h3" as="h2">Liability & availability</Heading>
             <Text size="bodySm" tone="muted" leading="relaxed">
               This preview is provided &quot;as is&quot; with no uptime guarantees. Content may be cleared during

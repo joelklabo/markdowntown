@@ -19,11 +19,15 @@ const toneStyles: Record<CalloutTone, string> = {
 export function Callout({ tone = "info", title, children, className, ...props }: CalloutProps) {
   return (
     <div
-      className={cn("rounded-mdt-lg border px-mdt-4 py-mdt-3 text-body-sm text-mdt-text", toneStyles[tone], className)}
+      className={cn(
+        "rounded-mdt-lg border px-mdt-4 py-mdt-3 text-body-sm leading-relaxed text-mdt-text shadow-mdt-sm",
+        toneStyles[tone],
+        className
+      )}
       {...props}
     >
-      {title ? <div className="font-semibold">{title}</div> : null}
-      {children ? <div className={cn(title ? "mt-mdt-2" : "")}>{children}</div> : null}
+      {title ? <div className="text-body-sm font-semibold text-mdt-text">{title}</div> : null}
+      {children ? <div className={cn("text-body-sm text-mdt-text", title ? "mt-mdt-2" : "")}>{children}</div> : null}
     </div>
   );
 }
