@@ -3,6 +3,7 @@ import { listPublicItems, type PublicItemType } from "@/lib/publicItems";
 import { listTopTags } from "@/lib/publicTags";
 import { ArtifactRow, type ArtifactRowItem } from "@/components/library/ArtifactRow";
 import { LibraryFilters } from "@/components/library/LibraryFilters";
+import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { Stack } from "@/components/ui/Stack";
@@ -87,12 +88,15 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
     stats: item.stats,
     type: item.type,
   }));
+  const hasFilters = q.length > 0 || type !== "all" || tags.length > 0 || targets.length > 0 || hasScopes === true;
 
   return (
     <Container className="py-mdt-10 md:py-mdt-12">
       <Stack gap={8}>
         <Stack gap={2}>
-          <Text size="caption" tone="muted">Public library</Text>
+          <Text size="caption" tone="muted" className="uppercase tracking-wide">
+            Public library
+          </Text>
           <Heading level="h1">Library</Heading>
           <Text tone="muted" className="max-w-2xl">
             Browse public artifacts and open them in Workbench. Use filters when you need to narrow down by tool, tags, or scopes.
@@ -117,11 +121,11 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
               <div>
                 <Text size="caption" tone="muted">Results</Text>
                 <Heading level="h3" as="h2">
-                  Public artifacts
+                  {q.length > 0 ? `Results for “${q}”` : "Public artifacts"}
                 </Heading>
               </div>
               <Text size="caption" tone="muted">
-                {rowItems.length} results
+                {rowItems.length} result{rowItems.length === 1 ? "" : "s"}
               </Text>
             </div>
             {rowItems.map((item) => (
@@ -129,14 +133,16 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
             ))}
 
             {rowItems.length === 0 && (
-              <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-8 shadow-mdt-sm">
+              <Card className="space-y-mdt-4 text-center" padding="lg" tone="raised">
                 <Heading level="h3" as="h2">
                   No public items match those filters
                 </Heading>
-                <Text tone="muted" className="mt-mdt-2 max-w-xl">
-                  Clear filters to browse everything, or scan your own folder to get a tailored setup.
+                <Text tone="muted" className="mx-auto max-w-xl">
+                  {hasFilters
+                    ? "Try clearing filters or searching fewer tags. You can also scan your own folder to get a tailored setup."
+                    : "Check back soon, or scan your own folder to get a tailored setup."}
                 </Text>
-                <div className="mt-mdt-4 flex flex-wrap gap-mdt-2">
+                <div className="flex flex-wrap justify-center gap-mdt-2">
                   <Button size="sm" asChild>
                     <Link href="/atlas/simulator">Scan a folder</Link>
                   </Button>
@@ -144,7 +150,7 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
                     <Link href="/library">Clear filters</Link>
                   </Button>
                 </div>
-              </div>
+              </Card>
             )}
           </div>
         </div>

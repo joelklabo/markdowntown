@@ -6,6 +6,9 @@ import type { SampleItem } from "@/lib/sampleContent";
 import { Button } from "@/components/ui/Button";
 import { track } from "@/lib/analytics";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Card } from "@/components/ui/Card";
+import { Pill } from "@/components/ui/Pill";
+import { Text } from "@/components/ui/Text";
 
 type Props = {
   initialItems: SampleItem[];
@@ -128,17 +131,22 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
 
   if (!items.length) {
     return (
-      <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-8 text-center shadow-mdt-sm">
+      <Card className="space-y-mdt-3 text-center" padding="lg" tone="raised">
         <p className="text-h3">No results yet.</p>
-        <p className="mt-mdt-2 text-body-sm text-mdt-muted">
+        <Text tone="muted">
           Try clearing filters, using fewer tags, or checking “All” types.
-        </p>
-      </div>
+        </Text>
+        <div className="flex justify-center">
+          <Button variant="secondary" size="sm" onClick={() => (window.location.href = "/browse")}>
+            Clear filters
+          </Button>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-mdt-6">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-mdt-5 md:gap-mdt-6">
       {items.map((item) => (
         <LibraryCard
           key={item.id}
@@ -169,7 +177,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
       {preview && (
         <div className="fixed inset-0 z-40 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm motion-fade-in motion-reduce:animate-none">
           <div className="absolute inset-0" onClick={() => setPreview(null)} aria-label="Close preview" />
-          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-6 shadow-mdt-lg md:inset-x-1/4 motion-reduce:animate-none">
+          <div className="pointer-events-auto motion-slide-up absolute inset-x-4 top-[10vh] max-h-[80vh] overflow-y-auto rounded-mdt-lg border border-mdt-border-strong bg-mdt-surface-raised p-mdt-6 shadow-mdt-lg md:inset-x-1/4 motion-reduce:animate-none">
             <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-mdt-1">
                 <p className="text-caption text-mdt-muted uppercase tracking-wide">{preview.type}</p>
@@ -182,9 +190,9 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
             <p className="mt-mdt-2 text-body text-mdt-muted">{preview.description}</p>
             <div className="mt-mdt-4 flex flex-wrap gap-mdt-2">
               {preview.tags.map((tag) => (
-                <span key={tag} className="rounded-mdt-pill bg-mdt-surface-subtle px-mdt-2 py-mdt-1 text-xs text-mdt-text">
+                <Pill key={tag} tone="gray">
                   #{tag}
-                </span>
+                </Pill>
               ))}
             </div>
             <div className="mt-mdt-4 grid gap-mdt-4 text-sm text-mdt-muted sm:grid-cols-3">

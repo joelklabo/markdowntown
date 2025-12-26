@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Pill } from "@/components/ui/Pill";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
 import { track } from "@/lib/analytics";
 
 type Option = { label: string; key: string; href: string; active: boolean };
@@ -20,7 +22,9 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
   return (
     <div className="space-y-mdt-5">
       <div className="space-y-mdt-2">
-        <p className="text-caption font-semibold text-mdt-text">Sort</p>
+        <Text size="caption" tone="muted" className="uppercase tracking-wide">
+          Sort
+        </Text>
         <div className="flex flex-wrap gap-mdt-2">
           {sortOptions.map((option) => (
             <Link
@@ -31,7 +35,7 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
             >
               <Pill
                 tone={option.active ? "blue" : "gray"}
-                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-strong motion-reduce:transition-none"
               >
                 {option.label}
               </Pill>
@@ -41,7 +45,9 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
       </div>
 
       <div className="space-y-mdt-2">
-        <p className="text-caption font-semibold text-mdt-text">Types</p>
+        <Text size="caption" tone="muted" className="uppercase tracking-wide">
+          Types
+        </Text>
         <div className="flex flex-wrap gap-mdt-2">
           {typeOptions.map((option) => (
             <Link
@@ -52,7 +58,7 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
             >
               <Pill
                 tone={option.active ? "blue" : "gray"}
-                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-strong motion-reduce:transition-none"
               >
                 {option.label}
               </Pill>
@@ -62,7 +68,9 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
       </div>
 
       <div className="space-y-mdt-2">
-        <p className="text-caption font-semibold text-mdt-text">Popular tags</p>
+        <Text size="caption" tone="muted" className="uppercase tracking-wide">
+          Popular tags
+        </Text>
         <div className="flex flex-wrap gap-mdt-2">
           {popularTags.map((tag) => (
             <Link
@@ -73,7 +81,7 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
             >
               <Pill
                 tone={tag.active ? "blue" : "gray"}
-                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="cursor-pointer transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-strong motion-reduce:transition-none"
               >
                 #{tag.label}
               </Pill>
@@ -84,7 +92,9 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
 
       {activeTags.length > 0 && (
         <div className="space-y-mdt-2" aria-label="Active tag filters">
-          <p className="text-caption font-semibold text-mdt-text">Active filters</p>
+          <Text size="caption" tone="muted" className="uppercase tracking-wide">
+            Active filters
+          </Text>
           <div className="flex flex-wrap items-center gap-mdt-2">
             {activeTags.map((tag) => (
               <Pill key={tag.label} tone="blue" className="gap-mdt-1">
@@ -99,13 +109,11 @@ export function BrowseFilterPills({ sortOptions, typeOptions, popularTags, activ
                 </Link>
               </Pill>
             ))}
-            <Link
-              href={clearTagsHref}
-              className="text-caption text-mdt-muted underline"
-              onClick={() => track("browse_filter_clear_tags")}
-            >
-              Clear filters
-            </Link>
+            <Button variant="ghost" size="xs" asChild>
+              <Link href={clearTagsHref} onClick={() => track("browse_filter_clear_tags")}>
+                Clear filters
+              </Link>
+            </Button>
           </div>
         </div>
       )}

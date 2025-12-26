@@ -45,21 +45,28 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
   const advancedOpen = tags.length > 0 || targets.length > 0 || hasScopes === true;
 
   return (
-    <Card className="space-y-mdt-4">
-      <div className="flex items-center justify-between gap-mdt-2">
-        <Heading level="h3" as="h2">
-          Filters
-        </Heading>
+    <Card className="space-y-mdt-5" padding="lg" tone="raised">
+      <div className="flex items-start justify-between gap-mdt-3">
+        <div className="space-y-1">
+          <Heading level="h3" as="h2">
+            Filters
+          </Heading>
+          <Text size="caption" tone="muted">
+            Refine by type, tags, or scopes.
+          </Text>
+        </div>
         <Button variant="ghost" size="xs" asChild>
           <Link href="/library">Clear</Link>
         </Button>
       </div>
 
-      <form action="/library" method="get" className="space-y-mdt-2">
-        <Text as="label" htmlFor="library-q" size="caption" tone="muted">
-          Search
-        </Text>
-        <Input id="library-q" name="q" defaultValue={q} placeholder="Search titles and descriptions…" />
+      <form action="/library" method="get" className="space-y-mdt-3">
+        <div className="space-y-mdt-2">
+          <Text as="label" htmlFor="library-q" size="caption" tone="muted">
+            Search library
+          </Text>
+          <Input id="library-q" name="q" defaultValue={q} placeholder="Search titles, descriptions, or tags…" />
+        </div>
 
         {type !== "all" && <input type="hidden" name="type" value={type} />}
         {hasScopes === true && <input type="hidden" name="hasScopes" value="1" />}
@@ -70,8 +77,8 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
           <input key={`target:${t}`} type="hidden" name="target" value={t} />
         ))}
 
-        <Button type="submit" size="sm" className="w-full">
-          Search
+        <Button type="submit" size="md" className="w-full">
+          Apply filters
         </Button>
       </form>
 
@@ -98,7 +105,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
           className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2"
           open={advancedOpen}
         >
-          <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+          <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">
             Advanced filters
           </summary>
           <div className="mt-mdt-3 space-y-mdt-4">

@@ -52,9 +52,9 @@ export function BrowseSearch({ initialQuery, baseQueryString, debounceMs = 250 }
         id="browse-search-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        size="lg"
+        size="md"
         placeholder="Search snippets, templates…"
-        className="bg-mdt-surface-subtle pr-16 shadow-inner"
+        className="pr-20"
         aria-label="Search library"
       />
       {isPending && (
