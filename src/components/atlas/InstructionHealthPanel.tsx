@@ -117,6 +117,9 @@ export function InstructionHealthPanel({ diagnostics, copySummaryText }: Instruc
             <Text size="bodySm" tone="muted">
               No placement issues detected for this tool.
             </Text>
+            <Text size="bodySm" tone="muted">
+              You can move on to Workbench or export a report.
+            </Text>
           </div>
         ) : (
           <ul className="space-y-mdt-2" aria-label="Instruction health issues">

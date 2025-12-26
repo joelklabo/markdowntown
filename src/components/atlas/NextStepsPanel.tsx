@@ -85,7 +85,7 @@ export function NextStepsPanel({
         </Stack>
 
         {visibleSteps.length === 0 ? (
-          <Text tone="muted">No next steps available yet.</Text>
+          <Text tone="muted">No next steps yet. Run a scan or refresh results to generate guidance.</Text>
         ) : (
           <Stack gap={3}>
             {visibleSteps.map((step) => {
@@ -117,7 +117,7 @@ export function NextStepsPanel({
                       {primaryAction ? (
                         <Button
                           size="sm"
-                          variant="primary"
+                          variant={isPrimary ? "primary" : "secondary"}
                           onClick={() => handleAction(primaryAction, step)}
                         >
                           {primaryAction.label}

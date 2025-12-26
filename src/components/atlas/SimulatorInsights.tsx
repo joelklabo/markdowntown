@@ -36,31 +36,6 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
 
           <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-              Expected patterns
-            </Text>
-            <Text tone="muted" size="bodySm">
-              These are the locations this tool checks. Add files here to be loaded.{" "}
-              <Link href="/docs" className="text-mdt-text underline underline-offset-2">
-                Atlas Simulator guide
-              </Link>
-              .
-            </Text>
-            {insights.expectedPatterns.length === 0 ? (
-              <Text tone="muted" size="bodySm">No expected patterns available.</Text>
-            ) : (
-              <ul className="space-y-mdt-2" aria-label="Expected patterns">
-                {insights.expectedPatterns.map((pattern) => (
-                  <li key={pattern.id} className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
-                    <div className="text-body-sm font-semibold text-mdt-text">{pattern.label}</div>
-                    <div className="font-mono text-body-xs text-mdt-muted">{pattern.pattern}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-            <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
               Missing instruction files
             </Text>
             <Text tone="muted" size="bodySm">
@@ -94,6 +69,31 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
                 {extraFiles.map((path) => (
                   <li key={path} className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
                     <div className="font-mono text-body-sm text-mdt-text">{path}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+            <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+              Expected patterns
+            </Text>
+            <Text tone="muted" size="bodySm">
+              These are the locations this tool checks. Add files here to be loaded.{" "}
+              <Link href="/docs" className="text-mdt-text underline underline-offset-2">
+                Atlas Simulator guide
+              </Link>
+              .
+            </Text>
+            {insights.expectedPatterns.length === 0 ? (
+              <Text tone="muted" size="bodySm">No expected patterns available.</Text>
+            ) : (
+              <ul className="space-y-mdt-2" aria-label="Expected patterns">
+                {insights.expectedPatterns.map((pattern) => (
+                  <li key={pattern.id} className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+                    <div className="text-body-sm font-semibold text-mdt-text">{pattern.label}</div>
+                    <div className="font-mono text-body-xs text-mdt-muted">{pattern.pattern}</div>
                   </li>
                 ))}
               </ul>

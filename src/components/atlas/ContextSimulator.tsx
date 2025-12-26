@@ -504,7 +504,6 @@ export function ContextSimulator() {
     return `${scannedLabel}${matchedLabel}.`;
   }, [scanProgress]);
   const showQuickSummary = quickUploadEnabled && repoSource === "folder" && repoFileCount > 0;
-  const showPostScanCta = lastSimulatedPaths.length > 0 && !isStale;
   const fixSummaryText = useMemo(
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
@@ -536,15 +535,6 @@ export function ContextSimulator() {
     }
     return "Review the results and move on when ready.";
   }, [insights.missingFiles.length, result.loaded.length, result.warnings.length, scanMeta?.truncated]);
-  const workbenchCtaBody = useMemo(() => {
-    if (result.loaded.length === 0) {
-      return "Open Workbench to add or edit instructions, or scan again after updates.";
-    }
-    if (insights.missingFiles.length > 0 || result.warnings.length > 0) {
-      return "Open Workbench to fix missing files and review warnings before exporting.";
-    }
-    return "Open Workbench to keep editing or export a shareable report.";
-  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length]);
   const contentLintResult = useMemo(() => {
     if (!contentLintOptIn || repoSource !== "folder") return null;
     return lintInstructionContent(scannedTree ?? { files: [] });
@@ -895,39 +885,6 @@ export function ContextSimulator() {
       announceStatus("Unable to download report.");
       if (err instanceof Error) {
         trackError("atlas_simulator_download_error", err, { tool, repoSource });
-      }
-    }
-  };
-
-  const handleViewReport = () => {
-    const summary = formatSummary({
-      tool,
-      cwd,
-      repoSource,
-      result,
-      insights,
-      extraFiles: extraInstructionFiles,
-      isStale,
-    });
-    try {
-      const blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
-      if (!opened) {
-        handleDownloadReport();
-        return;
-      }
-      announceStatus("Report opened in a new tab.");
-      track("atlas_simulator_view_report", {
-        tool,
-        repoSource,
-        fileCount: lastSimulatedPaths.length,
-      });
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (err) {
-      announceStatus("Unable to open report.");
-      if (err instanceof Error) {
-        trackError("atlas_simulator_view_report_error", err, { tool, repoSource });
       }
     }
   };
@@ -1538,26 +1495,52 @@ export function ContextSimulator() {
           </Stack>
 
           <div className="space-y-mdt-4">
-            {showPostScanCta ? (
-              <div className="flex flex-wrap items-center justify-between gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-                <div className="space-y-mdt-1">
-                  <Text weight="semibold">Scan complete</Text>
-                  <Text tone="muted" size="bodySm">
-                    {workbenchCtaBody}
-                  </Text>
-                </div>
-                <div className="flex flex-wrap gap-mdt-2">
-                  <Button size="sm" asChild>
-                    <Link href="/workbench" onClick={() => handleOpenWorkbenchCta("post_scan")}>
+            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                Summary
+              </Text>
+              <div className="flex flex-wrap items-center gap-mdt-2">
+                <Badge tone={result.loaded.length === 0 ? "warning" : "success"}>
+                  Loaded files {result.loaded.length}
+                </Badge>
+                <Badge tone={insights.missingFiles.length > 0 ? "warning" : "success"}>
+                  Missing files {insights.missingFiles.length}
+                </Badge>
+                <Badge tone={extraInstructionFiles.length > 0 ? "info" : "success"}>
+                  Extra files {extraInstructionFiles.length}
+                </Badge>
+                <Badge tone={result.warnings.length > 0 ? "warning" : "success"}>
+                  Warnings {result.warnings.length}
+                </Badge>
+                {scanMeta?.truncated ? <Badge tone="warning">Scan truncated</Badge> : null}
+              </div>
+              <Text size="bodySm" tone="muted">
+                {resultsSummary}
+              </Text>
+              <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                Actions
+              </Text>
+              <div className="flex flex-wrap gap-mdt-2">
+                {lastSimulatedPaths.length > 0 ? (
+                  <Button type="button" asChild>
+                    <Link href="/workbench" onClick={() => handleOpenWorkbenchCta("actions")}>
                       Open Workbench
                     </Link>
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={handleViewReport}>
-                    View report
-                  </Button>
-                </div>
+                ) : null}
+                <Button type="button" variant="secondary" onClick={handleCopySummary}>
+                  Copy summary
+                </Button>
+                <Button type="button" variant="secondary" onClick={handleDownloadReport}>
+                  Download report
+                </Button>
               </div>
-            ) : null}
+              {actionStatus ? (
+                <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted" role="status" aria-live="polite">
+                  {actionStatus}
+                </div>
+              ) : null}
+            </div>
             {featureFlags.scanNextStepsV1 ? (
               <NextStepsPanel
                 steps={nextSteps}
@@ -1574,29 +1557,6 @@ export function ContextSimulator() {
             {featureFlags.instructionHealthV1 ? (
               <InstructionContentLint enabled={contentLintOptIn} result={contentLintResult} />
             ) : null}
-            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-                Summary
-              </Text>
-              <div className="flex flex-wrap items-center gap-mdt-2">
-                <Badge tone={result.loaded.length === 0 ? "warning" : "success"}>
-                  Loaded {result.loaded.length}
-                </Badge>
-                <Badge tone={insights.missingFiles.length > 0 ? "warning" : "success"}>
-                  Missing {insights.missingFiles.length}
-                </Badge>
-                <Badge tone={extraInstructionFiles.length > 0 ? "info" : "success"}>
-                  Extra {extraInstructionFiles.length}
-                </Badge>
-                <Badge tone={result.warnings.length > 0 ? "warning" : "success"}>
-                  Warnings {result.warnings.length}
-                </Badge>
-                {scanMeta?.truncated ? <Badge tone="warning">Scan truncated</Badge> : null}
-              </div>
-              <Text size="bodySm" tone="muted">
-                {resultsSummary}
-              </Text>
-            </div>
 
             <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
@@ -1646,32 +1606,6 @@ export function ContextSimulator() {
 
             <div id="sim-insights">
               <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
-            </div>
-
-            <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-                Actions
-              </Text>
-              <div className="flex flex-wrap gap-mdt-2">
-                {lastSimulatedPaths.length > 0 ? (
-                  <Button type="button" asChild>
-                    <Link href="/workbench" onClick={() => handleOpenWorkbenchCta("actions")}>
-                      Open Workbench
-                    </Link>
-                  </Button>
-                ) : null}
-                <Button type="button" variant="secondary" onClick={handleCopySummary}>
-                  Copy summary
-                </Button>
-                <Button type="button" variant="secondary" onClick={handleDownloadReport}>
-                  Download report
-                </Button>
-              </div>
-              {actionStatus ? (
-                <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted" role="status" aria-live="polite">
-                  {actionStatus}
-                </div>
-              ) : null}
             </div>
           </div>
         </Stack>
