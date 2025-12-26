@@ -1,6 +1,7 @@
 # Atlas Simulator: Scan a Folder
 
 Use the Atlas Simulator to preview which instruction files load for each tool based on your repo structure.
+If you’re new, start with the quickstart: `docs/atlas/scan-quickstart.md`.
 
 ## Supported browsers
 - Chromium-based browsers (Chrome, Edge, Arc) use the File System Access API for folder picking.
@@ -12,9 +13,9 @@ Use the Atlas Simulator to preview which instruction files load for each tool ba
 - File contents are never read, uploaded, or stored server-side by default.
 - Optional content linting (opt-in) reads instruction file contents locally to surface formatting issues. Content never leaves your browser.
 
-## Folder scan flow (quick upload)
+## Scan flow (quick upload)
 1. Open Atlas → Simulator.
-2. Click “Upload a folder” and pick your repo (or use the folder upload input in unsupported browsers).
+2. Click “Scan a folder” and pick your repo (or use the folder upload input in unsupported browsers).
 3. The simulator auto-detects the tool and suggests a cwd when possible. Use the Advanced controls to override.
 4. Start with Next steps, then review Instruction health, Summary, Loaded files, Insights, Warnings, and the scan metadata.
 5. Click “Refresh results” after changing tool/cwd, or when you update files on disk.

@@ -1,9 +1,10 @@
 # User Guide
 
 This guide walks you through the primary flow: scan a folder → review loaded instruction files → build and export agents.md.
+Scans run locally in your browser and do not upload file contents.
 
 ## Primary flow (6 steps)
-1. Open the Atlas Simulator and click **Upload a folder**.
+1. Open the Atlas Simulator and click **Scan a folder**. (Quickstart: `docs/atlas/scan-quickstart.md`.)
 2. Pick your repo. The simulator auto-detects the tool and cwd when it can (override in Advanced if needed).
 3. Review the Next steps panel first, then Instruction health, the ordered list of instruction files, and any warnings. Use Copy template or Refresh results actions to fix issues quickly.
 4. Open Workbench to assemble your output.
