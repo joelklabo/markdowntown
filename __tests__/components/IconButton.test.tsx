@@ -11,7 +11,7 @@ describe("IconButton", () => {
 
     const className = getByRole("button", { name: /primary icon button/i }).className;
     expect(className).toContain("bg-[color:var(--mdt-color-primary)]");
-    expect(className).toContain("shadow-mdt-glow");
+    expect(className).toContain("shadow-mdt-btn");
   });
 
   it("applies token-based size classes", () => {

@@ -12,13 +12,13 @@ export function Pill({ tone = "primary", className, ...props }: PillProps) {
     blue: "bg-[color:var(--mdt-color-info-soft)] text-[color:var(--mdt-color-info)]",
     red: "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-color-danger)]",
     green: "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-color-success)]",
-    gray: "bg-mdt-surface-strong text-mdt-text",
+    gray: "bg-mdt-surface-subtle text-mdt-text",
   };
   const toneClass = toneMap[tone] ?? toneMap.primary;
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-mdt-pill px-mdt-2 py-[calc(var(--mdt-space-1)/4)] text-caption font-medium",
+        "inline-flex h-mdt-7 items-center gap-mdt-1 rounded-mdt-pill px-mdt-3 text-caption font-medium leading-none",
         toneClass,
         className
       )}

@@ -11,7 +11,7 @@ export function Tag({ label, onRemove, className, ...props }: TagProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-mdt-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm text-mdt-text",
+        "inline-flex h-mdt-8 items-center gap-mdt-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-3 text-body-sm text-mdt-text",
         className
       )}
       {...props}
@@ -20,10 +20,10 @@ export function Tag({ label, onRemove, className, ...props }: TagProps) {
       {onRemove ? (
         <IconButton
           variant="ghost"
-          size="sm"
+          size="xs"
           aria-label={`Remove ${label}`}
           onClick={onRemove}
-          className="h-6 w-6 p-0 text-caption"
+          className="h-mdt-7 w-mdt-7 text-caption"
         >
           ×
         </IconButton>
