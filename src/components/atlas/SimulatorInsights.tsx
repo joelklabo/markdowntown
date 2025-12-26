@@ -22,13 +22,13 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
         <Stack gap={3}>
           <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-              Summary
+              What we found
             </Text>
             <Stack gap={1}>
               <Text size="bodySm" weight="semibold">{summary.title}</Text>
               <Text tone="muted" size="bodySm">{summary.body}</Text>
               <Text size="bodySm" weight="semibold">
-                Next: {summary.nextStep}
+                Next step: {summary.nextStep}
               </Text>
               {summary.note ? <Text tone="muted" size="bodySm">{summary.note}</Text> : null}
             </Stack>

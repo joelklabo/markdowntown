@@ -8,8 +8,8 @@ type SimulatorScanMetaProps = {
 };
 
 export function SimulatorScanMeta({ totalFiles, matchedFiles, truncated, rootName }: SimulatorScanMetaProps) {
-  const matchedLabel = `${matchedFiles} instruction file${matchedFiles === 1 ? "" : "s"} matched`;
-  const totalLabel = `${totalFiles} file${totalFiles === 1 ? "" : "s"} scanned`;
+  const matchedLabel = `${matchedFiles} instruction file${matchedFiles === 1 ? "" : "s"} found`;
+  const totalLabel = `${totalFiles} total file${totalFiles === 1 ? "" : "s"} scanned`;
   const summary = [matchedLabel, totalLabel];
 
   return (

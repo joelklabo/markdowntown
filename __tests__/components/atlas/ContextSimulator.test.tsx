@@ -152,7 +152,7 @@ describe("ContextSimulator", () => {
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
 
-    expect(await screen.findByText(/2 instruction files matched.*2 files scanned/i)).toBeInTheDocument();
+    expect(await screen.findByText(/2 instruction files found.*2 total files scanned/i)).toBeInTheDocument();
     expect(await screen.findByText(/you're ready to go/i)).toBeInTheDocument();
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
@@ -178,7 +178,7 @@ describe("ContextSimulator", () => {
 
     render(<ContextSimulator />);
 
-    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+    await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
 
     expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
 
@@ -204,7 +204,7 @@ describe("ContextSimulator", () => {
 
     render(<ContextSimulator />);
 
-    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+    await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
 
     const mixedToolNotices = await screen.findAllByText(/multiple tool formats detected/i);
     expect(mixedToolNotices.length).toBeGreaterThan(0);
@@ -229,10 +229,10 @@ describe("ContextSimulator", () => {
 
     render(<ContextSimulator />);
 
-    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+    await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
     expect(await screen.findByText(/access denied/i)).toBeInTheDocument();
 
-    await userEvent.click(screen.getAllByRole("button", { name: "Upload a folder" })[0]);
+    await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
     expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
     expect(screen.queryByText(/access denied/i)).not.toBeInTheDocument();
 

@@ -49,7 +49,7 @@ export function InstructionContentLint({ enabled, result }: InstructionContentLi
             Content lint
           </Text>
           <Text size="bodySm" tone="muted">
-            Checks instruction file formatting locally for common issues.
+            Optionally checks instruction file formatting locally for common issues.
           </Text>
         </div>
 
@@ -59,7 +59,7 @@ export function InstructionContentLint({ enabled, result }: InstructionContentLi
               Enable content linting to see results
             </Text>
             <Text size="bodySm" tone="muted">
-              Opt in from Scan setup to analyze instruction content locally.
+              Turn on content linting in Scan setup (local-only) to analyze instruction content.
             </Text>
           </div>
         ) : !result || (result.checkedFiles === 0 && issues.length === 0) ? (
