@@ -1,0 +1,152 @@
+import path from "node:path";
+import fs from "node:fs/promises";
+import { chromium, type Browser, type Page } from "playwright";
+import { describe, it, beforeAll, afterAll } from "vitest";
+import { withE2EPage } from "./playwrightArtifacts";
+
+const baseURL = process.env.E2E_BASE_URL;
+const headless = true;
+
+const fixturesRoot = path.join(process.cwd(), "__tests__/e2e/fixtures");
+
+async function listFixturePaths(fixtureName: string): Promise<string[]> {
+  const root = path.join(fixturesRoot, fixtureName);
+  const paths: string[] = [];
+
+  async function walk(dir: string) {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+        continue;
+      }
+      if (entry.isFile()) {
+        paths.push(path.relative(root, fullPath));
+      }
+    }
+  }
+
+  await walk(root);
+  return paths.sort();
+}
+
+async function mockDirectoryPicker(page: Page, fixtureName: string) {
+  const paths = await listFixturePaths(fixtureName);
+  await page.addInitScript(
+    ({ paths, rootName }) => {
+      const buildTree = (pathsInput: string[]) => {
+        const root: Record<string, Record<string, unknown> | null> = {};
+        for (const rawPath of pathsInput) {
+          const parts = rawPath.split("/").filter(Boolean);
+          let node = root;
+          parts.forEach((part, index) => {
+            const isFile = index === parts.length - 1;
+            if (isFile) {
+              node[part] = null;
+              return;
+            }
+            if (!node[part] || node[part] === null) {
+              node[part] = {};
+            }
+            node = node[part] as Record<string, Record<string, unknown> | null>;
+          });
+        }
+        return root;
+      };
+
+      const makeHandle = (name: string, node: Record<string, Record<string, unknown> | null> | null) => {
+        if (node === null) {
+          return { kind: "file", name };
+        }
+        const entries = Object.entries(node).map(([childName, childNode]) => [childName, makeHandle(childName, childNode as Record<string, Record<string, unknown> | null> | null)]);
+        return {
+          kind: "directory",
+          name,
+          entries: async function* entriesGenerator() {
+            for (const entry of entries) {
+              yield entry as [string, { kind: string; name: string }];
+            }
+          },
+        };
+      };
+
+      const tree = buildTree(paths);
+      const handle = makeHandle(rootName, tree);
+      (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker = async () => handle;
+    },
+    { paths, rootName: fixtureName }
+  );
+}
+
+describe("Atlas scan guidance flow", () => {
+  let browser: Browser;
+
+  beforeAll(async () => {
+    browser = await chromium.launch({ headless });
+  });
+
+  afterAll(async () => {
+    await browser?.close();
+  });
+
+  const maybe = baseURL ? it : it.skip;
+
+  maybe("shows scan setup guidance", { timeout: 45000 }, async () => {
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+
+      await page.getByRole("heading", { name: /scan setup/i }).waitFor({ state: "visible" });
+      await page.getByText(/confirm which instruction files load/i).waitFor({ state: "visible" });
+      await page.getByText(/local-only scan/i).waitFor({ state: "visible" });
+      await page.getByText(/quick start/i).waitFor({ state: "visible" });
+      await page.getByText(/what we scan/i).waitFor({ state: "visible" });
+    });
+  });
+
+  maybe("covers empty scan results and missing instructions", { timeout: 60000 }, async () => {
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await mockDirectoryPicker(page, "scan-empty");
+
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+
+      await page.getByText(/no files would be loaded for this input/i).waitFor({ state: "visible" });
+      await page.getByRole("list", { name: /missing instruction files/i }).waitFor({ state: "visible" });
+
+      await page.getByRole("link", { name: /open workbench/i }).first().waitFor({ state: "visible" });
+    }, "scan-empty");
+  });
+
+  maybe("shows results CTA for sample scan", { timeout: 60000 }, async () => {
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await mockDirectoryPicker(page, "scan-sample");
+
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+
+      const loadedList = page.getByRole("list", { name: /loaded files/i });
+      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+
+      const extraList = page.getByRole("list", { name: /extra instruction files/i });
+      await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+
+      await page.getByRole("link", { name: /open workbench/i }).first().waitFor({ state: "visible" });
+    }, "scan-sample");
+  });
+
+  maybe("surfaces permission errors", { timeout: 45000 }, async () => {
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.addInitScript(() => {
+        (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker = async () => {
+          throw new DOMException("Permission denied", "NotAllowedError");
+        };
+      });
+
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+
+      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+    }, "scan-permission-denied");
+  });
+});
