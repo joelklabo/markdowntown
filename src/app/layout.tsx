@@ -95,7 +95,6 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="preload" as="image" href="/markdown-town-icon.svg" />
       </head>
       <body className="bg-mdt-bg text-mdt-text font-sans antialiased min-h-screen pb-20 md:pb-0">
         <a href="#main-content" className="skip-link">

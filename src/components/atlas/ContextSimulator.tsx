@@ -922,6 +922,8 @@ export function ContextSimulator() {
                 </div>
                 <Input
                   ref={fileInputRef}
+                  id="sim-folder-upload"
+                  name="sim-folder-upload"
                   type="file"
                   multiple
                   className={canPickDirectory ? "sr-only" : undefined}
@@ -1027,6 +1029,8 @@ export function ContextSimulator() {
                       Opt in to read instruction file contents locally for linting. Files never leave your browser.
                     </Text>
                     <Checkbox
+                      id="sim-content-linting"
+                      name="sim-content-linting"
                       checked={contentLintOptIn}
                       onChange={(event) => setContentLintOptIn(event.target.checked)}
                     >
@@ -1112,6 +1116,8 @@ export function ContextSimulator() {
                   ) : (
                     <Input
                       ref={fileInputRef}
+                      id="sim-folder-scan"
+                      name="sim-folder-scan"
                       type="file"
                       multiple
                       // @ts-expect-error - non-standard attribute for directory uploads
@@ -1147,6 +1153,8 @@ export function ContextSimulator() {
                       Opt in to read instruction file contents locally for linting. Files never leave your browser.
                     </Text>
                     <Checkbox
+                      id="sim-content-linting"
+                      name="sim-content-linting"
                       checked={contentLintOptIn}
                       onChange={(event) => setContentLintOptIn(event.target.checked)}
                     >
