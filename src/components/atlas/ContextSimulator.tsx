@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -53,6 +54,16 @@ const DEFAULT_REPO_TREE = [
   "AGENTS.md",
   "AGENTS.override.md",
   ".cursor/rules/general.mdc",
+].join("\n");
+
+const SCAN_EXAMPLE_TREE = [
+  ".github/copilot-instructions.md",
+  ".github/instructions/*.instructions.md",
+  ".github/agents/*.md",
+  "AGENTS.md",
+  "AGENTS.override.md",
+  "CLAUDE.md",
+  "GEMINI.md",
 ].join("\n");
 
 type RepoSignals = {
@@ -470,10 +481,20 @@ export function ContextSimulator() {
     return `${foundLabel} · ${missingLabel}`;
   }, [insights.foundFiles.length, insights.missingFiles.length]);
   const showQuickSummary = quickUploadEnabled && repoSource === "folder" && repoFileCount > 0;
+  const showPostScanCta = lastSimulatedPaths.length > 0 && !isStale;
   const fixSummaryText = useMemo(
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
   );
+  const nextStepsSummary = useMemo(() => {
+    const loadedCount = result.loaded.length;
+    const missingCount = insights.missingFiles.length;
+    const warningCount = result.warnings.length;
+    const loadedLabel = `${loadedCount} loaded file${loadedCount === 1 ? "" : "s"}`;
+    const missingLabel = `${missingCount} missing pattern${missingCount === 1 ? "" : "s"}`;
+    const warningLabel = `${warningCount} warning${warningCount === 1 ? "" : "s"}`;
+    return `Scan found ${loadedLabel}, ${missingLabel}, and ${warningLabel}. Start with the highest-impact fix below.`;
+  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length]);
   const contentLintResult = useMemo(() => {
     if (!contentLintOptIn || repoSource !== "folder") return null;
     return lintInstructionContent(scannedTree ?? { files: [] });
@@ -765,6 +786,39 @@ export function ContextSimulator() {
     }
   };
 
+  const handleViewReport = () => {
+    const summary = formatSummary({
+      tool,
+      cwd,
+      repoSource,
+      result,
+      insights,
+      extraFiles: extraInstructionFiles,
+      isStale,
+    });
+    try {
+      const blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const opened = window.open(url, "_blank", "noopener,noreferrer");
+      if (!opened) {
+        handleDownloadReport();
+        return;
+      }
+      announceStatus("Report opened in a new tab.");
+      track("atlas_simulator_view_report", {
+        tool,
+        repoSource,
+        fileCount: lastSimulatedPaths.length,
+      });
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      announceStatus("Unable to open report.");
+      if (err instanceof Error) {
+        trackError("atlas_simulator_view_report_error", err, { tool, repoSource });
+      }
+    }
+  };
+
   const handleNextStepAction = async (action: NextStepAction, stepId: string) => {
     track("atlas_simulator_next_step_action", {
       tool,
@@ -887,6 +941,17 @@ export function ContextSimulator() {
                 : "Choose a tool, set the working directory, and scan a folder."}
             </Text>
           </Stack>
+          <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+            <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+              Example instruction paths
+            </Text>
+            <Text tone="muted" size="bodySm">
+              Include these files in your repo to guide tools. We scan root files and tool-specific folders.
+            </Text>
+            <pre className="whitespace-pre-wrap rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-xs text-mdt-muted">
+              {SCAN_EXAMPLE_TREE}
+            </pre>
+          </div>
 
           {quickUploadEnabled ? (
             <div className="space-y-mdt-4">
@@ -1234,10 +1299,29 @@ export function ContextSimulator() {
           </Stack>
 
           <div className="space-y-mdt-4">
+            {showPostScanCta ? (
+              <div className="flex flex-wrap items-center justify-between gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+                <div className="space-y-mdt-1">
+                  <Text weight="semibold">Scan complete</Text>
+                  <Text tone="muted" size="bodySm">
+                    Open Workbench to keep editing, or view the report for a shareable summary.
+                  </Text>
+                </div>
+                <div className="flex flex-wrap gap-mdt-2">
+                  <Button size="sm" asChild>
+                    <Link href="/workbench">Open Workbench</Link>
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={handleViewReport}>
+                    View report
+                  </Button>
+                </div>
+              </div>
+            ) : null}
             {featureFlags.scanNextStepsV1 ? (
               <NextStepsPanel
                 steps={nextSteps}
-                subtitle="Start with the highest-impact fix, then refresh results."
+                subtitle={nextStepsSummary}
+                className="border-mdt-border-strong bg-mdt-surface-raised shadow-mdt-sm"
                 onAction={(action, step) => {
                   void handleNextStepAction(action, step.id);
                 }}

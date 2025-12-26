@@ -13,6 +13,7 @@ export default function AtlasSimulatorPage() {
             <Heading level="h1">Scan a folder</Heading>
             <Text tone="muted">
               Preview which instruction files a tool would load, then get clear next steps to fix gaps.
+              Upload a repo folder to see what’s detected and what’s missing.
             </Text>
           </Stack>
           <ContextSimulator />
