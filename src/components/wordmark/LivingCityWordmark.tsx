@@ -29,6 +29,7 @@ export function LivingCityWordmark({
 }: LivingCityWordmarkProps) {
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLSpanElement | null>(null);
+  const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
   const [autoBannerScale, setAutoBannerScale] = useState<number | null>(null);
   const id = useId();
   const titleId = `${id}-title`;
@@ -69,11 +70,24 @@ export function LivingCityWordmark({
     if (!el || typeof ResizeObserver === "undefined") return;
 
     let frame = 0;
+    let initFrame: number | null = null;
     const update = (width: number, height: number) => {
-      if (width <= 0 || height <= 0) return;
+      if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+      if (width <= 0 || height <= 0) {
+        const lastSize = lastSizeRef.current;
+        if (!lastSize) return;
+        width = lastSize.width;
+        height = lastSize.height;
+      } else {
+        lastSizeRef.current = { width, height };
+      }
       const targetScale = Math.max(1, Math.ceil((baseLayout.height * (width / height)) / baseLayout.width));
       const nextScale = Math.min(MAX_BANNER_SCALE, targetScale);
       setAutoBannerScale((prev) => (prev === nextScale ? prev : nextScale));
+    };
+    const readSize = () => {
+      const rect = el.getBoundingClientRect();
+      update(rect.width, rect.height);
     };
 
     const observer = new ResizeObserver((entries) => {
@@ -85,12 +99,13 @@ export function LivingCityWordmark({
     });
 
     observer.observe(el);
-    const rect = el.getBoundingClientRect();
-    update(rect.width, rect.height);
+    readSize();
+    initFrame = requestAnimationFrame(readSize);
 
     return () => {
       observer.disconnect();
       if (frame) cancelAnimationFrame(frame);
+      if (initFrame) cancelAnimationFrame(initFrame);
     };
   }, [bannerScale, baseLayout.height, baseLayout.width, sizeMode]);
 

@@ -680,26 +680,26 @@
 .mdt-site-header-banner {
   display: block;
   width: 100%;
-  min-height: var(--mdt-site-header-banner-height, 48px);
-  height: var(--mdt-site-header-banner-height, 48px);
+  min-height: max(var(--mdt-site-header-banner-height, 48px), 48px);
+  height: max(var(--mdt-site-header-banner-height, 48px), 48px);
 }
 
 @media (min-width: 768px) {
   .mdt-site-header-banner {
-    min-height: var(--mdt-site-header-banner-height-md, 56px);
-    height: var(--mdt-site-header-banner-height-md, 56px);
+    min-height: max(var(--mdt-site-header-banner-height-md, 56px), 56px);
+    height: max(var(--mdt-site-header-banner-height-md, 56px), 56px);
   }
 }
 
 .mdt-site-header-nav {
-  min-height: var(--mdt-site-header-nav-min-height, 56px);
-  padding-block: var(--mdt-site-header-nav-padding-y, var(--mdt-space-3));
+  min-height: max(var(--mdt-site-header-nav-min-height, 56px), 56px);
+  padding-block: max(var(--mdt-site-header-nav-padding-y, var(--mdt-space-3)), var(--mdt-space-3));
 }
 
 @media (min-width: 768px) {
   .mdt-site-header-nav {
-    min-height: var(--mdt-site-header-nav-min-height-md, 64px);
-    padding-block: var(--mdt-site-header-nav-padding-y-md, var(--mdt-space-4));
+    min-height: max(var(--mdt-site-header-nav-min-height-md, 64px), 64px);
+    padding-block: max(var(--mdt-site-header-nav-padding-y-md, var(--mdt-space-4)), var(--mdt-space-4));
   }
 }
 

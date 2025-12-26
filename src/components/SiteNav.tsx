@@ -204,29 +204,31 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
       >
         <div className="border-b border-mdt-border/60">
           <div className="w-full overflow-hidden">
-            {featureFlags.wordmarkBannerV1 ? (
-              <LivingCityWordmark
-                className="mdt-wordmark--banner"
-                containerClassName="mdt-site-header-banner"
-                sizeMode="fluid"
-                preserveAspectRatio="xMinYMid slice"
-              />
-            ) : (
-              <div className="flex h-12 items-center justify-center md:h-14">
-                <Link
-                  href="/"
-                  className={cn(
-                    "text-caption font-semibold uppercase tracking-[0.4em] text-mdt-muted",
-                    interactiveBase,
-                    focusRing,
-                    "rounded-mdt-md px-mdt-3 py-mdt-1 hover:text-mdt-text"
-                  )}
-                  aria-label="mark downtown"
-                >
-                  mark downtown
-                </Link>
-              </div>
-            )}
+            <div className="mdt-site-header-banner">
+              {featureFlags.wordmarkBannerV1 ? (
+                <LivingCityWordmark
+                  className="mdt-wordmark--banner"
+                  containerClassName="h-full"
+                  sizeMode="fluid"
+                  preserveAspectRatio="xMinYMid slice"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <Link
+                    href="/"
+                    className={cn(
+                      "text-caption font-semibold uppercase tracking-[0.4em] text-mdt-muted",
+                      interactiveBase,
+                      focusRing,
+                      "rounded-mdt-md px-mdt-3 py-mdt-1 hover:text-mdt-text"
+                    )}
+                    aria-label="mark downtown"
+                  >
+                    mark downtown
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <Container
