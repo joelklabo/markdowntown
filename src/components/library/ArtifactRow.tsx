@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { Card } from "@/components/ui/Card";
+import { Text } from "@/components/ui/Text";
 import { cn } from "@/lib/cn";
 import { ForkButton } from "@/components/artifact/ForkButton";
 import { PreviewDrawer } from "@/components/library/PreviewDrawer";
@@ -24,6 +26,7 @@ function typeLabel(type: ArtifactRowItem["type"]) {
   if (type === "snippet") return "Snippet";
   if (type === "template") return "Template";
   if (type === "file") return "File";
+  if (type === "agent") return "Agent";
   return "Artifact";
 }
 
@@ -44,14 +47,15 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
   }
 
   return (
-    <div
+    <Card
       data-testid="artifact-row"
       className={cn(
-        "flex flex-col gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-4 shadow-mdt-sm",
-        "sm:flex-row sm:items-start sm:justify-between"
+        "flex flex-col gap-mdt-4 sm:flex-row sm:items-start sm:justify-between"
       )}
+      padding="md"
+      tone="raised"
     >
-      <div className="min-w-0 flex-1 space-y-mdt-2">
+      <div className="min-w-0 flex-1 space-y-mdt-3">
         <div className="flex flex-wrap items-center gap-mdt-2">
           <Pill tone="blue">{typeLabel(item.type)}</Pill>
           {item.hasScopes ? <Pill tone="green">Scopes</Pill> : null}
@@ -64,30 +68,35 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
 
         <div className="space-y-mdt-1">
           <Link href={detailHref} className="block">
-            <div className="text-body font-semibold text-mdt-text truncate">{item.title}</div>
+            <div className="text-body font-semibold text-mdt-text line-clamp-2">{item.title}</div>
           </Link>
-          <div className="text-body-sm text-mdt-muted line-clamp-2">{item.description}</div>
+          <Text size="bodySm" tone="muted" className="line-clamp-2">
+            {item.description}
+          </Text>
         </div>
 
         <div className="flex flex-wrap gap-mdt-2">
           {item.tags.slice(0, 6).map((tag) => (
-            <span
-              key={tag}
-              className="rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-[2px] text-caption text-mdt-muted"
-            >
+            <Pill key={tag} tone="gray">
               #{tag}
-            </span>
+            </Pill>
           ))}
         </div>
 
         <div className="flex flex-wrap gap-mdt-3 text-caption text-mdt-muted">
-          <span>{item.stats.views.toLocaleString()} views</span>
-          <span>{item.stats.copies.toLocaleString()} copies</span>
-          <span>{item.stats.votes.toLocaleString()} votes</span>
+          <Text as="span" size="caption" tone="muted">
+            {item.stats.views.toLocaleString()} views
+          </Text>
+          <Text as="span" size="caption" tone="muted">
+            {item.stats.copies.toLocaleString()} copies
+          </Text>
+          <Text as="span" size="caption" tone="muted">
+            {item.stats.votes.toLocaleString()} votes
+          </Text>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-mdt-2">
+      <div className="flex flex-wrap items-center justify-start gap-mdt-2 sm:flex-col sm:items-end sm:justify-start">
         <Button size="sm" asChild>
           <Link href={`/workbench?id=${item.id}`}>Open in Workbench</Link>
         </Button>
@@ -97,6 +106,6 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
         </Button>
         <ForkButton artifactId={item.id} size="xs" variant="ghost" label="Fork" />
       </div>
-    </div>
+    </Card>
   );
 }

@@ -125,8 +125,10 @@ export function LibraryCard({
   return (
     <Card
       data-testid="library-card"
+      tone="raised"
+      padding="md"
       className={cn(
-        "flex h-full flex-col gap-mdt-4 p-mdt-6 motion-reduce:transition-none",
+        "group flex h-full flex-col gap-mdt-5 motion-reduce:transition-none",
         className
       )}
       {...rest}
@@ -138,17 +140,19 @@ export function LibraryCard({
             {badge && <Pill tone={badge.tone}>{badge.label}</Pill>}
           </Row>
           {draggable && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="xs"
               draggable
               onDragStart={onDragStart as React.DragEventHandler<HTMLButtonElement> | undefined}
               onDragEnd={onDragEnd as React.DragEventHandler<HTMLButtonElement> | undefined}
-              className="inline-flex cursor-grab select-none items-center rounded-mdt-pill border border-mdt-border bg-mdt-surface px-mdt-3 py-[4px] text-caption font-medium text-mdt-muted shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:border-mdt-border-strong hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] active:cursor-grabbing motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="cursor-grab select-none text-mdt-muted hover:text-mdt-text active:cursor-grabbing"
               aria-label="Drag card to builder"
               onClick={(e) => e.stopPropagation()}
             >
               Drag
-            </button>
+            </Button>
           )}
         </Row>
 
@@ -173,8 +177,8 @@ export function LibraryCard({
         </Row>
       </Stack>
 
-      <div className="mt-auto space-y-mdt-3 border-t border-mdt-border pt-mdt-4">
-        <Row gap={2} wrap className="text-caption text-mdt-muted">
+      <div className="mt-auto space-y-mdt-4 border-t border-mdt-border pt-mdt-4">
+        <Row gap={3} wrap className="text-caption text-mdt-muted">
           <Text as="span" size="caption" tone="muted">
             {item.stats.views.toLocaleString()} views
           </Text>

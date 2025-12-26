@@ -112,7 +112,7 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button size="xs" variant="ghost">
+        <Button size="sm" variant="ghost">
           Preview
         </Button>
       </DrawerTrigger>
@@ -120,28 +120,32 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
       <DrawerContent aria-describedby={undefined}>
         <DrawerHeader>
           <div className="min-w-0">
-            <DrawerTitle>Preview</DrawerTitle>
-            <div className="mt-1 text-body-sm text-mdt-text truncate">{title}</div>
+            <DrawerTitle className="text-h3">Preview</DrawerTitle>
+            <div className="mt-1 text-body-sm text-mdt-muted truncate">{title}</div>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="xs" asChild>
+            <Button size="sm" asChild>
               <Link href={`/workbench?id=${artifactId}`}>Open in Workbench</Link>
             </Button>
             <DrawerCloseButton />
           </div>
         </DrawerHeader>
 
-        <div className="flex-1 overflow-auto p-4 space-y-4">
-          {loading && <Text tone="muted">Loading preview…</Text>}
+        <div className="flex-1 space-y-mdt-5 overflow-auto px-mdt-5 py-mdt-6">
+          {loading && (
+            <Text tone="muted" size="bodySm">
+              Loading preview…
+            </Text>
+          )}
           {error && (
-            <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-3 text-body-sm text-mdt-danger">
+            <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-4 text-body-sm text-mdt-danger">
               {error}
             </div>
           )}
 
           {!loading && !error && compileResult && (
             <>
-              <div className="space-y-2">
+              <div className="space-y-mdt-2">
                 <Text size="caption" tone="muted">
                   Manifest
                 </Text>
@@ -153,12 +157,12 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-mdt-2">
                 <Text size="caption" tone="muted">
                   Raw markdown
                 </Text>
-                <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle">
-                  <div className="border-b border-mdt-border px-3 py-2 text-xs font-mono text-mdt-text">
+                <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle shadow-mdt-sm">
+                  <div className="border-b border-mdt-border bg-mdt-surface px-3 py-2 text-xs font-mono text-mdt-text">
                     {selectedFile?.path ?? "Select a file"}
                   </div>
                   <pre className="max-h-[50vh] overflow-auto whitespace-pre-wrap p-3 text-xs font-mono text-mdt-text">
