@@ -41,6 +41,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
   const suppressMobileSearchRestoreRef = useRef(false);
   const suppressOverflowRestoreRef = useRef(false);
   const desktopNavRef = useRef<HTMLElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const ctaHref = pathname === "/" ? "#templates" : "/templates";
@@ -165,6 +166,75 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     }
   }, [hydrated]);
 
+  useEffect(() => {
+    if (pathname.startsWith("/labs/city-logo")) return;
+    const headerEl = headerRef.current;
+    if (!headerEl) return;
+    const bannerEl = headerEl.querySelector<HTMLElement>(".mdt-site-header-banner");
+    const navEl = headerEl.querySelector<HTMLElement>(".mdt-site-header-nav");
+    if (!bannerEl || !navEl) return;
+
+    const collapseThreshold = 8;
+    const readHeight = (el: HTMLElement) => {
+      const rect = el.getBoundingClientRect();
+      return Number.isFinite(rect.height) ? rect.height : 0;
+    };
+    const getMinHeight = (el: HTMLElement) => {
+      const min = parseFloat(getComputedStyle(el).minHeight || "0");
+      return Number.isFinite(min) ? min : 0;
+    };
+
+    let stableBanner = readHeight(bannerEl);
+    let stableNav = readHeight(navEl);
+    const minBanner = getMinHeight(bannerEl);
+    const minNav = getMinHeight(navEl);
+
+    const lockHeight = (el: HTMLElement, height: number) => {
+      if (!Number.isFinite(height) || height <= 0) return;
+      el.style.minHeight = `${height}px`;
+      el.style.height = `${height}px`;
+    };
+
+    const measure = (force = false) => {
+      const bannerHeight = readHeight(bannerEl);
+      const navHeight = readHeight(navEl);
+
+      if (bannerHeight > stableBanner) stableBanner = bannerHeight;
+      if (navHeight > stableNav) stableNav = navHeight;
+
+      const bannerCollapsed = stableBanner > 0 && bannerHeight + collapseThreshold < stableBanner;
+      const navCollapsed = stableNav > 0 && navHeight + collapseThreshold < stableNav;
+
+      if (bannerCollapsed) {
+        lockHeight(bannerEl, stableBanner);
+      } else if (force && minBanner > 0 && bannerHeight < minBanner) {
+        lockHeight(bannerEl, minBanner);
+      }
+
+      if (navCollapsed) {
+        lockHeight(navEl, stableNav);
+      } else if (force && minNav > 0 && navHeight < minNav) {
+        lockHeight(navEl, minNav);
+      }
+    };
+
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => measure()) : null;
+    observer?.observe(bannerEl);
+    observer?.observe(navEl);
+
+    const lateCheck = window.setTimeout(() => measure(true), 5200);
+    requestAnimationFrame(() => measure());
+
+    return () => {
+      observer?.disconnect();
+      window.clearTimeout(lateCheck);
+      bannerEl.style.removeProperty("min-height");
+      bannerEl.style.removeProperty("height");
+      navEl.style.removeProperty("min-height");
+      navEl.style.removeProperty("height");
+    };
+  }, [pathname]);
+
   type BottomNavIcon = ComponentType<NavIconProps>;
   type BottomNavItem =
     | { href: string; label: string; icon: BottomNavIcon; type: "link" }
@@ -197,6 +267,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
   return (
     <>
       <header
+        ref={headerRef}
         className={cn(
           "z-30 border-b border-mdt-border/70 bg-[color:var(--mdt-color-surface-raised)]/92 backdrop-blur-lg shadow-mdt-md",
           sticky && "sticky top-0"
