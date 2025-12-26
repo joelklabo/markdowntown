@@ -19,15 +19,15 @@ This file defines canonical event names and properties for the UX and onboarding
 
 ### Atlas Simulator (implemented)
 - `atlas_simulator_scan_start`
-  - Properties: `method` (`directory_picker` | `file_input`), `tool`
+  - Properties: `method` (`directory_picker` | `file_input`), `tool`, `cwd`
   - Notes: Represents the user initiating the upload/scan action.
 - `atlas_simulator_scan_complete`
-  - Properties: `method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`, `rootName`
+  - Properties: `method`, `tool`, `cwd`, `totalFiles`, `matchedFiles`, `truncated`, `rootName`
   - Notes: `rootName` is redacted in analytics payloads; use file counts for volume tracking.
 - `atlas_simulator_scan_cancel`
-  - Properties: `method`, `tool`
+  - Properties: `method`, `tool`, `cwd`
 - `atlas_simulator_scan_error`
-  - Properties: `method`, `tool`, `message` (from error tracking)
+  - Properties: `method`, `tool`, `cwd`, `message` (from error tracking)
 - `atlas_simulator_simulate`
   - Properties: `tool`, `repoSource`, `trigger`, `cwd`, `fileCount`
 - `atlas_simulator_health_check`
@@ -35,7 +35,7 @@ This file defines canonical event names and properties for the UX and onboarding
 - `atlas_simulator_health_template_copy`
   - Properties: `tool`, `code`, `templateId`, `templatePath`
 - `atlas_simulator_next_step_action`
-  - Properties: `tool`, `repoSource`, `actionId`, `stepId`, `isStale`, `fileCount`
+  - Properties: `tool`, `repoSource`, `cwd`, `actionId`, `stepId`, `isStale`, `fileCount`
   - Action IDs:
     - `open-docs`
     - `refresh-results`

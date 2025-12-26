@@ -32,6 +32,13 @@ Primary flow KPIs and suggested targets:
 - **Median time to export:** time from `atlas_simulator_scan_start` to export → target < 5 minutes
 - **Scan error rate:** `atlas_simulator_scan_error / atlas_simulator_scan_start` → target < 5%
 
+Suggested alert thresholds (PostHog or similar):
+- **Scan completion drop:** `< 50%` over 24h (baseline regression).
+- **Scan error spike:** `> 10%` over 1h (possible upload/permissions issue).
+- **Workbench entry drop:** `< 20%` over 24h (handoff broken).
+- **Export rate drop:** `< 15%` over 24h (export surface broken).
+- **Time-to-export spike:** median `> 10 minutes` over 24h (performance regression).
+
 ## Instruction health check KPIs
 - **Health check run rate:** `atlas_simulator_health_check / atlas_simulator_simulate` → target 95%+ (feature enabled)
 - **Pass rate:** share of `atlas_simulator_health_check` where `errorCount = 0` → target 50%+ (improves as guidance lands)
@@ -44,6 +51,10 @@ Primary flow KPIs and suggested targets:
 - **Template copy rate (Next steps):** `atlas_simulator_next_step_template_copy / atlas_simulator_next_step_action` → target 5%+.
 - **Stale refresh loop:** share of `atlas_simulator_next_step_action` where `actionId = refresh-results` and `isStale = true` → alert if > 50% of actions or > 3 refreshes per scan (likely confusion).
 - **Expected volumes:** 0-3 Next steps actions per scan is typical. Alert if action rate drops to ~0 for 24h (telemetry broken) or spikes above 5 per scan (looping).
+
+Suggested alert thresholds:
+- **Next steps drop:** `< 10%` actions per scan over 24h (CTA not visible or broken).
+- **Stale refresh spike:** `refresh-results` with `isStale=true` `> 50%` of next-step actions over 6h (stale loop).
 
 Build the funnel in PostHog once the export events are instrumented (see `docs/analytics/events.md`).
 

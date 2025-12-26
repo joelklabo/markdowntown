@@ -716,10 +716,11 @@ export function ContextSimulator() {
     setScanNotice(null);
     setIsScanning(true);
     setScanProgress({ totalFiles: 0, matchedFiles: 0, truncated: false });
-    track("atlas_simulator_scan_start", { method, tool });
+    const scanCwd = normalizePath(cwd) || undefined;
+    track("atlas_simulator_scan_start", { method, tool, cwd: scanCwd });
     emitUiTelemetryEvent({
       name: "scan_start",
-      properties: { method, tool },
+      properties: { method, tool, cwd: scanCwd },
     });
     try {
       const { tree, totalFiles, matchedFiles, truncated } = await scan(controller.signal, (progress) => {
@@ -738,10 +739,12 @@ export function ContextSimulator() {
       const paths = tree.files.map((file) => file.path);
       const overrides = applyToolDetection(paths);
       const nextTool = overrides.tool ?? tool;
+      const nextCwd = normalizePath(overrides.cwd ?? cwd) || undefined;
       runSimulationWithTree(tree, paths, "folder", "scan", overrides);
       track("atlas_simulator_scan_complete", {
         method,
         tool: nextTool,
+        cwd: nextCwd,
         totalFiles,
         matchedFiles,
         truncated,
@@ -752,6 +755,7 @@ export function ContextSimulator() {
         properties: {
           method,
           tool: nextTool,
+          cwd: nextCwd,
           totalFiles,
           matchedFiles,
           truncated,
@@ -760,10 +764,10 @@ export function ContextSimulator() {
     } catch (err) {
       if (scanId !== scanIdRef.current) return;
       if (err instanceof DOMException && err.name === "AbortError") {
-        track("atlas_simulator_scan_cancel", { method, tool });
+        track("atlas_simulator_scan_cancel", { method, tool, cwd: scanCwd });
         emitUiTelemetryEvent({
           name: "scan_cancel",
-          properties: { method, tool },
+          properties: { method, tool, cwd: scanCwd },
         });
         setScanNotice("Scan canceled. Scan a folder to continue.");
         return;
@@ -772,6 +776,7 @@ export function ContextSimulator() {
         trackError("atlas_simulator_scan_error", err, {
           method,
           tool,
+          cwd: scanCwd,
         });
       }
       setScanError(err instanceof Error ? err.message : "Unable to scan folder");
@@ -803,11 +808,12 @@ export function ContextSimulator() {
         rootName,
       );
     } catch (err) {
+      const scanCwd = normalizePath(cwd) || undefined;
       if (err instanceof DOMException && err.name === "AbortError") {
-        track("atlas_simulator_scan_cancel", { method: "directory_picker", tool });
+        track("atlas_simulator_scan_cancel", { method: "directory_picker", tool, cwd: scanCwd });
         emitUiTelemetryEvent({
           name: "scan_cancel",
-          properties: { method: "directory_picker", tool },
+          properties: { method: "directory_picker", tool, cwd: scanCwd },
         });
         setScanNotice("Scan canceled. Scan a folder to continue.");
         return;
@@ -816,6 +822,7 @@ export function ContextSimulator() {
         trackError("atlas_simulator_scan_error", err, {
           method: "directory_picker",
           tool,
+          cwd: scanCwd,
         });
       }
       setScanError(err instanceof Error ? err.message : "Unable to scan folder");
@@ -826,10 +833,11 @@ export function ContextSimulator() {
     setScanError(null);
     if (!files || files.length === 0) {
       setScanNotice("Scan canceled. Scan a folder to continue.");
-      track("atlas_simulator_scan_cancel", { method: "file_input", tool });
+      const scanCwd = normalizePath(cwd) || undefined;
+      track("atlas_simulator_scan_cancel", { method: "file_input", tool, cwd: scanCwd });
       emitUiTelemetryEvent({
         name: "scan_cancel",
-        properties: { method: "file_input", tool },
+        properties: { method: "file_input", tool, cwd: scanCwd },
       });
       return;
     }
@@ -932,6 +940,7 @@ export function ContextSimulator() {
     track("atlas_simulator_next_step_action", {
       tool,
       repoSource,
+      cwd: normalizePath(cwd) || undefined,
       actionId: action.id,
       stepId,
       isStale,
