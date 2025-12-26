@@ -18,10 +18,12 @@ export function DetailStats({ views, copies, votes = 0 }: Props) {
       {items.map((item) => (
         <Card
           key={item.label}
-          className="flex items-center justify-between gap-mdt-3 bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm shadow-mdt-sm"
+          tone="subtle"
+          padding="sm"
+          className="flex items-center justify-between gap-mdt-3 text-body-sm"
         >
           <div className="flex items-center gap-mdt-2 text-mdt-muted">
-            <span aria-hidden>{item.icon}</span>
+            <span aria-hidden className="text-body-sm">{item.icon}</span>
             <span className="text-caption">{item.label}</span>
           </div>
           <span className="font-semibold text-mdt-text">{item.value.toLocaleString()}</span>

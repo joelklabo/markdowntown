@@ -62,11 +62,11 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
 
   if (variant === "bar") {
     return (
-      <div className="flex gap-mdt-2">
-        <Button variant="secondary" size={actionSize} onClick={useBuilder} aria-label={`Use ${title} in builder`}>
+      <div className="flex w-full gap-mdt-2">
+        <Button size={actionSize} onClick={useBuilder} className="flex-1" aria-label={`Use ${title} in builder`}>
           Builder
         </Button>
-        <Button size={actionSize} onClick={copy}>
+        <Button variant="secondary" size={actionSize} onClick={copy}>
           Copy
         </Button>
       </div>
@@ -75,14 +75,14 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
 
   return (
     <div className="flex flex-wrap items-center gap-mdt-2">
-      <Button size={actionSize} onClick={copy}>
+      <Button size={actionSize} onClick={useBuilder} aria-label={`Use ${title} in builder`}>
+        Use in Builder
+      </Button>
+      <Button variant="secondary" size={actionSize} onClick={copy}>
         Copy
       </Button>
       <Button variant="secondary" size={actionSize} onClick={download}>
         Download
-      </Button>
-      <Button variant="secondary" size={actionSize} onClick={useBuilder} aria-label={`Use ${title} in builder`}>
-        Builder
       </Button>
       <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share ${title}`}>
         Share

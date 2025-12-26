@@ -28,33 +28,33 @@ export function DetailTabs({ title, rendered, raw, copyLabel = "Copy" }: Props) 
   }
 
   return (
-    <Card>
-      <TabsRoot value={tab} onValueChange={(value) => setTab(value as typeof tab)} className="space-y-mdt-3">
+    <Card padding="lg">
+      <TabsRoot value={tab} onValueChange={(value) => setTab(value as typeof tab)} className="space-y-mdt-4">
         <div className="flex flex-wrap items-center justify-between gap-mdt-3">
           <TabsList className="w-auto">
             <TabsTrigger value="rendered">Rendered</TabsTrigger>
             <TabsTrigger value="raw">Raw</TabsTrigger>
           </TabsList>
-          <Button size="xs" variant="secondary" onClick={copyCurrent}>
+          <Button size="sm" variant="secondary" onClick={copyCurrent}>
             {copyLabel} {tab}
           </Button>
         </div>
 
         <TabsContent value="rendered" className="!mt-0 border-none bg-transparent p-0 shadow-none">
-          <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface p-mdt-4 text-body-sm leading-6">
-            <Heading level="h3" className="mb-mdt-2">
+          <Card tone="subtle" padding="md" className="space-y-mdt-2">
+            <Heading level="h3">
               {title}
             </Heading>
             <Text as="p" size="bodySm" className="whitespace-pre-wrap">
               {rendered}
             </Text>
-          </div>
+          </Card>
         </TabsContent>
 
         <TabsContent value="raw" className="!mt-0 border-none bg-transparent p-0 shadow-none">
-          <pre className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-4 font-mono text-caption whitespace-pre-wrap text-mdt-text">
-{raw}
-          </pre>
+          <Card tone="subtle" padding="md" className="font-mono text-caption whitespace-pre-wrap text-mdt-text">
+            {raw}
+          </Card>
         </TabsContent>
       </TabsRoot>
     </Card>

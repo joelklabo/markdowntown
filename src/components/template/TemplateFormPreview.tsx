@@ -35,19 +35,24 @@ export function TemplateFormPreview({ title, body, fields }: Props) {
   const preview = useMemo(() => renderTemplateBody(body, values), [body, values]);
 
   return (
-    <Surface padding="lg" className="grid gap-mdt-5 md:grid-cols-[1.1fr_0.9fr]">
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Heading level="h3" as="h3">Fill placeholders</Heading>
+    <Surface padding="lg" className="grid gap-mdt-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-mdt-4">
+        <div className="flex flex-wrap items-center justify-between gap-mdt-2">
+          <div className="space-y-mdt-1">
+            <Heading level="h3" as="h3">Fill placeholders</Heading>
+            <Text size="bodySm" tone="muted">
+              Preview updates as you type - no save required.
+            </Text>
+          </div>
           <Pill tone="gray" className="text-xs">
             Live preview
           </Pill>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-mdt-3">
           {fields.map((field) => (
             <label
               key={field.name}
-              className="flex flex-col gap-mdt-1 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2"
+              className="flex flex-col gap-mdt-1 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 focus-within:border-[color:var(--mdt-color-border-strong)] focus-within:ring-2 focus-within:ring-mdt-ring focus-within:ring-offset-2 focus-within:ring-offset-mdt-surface"
             >
               <div className="flex items-center justify-between">
                 <Text as="span" size="bodySm" weight="semibold">
@@ -70,7 +75,7 @@ export function TemplateFormPreview({ title, body, fields }: Props) {
             </label>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-mdt-2">
           <Button size="xs" onClick={() => setValues(initial)}>
             Reset
           </Button>
@@ -79,7 +84,7 @@ export function TemplateFormPreview({ title, body, fields }: Props) {
           </Button>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-mdt-3">
         <Heading level="h3" as="h3">Live preview</Heading>
         <Surface tone="subtle" padding="md" className="min-h-[240px] space-y-mdt-3 text-body-sm leading-6 shadow-inner">
           <Text weight="semibold">{title}</Text>

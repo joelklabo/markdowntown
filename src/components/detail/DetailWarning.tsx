@@ -13,7 +13,8 @@ export function DetailWarning({ visibility, type }: Props) {
 
   return (
     <Card
-      className="flex items-start gap-mdt-3 border-[color:var(--mdt-color-warning)] bg-[color:var(--mdt-color-accent-soft)]/40 text-body-sm text-mdt-text"
+      tone="subtle"
+      className="flex items-start gap-mdt-3 border-[color:var(--mdt-color-warning)]/50 bg-[color:var(--mdt-color-warning)]/10 text-body-sm text-mdt-text"
       role="status"
       aria-live="polite"
     >

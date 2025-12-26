@@ -360,23 +360,25 @@ export function BuilderClient({ templates, snippets, requireAuth }: Props) {
             </div>
           </Surface>
 
-          <div className="flex flex-col gap-mdt-4 lg:flex-row lg:items-center lg:justify-between">
-            <Stack gap={1}>
-              <Text size="caption" tone="muted">Builder</Text>
+          <Surface tone="raised" padding="lg" className="flex flex-col gap-mdt-4 lg:flex-row lg:items-center lg:justify-between">
+            <Stack gap={2}>
+              <Text size="caption" tone="muted" weight="semibold" tracking="wide" className="uppercase">
+                Builder
+              </Text>
               <Heading level="display" leading="tight">Assemble your agents.md</Heading>
-              <Text tone="muted" className="max-w-2xl">
+              <Text tone="muted" leading="relaxed" className="max-w-2xl">
                 Pick a template, add snippets, reorder, then copy, download, or save as a document.
               </Text>
             </Stack>
             <Row gap={2} wrap className="w-full lg:w-auto">
-              <Button variant="secondary" asChild>
+              <Button variant="secondary" size="sm" asChild>
                 <Link href="/browse">Browse library</Link>
               </Button>
-              <Button asChild>
+              <Button size="sm" asChild>
                 <Link href={requireAuth ? "/signin?callbackUrl=/builder" : "/documents"}>Your documents</Link>
               </Button>
             </Row>
-          </div>
+          </Surface>
 
           <div className="grid gap-mdt-5 lg:grid-cols-[320px_320px_minmax(0,1fr)] xl:grid-cols-[320px_320px_minmax(0,1fr)_280px]">
             <Surface padding="md" className="space-y-mdt-4" data-step-anchor="template">

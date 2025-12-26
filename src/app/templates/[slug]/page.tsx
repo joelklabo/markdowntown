@@ -97,7 +97,11 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
             ]}
           />
 
-          <Surface tone="raised" padding="lg" className="space-y-mdt-6 sticky top-16 z-10">
+          <Surface
+            tone="raised"
+            padding="lg"
+            className="sticky top-16 z-10 space-y-mdt-6 bg-[color:var(--mdt-color-surface)]/95 shadow-mdt-md backdrop-blur-md"
+          >
             <DetailWarning visibility={visibility} type="template" />
 
             <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr)_auto]">
@@ -114,7 +118,7 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
                   ))}
                 </Row>
               </Stack>
-              <Stack gap={3} align="end" className="w-full lg:w-auto">
+              <Stack gap={4} align="end" className="w-full lg:w-[280px]">
                 <TemplateActions id={data.id} slug={data.slug} title={data.title} rendered={initialRendered} />
                 <DetailStats views={stats.views} copies={stats.copies} votes={stats.votes} />
               </Stack>
@@ -140,7 +144,12 @@ export default async function TemplateDetail({ params }: { params: Promise<Templ
           <FeedbackCTA title="template" />
         </Stack>
 
-        <Surface as="div" tone="raised" padding="sm" className="fixed inset-x-0 bottom-0 z-20 md:hidden">
+        <Surface
+          as="div"
+          tone="raised"
+          padding="sm"
+          className="fixed inset-x-0 bottom-0 z-20 bg-[color:var(--mdt-color-surface)]/95 shadow-mdt-lg backdrop-blur-md md:hidden"
+        >
           <Row align="center" justify="between" gap={3}>
             <Stack gap={0}>
               <Text size="bodySm" weight="semibold">Use this template</Text>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
+import { Surface } from "@/components/ui/Surface";
 
 type PerfSample = {
   nav: number | null;
@@ -46,7 +47,11 @@ export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState })
         : "text-mdt-text";
 
   return (
-    <div className="sticky bottom-0 z-20 mt-6 flex flex-col gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3 text-caption text-mdt-muted sm:flex-row sm:items-center sm:justify-between">
+    <Surface
+      tone="raised"
+      padding="sm"
+      className="sticky bottom-0 z-20 mt-mdt-6 flex flex-col gap-mdt-2 bg-[color:var(--mdt-color-surface)]/95 text-caption text-mdt-muted shadow-mdt-lg backdrop-blur-md sm:flex-row sm:items-center sm:justify-between"
+    >
       <div className="flex flex-wrap items-center gap-mdt-3">
         <Dot ok={bundleOk} />
         <span>{bundleOk ? "Bundle within budget" : "Bundle size warning"}</span>
@@ -65,7 +70,7 @@ export function BuilderStatus({ saveState = "idle" }: { saveState?: SaveState })
         </span>
       </div>
       <span className="text-caption text-mdt-muted">live perf · cache intent · save state</span>
-    </div>
+    </Surface>
   );
 }
 
