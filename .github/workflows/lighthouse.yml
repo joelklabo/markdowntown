@@ -21,6 +21,9 @@ jobs:
           - https://markdown.town/
           - https://markdown.town/browse
           - https://markdown.town/builder
+          - https://markdown.town/atlas/simulator
+          - https://markdown.town/translate
+          - https://markdown.town/docs
         formFactor: [mobile, desktop]
     steps:
       - uses: actions/checkout@v4

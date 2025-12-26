@@ -12,7 +12,7 @@
       { "metric": "largest-contentful-paint", "budget": 3500 },
       { "metric": "server-response-time", "budget": 1200 },
       { "metric": "total-blocking-time", "budget": 300 },
-      { "metric": "cumulative-layout-shift", "budget": 0.15 }
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
     ]
   },
   {
@@ -28,7 +28,7 @@
       { "metric": "largest-contentful-paint", "budget": 4000 },
       { "metric": "server-response-time", "budget": 1200 },
       { "metric": "total-blocking-time", "budget": 350 },
-      { "metric": "cumulative-layout-shift", "budget": 0.15 }
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
     ]
   },
   {
@@ -44,7 +44,55 @@
       { "metric": "largest-contentful-paint", "budget": 4200 },
       { "metric": "server-response-time", "budget": 1200 },
       { "metric": "total-blocking-time", "budget": 400 },
-      { "metric": "cumulative-layout-shift", "budget": 0.15 }
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
+    ]
+  },
+  {
+    "path": "/atlas/simulator",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 800 },
+      { "resourceType": "total", "budget": 2000 },
+      { "resourceType": "third-party", "budget": 500 }
+    ],
+    "timings": [
+      { "metric": "interactive", "budget": 6500 },
+      { "metric": "first-contentful-paint", "budget": 2500 },
+      { "metric": "largest-contentful-paint", "budget": 4000 },
+      { "metric": "server-response-time", "budget": 1200 },
+      { "metric": "total-blocking-time", "budget": 350 },
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
+    ]
+  },
+  {
+    "path": "/translate",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 750 },
+      { "resourceType": "total", "budget": 1600 },
+      { "resourceType": "third-party", "budget": 450 }
+    ],
+    "timings": [
+      { "metric": "interactive", "budget": 5600 },
+      { "metric": "first-contentful-paint", "budget": 2000 },
+      { "metric": "largest-contentful-paint", "budget": 3500 },
+      { "metric": "server-response-time", "budget": 1200 },
+      { "metric": "total-blocking-time", "budget": 300 },
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
+    ]
+  },
+  {
+    "path": "/docs",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 700 },
+      { "resourceType": "total", "budget": 1500 },
+      { "resourceType": "third-party", "budget": 400 }
+    ],
+    "timings": [
+      { "metric": "interactive", "budget": 5200 },
+      { "metric": "first-contentful-paint", "budget": 1900 },
+      { "metric": "largest-contentful-paint", "budget": 3200 },
+      { "metric": "server-response-time", "budget": 1200 },
+      { "metric": "total-blocking-time", "budget": 280 },
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
     ]
   }
 ]

@@ -15,10 +15,15 @@ const SAMPLE_RATE = 0.35;
 const API_SAMPLE_RATE = 0.15;
 
 const perfBudgets: Record<string, { lcp: number; cls: number }> = {
-  "/": { lcp: 2500, cls: 0.1 },
-  "/browse": { lcp: 2500, cls: 0.1 },
-  "/templates": { lcp: 2400, cls: 0.1 },
-  "/builder": { lcp: 2600, cls: 0.1 },
+  "/": { lcp: 3500, cls: 0.1 },
+  "/browse": { lcp: 4000, cls: 0.1 },
+  "/library": { lcp: 4000, cls: 0.1 },
+  "/atlas": { lcp: 4000, cls: 0.1 },
+  "/builder": { lcp: 4200, cls: 0.1 },
+  "/translate": { lcp: 3500, cls: 0.1 },
+  "/docs": { lcp: 3200, cls: 0.1 },
+  "/templates": { lcp: 3500, cls: 0.1 },
+  "/snippets": { lcp: 3500, cls: 0.1 },
 };
 
 function emit(event: string, data: MetricPayload) {
@@ -49,7 +54,7 @@ function deviceContext(path: string) {
 
 function budgetFor(path: string) {
   const match = Object.keys(perfBudgets).find((key) => (key === "/" ? path === key : path.startsWith(key)));
-  return match ? perfBudgets[match] : { lcp: 3000, cls: 0.1 };
+  return match ? perfBudgets[match] : { lcp: 4000, cls: 0.1 };
 }
 
 export function PerfVitals() {
