@@ -210,6 +210,24 @@ function suggestCwdFromDetection(detection: ToolDetectionResult): string {
   return parts.join("/");
 }
 
+const MAX_SCAN_PATHS = 200;
+
+function buildWorkbenchHref(tool: SimulatorToolId, cwd: string, paths: string[]): string {
+  const params = new URLSearchParams();
+  params.set("scanTool", tool);
+  const normalizedCwd = normalizePath(cwd);
+  if (normalizedCwd) params.set("scanCwd", normalizedCwd);
+  const normalizedPaths = Array.from(new Set(paths.map((path) => normalizePath(path)).filter(Boolean))).slice(
+    0,
+    MAX_SCAN_PATHS,
+  );
+  if (normalizedPaths.length > 0) {
+    params.set("scanPaths", JSON.stringify(normalizedPaths));
+  }
+  const query = params.toString();
+  return query ? `/workbench?${query}` : "/workbench";
+}
+
 type SummaryInput = {
   tool: SimulatorToolId;
   cwd: string;
@@ -504,6 +522,14 @@ export function ContextSimulator() {
     return `${scannedLabel}${matchedLabel}.`;
   }, [scanProgress]);
   const showQuickSummary = quickUploadEnabled && repoSource === "folder" && repoFileCount > 0;
+  const detectedInstructionPaths = useMemo(
+    () => lastSimulatedPaths.filter((path) => isInstructionPath(path)),
+    [lastSimulatedPaths],
+  );
+  const workbenchHref = useMemo(
+    () => buildWorkbenchHref(tool, cwd, detectedInstructionPaths),
+    [cwd, detectedInstructionPaths, tool],
+  );
   const fixSummaryText = useMemo(
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
@@ -1523,7 +1549,7 @@ export function ContextSimulator() {
               <div className="flex flex-wrap gap-mdt-2">
                 {lastSimulatedPaths.length > 0 ? (
                   <Button type="button" asChild>
-                    <Link href="/workbench" onClick={() => handleOpenWorkbenchCta("actions")}>
+                    <Link href={workbenchHref} onClick={() => handleOpenWorkbenchCta("actions")}>
                       Open Workbench
                     </Link>
                   </Button>
@@ -1552,7 +1578,11 @@ export function ContextSimulator() {
               />
             ) : null}
             {featureFlags.instructionHealthV1 ? (
-              <InstructionHealthPanel diagnostics={instructionDiagnostics} copySummaryText={fixSummaryText} />
+              <InstructionHealthPanel
+                diagnostics={instructionDiagnostics}
+                copySummaryText={fixSummaryText}
+                workbenchHref={workbenchHref}
+              />
             ) : null}
             {featureFlags.instructionHealthV1 ? (
               <InstructionContentLint enabled={contentLintOptIn} result={contentLintResult} />

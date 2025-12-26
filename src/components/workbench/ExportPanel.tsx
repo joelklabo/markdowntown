@@ -17,6 +17,8 @@ const COMPILE_DEBOUNCE_MS = 250;
 const TARGETS: Array<{ targetId: string; label: string }> = [
   { targetId: 'agents-md', label: 'AGENTS.md' },
   { targetId: 'github-copilot', label: 'GitHub Copilot' },
+  { targetId: 'claude-code', label: 'Claude Code' },
+  { targetId: 'gemini-cli', label: 'Gemini CLI' },
 ];
 
 function hasTarget(targets: UamTargetV1[], targetId: string) {

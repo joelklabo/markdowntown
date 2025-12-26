@@ -31,6 +31,7 @@ const severityLabel: Record<InstructionDiagnostic["severity"], string> = {
 type InstructionHealthPanelProps = {
   diagnostics: InstructionDiagnostics;
   copySummaryText?: string;
+  workbenchHref?: string;
 };
 
 function buildSummaryCounts(diagnostics: InstructionDiagnostic[]) {
@@ -70,7 +71,7 @@ function shouldSuggestWorkbench(diagnostic: InstructionDiagnostic): boolean {
   return diagnostic.code.startsWith("missing.");
 }
 
-export function InstructionHealthPanel({ diagnostics, copySummaryText }: InstructionHealthPanelProps) {
+export function InstructionHealthPanel({ diagnostics, copySummaryText, workbenchHref }: InstructionHealthPanelProps) {
   const sortedDiagnostics = [...diagnostics.diagnostics].sort(
     (a, b) => severityOrder[a.severity] - severityOrder[b.severity],
   );
@@ -170,7 +171,7 @@ export function InstructionHealthPanel({ diagnostics, copySummaryText }: Instruc
                       ) : null}
                       {showWorkbench ? (
                         <Button asChild variant="secondary" size="xs">
-                          <Link href="/workbench">Open Workbench</Link>
+                          <Link href={workbenchHref ?? "/workbench"}>Open Workbench</Link>
                         </Button>
                       ) : null}
                       {examplePath ? <PathChip path={examplePath} /> : null}

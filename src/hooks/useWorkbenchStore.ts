@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import type { CompilationResult } from '@/lib/uam/adapters';
 import type { UAMBlock, UAMBlockType } from '@/lib/uam/types';
+import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
 import {
   createEmptyUamV1,
   createUamTargetV1,
@@ -17,6 +18,11 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 
 type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export type ArtifactVisibility = 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+type ScanContext = {
+  tool: SimulatorToolId;
+  cwd: string;
+  paths: string[];
+};
 
 type BlockUpsertInput = Partial<UAMBlock> & {
   scopeId?: string;
@@ -164,6 +170,7 @@ interface WorkbenchState {
   lastSavedAt: number | null;
   cloudSaveStatus: AutosaveStatus;
   cloudLastSavedAt: number | null;
+  scanContext: ScanContext | null;
 
   // Actions
   setId: (id?: string) => void;
@@ -194,9 +201,22 @@ interface WorkbenchState {
   resetDraft: () => void;
   initializeFromTemplate: (uam: UamV1) => void;
   loadArtifact: (idOrSlug: string) => Promise<void>;
+  applyScanContext: (context: ScanContext) => void;
+  clearScanContext: () => void;
 }
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
+const SCAN_TOOL_TARGET_MAP: Record<SimulatorToolId, string> = {
+  'codex-cli': 'agents-md',
+  'claude-code': 'claude-code',
+  'gemini-cli': 'gemini-cli',
+  'github-copilot': 'github-copilot',
+  'copilot-cli': 'github-copilot',
+};
+
+function targetIdForScanTool(tool: SimulatorToolId): string | null {
+  return SCAN_TOOL_TARGET_MAP[tool] ?? null;
+}
 
 export const useWorkbenchStore = create<WorkbenchState>()(
   persist(
@@ -252,6 +272,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         lastSavedAt: null,
         cloudSaveStatus: 'idle',
         cloudLastSavedAt: null,
+        scanContext: null,
 
         setId: (id) => set({ id }),
 
@@ -541,6 +562,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
+            scanContext: null,
           });
           onPersisted();
         },
@@ -559,6 +581,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
+            scanContext: null,
           });
           markDirty();
           onPersisted();
@@ -600,9 +623,31 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               tags: Array.isArray(tags) ? tags.map(v => String(v).trim()).filter(Boolean) : [],
               cloudSaveStatus: 'idle',
               cloudLastSavedAt: null,
+              scanContext: null,
             });
           } catch (err) {
             console.error(err);
+          }
+        },
+
+        applyScanContext: (context) => {
+          set({ scanContext: context });
+          const targetId = targetIdForScanTool(context.tool);
+          if (!targetId) return;
+          const nextUam = { ...get().uam, targets: [createUamTargetV1(targetId)] };
+          get().setUam(nextUam);
+        },
+
+        clearScanContext: () => {
+          const context = get().scanContext;
+          set({ scanContext: null });
+          if (!context) return;
+          const targetId = targetIdForScanTool(context.tool);
+          if (!targetId) return;
+          const currentTargets = get().uam.targets;
+          if (currentTargets.length === 1 && currentTargets[0]?.targetId === targetId) {
+            const nextUam = { ...get().uam, targets: [] };
+            get().setUam(nextUam);
           }
         },
       };
