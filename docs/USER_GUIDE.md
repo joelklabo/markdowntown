@@ -3,6 +3,10 @@
 This guide walks you through the primary flow: scan a folder → review loaded instruction files → build and export agents.md.
 Scans run locally in your browser and do not upload file contents.
 
+![Scan to Workbench flow](./assets/scan-workbench-flow.svg)
+
+Flow overview: quick upload scan → review results → open Workbench with tool + cwd prefilled.
+
 ## Primary flow (6 steps)
 1. Open the Atlas Simulator and click **Scan a folder** (Quickstart: `docs/atlas/scan-quickstart.md`).
 2. Pick your repo root. If the directory picker is unavailable, use the folder upload input. If you hit a permission error, grant access and retry.

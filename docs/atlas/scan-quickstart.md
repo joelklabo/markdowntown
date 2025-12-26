@@ -2,6 +2,10 @@
 
 Use Atlas Simulator to confirm which instruction files load for a tool and what to fix next.
 
+![Scan to Workbench flow](../assets/scan-workbench-flow.svg)
+
+Flow overview: scan a folder → review next steps → open Workbench with tool + cwd prefilled.
+
 ## What you need
 - A local repo folder to scan.
 - A Chromium browser (Chrome/Edge/Arc) for directory picking, or the folder upload input in other browsers.
