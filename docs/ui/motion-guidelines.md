@@ -40,6 +40,7 @@ Suggested CSS easing (approx):
 - Tooltip / Popover: fade + scale 0.98 -> 1.0; 120-160ms.
 - Nav indicator: short underline slide (<= 180ms).
 - Wordmark: keep ambient motion low amplitude and < 2s loops; provide static fallback.
+- Wordmark banner: animation must never change layout size; banner height stays fixed.
 
 ## Page-level guidance
 - Home hero: one entrance animation (opacity + 8px translate) on load.
@@ -50,6 +51,7 @@ Suggested CSS easing (approx):
 - Favor CSS transitions over JS-driven animation for simple UI state.
 - Use `prefers-reduced-motion` media queries to gate keyframes and transitions.
 - Keep animations out of critical render paths (no layout thrashing).
+- Wordmark animation should be isolated to SVG internals; never adjust container height or padding.
 
 ## QA checklist
 - Verify reduced-motion disables wordmark animation and section entrance motion.

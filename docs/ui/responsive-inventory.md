@@ -15,9 +15,11 @@ Scope: Core surfaces and global UI across breakpoints.
   - Mobile bottom nav visible (Scan / Workbench / Library / Translate / Search).
   - Header shows compact controls; search, command palette, and density toggle hidden.
   - Mobile search + overflow sheets used for search/links.
+  - Header banner height: 48px; nav min-height: 56px; padding y: 12px.
 - **md**
   - Desktop header nav appears; mobile bottom nav hidden.
   - Theme toggle shown; search bar visible.
+  - Header banner height: 56px; nav min-height: 64px; padding y: 16px.
 - **lg**
   - Command palette button + density toggle visible.
   - Search input expands width.
@@ -56,4 +58,3 @@ Scope: Core surfaces and global UI across breakpoints.
 - Workbench fixed-height layout risks clipping on short mobile screens.
 - Atlas Simulator left/right columns may feel narrow at small `lg` widths; check card density.
 - Header + sticky components can stack (header + sticky filters + bottom nav), which can reduce usable content height.
-
