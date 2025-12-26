@@ -61,6 +61,22 @@ describe('atlas/simulators/insights', () => {
     expect(insights.precedenceNotes.length).toBeGreaterThan(0);
   });
 
+  it('normalizes cwd when building ancestor patterns', () => {
+    const tree = {
+      files: [
+        { path: 'AGENTS.md', content: '' },
+        { path: 'apps/AGENTS.md', content: '' },
+        { path: 'apps/web/AGENTS.override.md', content: '' },
+      ],
+    };
+
+    const insights = computeSimulatorInsights({ tool: 'codex-cli', tree, cwd: './apps\\web/' });
+    const missingPatterns = insights.missingFiles.map(pattern => pattern.pattern);
+
+    expect(insights.foundFiles).toEqual(['AGENTS.md', 'apps/AGENTS.md', 'apps/web/AGENTS.override.md']);
+    expect(missingPatterns).toContain('apps/web/AGENTS.md');
+  });
+
   it('reports Claude Code ancestor files', () => {
     const tree = {
       files: [

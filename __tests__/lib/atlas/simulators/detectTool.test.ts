@@ -20,6 +20,13 @@ describe('atlas/simulators/detectTool', () => {
     expect(result.candidates[0].paths).toContain('AGENTS.md');
   });
 
+  it('normalizes windows paths when detecting tools', () => {
+    const result = detectTool(['apps\\AGENTS.md']);
+
+    expect(result.tool).toBe('codex-cli');
+    expect(result.candidates[0].paths).toContain('apps/AGENTS.md');
+  });
+
   it('detects Claude Code from CLAUDE.md in nested folders', () => {
     const result = detectTool(['docs/CLAUDE.md']);
 
@@ -35,6 +42,14 @@ describe('atlas/simulators/detectTool', () => {
     expect(result.confidence).toBe('low');
     expect(result.isMixed).toBe(true);
     expect(result.candidates).toHaveLength(2);
+  });
+
+  it('marks mixed tools when unrelated instruction formats appear together', () => {
+    const result = detectTool(['AGENTS.md', '.github/instructions/app.instructions.md']);
+
+    expect(result.tool).toBeNull();
+    expect(result.isMixed).toBe(true);
+    expect(result.matchedTools.sort()).toEqual(['codex-cli', 'github-copilot']);
   });
 
   it('detects Copilot CLI from .github/agents', () => {

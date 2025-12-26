@@ -129,4 +129,37 @@ describe('atlas/simulators/nextSteps', () => {
     const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
     expect(secondaryIds).toContain('review-extra-files');
   });
+
+  it('suggests expected patterns when no missing diagnostics are present', () => {
+    const steps = computeNextSteps(
+      makeInput({
+        diagnostics: makeDiagnostics([]),
+        isStale: true,
+        insights: {
+          ...baseInsights,
+          missingFiles: [
+            { id: 'codex-cli.agents.root', label: 'Root', pattern: 'AGENTS.md' },
+            { id: 'codex-cli.override.root', label: 'Override', pattern: 'AGENTS.override.md' },
+          ],
+        },
+      }),
+    );
+
+    const missingStep = steps.find((step) => step.id === 'missing-patterns');
+    expect(missingStep?.body).toContain('AGENTS.md');
+  });
+
+  it('guides large-tree warnings to scan smaller folders', () => {
+    const steps = computeNextSteps(
+      makeInput({
+        warnings: [{ code: 'scan-risk.large-tree', message: 'Large tree' }],
+        repoSource: 'folder',
+      }),
+    );
+
+    expect(steps[0].id).toBe('warning:scan-risk.large-tree');
+    expect(steps[0].primaryAction?.id).toBe('scan-smaller-folder');
+    const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
+    expect(secondaryIds).toContain('paste-paths');
+  });
 });

@@ -67,6 +67,24 @@ describe('atlas/simulators/fsScan', () => {
     expect(result.tree.files.every(file => file.content === '')).toBe(true);
   });
 
+  it('reports progress at the configured interval', async () => {
+    const root = dir('repo', [file('a.md'), file('b.md')]);
+    const progress: Array<{ totalFiles: number; matchedFiles: number }> = [];
+
+    const result = await scanRepoTree(root, {
+      ignoreDirs: [],
+      progressInterval: 1,
+      onProgress: (snapshot) => progress.push({ ...snapshot }),
+    });
+
+    expect(result.totalFiles).toBe(2);
+    expect(progress).toEqual([
+      { totalFiles: 1, matchedFiles: 0 },
+      { totalFiles: 2, matchedFiles: 1 },
+      { totalFiles: 2, matchedFiles: 2 },
+    ]);
+  });
+
   it('marks binary instruction files as skipped when content is enabled', async () => {
     const binaryFile = file('AGENTS.md');
     Object.defineProperty(binaryFile, 'getFile', {

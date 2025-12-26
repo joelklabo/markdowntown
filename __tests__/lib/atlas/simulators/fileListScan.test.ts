@@ -69,4 +69,38 @@ describe('atlas/simulators/fileListScan', () => {
 
     expect(result.tree.files[0]?.displayPath).toBe('[redacted].env');
   });
+
+  it('normalizes windows-style paths and strips the root folder', async () => {
+    const result = await scanFileList(
+      [
+        { name: 'AGENTS.md', webkitRelativePath: 'repo/apps\\web\\AGENTS.md' },
+        { name: 'CLAUDE.md', webkitRelativePath: 'repo/docs\\CLAUDE.md' },
+      ],
+      { ignoreDirs: [] },
+    );
+
+    expect(result.tree.files.map(file => file.path)).toEqual(['apps/web/AGENTS.md', 'docs/CLAUDE.md']);
+  });
+
+  it('reports progress at the configured interval', async () => {
+    const progress: Array<{ totalFiles: number; matchedFiles: number }> = [];
+    const result = await scanFileList(
+      [
+        { name: 'AGENTS.md', webkitRelativePath: 'repo/AGENTS.md' },
+        { name: 'CLAUDE.md', webkitRelativePath: 'repo/CLAUDE.md' },
+      ],
+      {
+        ignoreDirs: [],
+        progressInterval: 1,
+        onProgress: (snapshot) => progress.push({ ...snapshot }),
+      },
+    );
+
+    expect(result.totalFiles).toBe(2);
+    expect(progress).toEqual([
+      { totalFiles: 1, matchedFiles: 0 },
+      { totalFiles: 2, matchedFiles: 1 },
+      { totalFiles: 2, matchedFiles: 2 },
+    ]);
+  });
 });
