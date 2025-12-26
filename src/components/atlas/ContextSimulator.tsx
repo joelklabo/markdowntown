@@ -877,13 +877,13 @@ export function ContextSimulator() {
 
   return (
     <div className="grid gap-mdt-6 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] lg:gap-mdt-8">
-      <Card className="p-mdt-5">
+      <Card padding="lg">
         <Stack gap={5}>
           <Stack gap={1}>
-            <Heading level="h2">{quickUploadEnabled ? "Scan your repo" : "Scan setup"}</Heading>
+            <Heading level="h2">Scan setup</Heading>
             <Text tone="muted">
               {quickUploadEnabled
-                ? "Upload a folder to see what your tool will load. Scans stay in your browser."
+                ? "Upload a folder to see which instruction files will load. Scans stay in your browser."
                 : "Choose a tool, set the working directory, and scan a folder."}
             </Text>
           </Stack>
@@ -891,8 +891,12 @@ export function ContextSimulator() {
           {quickUploadEnabled ? (
             <div className="space-y-mdt-4">
               <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-                <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Upload a folder</label>
-                <Text tone="muted" size="bodySm">{directorySupportMessage}</Text>
+                <Text as="label" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                  Upload a folder
+                </Text>
+                <Text tone="muted" size="bodySm">
+                  {directorySupportMessage}
+                </Text>
                 <div className="flex flex-wrap gap-mdt-2">
                   <Button
                     type="button"
@@ -906,7 +910,7 @@ export function ContextSimulator() {
                       }
                     }}
                   >
-                    {isScanning ? "Scanning…" : "Upload a folder"}
+                    {isScanning ? "Scanning…" : "Scan a folder"}
                   </Button>
                   <Button
                     type="button"
@@ -946,23 +950,23 @@ export function ContextSimulator() {
                     <Text size="bodySm" weight="semibold">
                       {detectionSummary?.title ?? `Detected: ${toolLabel(tool)}`}
                     </Text>
-                    <Text tone="muted" size="bodySm">{scanCounts}</Text>
+                    {scanMeta ? (
+                      <SimulatorScanMeta {...scanMeta} />
+                    ) : (
+                      <Text tone="muted" size="bodySm">
+                        {scanCounts}
+                      </Text>
+                    )}
                     {detectionSummary?.body ? (
-                      <Text tone="muted" size="bodySm">{detectionSummary.body}</Text>
+                      <Text tone="muted" size="bodySm">
+                        {detectionSummary.body}
+                      </Text>
                     ) : null}
                     <div className="flex flex-wrap gap-mdt-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => openAdvancedField("sim-tool")}
-                      >
+                      <Button type="button" variant="secondary" onClick={() => openAdvancedField("sim-tool")}>
                         Change tool
                       </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => openAdvancedField("sim-cwd")}
-                      >
+                      <Button type="button" variant="secondary" onClick={() => openAdvancedField("sim-cwd")}>
                         Change cwd
                       </Button>
                     </div>
@@ -975,8 +979,8 @@ export function ContextSimulator() {
                 open={advancedOpen}
                 onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
               >
-                <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                  Show advanced
+                <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">
+                  Show advanced settings
                 </summary>
                 <div className="mt-mdt-3 space-y-mdt-3">
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
@@ -1171,7 +1175,7 @@ export function ContextSimulator() {
                   open={advancedOpen}
                   onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
                 >
-                  <summary className="cursor-pointer text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                  <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">
                     Advanced: paste repo paths
                   </summary>
                   <div className="mt-mdt-3 space-y-mdt-3">
@@ -1211,17 +1215,20 @@ export function ContextSimulator() {
         </Stack>
       </Card>
 
-      <Card className="p-mdt-5">
+      <Card padding="lg">
         <Stack gap={5}>
           <Stack gap={2}>
             <Heading level="h2">Results</Heading>
             <Text tone="muted">Start with Next steps, then review what loads and any warnings.</Text>
             {isStale ? (
               <div
-                className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted"
+                className="flex flex-wrap items-center justify-between gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted"
                 role="status"
               >
-                Results are out of date. Refresh results to update.
+                <span>Results are out of date. Refresh results to update.</span>
+                <Button type="button" size="xs" variant="secondary" onClick={() => refreshResults()}>
+                  Refresh results
+                </Button>
               </div>
             ) : null}
           </Stack>

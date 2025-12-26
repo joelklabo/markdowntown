@@ -27,7 +27,9 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
             <Stack gap={1}>
               <Text size="bodySm" weight="semibold">{summary.title}</Text>
               <Text tone="muted" size="bodySm">{summary.body}</Text>
-              <Text size="bodySm">{summary.nextStep}</Text>
+              <Text size="bodySm" weight="semibold">
+                Next: {summary.nextStep}
+              </Text>
               {summary.note ? <Text tone="muted" size="bodySm">{summary.note}</Text> : null}
             </Stack>
           </div>
