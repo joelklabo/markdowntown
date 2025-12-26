@@ -5,14 +5,19 @@ import { Surface } from "./Surface";
 
 export function Card({
   className,
+  tone = "raised",
+  padding = "md",
   ...props
 }: SurfaceProps<"div">) {
   return (
     <Surface
       className={cn(
-        "card",
+        "transition duration-mdt-base ease-mdt-emphasized motion-reduce:transition-none",
+        tone === "raised" ? "hover:shadow-mdt-md hover:border-mdt-border-strong" : undefined,
         className
       )}
+      tone={tone}
+      padding={padding}
       {...props}
     />
   );

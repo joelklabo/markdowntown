@@ -19,9 +19,8 @@ export const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(functi
       ref={ref}
       role="separator"
       aria-orientation={orientation}
-      className={cn("shrink-0 bg-mdt-border", orientationClass, className)}
+      className={cn("shrink-0 rounded-full bg-mdt-border opacity-70", orientationClass, className)}
       {...props}
     />
   );
 });
-

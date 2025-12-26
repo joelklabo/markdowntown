@@ -13,9 +13,9 @@ const containerVariants = cva("mx-auto w-full", {
     },
     padding: {
       none: "px-0",
-      sm: "px-4",
-      md: "px-6",
-      lg: "px-8",
+      sm: "px-mdt-3 md:px-mdt-4",
+      md: "px-mdt-4 md:px-mdt-6",
+      lg: "px-mdt-6 md:px-mdt-8",
     },
   },
   defaultVariants: {
@@ -36,4 +36,3 @@ export function Container({ as: Comp = "div", size, padding, className, ...props
     />
   );
 }
-
