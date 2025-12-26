@@ -956,7 +956,14 @@ export function ContextSimulator() {
           {quickUploadEnabled ? (
             <div className="space-y-mdt-4">
               <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-                <Text as="label" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                <Text
+                  as="label"
+                  htmlFor="sim-folder-upload"
+                  size="caption"
+                  weight="semibold"
+                  tone="muted"
+                  className="uppercase tracking-wide"
+                >
                   Upload a folder
                 </Text>
                 <Text tone="muted" size="bodySm">
@@ -1077,7 +1084,14 @@ export function ContextSimulator() {
                   </div>
 
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                    <Text
+                      as="h4"
+                      id="sim-tree-preview-label"
+                      size="caption"
+                      weight="semibold"
+                      tone="muted"
+                      className="uppercase tracking-wide"
+                    >
                       Scan preview
                     </Text>
                     {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
@@ -1087,6 +1101,7 @@ export function ContextSimulator() {
                       value={scannedPreview}
                       readOnly
                       placeholder="Scanned paths will appear here."
+                      aria-labelledby="sim-tree-preview-label"
                     />
                   </div>
 
@@ -1111,7 +1126,14 @@ export function ContextSimulator() {
                   </div>
 
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                    <Text
+                      as="h4"
+                      id="sim-tree-manual-label"
+                      size="caption"
+                      weight="semibold"
+                      tone="muted"
+                      className="uppercase tracking-wide"
+                    >
                       Paste repo paths
                     </Text>
                     <Text tone="muted" size="bodySm">
@@ -1127,6 +1149,7 @@ export function ContextSimulator() {
                         setRepoText(e.target.value);
                       }}
                       placeholder="One path per line (e.g. .github/copilot-instructions.md)"
+                      aria-labelledby="sim-tree-manual-label"
                     />
                   </div>
 
@@ -1168,7 +1191,15 @@ export function ContextSimulator() {
               </div>
 
               <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-                <label className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">Scan a folder</label>
+                {canPickDirectory ? (
+                  <Text as="p" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                    Scan a folder
+                  </Text>
+                ) : (
+                  <label htmlFor="sim-folder-scan" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                    Scan a folder
+                  </label>
+                )}
                 <Text tone="muted" size="bodySm">{directorySupportMessage}</Text>
                 <div className="space-y-mdt-3">
                   {canPickDirectory ? (
@@ -1212,6 +1243,7 @@ export function ContextSimulator() {
                     value={scannedPreview}
                     readOnly
                     placeholder="Scanned paths will appear here."
+                    aria-label="Scanned paths preview"
                   />
 
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">

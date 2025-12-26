@@ -355,7 +355,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
               <button
                 type="button"
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
+                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -371,7 +371,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
               <button
                 type="button"
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
+                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
