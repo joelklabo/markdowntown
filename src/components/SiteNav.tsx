@@ -232,11 +232,11 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
         <Container
           as="div"
           padding="sm"
-          className="mdt-site-header-nav grid grid-cols-[minmax(0,1fr),auto] items-center gap-mdt-3 md:gap-mdt-4"
+          className="mdt-site-header-nav grid grid-cols-1 items-center gap-y-mdt-3 gap-x-mdt-4 lg:grid-cols-[minmax(0,1fr),auto]"
         >
           <nav
             ref={desktopNavRef}
-            className="relative hidden w-full items-center justify-start gap-mdt-4 text-body-sm font-medium text-mdt-muted md:flex"
+            className="relative hidden w-full items-center justify-start gap-mdt-3 text-body-sm font-medium text-mdt-muted md:flex lg:gap-mdt-4"
             aria-label="Primary"
           >
             <NavActiveIndicator containerRef={desktopNavRef} activeKey={pathname} />
@@ -247,7 +247,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "rounded-mdt-md px-mdt-4 py-mdt-2",
+                    "rounded-mdt-md px-mdt-3 py-mdt-2",
                     interactiveBase,
                     focusRing,
                     active
@@ -264,19 +264,19 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
             })}
           </nav>
 
-          <div className="flex min-w-0 items-center justify-end gap-2 flex-nowrap">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 lg:flex-nowrap">
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden w-[240px] items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:w-[380px]"
+              className="hidden min-w-[220px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:max-w-[420px]"
             >
-	              <input
-	                name="q"
-	                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
-	                placeholder="Search library…"
-	                value={query}
-	                onChange={(e) => setQuery(e.target.value)}
-	                aria-label="Search"
+              <input
+                name="q"
+                className="w-full bg-transparent text-mdt-text outline-none placeholder:text-mdt-muted"
+                placeholder="Search library…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Search"
                 ref={inputRef}
                 aria-keyshortcuts="/"
               />
@@ -284,71 +284,73 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                 Search
               </Button>
             </form>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="hidden whitespace-nowrap lg:inline-flex"
-              onClick={() => openCommandPalette("desktop_nav_button")}
-              aria-keyshortcuts="Meta+K,Control+K"
-            >
-              Command <span className="text-caption text-mdt-muted">⌘K</span>
-            </Button>
-            <div className="hidden lg:block">
-              <DensityToggle mode="icon" />
-            </div>
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
-            {user ? (
-              <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border/70 bg-mdt-surface px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
-                {user.image && (
-                  <Image
-                    src={user.image}
-                    alt={user.name ?? "avatar"}
-                    width={28}
-                    height={28}
-                    className="shrink-0 rounded-full"
-                  />
-                )}
-                <span
-                  className="hidden max-w-[180px] min-w-0 truncate whitespace-nowrap text-mdt-text md:inline"
-                  title={user.username ?? user.name ?? user.email ?? "Signed in"}
-                >
-                  {user.username ?? user.name ?? user.email ?? "Signed in"}
-                </span>
-                <form action="/api/auth/signout" method="post">
-                  <Button variant="ghost" size="xs" type="submit">
-                    Sign out
+            <div className="hidden items-center gap-2 md:flex lg:ml-auto">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="hidden whitespace-nowrap lg:inline-flex"
+                onClick={() => openCommandPalette("desktop_nav_button")}
+                aria-keyshortcuts="Meta+K,Control+K"
+              >
+                Command <span className="text-caption text-mdt-muted">⌘K</span>
+              </Button>
+              <div className="hidden lg:block">
+                <DensityToggle mode="icon" />
+              </div>
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
+              {user ? (
+                <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border/70 bg-mdt-surface px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
+                  {user.image && (
+                    <Image
+                      src={user.image}
+                      alt={user.name ?? "avatar"}
+                      width={28}
+                      height={28}
+                      className="shrink-0 rounded-full"
+                    />
+                  )}
+                  <span
+                    className="hidden max-w-[180px] min-w-0 truncate whitespace-nowrap text-mdt-text md:inline"
+                    title={user.username ?? user.name ?? user.email ?? "Signed in"}
+                  >
+                    {user.username ?? user.name ?? user.email ?? "Signed in"}
+                  </span>
+                  <form action="/api/auth/signout" method="post">
+                    <Button variant="ghost" size="xs" type="submit">
+                      Sign out
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <div className="hidden items-center gap-2 md:flex">
+                  <Button variant="ghost" size="xs" className="whitespace-nowrap" asChild>
+                    <Link
+                      href={`/signin?callbackUrl=${encodeURIComponent(pathname || "/")}`}
+                      onClick={() => {
+                        track("nav_click", { href: "signin", placement: "desktop" });
+                        emitCityWordmarkEvent({ type: "login", method: "oauth" });
+                      }}
+                    >
+                      Sign in
+                    </Link>
                   </Button>
-                </form>
-              </div>
-            ) : (
-              <div className="hidden items-center gap-2 md:flex">
-                <Button variant="ghost" size="xs" className="whitespace-nowrap" asChild>
-                  <Link
-                    href={`/signin?callbackUrl=${encodeURIComponent(pathname || "/")}`}
-                    onClick={() => {
-                      track("nav_click", { href: "signin", placement: "desktop" });
-                      emitCityWordmarkEvent({ type: "login", method: "oauth" });
-                    }}
-                  >
-                    Sign in
-                  </Link>
-                </Button>
-                <Button size="xs" className="whitespace-nowrap" asChild>
-                  <Link
-                    href={ctaHref}
-                    onClick={() => {
-                      track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" });
-                      emitCityWordmarkEvent({ type: "publish", kind: "template" });
-                    }}
-                  >
-                    Use a template
-                  </Link>
-                </Button>
-              </div>
-            )}
+                  <Button size="xs" className="whitespace-nowrap" asChild>
+                    <Link
+                      href={ctaHref}
+                      onClick={() => {
+                        track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" });
+                        emitCityWordmarkEvent({ type: "publish", kind: "template" });
+                      }}
+                    >
+                      Use a template
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-2 md:hidden">
               <button
                 type="button"

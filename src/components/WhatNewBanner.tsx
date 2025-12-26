@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { Container } from "@/components/ui/Container";
 
 const STORAGE_KEY = "mdt_whats_new_dismissed_v2025-12";
 
@@ -19,15 +20,15 @@ export function WhatNewBanner() {
   if (!visible) return null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4">
-      <div className="mt-3 flex flex-col gap-2 rounded-mdt-md border border-mdt-border bg-mdt-surface shadow-mdt-sm px-4 py-3 md:flex-row md:items-center md:justify-between">
+    <Container size="lg" padding="md" className="mt-mdt-4">
+      <div className="flex flex-col gap-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface shadow-mdt-sm px-mdt-4 py-mdt-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <p className="text-sm font-semibold text-mdt-text">What’s new: December 2025 redesign</p>
           <p className="text-sm text-mdt-muted">
             Dual-theme tokens, calmer landing, faceted browse, builder status strip, and new quality signals.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" size="sm" asChild>
             <Link href="/changelog">View changelog</Link>
           </Button>
@@ -44,6 +45,6 @@ export function WhatNewBanner() {
           </Button>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
