@@ -128,7 +128,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
           </Text>
         </Stack>
 
-        <div className="grid gap-mdt-8 lg:grid-cols-2">
+        <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr),minmax(0,1fr)] lg:items-start">
           <TranslateInput value={input} onChange={setInput} disabled={loading} helperText={helperText} />
           <TranslateOutput
             targets={targets}

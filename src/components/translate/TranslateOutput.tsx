@@ -59,20 +59,33 @@ export function TranslateOutput({
   }
 
   return (
-    <Stack gap={4}>
+    <Stack gap={4} className="h-full">
       <Surface padding="lg" className="space-y-mdt-4">
-        <div className="flex flex-wrap items-center justify-between gap-mdt-3">
+        <div className="flex flex-wrap items-start justify-between gap-mdt-3">
           <div className="space-y-mdt-1">
             <Text size="caption" tone="muted">Output</Text>
             <Heading level="h3" as="h2">Targets & compile</Heading>
+            <Text size="bodySm" tone="muted">
+              Choose targets, compile your files, and review the generated outputs below.
+            </Text>
           </div>
-          <Badge tone="info">Detected: {detectedLabel}</Badge>
+          <div className="flex flex-wrap items-center gap-mdt-2">
+            <Badge tone="info">Detected: {detectedLabel}</Badge>
+            {targets.length === 0 ? <Badge tone="warning">Select a target</Badge> : null}
+          </div>
         </div>
 
-        <Stack gap={3}>
-          <Text size="caption" tone="muted" className="uppercase tracking-wide">
-            Targets
-          </Text>
+        <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+          <div className="flex flex-wrap items-center justify-between gap-mdt-2">
+            <Text size="caption" tone="muted" className="uppercase tracking-wide">
+              Targets
+            </Text>
+            {targets.length > 0 ? (
+              <Text size="caption" tone="muted">
+                {targets.length} selected
+              </Text>
+            ) : null}
+          </div>
           <Row gap={4} align="center" className="flex-wrap">
             <Checkbox checked={byId.has('agents-md')} onChange={() => onToggleTarget('agents-md')}>
               <span className="inline-flex items-center gap-2">
@@ -95,7 +108,9 @@ export function TranslateOutput({
               </span>
             </Checkbox>
           </Row>
-
+          <Text size="caption" tone="muted">
+            Advanced options let you fine-tune adapter versions and target-specific settings.
+          </Text>
           <Button
             type="button"
             variant="ghost"
@@ -162,24 +177,28 @@ export function TranslateOutput({
               ))}
             </Surface>
           ) : null}
-        </Stack>
+        </Surface>
 
-        <Row gap={2} align="center" wrap>
-          <Button onClick={onCompile} disabled={disabledCompile || loading || targets.length === 0} size="sm">
-            {loading ? 'Compiling…' : 'Compile'}
-          </Button>
-          <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
-            Download zip
-          </Button>
-        </Row>
-
-        {error && (
-          <div className="rounded-mdt-md border border-[color:var(--mdt-color-danger-soft)] bg-[color:var(--mdt-color-danger-soft)]/40 px-mdt-3 py-mdt-2">
-            <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
-              {error}
-            </Text>
-          </div>
-        )}
+        <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+          <Row gap={2} align="center" wrap>
+            <Button onClick={onCompile} disabled={disabledCompile || loading || targets.length === 0} size="sm">
+              {loading ? 'Compiling…' : 'Compile'}
+            </Button>
+            <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
+              Download zip
+            </Button>
+          </Row>
+          <Text size="caption" tone="muted">
+            Compile generates instruction files. Download bundles the latest results into a zip.
+          </Text>
+          {error && (
+            <div className="rounded-mdt-md border border-[color:var(--mdt-color-danger-soft)] bg-[color:var(--mdt-color-danger-soft)]/40 px-mdt-3 py-mdt-2">
+              <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
+                {error}
+              </Text>
+            </div>
+          )}
+        </Surface>
       </Surface>
 
       <Surface padding="lg" className="space-y-mdt-4">

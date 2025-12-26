@@ -39,7 +39,7 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
   );
 
   return (
-    <Surface padding="lg" className="space-y-mdt-4">
+    <Surface padding="lg" className="flex h-full flex-col gap-mdt-4">
       <div className="flex flex-wrap items-center justify-between gap-mdt-3">
         <div className="space-y-mdt-1">
           <Text size="caption" tone="muted">Input</Text>
@@ -76,26 +76,28 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
       </div>
 
       <div
-        className="space-y-mdt-3"
+        className="flex flex-1 flex-col gap-mdt-3"
         onDragOver={(e) => e.preventDefault()}
         onDrop={onDrop}
       >
         <TextArea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-[320px] font-mono text-body-sm resize-none"
+          className="min-h-[320px] flex-1 font-mono text-body-sm resize-none"
           placeholder="Paste Markdown or UAM v1 JSON…"
           disabled={disabled}
           aria-label="Input content"
         />
-        {helperText && (
+        <div className="space-y-mdt-1">
+          {helperText && (
+            <Text size="caption" tone="muted">
+              {helperText}
+            </Text>
+          )}
           <Text size="caption" tone="muted">
-            {helperText}
+            Tip: drag and drop a single file anywhere in this panel.
           </Text>
-        )}
-        <Text size="caption" tone="muted">
-          Tip: drag and drop a single file anywhere in this panel.
-        </Text>
+        </div>
       </div>
     </Surface>
   );
