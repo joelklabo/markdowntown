@@ -71,11 +71,13 @@ export function LivingCityWordmark({
 
     let frame = 0;
     let initFrame: number | null = null;
+    const MIN_DIMENSION = 12;
     const update = (width: number, height: number) => {
       if (!Number.isFinite(width) || !Number.isFinite(height)) return;
-      if (width <= 0 || height <= 0) {
+      const tooSmall = width < MIN_DIMENSION || height < MIN_DIMENSION;
+      if (width <= 0 || height <= 0 || tooSmall) {
         const lastSize = lastSizeRef.current;
-        if (!lastSize) return;
+        if (!lastSize || lastSize.width < MIN_DIMENSION || lastSize.height < MIN_DIMENSION) return;
         width = lastSize.width;
         height = lastSize.height;
       } else {

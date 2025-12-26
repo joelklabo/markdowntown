@@ -177,17 +177,29 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     const collapseThreshold = 8;
     const readHeight = (el: HTMLElement) => {
       const rect = el.getBoundingClientRect();
-      return Number.isFinite(rect.height) ? rect.height : 0;
+      if (Number.isFinite(rect.height) && rect.height > 0) return rect.height;
+      const offset = el.offsetHeight;
+      return Number.isFinite(offset) ? offset : 0;
     };
-    const getMinHeight = (el: HTMLElement) => {
-      const min = parseFloat(getComputedStyle(el).minHeight || "0");
-      return Number.isFinite(min) ? min : 0;
+    const readMinHeight = (el: HTMLElement, fallback: number) => {
+      const raw = getComputedStyle(el).minHeight || "";
+      const parsed = parseFloat(raw);
+      if (Number.isFinite(parsed) && parsed > 0) return parsed;
+      return fallback;
+    };
+    const resolveMinHeights = () => {
+      const isDesktop = window.matchMedia?.("(min-width: 768px)")?.matches ?? false;
+      const bannerFallback = isDesktop ? 56 : 48;
+      const navFallback = isDesktop ? 64 : 56;
+      return {
+        bannerMin: readMinHeight(bannerEl, bannerFallback),
+        navMin: readMinHeight(navEl, navFallback),
+      };
     };
 
-    let stableBanner = readHeight(bannerEl);
-    let stableNav = readHeight(navEl);
-    const minBanner = getMinHeight(bannerEl);
-    const minNav = getMinHeight(navEl);
+    const initial = resolveMinHeights();
+    let stableBanner = Math.max(readHeight(bannerEl), initial.bannerMin);
+    let stableNav = Math.max(readHeight(navEl), initial.navMin);
 
     const lockHeight = (el: HTMLElement, height: number) => {
       if (!Number.isFinite(height) || height <= 0) return;
@@ -196,25 +208,22 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     };
 
     const measure = (force = false) => {
+      const { bannerMin, navMin } = resolveMinHeights();
       const bannerHeight = readHeight(bannerEl);
       const navHeight = readHeight(navEl);
 
-      if (bannerHeight > stableBanner) stableBanner = bannerHeight;
-      if (navHeight > stableNav) stableNav = navHeight;
+      stableBanner = Math.max(stableBanner, bannerMin, bannerHeight);
+      stableNav = Math.max(stableNav, navMin, navHeight);
 
       const bannerCollapsed = stableBanner > 0 && bannerHeight + collapseThreshold < stableBanner;
       const navCollapsed = stableNav > 0 && navHeight + collapseThreshold < stableNav;
 
-      if (bannerCollapsed) {
-        lockHeight(bannerEl, stableBanner);
-      } else if (force && minBanner > 0 && bannerHeight < minBanner) {
-        lockHeight(bannerEl, minBanner);
+      if (bannerCollapsed || (force && bannerHeight < bannerMin)) {
+        lockHeight(bannerEl, Math.max(stableBanner, bannerMin));
       }
 
-      if (navCollapsed) {
-        lockHeight(navEl, stableNav);
-      } else if (force && minNav > 0 && navHeight < minNav) {
-        lockHeight(navEl, minNav);
+      if (navCollapsed || (force && navHeight < navMin)) {
+        lockHeight(navEl, Math.max(stableNav, navMin));
       }
     };
 
@@ -223,7 +232,11 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     observer?.observe(navEl);
 
     const lateCheck = window.setTimeout(() => measure(true), 5200);
-    requestAnimationFrame(() => measure());
+    requestAnimationFrame(() => measure(true));
+
+    if (document.fonts?.ready) {
+      void document.fonts.ready.then(() => measure(true)).catch(() => {});
+    }
 
     return () => {
       observer?.disconnect();
