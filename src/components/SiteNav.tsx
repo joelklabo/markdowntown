@@ -165,32 +165,6 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     }
   }, [hydrated]);
 
-  useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
-    if (typeof window === "undefined") return;
-
-    const handle = window.setTimeout(() => {
-      const banner = document.querySelector(".mdt-site-header-banner");
-      if (!banner) return;
-      const height = banner.getBoundingClientRect().height;
-      if (height >= 20) return;
-
-      document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]').forEach((link) => {
-        const href = link.getAttribute("href");
-        if (!href) return;
-        try {
-          const url = new URL(href, window.location.href);
-          url.searchParams.set("v", String(Date.now()));
-          link.href = url.toString();
-        } catch {
-          // ignore invalid hrefs
-        }
-      });
-    }, 5500);
-
-    return () => window.clearTimeout(handle);
-  }, []);
-
   type BottomNavIcon = ComponentType<NavIconProps>;
   type BottomNavItem =
     | { href: string; label: string; icon: BottomNavIcon; type: "link" }
