@@ -8,12 +8,17 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
   ref
 ) {
   return (
-    <label className={cn("inline-flex items-center gap-2 text-body-sm text-mdt-text", props.disabled && "opacity-60")}>
+    <label
+      className={cn(
+        "inline-flex items-center gap-mdt-2 text-body-sm text-mdt-text",
+        props.disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+      )}
+    >
       <input
         type="checkbox"
         ref={ref}
         className={cn(
-          "h-4 w-4 cursor-pointer appearance-none rounded-mdt-sm border border-mdt-border bg-mdt-surface",
+          "h-mdt-5 w-mdt-5 shrink-0 cursor-pointer appearance-none rounded-mdt-sm border border-mdt-border bg-mdt-surface",
           interactiveBase,
           focusRing,
           "checked:border-transparent checked:bg-[color:var(--mdt-color-primary)] checked:shadow-mdt-sm",

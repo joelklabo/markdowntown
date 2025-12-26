@@ -5,6 +5,8 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 const selectVariants = cva(
   cn(
     "w-full appearance-none rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-text placeholder:text-mdt-muted",
+    "focus-visible:border-[color:var(--mdt-color-border-strong)] aria-invalid:border-[color:var(--mdt-color-danger)] aria-invalid:focus-visible:ring-[color:var(--mdt-color-danger)]",
+    "disabled:bg-mdt-surface-subtle disabled:text-mdt-muted",
     "bg-[right_0.65rem_center] bg-no-repeat",
     interactiveBase,
     focusRing
