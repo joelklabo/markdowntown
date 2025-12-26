@@ -1008,7 +1008,7 @@ export function ContextSimulator() {
             <Heading level="h2">Scan setup</Heading>
             {scanClarityEnabled ? (
               <Text tone="muted">
-                Confirm which instruction files load with a fast, local-only scan.
+                Scan a folder to see which instruction files load. Scans stay local in your browser.
               </Text>
             ) : null}
           </Stack>

@@ -12,8 +12,8 @@ export default function AtlasSimulatorPage() {
           <Stack gap={2} className="max-w-2xl">
             <Heading level="h1">Scan a folder</Heading>
             <Text tone="muted">
-              Preview which instruction files a tool would load, then get clear next steps to fix gaps.
-              Upload a repo folder to see what’s detected and what’s missing.
+              Scan a folder to preview which instruction files your tool would load, then get clear next steps to fix gaps.
+              Scans stay local in your browser.
             </Text>
           </Stack>
           <ContextSimulator />
