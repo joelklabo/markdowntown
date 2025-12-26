@@ -154,10 +154,10 @@ export default async function Home() {
             className="flex flex-col gap-mdt-10 pb-mdt-16 pt-mdt-12 md:grid md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-mdt-12 md:pt-mdt-16"
           >
             <div className="space-y-mdt-6">
-              <div className="inline-flex items-center gap-mdt-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-caption font-medium text-mdt-muted shadow-mdt-sm">
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-[color:var(--mdt-color-primary)]">Public-first</span>
-                <span>Copy without login</span>
-              </div>
+              <Row align="center" gap={2}>
+                <Pill tone="yellow" className="uppercase tracking-wide">Public-first</Pill>
+                <Text size="caption" tone="muted">Copy without login</Text>
+              </Row>
               <Stack gap={3}>
                 <Heading level="display" leading="tight" className="max-w-[22ch]">
                   Scan your repo. See which instructions load.
@@ -167,10 +167,9 @@ export default async function Home() {
                 </Text>
               </Stack>
 
-              <Surface
-                tone="raised"
-                padding="md"
-                className="grid gap-mdt-4 border-mdt-border-strong bg-mdt-surface shadow-mdt-lg sm:grid-cols-[1fr_auto] sm:items-end"
+              <Card
+                padding="lg"
+                className="grid gap-mdt-5 sm:grid-cols-[1fr_auto] sm:items-center"
               >
                 <Stack gap={3}>
                   <Text size="caption" tone="muted">Start here</Text>
@@ -198,21 +197,21 @@ export default async function Home() {
                     </Link>
                   </Text>
                 </div>
-              </Surface>
+              </Card>
 
               <div className="grid gap-mdt-4 sm:grid-cols-3">
                 {proof.map((item) => (
-                  <Surface key={item.label} padding="md" className="space-y-mdt-1 border-mdt-border-strong bg-mdt-surface">
+                  <Card key={item.label} tone="subtle" padding="md" className="space-y-mdt-1">
                     <Text size="caption" tone="muted">{item.label}</Text>
                     <Heading level="h2" as="p">{item.value}</Heading>
-                    <Text size="bodySm" tone="muted">{item.hint}</Text>
-                  </Surface>
+                    <Text size="caption" tone="muted">{item.hint}</Text>
+                  </Card>
                 ))}
               </div>
             </div>
 
             <div className="relative">
-              <Surface tone="raised" padding="lg" className="space-y-mdt-6 border-mdt-border-strong shadow-mdt-lg">
+              <Surface tone="raised" padding="lg" className="space-y-mdt-6">
                 <Row align="center" justify="between" gap={3}>
                   <Stack gap={1}>
                     <Text size="caption" tone="muted">Live Workbench preview</Text>
@@ -241,9 +240,9 @@ export default async function Home() {
                     ))}
                   </div>
                   <div className="grid gap-mdt-2">
-                    <div className="h-2 w-full rounded-md bg-[rgba(54,214,255,0.22)]" />
-                    <div className="h-2 w-[82%] rounded-md bg-[rgba(124,243,195,0.18)]" />
-                    <div className="h-2 w-[64%] rounded-md bg-[rgba(30,168,231,0.16)]" />
+                    <div className="h-2 w-full rounded-md bg-[color:var(--mdt-color-primary-soft)]" />
+                    <div className="h-2 w-[82%] rounded-md bg-[color:var(--mdt-color-success-soft)]" />
+                    <div className="h-2 w-[64%] rounded-md bg-[color:var(--mdt-color-info-soft)]" />
                   </div>
                 </Surface>
               </Surface>
