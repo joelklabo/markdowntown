@@ -79,6 +79,83 @@ async function mockDirectoryPicker(page: Page, fixtureName: string) {
   );
 }
 
+async function mockDirectoryPickerWithFailure(page: Page, fixtureName: string) {
+  const paths = await listFixturePaths(fixtureName);
+  await page.addInitScript(
+    ({ paths, rootName }) => {
+      const buildTree = (pathsInput: string[]) => {
+        const root: Record<string, Record<string, unknown> | null> = {};
+        for (const rawPath of pathsInput) {
+          const parts = rawPath.split("/").filter(Boolean);
+          let node = root;
+          parts.forEach((part, index) => {
+            const isFile = index === parts.length - 1;
+            if (isFile) {
+              node[part] = null;
+              return;
+            }
+            if (!node[part] || node[part] === null) {
+              node[part] = {};
+            }
+            node = node[part] as Record<string, Record<string, unknown> | null>;
+          });
+        }
+        return root;
+      };
+
+      const makeHandle = (name: string, node: Record<string, Record<string, unknown> | null> | null) => {
+        if (node === null) {
+          return { kind: "file", name };
+        }
+        const entries = Object.entries(node).map(([childName, childNode]) => [childName, makeHandle(childName, childNode as Record<string, Record<string, unknown> | null> | null)]);
+        return {
+          kind: "directory",
+          name,
+          entries: async function* entriesGenerator() {
+            for (const entry of entries) {
+              yield entry as [string, { kind: string; name: string }];
+            }
+          },
+        };
+      };
+
+      const tree = buildTree(paths);
+      const handle = makeHandle(rootName, tree);
+      let calls = 0;
+      (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker = async () => {
+        calls += 1;
+        if (calls === 1) {
+          throw new DOMException("Permission denied", "NotAllowedError");
+        }
+        return handle;
+      };
+    },
+    { paths, rootName: fixtureName }
+  );
+}
+
+async function setWebkitDirectoryFiles(page: Page, fixtureName: string) {
+  const paths = await listFixturePaths(fixtureName);
+  await page.evaluate(
+    ({ paths, rootName }) => {
+      const input = document.querySelector("input[type=\"file\"]") as HTMLInputElement | null;
+      if (!input) return;
+      const dataTransfer = new DataTransfer();
+      for (const relativePath of paths) {
+        const name = relativePath.split("/").pop() ?? relativePath;
+        const file = new File([""], name);
+        Object.defineProperty(file, "webkitRelativePath", {
+          value: `${rootName}/${relativePath}`,
+        });
+        dataTransfer.items.add(file);
+      }
+      input.files = dataTransfer.files;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    },
+    { paths, rootName: fixtureName }
+  );
+}
+
 describe("Atlas scan guidance flow", () => {
   let browser: Browser;
 
@@ -148,5 +225,35 @@ describe("Atlas scan guidance flow", () => {
 
       await page.getByText(/permission denied/i).waitFor({ state: "visible" });
     }, "scan-permission-denied");
+  });
+
+  maybe("recovers from permission errors on retry", { timeout: 60000 }, async () => {
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await mockDirectoryPickerWithFailure(page, "scan-sample");
+
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+
+      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+      await page.getByText(/2 instruction files found.*2 total files scanned/i).waitFor({ state: "visible" });
+    }, "scan-permission-recover");
+  });
+
+  maybe("supports webkitdirectory fallback uploads", { timeout: 60000 }, async () => {
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.addInitScript(() => {
+        // @ts-expect-error removing for fallback test
+        delete window.showDirectoryPicker;
+      });
+
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+
+      await setWebkitDirectoryFiles(page, "scan-sample");
+
+      const loadedList = page.getByRole("list", { name: /loaded files/i });
+      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+    }, "scan-webkitdirectory-fallback");
   });
 });

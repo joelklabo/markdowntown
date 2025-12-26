@@ -68,6 +68,9 @@ describe("Scan to workbench export flow", () => {
         await page.getByRole("link", { name: /open workbench/i }).click();
         await page.waitForURL(/\/workbench/);
 
+        await page.getByText(/scan defaults applied/i).waitFor({ state: "visible" });
+        await page.getByText(/GitHub Copilot · cwd \(repo root\)/i).waitFor({ state: "visible" });
+
         await page.getByText("Scopes").waitFor({ state: "visible" });
 
         await page.getByRole("button", { name: /add scope/i }).click();
