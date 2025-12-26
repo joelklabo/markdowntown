@@ -233,7 +233,7 @@ export function ExportPanel() {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-mdt-2">
+      <div className="flex flex-wrap items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
         <Button onClick={() => scheduleCompile(uam)} disabled={loading || uam.targets.length === 0} size="sm">
           {loading ? 'Compiling…' : 'Compile'}
         </Button>

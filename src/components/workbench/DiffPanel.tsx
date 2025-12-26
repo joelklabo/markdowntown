@@ -10,7 +10,7 @@ export function DiffPanel() {
 
   if (!baselineUam) {
     return (
-      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
+      <div className="rounded-mdt-lg border border-dashed border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
         No baseline to compare yet.
       </div>
     );
@@ -21,7 +21,7 @@ export function DiffPanel() {
 
   if (before === after) {
     return (
-      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
+      <div className="rounded-mdt-lg border border-dashed border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
         No changes.
       </div>
     );

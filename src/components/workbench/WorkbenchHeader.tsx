@@ -64,28 +64,32 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
 
   return (
     <div className="border-b border-mdt-border bg-mdt-surface">
-      <div className="flex flex-col gap-mdt-3 px-mdt-4 py-mdt-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-mdt-4 px-mdt-4 py-mdt-4 md:flex-row md:items-center md:justify-between md:px-mdt-6">
         <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             size="sm"
-            className="w-full font-semibold sm:w-64"
+            className="w-full font-semibold sm:w-72 md:w-80"
             aria-label="Agent Title"
           />
-          <Badge tone={visibilityBadge.tone} aria-label={`Visibility: ${visibilityBadge.label}`}>
+          <Badge
+            tone={visibilityBadge.tone}
+            aria-label={`Visibility: ${visibilityBadge.label}`}
+            className="uppercase tracking-wide"
+          >
             {visibilityBadge.label}
           </Badge>
         </div>
 
-        <div className="flex flex-col gap-mdt-3 md:flex-row md:flex-wrap md:items-center md:justify-end">
-          <div className="flex flex-1 flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex flex-col gap-mdt-4 md:flex-row md:flex-wrap md:items-center md:justify-end">
+          <div className="flex flex-1 flex-wrap items-center gap-mdt-2">
             <Select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as ArtifactVisibility)}
               aria-label="Visibility"
               size="sm"
-              className="w-full sm:w-32"
+              className="w-full sm:w-36"
             >
               <option value="PRIVATE">Private</option>
               <option value="UNLISTED">Unlisted</option>
@@ -103,7 +107,7 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
               placeholder="Tags (comma-separated)"
               aria-label="Tags"
               size="sm"
-              className="w-full sm:w-56 md:w-64"
+              className="w-full sm:w-52 md:w-64"
             />
             <Button
               size="sm"
@@ -120,8 +124,8 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
             </Button>
           </div>
 
-          <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-            <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted tabular-nums leading-tight">
+          <div className="flex flex-wrap items-center gap-mdt-3 md:justify-end">
+            <div className="min-w-[180px] rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-[11px] text-mdt-muted tabular-nums leading-snug">
               <div>
                 {autosaveStatus === 'saving'
                   ? 'Draft: saving…'

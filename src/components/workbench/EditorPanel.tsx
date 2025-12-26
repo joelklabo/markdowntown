@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CodeEditor } from '@/components/ui/CodeEditor';
 import { Text } from '@/components/ui/Text';
+import { Badge } from '@/components/ui/Badge';
 import type { UamBlockKindV1 } from '@/lib/uam/uamTypes';
 
 export function EditorPanel() {
@@ -34,11 +35,11 @@ export function EditorPanel() {
 
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-center text-body-sm text-mdt-muted">
-          <div className="mb-mdt-1 text-body-sm font-semibold text-mdt-text">
+        <div className="max-w-md rounded-mdt-lg border border-dashed border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-4 text-center text-body-sm text-mdt-muted">
+          <div className="mb-mdt-2 text-body-sm font-semibold text-mdt-text">
             {hasBlocks ? 'Select a block to edit' : 'Start with a block'}
           </div>
-          <Text size="bodySm" tone="muted" className="mb-mdt-3">
+          <Text size="bodySm" tone="muted" className="mb-mdt-3" leading="relaxed">
             {hasBlocks
               ? 'Choose a block from the list to edit it.'
               : 'Add a block to write your first instructions.'}
@@ -101,18 +102,18 @@ export function EditorPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-mdt-3 flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-mdt-4 flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
         <Input
           value={block.title ?? ''}
           onChange={(e) => updateBlockTitle(block.id, e.target.value || undefined)}
           placeholder="Block title (optional)"
           size="sm"
           aria-label="Block title"
-          className="w-full sm:max-w-md"
+          className="w-full sm:max-w-lg"
         />
-        <span className="inline-flex w-fit items-center rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-mdt-1 text-[11px] font-mono uppercase tracking-wide text-mdt-muted">
+        <Badge tone="neutral" className="w-fit font-mono uppercase tracking-wide">
           {block.kind}
-        </span>
+        </Badge>
       </div>
 
       <CodeEditor

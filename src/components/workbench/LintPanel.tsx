@@ -50,7 +50,7 @@ export function LintPanel() {
 
   if (warnings.length === 0) {
     return (
-      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
+      <div className="rounded-mdt-lg border border-dashed border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3 text-body-sm text-mdt-muted">
         No lint warnings.
       </div>
     );
@@ -59,8 +59,8 @@ export function LintPanel() {
   return (
     <div className="h-full overflow-auto space-y-mdt-4 p-mdt-4">
       {groups.map((group) => (
-        <div key={group.scopeId ?? 'global'} className="rounded-mdt-lg border border-mdt-border bg-mdt-surface shadow-mdt-sm">
-          <div className="flex items-center justify-between gap-mdt-2 border-b border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+        <div key={group.scopeId ?? 'global'} className="overflow-hidden rounded-mdt-lg border border-mdt-border bg-mdt-surface shadow-mdt-sm">
+          <div className="flex items-center justify-between gap-mdt-2 border-b border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3">
             <div className="text-caption font-semibold uppercase tracking-wide text-mdt-text">{group.title}</div>
             <div className="text-caption text-mdt-muted">{group.warnings.length} warning(s)</div>
           </div>

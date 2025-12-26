@@ -23,7 +23,7 @@ export function OutputPanel() {
   };
 
   return (
-    <TabsRoot value={tab} onValueChange={(value) => setTab(value as typeof tab)} className="flex h-full flex-col gap-mdt-4">
+    <TabsRoot value={tab} onValueChange={(value) => setTab(value as typeof tab)} className="flex h-full flex-col gap-mdt-3">
       <TabsList className="w-full">
         <TabsTrigger value="export">Export</TabsTrigger>
         <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -32,8 +32,8 @@ export function OutputPanel() {
       </TabsList>
 
       {!hasBlocks && (
-        <div className="rounded-mdt-md border border-dashed border-mdt-border bg-mdt-surface-subtle p-mdt-3 text-body-sm text-mdt-muted">
-          <div className="mb-mdt-1 text-body-sm font-semibold text-mdt-text">Nothing to export yet</div>
+        <div className="rounded-mdt-lg border border-dashed border-mdt-border bg-mdt-surface-subtle p-mdt-4 text-body-sm text-mdt-muted">
+          <div className="mb-mdt-2 text-body-sm font-semibold text-mdt-text">Nothing to export yet</div>
           <Text size="bodySm" tone="muted" className="mb-mdt-3">
             Add a block to preview and export agents.md.
           </Text>
