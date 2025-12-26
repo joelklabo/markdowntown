@@ -358,6 +358,7 @@ export function ContextSimulator() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [directorySupport, setDirectorySupport] = useState<"unknown" | "supported" | "unsupported">("unknown");
 
+  const scanClarityEnabled = featureFlags.scanClarityV1;
   const quickUploadEnabled = featureFlags.scanQuickUploadV1;
   const canPickDirectory = directorySupport === "supported";
   const directorySupportKnown = directorySupport !== "unknown";
@@ -1005,46 +1006,50 @@ export function ContextSimulator() {
         <Stack gap={5}>
           <Stack gap={1}>
             <Heading level="h2">Scan setup</Heading>
-            <Text tone="muted">
-              Confirm which instruction files load with a fast, local-only scan.
-            </Text>
+            {scanClarityEnabled ? (
+              <Text tone="muted">
+                Confirm which instruction files load with a fast, local-only scan.
+              </Text>
+            ) : null}
           </Stack>
-          <Stack gap={2}>
-            <Stack as="ol" gap={1} className="list-decimal pl-mdt-5 text-body-sm text-mdt-muted">
-              <li>
-                <span className="font-semibold text-mdt-text">Choose a tool.</span>{" "}
-                {quickUploadEnabled
-                  ? "Scan first and adjust the tool afterward if needed."
-                  : "Pick the agent or CLI you want to validate."}
-              </li>
-              <li>
-                <span className="font-semibold text-mdt-text">Set your working directory (cwd).</span> Use your repo
-                root (`.`) unless you need a subfolder.
-              </li>
-              <li>
-                <span className="font-semibold text-mdt-text">Scan a folder.</span> We’ll show what loads, what’s
-                missing, and what to fix next.
-              </li>
+          {scanClarityEnabled ? (
+            <Stack gap={2}>
+              <Stack as="ol" gap={1} className="list-decimal pl-mdt-5 text-body-sm text-mdt-muted">
+                <li>
+                  <span className="font-semibold text-mdt-text">Choose a tool.</span>{" "}
+                  {quickUploadEnabled
+                    ? "Scan first and adjust the tool afterward if needed."
+                    : "Pick the agent or CLI you want to validate."}
+                </li>
+                <li>
+                  <span className="font-semibold text-mdt-text">Set your working directory (cwd).</span> Use your repo
+                  root (`.`) unless you need a subfolder.
+                </li>
+                <li>
+                  <span className="font-semibold text-mdt-text">Scan a folder.</span> We’ll show what loads, what’s
+                  missing, and what to fix next.
+                </li>
+              </Stack>
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                <Text size="bodySm" weight="semibold">
+                  Local-only scan
+                </Text>
+                <Text size="bodySm" tone="muted">
+                  Files are scanned in your browser. Nothing is uploaded.
+                </Text>
+              </div>
+              <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                <Text size="bodySm" weight="semibold">
+                  Quick start
+                </Text>
+                <Text size="bodySm" tone="muted">
+                  {quickUploadEnabled
+                    ? "Click “Scan a folder”, then adjust tool or cwd in Advanced if needed."
+                    : "Choose a tool, set cwd to your repo root (`.`), and scan."}
+                </Text>
+              </div>
             </Stack>
-            <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-              <Text size="bodySm" weight="semibold">
-                Local-only scan
-              </Text>
-              <Text size="bodySm" tone="muted">
-                Files are scanned in your browser. Nothing is uploaded.
-              </Text>
-            </div>
-            <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-              <Text size="bodySm" weight="semibold">
-                Quick start
-              </Text>
-              <Text size="bodySm" tone="muted">
-                {quickUploadEnabled
-                  ? "Click “Scan a folder”, then adjust tool or cwd in Advanced if needed."
-                  : "Choose a tool, set cwd to your repo root (`.`), and scan."}
-              </Text>
-            </div>
-          </Stack>
+          ) : null}
 
           {quickUploadEnabled ? (
             <div className="space-y-mdt-4">
@@ -1393,25 +1398,27 @@ export function ContextSimulator() {
             </div>
           )}
 
-          <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-            <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-              What we scan
-            </Text>
-            <Text tone="muted" size="bodySm">
-              We look for instruction files in root and tool-specific locations. Add or rename files to be loaded.
-            </Text>
-            <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
-              <li>Root instructions (e.g., AGENTS.md, CLAUDE.md, GEMINI.md)</li>
-              <li>Tool configs (e.g., .github/copilot-instructions.md, .windsurfrules)</li>
-              <li>Agent folders (e.g., .github/, .cursor/, .codex/)</li>
-            </ul>
-            <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-              <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">View example tree</summary>
-              <pre className="mt-mdt-2 whitespace-pre-wrap rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-body-xs text-mdt-muted">
-                {SCAN_EXAMPLE_TREE}
-              </pre>
-            </details>
-          </div>
+          {scanClarityEnabled ? (
+            <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+              <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                What we scan
+              </Text>
+              <Text tone="muted" size="bodySm">
+                We look for instruction files in root and tool-specific locations. Add or rename files to be loaded.
+              </Text>
+              <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-body-sm text-mdt-muted">
+                <li>Root instructions (e.g., AGENTS.md, CLAUDE.md, GEMINI.md)</li>
+                <li>Tool configs (e.g., .github/copilot-instructions.md, .windsurfrules)</li>
+                <li>Agent folders (e.g., .github/, .cursor/, .codex/)</li>
+              </ul>
+              <details className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">View example tree</summary>
+                <pre className="mt-mdt-2 whitespace-pre-wrap rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-body-xs text-mdt-muted">
+                  {SCAN_EXAMPLE_TREE}
+                </pre>
+              </details>
+            </div>
+          ) : null}
 
           {!quickUploadEnabled || isStale ? (
             <Button
