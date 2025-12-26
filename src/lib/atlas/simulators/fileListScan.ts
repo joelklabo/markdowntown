@@ -1,6 +1,11 @@
 import type { RepoScanResult, RepoTree, RepoTreeFile } from './types.ts';
 import { DEFAULT_IGNORE_DIRS, DEFAULT_MAX_FILES } from './fsScan.ts';
-import { readInstructionContent, type ContentScanOptions } from './contentScan.ts';
+import {
+  readInstructionContent,
+  type ContentScanOptions,
+  DEFAULT_INSTRUCTION_ALLOWLIST,
+  DEFAULT_MAX_CONTENT_BYTES,
+} from './contentScan.ts';
 
 export type FileLike = {
   name: string;
@@ -67,8 +72,8 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
   const includeOnly = options.includeOnly;
   const includeContent = options.includeContent ?? false;
   const contentOptions: ContentScanOptions = {
-    allowlist: options.contentAllowlist,
-    maxBytes: options.maxContentBytes,
+    allowlist: options.contentAllowlist ?? DEFAULT_INSTRUCTION_ALLOWLIST,
+    maxBytes: options.maxContentBytes ?? DEFAULT_MAX_CONTENT_BYTES,
   };
   const entries: RepoTreeFile[] = [];
 

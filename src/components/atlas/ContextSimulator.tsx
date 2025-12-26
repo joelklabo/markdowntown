@@ -361,8 +361,8 @@ export function ContextSimulator() {
   const directorySupportKnown = directorySupport !== "unknown";
   const directorySupportMessage =
     canPickDirectory || !directorySupportKnown
-      ? "Scans locally in your browser. File contents are never uploaded."
-      : "File System Access API isn’t supported. Use the folder upload below; scans stay local.";
+      ? "Scans locally in your browser. File paths and contents never leave your device."
+      : "File System Access API isn’t supported. Use the folder upload below; scans stay local and nothing is uploaded.";
 
   useEffect(() => {
     const supported = typeof window !== "undefined" && "showDirectoryPicker" in window;
@@ -937,7 +937,7 @@ export function ContextSimulator() {
             <Heading level="h2">Scan setup</Heading>
             <Text tone="muted">
               {quickUploadEnabled
-                ? "Upload a folder to see which instruction files will load. Scans stay in your browser."
+                ? "Upload a folder to preview which instruction files will load. Scans stay local and nothing is uploaded."
                 : "Choose a tool, set the working directory, and scan a folder."}
             </Text>
           </Stack>
@@ -1110,7 +1110,7 @@ export function ContextSimulator() {
                       Optional: content linting
                     </Text>
                     <Text tone="muted" size="bodySm">
-                      Opt in to read instruction file contents locally for linting. Files never leave your browser.
+                      Opt in to read instruction file contents locally for linting. Contents never leave your device.
                     </Text>
                     <Checkbox
                       id="sim-content-linting"
@@ -1251,7 +1251,7 @@ export function ContextSimulator() {
                       Optional: content linting
                     </Text>
                     <Text tone="muted" size="bodySm">
-                      Opt in to read instruction file contents locally for linting. Files never leave your browser.
+                      Opt in to read instruction file contents locally for linting. Contents never leave your device.
                     </Text>
                     <Checkbox
                       id="sim-content-linting"
