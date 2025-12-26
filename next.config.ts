@@ -75,7 +75,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Use Turbopack by default, but allow explicit webpack builds.
+  // Keep Turbopack config available for opt-in dev:turbo runs (default dev disables it).
   turbopack: {},
 };
 
