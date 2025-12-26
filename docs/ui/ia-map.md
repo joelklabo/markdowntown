@@ -60,6 +60,19 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 - `/labs/city-logo`
 - `/tokens`
 
+## Scan funnel entry + exit
+
+### Entry points
+- Nav: Scan → `/atlas/simulator`
+- Home CTA: Scan a folder / Validate instructions
+- Docs quickstart: Scan guide → `/atlas/simulator`
+- Library empty state: "Scan a folder to see what loads"
+
+### Exit points
+- Primary: Results → Open in Workbench (`/workbench`)
+- Secondary: Adjust CWD / Rescan with another tool
+- Tertiary: Export report / Copy results summary
+
 ## Key user journeys
 
 1. **First-time validation**
@@ -79,4 +92,3 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 - “Scan” label in nav maps to `/atlas/simulator`, but Atlas section also has “Explore,” which dilutes hierarchy.
 - “Use a template” CTA routes to `/templates`, but Library also contains templates → duplicate discovery paths.
 - Changelog appears under both `/changelog` and `/atlas/changelog/*` (fragmented update story).
-

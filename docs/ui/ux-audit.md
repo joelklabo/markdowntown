@@ -14,6 +14,12 @@ Scope: Home, Atlas Simulator, Library/Browse, Workbench, Builder, Translate, Doc
   - Issue: “A form field element should have an id or name attribute” (Atlas Simulator: count 2; Workbench: count 5; Translate: count 3+).
 - No blocking runtime errors observed during these checks, but warnings create noise and hide real issues.
 
+## Scan flow summary
+- Entry: nav Scan, Home CTA, and docs quickstart should converge on `/atlas/simulator`.
+- Current risk: Scan setup copy does not explicitly describe what success looks like or where to go next.
+- Primary improvement: make the results panel lead with a Workbench CTA and explain missing patterns in plain language.
+- Supporting doc: `docs/ui/scan-flow.md` captures the target flow and acceptance metrics.
+
 ## Log review (UI impact)
 - `server.log`:
   - Repeated warnings about `import-in-the-middle` / `require-in-the-middle` being externalized (opentelemetry + sentry). This clutters logs and makes UI issues harder to spot.
@@ -40,6 +46,7 @@ Scope: Home, Atlas Simulator, Library/Browse, Workbench, Builder, Translate, Doc
 - High: Users do not know what happens after scan completes; next step panel feels optional and easy to miss.
 - Medium: Tool selection + cwd are presented as form inputs but lack inline examples and validation affordances.
 - Medium: Multiple fields flagged without id/name attributes; a11y risk and DevTools noise.
+- Medium: Results summary is not prioritized; missing patterns should be clearly listed above optional insights.
 
 ### Library/Browse
 - Medium: Search/filters are visually light; results and filters don’t read as a single system.
@@ -80,4 +87,3 @@ Scope: Home, Atlas Simulator, Library/Browse, Workbench, Builder, Translate, Doc
 - Atlas Simulator onboarding + scan result guidance.
 - Builder vs Workbench IA clarification.
 - Docs landing IA and “Get Started” entrypoint.
-
