@@ -2,13 +2,13 @@ import { test, expect } from "@playwright/test";
 import { gotoVisualPage } from "./utils";
 
 test.describe("Home page visual", () => {
-  test("desktop snapshot", async ({ page }) => {
+  test("light mode", async ({ page }) => {
     await gotoVisualPage(page, "/");
-    await expect(page).toHaveScreenshot("home-desktop.png");
+    await expect(page).toHaveScreenshot("home-light.png");
   });
 
-  test("mobile snapshot", async ({ page }) => {
-    await gotoVisualPage(page, "/");
-    await expect(page).toHaveScreenshot("home-mobile.png");
+  test("dark mode", async ({ page }) => {
+    await gotoVisualPage(page, "/", { theme: "dark" });
+    await expect(page).toHaveScreenshot("home-dark.png");
   });
 });
