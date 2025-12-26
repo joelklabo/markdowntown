@@ -1,6 +1,7 @@
 import type { RepoTree, RepoTreeFile } from './types.ts';
 import {
   readInstructionContent,
+  redactSensitivePath,
   type ContentScanOptions,
   DEFAULT_INSTRUCTION_ALLOWLIST,
   DEFAULT_MAX_CONTENT_BYTES,
@@ -13,7 +14,7 @@ export type FileSystemHandleLike = {
 
 export type FileSystemFileHandleLike = FileSystemHandleLike & {
   kind: 'file';
-  getFile?: () => Promise<{ size?: number; text: () => Promise<string> }>;
+  getFile?: () => Promise<{ size?: number; text: () => Promise<string>; arrayBuffer?: () => Promise<ArrayBuffer> }>;
 };
 
 export type FileSystemDirectoryHandleLike = FileSystemHandleLike & {
@@ -97,6 +98,7 @@ async function walk(
       // Guardrail: read contents only when opted-in and allowlisted.
       totalFiles += 1;
       const path = joinPath(prefix, name);
+      const displayPath = redactSensitivePath(path);
       if (!includeOnly || includeOnly.some((pattern) => pattern.test(path))) {
         let content = '';
         let contentStatus: RepoTreeFile['contentStatus'];
@@ -117,7 +119,13 @@ async function walk(
             contentReason = 'unreadable';
           }
         }
-        out.push({ path, content, contentStatus, contentReason });
+        out.push({
+          path,
+          displayPath: displayPath !== path ? displayPath : undefined,
+          content,
+          contentStatus,
+          contentReason,
+        });
         matchedFiles += 1;
       }
     }

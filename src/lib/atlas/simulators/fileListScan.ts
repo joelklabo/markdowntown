@@ -2,6 +2,7 @@ import type { RepoScanResult, RepoTree, RepoTreeFile } from './types.ts';
 import { DEFAULT_IGNORE_DIRS, DEFAULT_MAX_FILES } from './fsScan.ts';
 import {
   readInstructionContent,
+  redactSensitivePath,
   type ContentScanOptions,
   DEFAULT_INSTRUCTION_ALLOWLIST,
   DEFAULT_MAX_CONTENT_BYTES,
@@ -12,6 +13,7 @@ export type FileLike = {
   webkitRelativePath?: string;
   size?: number;
   text?: () => Promise<string>;
+  arrayBuffer?: () => Promise<ArrayBuffer>;
 };
 
 export type FileListLike = Array<FileLike> | { length: number; item: (index: number) => FileLike | null };
@@ -98,10 +100,15 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
       let content = '';
       let contentStatus: RepoTreeFile['contentStatus'];
       let contentReason: RepoTreeFile['contentReason'];
+      const displayPath = redactSensitivePath(path);
       if (includeContent && typeof file.text === 'function') {
         const result = await readInstructionContent(
           path,
-          async () => ({ size: file.size, text: file.text!.bind(file) }),
+          async () => ({
+            size: file.size,
+            text: file.text!.bind(file),
+            arrayBuffer: file.arrayBuffer?.bind(file),
+          }),
           contentOptions,
         );
         if (result.content !== null) {
@@ -115,7 +122,13 @@ export async function scanFileList(files: FileListLike, options: FileListScanOpt
         contentStatus = 'skipped';
         contentReason = 'unreadable';
       }
-      entries.push({ path, content, contentStatus, contentReason });
+      entries.push({
+        path,
+        displayPath: displayPath !== path ? displayPath : undefined,
+        content,
+        contentStatus,
+        contentReason,
+      });
       matchedFiles += 1;
     }
   }

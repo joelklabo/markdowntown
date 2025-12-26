@@ -386,7 +386,7 @@ export function ContextSimulator() {
   const maxContentKb = Math.round(DEFAULT_MAX_CONTENT_BYTES / 1024);
 
   const scannedPreview = useMemo(() => {
-    const paths = (scannedTree?.files ?? []).map((file) => file.path);
+    const paths = (scannedTree?.files ?? []).map((file) => file.displayPath ?? file.path);
     const limit = 200;
     const head = paths.slice(0, limit);
     const suffix = paths.length > limit ? `\n… (${paths.length - limit} more)` : "";

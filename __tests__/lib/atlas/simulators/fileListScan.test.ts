@@ -42,4 +42,31 @@ describe('atlas/simulators/fileListScan', () => {
     expect(result.tree.files.map(file => file.path)).toEqual(['AGENTS.md']);
     expect(result.tree.files.every(file => file.content === '')).toBe(true);
   });
+
+  it('marks binary instruction files as skipped when content is enabled', async () => {
+    const binaryBuffer = new Uint8Array([0, 1, 2, 3]).buffer;
+    const result = await scanFileList(
+      [
+        {
+          name: 'AGENTS.md',
+          webkitRelativePath: 'repo/AGENTS.md',
+          text: async () => 'binary',
+          arrayBuffer: async () => binaryBuffer,
+        },
+      ],
+      { includeContent: true, ignoreDirs: [] },
+    );
+
+    expect(result.tree.files[0]?.contentStatus).toBe('skipped');
+    expect(result.tree.files[0]?.contentReason).toBe('binary');
+  });
+
+  it('redacts sensitive file names in displayPath', async () => {
+    const result = await scanFileList(
+      [{ name: '.env.local', webkitRelativePath: 'repo/.env.local' }],
+      { ignoreDirs: [] },
+    );
+
+    expect(result.tree.files[0]?.displayPath).toBe('[redacted].env');
+  });
 });

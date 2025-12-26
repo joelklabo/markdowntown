@@ -18,9 +18,10 @@ export type ToolDetectionResult = {
 
 export type RepoTreeFile = {
   path: string;
+  displayPath?: string;
   content: string;
   contentStatus?: "loaded" | "truncated" | "skipped";
-  contentReason?: "not-allowlisted" | "too-large" | "unreadable";
+  contentReason?: "not-allowlisted" | "too-large" | "unreadable" | "binary";
 };
 
 export type RepoTree = {

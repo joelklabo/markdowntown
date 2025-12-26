@@ -52,6 +52,7 @@ export function lintInstructionContent(tree: RepoTree): ContentLintResult {
 
   for (const file of tree.files) {
     if (!isAllowlistedInstructionPath(file.path)) continue;
+    const displayPath = file.displayPath ?? file.path;
 
     if (file.contentStatus === 'skipped') {
       skippedFiles += 1;
@@ -61,7 +62,15 @@ export function lintInstructionContent(tree: RepoTree): ContentLintResult {
           severity: 'warning',
           message: `Instruction file is larger than ${Math.round(DEFAULT_MAX_CONTENT_BYTES / 1024)} KB and was skipped.`,
           suggestion: 'Trim the file or split instructions into scoped files.',
-          path: file.path,
+          path: displayPath,
+        });
+      } else if (file.contentReason === 'binary') {
+        issues.push({
+          code: 'content-binary',
+          severity: 'warning',
+          message: 'Instruction file appears to be binary and was skipped.',
+          suggestion: 'Use a plain-text .md file for instructions.',
+          path: displayPath,
         });
       }
       continue;
@@ -78,7 +87,7 @@ export function lintInstructionContent(tree: RepoTree): ContentLintResult {
         severity: 'warning',
         message: `Instruction content was truncated at ${Math.round(DEFAULT_MAX_CONTENT_BYTES / 1024)} KB.`,
         suggestion: 'Trim the file or split instructions into scoped files.',
-        path: file.path,
+        path: displayPath,
       });
     }
 
@@ -88,7 +97,7 @@ export function lintInstructionContent(tree: RepoTree): ContentLintResult {
         severity: 'warning',
         message: 'Scoped Copilot instructions should include applyTo front matter.',
         suggestion: 'Add a YAML header like: ---\napplyTo: "**/*"\n---',
-        path: file.path,
+        path: displayPath,
       });
     }
 
@@ -98,7 +107,7 @@ export function lintInstructionContent(tree: RepoTree): ContentLintResult {
         severity: 'info',
         message: 'Consider adding install/test/lint commands to your instructions.',
         suggestion: 'Include common commands (install, test, lint) so tooling runs are clear.',
-        path: file.path,
+        path: displayPath,
       });
     }
   }
