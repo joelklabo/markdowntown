@@ -13,7 +13,7 @@ type Props = {
 
 export function SnippetActions({ id, slug, title, content, variant = "inline" }: Props) {
   const href = `/snippets/${slug ?? id}`;
-  const builderHref = `/builder?add=${slug ?? id}`;
+  const workbenchHref = `/workbench?add=${slug ?? id}`;
   const actionSize = "sm";
 
   async function copy() {
@@ -40,9 +40,9 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
     }
   }
 
-  function toBuilder() {
+  function toWorkbench() {
     track("snippet_add_builder", { id, slug, title });
-    window.location.href = builderHref;
+    window.location.href = workbenchHref;
   }
 
   function download() {
@@ -63,8 +63,8 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
   if (variant === "bar") {
     return (
       <div className="flex gap-mdt-2">
-        <Button variant="secondary" size={actionSize} onClick={toBuilder} aria-label={`Add ${title} to builder`}>
-          Builder
+        <Button variant="secondary" size={actionSize} onClick={toWorkbench} aria-label={`Add ${title} to Workbench`}>
+          Workbench
         </Button>
         <Button size={actionSize} onClick={copy}>
           Copy
@@ -81,8 +81,8 @@ export function SnippetActions({ id, slug, title, content, variant = "inline" }:
       <Button variant="secondary" size={actionSize} onClick={download}>
         Download
       </Button>
-      <Button variant="secondary" size={actionSize} onClick={toBuilder} aria-label={`Add ${title} to builder`}>
-        Builder
+      <Button variant="secondary" size={actionSize} onClick={toWorkbench} aria-label={`Add ${title} to Workbench`}>
+        Workbench
       </Button>
       <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share link to ${title}`}>
         Share

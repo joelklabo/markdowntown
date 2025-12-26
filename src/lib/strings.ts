@@ -4,7 +4,7 @@ export const strings = {
     browseLibrary: "Browse library",
     copySnippet: "Copy snippet",
     downloadAgents: "Download agents.md",
-    openBuilder: "Open builder",
+    openBuilder: "Open Workbench",
   },
   success: {
     copied: "Copied to clipboard",

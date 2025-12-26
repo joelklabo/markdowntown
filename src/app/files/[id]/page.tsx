@@ -95,7 +95,7 @@ export default async function FileDetail({ params }: { params: Promise<FileParam
                   slug={item.slug ?? item.id}
                   title={item.title}
                   content={renderedContent}
-                  builderHref={`/builder?clone=${item.slug ?? item.id}`}
+                  builderHref={`/workbench?clone=${item.slug ?? item.id}`}
                 />
               </Stack>
               <Stack gap={2} align="end" className="w-full md:w-auto">

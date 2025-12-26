@@ -42,7 +42,7 @@ describe("LibraryCard", () => {
     expect(screen.getByText("5 votes")).toBeInTheDocument();
 
     screen.getByRole("button", { name: /copy snippet demo/i });
-    screen.getByRole("button", { name: /add snippet demo to builder/i });
+    screen.getByRole("button", { name: /add snippet demo to workbench/i });
     screen.getByRole("button", { name: /copy/i }).click();
     expect(onCopy).toHaveBeenCalled();
   });

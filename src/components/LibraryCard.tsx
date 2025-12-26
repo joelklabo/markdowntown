@@ -72,7 +72,7 @@ export function LibraryCard({
   const secondaryAction =
     item.type === "file"
       ? null
-      : { label: "Add to builder", href: `/builder?add=${slug}` };
+      : { label: "Add to Workbench", href: `/workbench?add=${slug}` };
 
   const renderPrimary = () => {
     if (item.type === "snippet" && onCopySnippet) {
@@ -110,7 +110,7 @@ export function LibraryCard({
     if (!secondaryAction) return null;
     if (onAddToBuilder) {
       return (
-        <Button variant="secondary" size={actionSize} onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to builder`}>
+        <Button variant="secondary" size={actionSize} onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to Workbench`}>
           {secondaryAction.label}
         </Button>
       );
@@ -148,7 +148,7 @@ export function LibraryCard({
               onDragStart={onDragStart as React.DragEventHandler<HTMLButtonElement> | undefined}
               onDragEnd={onDragEnd as React.DragEventHandler<HTMLButtonElement> | undefined}
               className="cursor-grab select-none text-mdt-muted hover:text-mdt-text active:cursor-grabbing"
-              aria-label="Drag card to builder"
+              aria-label="Drag card to Workbench"
               onClick={(e) => e.stopPropagation()}
             >
               Drag

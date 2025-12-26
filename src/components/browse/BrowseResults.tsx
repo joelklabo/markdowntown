@@ -62,9 +62,9 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
     }
   }
 
-  function handleBuilder(item: SampleItem) {
+  function handleWorkbench(item: SampleItem) {
     track("browse_card_add_builder", { id: item.id, type: item.type });
-    window.location.href = `/builder?add=${item.slug ?? item.id}`;
+    window.location.href = `/workbench?add=${item.slug ?? item.id}`;
   }
 
   function handleDragStart(item: SampleItem) {
@@ -153,7 +153,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
           item={item}
           copied={copiedId === item.id}
           onCopySnippet={item.type === "snippet" ? handleCopy : undefined}
-          onAddToBuilder={item.type !== "file" ? handleBuilder : undefined}
+          onAddToBuilder={item.type !== "file" ? handleWorkbench : undefined}
           onUseTemplate={item.type === "template" ? handleUseTemplate : undefined}
           onDownloadFile={item.type === "file" ? handleDownload : undefined}
           onPreview={
@@ -211,8 +211,8 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
                 Close
               </Button>
               {preview.type !== "file" && (
-                <Button variant="secondary" size="sm" onClick={() => handleBuilder(preview)}>
-                  Add to builder
+                <Button variant="secondary" size="sm" onClick={() => handleWorkbench(preview)}>
+                  Add to Workbench
                 </Button>
               )}
               {preview.type === "template" && (

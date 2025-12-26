@@ -69,7 +69,7 @@ export function FileActions({ id, slug, title, content, builderHref, variant = "
       </Button>
       {builderHref && (
         <Button variant="ghost" size={actionSize} asChild>
-          <Link href={builderHref}>Clone to builder</Link>
+          <Link href={builderHref}>Open in Workbench</Link>
         </Button>
       )}
     </div>

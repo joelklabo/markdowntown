@@ -13,7 +13,7 @@ type Props = {
 
 export function TemplateActions({ id, slug, title, rendered, variant = "inline" }: Props) {
   const detailHref = `/templates/${slug ?? id}`;
-  const builderHref = `/builder?template=${slug ?? id}`;
+  const workbenchHref = `/workbench?template=${slug ?? id}`;
   const actionSize = "sm";
 
   async function copy() {
@@ -40,9 +40,9 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
     }
   }
 
-  function useBuilder() {
+  function useWorkbench() {
     track("template_use_builder", { id, slug, title });
-    window.location.href = builderHref;
+    window.location.href = workbenchHref;
   }
 
   async function share() {
@@ -63,8 +63,8 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
   if (variant === "bar") {
     return (
       <div className="flex w-full gap-mdt-2">
-        <Button size={actionSize} onClick={useBuilder} className="flex-1" aria-label={`Use ${title} in builder`}>
-          Builder
+        <Button size={actionSize} onClick={useWorkbench} className="flex-1" aria-label={`Use ${title} in Workbench`}>
+          Workbench
         </Button>
         <Button variant="secondary" size={actionSize} onClick={copy}>
           Copy
@@ -75,8 +75,8 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
 
   return (
     <div className="flex flex-wrap items-center gap-mdt-2">
-      <Button size={actionSize} onClick={useBuilder} aria-label={`Use ${title} in builder`}>
-        Use in Builder
+      <Button size={actionSize} onClick={useWorkbench} aria-label={`Use ${title} in Workbench`}>
+        Use in Workbench
       </Button>
       <Button variant="secondary" size={actionSize} onClick={copy}>
         Copy
