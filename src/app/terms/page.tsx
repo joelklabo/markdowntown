@@ -56,6 +56,9 @@ export default function TermsPage() {
                 <Text as="li" size="bodySm" tone="muted" leading="relaxed">
                   Optional analytics capture high-level events only when configured.
                 </Text>
+                <Text as="li" size="bodySm" tone="muted" leading="relaxed">
+                  When analytics are enabled, file paths, cwd values, and folder names are redacted before events are sent.
+                </Text>
               </ul>
             </Surface>
           </div>

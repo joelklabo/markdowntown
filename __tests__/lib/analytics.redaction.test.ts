@@ -56,6 +56,27 @@ describe("redactAnalyticsPayload", () => {
     });
   });
 
+  it("redacts scan payloads while preserving counters", () => {
+    const input = {
+      method: "directory_picker",
+      tool: "codex",
+      cwd: "/Users/name/secret-repo",
+      totalFiles: 120,
+      matchedFiles: 42,
+      truncated: false,
+      rootName: "secret-repo",
+      scannedPaths: ["src/index.ts"],
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual({
+      method: "directory_picker",
+      tool: "codex",
+      totalFiles: 120,
+      matchedFiles: 42,
+      truncated: false,
+    });
+  });
+
   it("returns undefined when given undefined", () => {
     expect(redactAnalyticsPayload(undefined)).toBeUndefined();
   });
