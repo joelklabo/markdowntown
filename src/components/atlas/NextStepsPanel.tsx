@@ -23,6 +23,13 @@ const severityLabel: Record<NextStepSeverity, string> = {
   ready: "Ready",
 };
 
+const severityPriority: Record<NextStepSeverity, number> = {
+  error: 0,
+  warning: 1,
+  info: 2,
+  ready: 3,
+};
+
 type NextStepsPanelProps = {
   steps: NextStep[];
   title?: string;
@@ -44,15 +51,22 @@ export function NextStepsPanel({
 }: NextStepsPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
+  const orderedSteps = useMemo(() => {
+    if (steps.length <= 1) return steps;
+    return [...steps].sort((a, b) => severityPriority[a.severity] - severityPriority[b.severity]);
+  }, [steps]);
+
   const { visibleSteps, hiddenCount } = useMemo(() => {
-    if (expanded || steps.length <= maxVisible) {
-      return { visibleSteps: steps, hiddenCount: 0 };
+    if (expanded || orderedSteps.length <= maxVisible) {
+      return { visibleSteps: orderedSteps, hiddenCount: 0 };
     }
     return {
-      visibleSteps: steps.slice(0, maxVisible),
-      hiddenCount: steps.length - maxVisible,
+      visibleSteps: orderedSteps.slice(0, maxVisible),
+      hiddenCount: orderedSteps.length - maxVisible,
     };
-  }, [expanded, maxVisible, steps]);
+  }, [expanded, maxVisible, orderedSteps]);
+
+  const primaryStepId = orderedSteps[0]?.id;
 
   const handleAction = (action: NextStepAction, step: NextStep) => {
     onAction?.(action, step);
@@ -77,13 +91,20 @@ export function NextStepsPanel({
             {visibleSteps.map((step) => {
               const hasActions = Boolean(step.primaryAction || step.secondaryActions?.length);
               const primaryAction = step.primaryAction;
+              const isPrimary = step.id === primaryStepId;
               return (
                 <div
                   key={step.id}
-                  className="flex flex-col gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3"
+                  className={cn(
+                    "flex flex-col gap-mdt-3 rounded-mdt-lg border px-mdt-4 py-mdt-3",
+                    isPrimary ? "border-mdt-border-strong bg-mdt-surface-raised" : "border-mdt-border bg-mdt-surface-subtle"
+                  )}
                 >
                   <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-start">
-                    <Badge tone={severityTone[step.severity]}>{severityLabel[step.severity]}</Badge>
+                    <div className="flex flex-wrap items-center gap-mdt-2">
+                      <Badge tone={severityTone[step.severity]}>{severityLabel[step.severity]}</Badge>
+                      {isPrimary ? <Badge tone="info">Start here</Badge> : null}
+                    </div>
                     <Stack gap={1} className="flex-1">
                       <Text weight="semibold">{step.title}</Text>
                       <Text size="bodySm" tone="muted" leading="relaxed">

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -494,6 +495,33 @@ export function ContextSimulator() {
     const missingLabel = `${missingCount} missing pattern${missingCount === 1 ? "" : "s"}`;
     const warningLabel = `${warningCount} warning${warningCount === 1 ? "" : "s"}`;
     return `Scan found ${loadedLabel}, ${missingLabel}, and ${warningLabel}. Start with the highest-impact fix below.`;
+  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length]);
+  const resultsSummary = useMemo(() => {
+    if (result.loaded.length === 0) {
+      return "No instruction files would load yet. Start with Next steps or adjust tool/cwd.";
+    }
+    if (scanMeta?.truncated) {
+      return "Scan truncated. Results may be incomplete—consider narrowing the folder.";
+    }
+    if (insights.missingFiles.length === 0 && result.warnings.length === 0) {
+      return "All expected instruction files were found. You're ready to move to Workbench.";
+    }
+    if (insights.missingFiles.length > 0) {
+      return "Missing patterns found. Add the files or use templates, then re-scan.";
+    }
+    if (result.warnings.length > 0) {
+      return "Warnings detected. Review them before continuing.";
+    }
+    return "Review the results and move on when ready.";
+  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length, scanMeta?.truncated]);
+  const workbenchCtaBody = useMemo(() => {
+    if (result.loaded.length === 0) {
+      return "Open Workbench to add or edit instructions, or scan again after updates.";
+    }
+    if (insights.missingFiles.length > 0 || result.warnings.length > 0) {
+      return "Open Workbench to fix missing files and review warnings before exporting.";
+    }
+    return "Open Workbench to keep editing or export a shareable report.";
   }, [insights.missingFiles.length, result.loaded.length, result.warnings.length]);
   const contentLintResult = useMemo(() => {
     if (!contentLintOptIn || repoSource !== "folder") return null;
@@ -1379,7 +1407,7 @@ export function ContextSimulator() {
                 <div className="space-y-mdt-1">
                   <Text weight="semibold">Scan complete</Text>
                   <Text tone="muted" size="bodySm">
-                    Open Workbench to keep editing, or view the report for a shareable summary.
+                    {workbenchCtaBody}
                   </Text>
                 </div>
                 <div className="flex flex-wrap gap-mdt-2">
@@ -1412,11 +1440,23 @@ export function ContextSimulator() {
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
                 Summary
               </Text>
+              <div className="flex flex-wrap items-center gap-mdt-2">
+                <Badge tone={result.loaded.length === 0 ? "warning" : "success"}>
+                  Loaded {result.loaded.length}
+                </Badge>
+                <Badge tone={insights.missingFiles.length > 0 ? "warning" : "success"}>
+                  Missing {insights.missingFiles.length}
+                </Badge>
+                <Badge tone={extraInstructionFiles.length > 0 ? "info" : "success"}>
+                  Extra {extraInstructionFiles.length}
+                </Badge>
+                <Badge tone={result.warnings.length > 0 ? "warning" : "success"}>
+                  Warnings {result.warnings.length}
+                </Badge>
+                {scanMeta?.truncated ? <Badge tone="warning">Scan truncated</Badge> : null}
+              </div>
               <Text size="bodySm" tone="muted">
-                {result.loaded.length} loaded, {insights.missingFiles.length} missing pattern
-                {insights.missingFiles.length === 1 ? "" : "s"}, {extraInstructionFiles.length} extra instruction file
-                {extraInstructionFiles.length === 1 ? "" : "s"}, {result.warnings.length} warning
-                {result.warnings.length === 1 ? "" : "s"}.
+                {resultsSummary}
               </Text>
             </div>
 
@@ -1455,7 +1495,10 @@ export function ContextSimulator() {
                 <ul className="space-y-mdt-2" aria-label="Warnings">
                   {result.warnings.map((warning) => (
                     <li key={warning.code} className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-                      <div className="text-body-sm font-semibold text-mdt-text">{warning.code}</div>
+                      <div className="flex flex-wrap items-center gap-mdt-2">
+                        <Badge tone="warning">Warning</Badge>
+                        <div className="text-body-sm font-semibold text-mdt-text">{warning.code}</div>
+                      </div>
                       <div className="text-body-xs text-mdt-muted">{warning.message}</div>
                     </li>
                   ))}
@@ -1472,6 +1515,11 @@ export function ContextSimulator() {
                 Actions
               </Text>
               <div className="flex flex-wrap gap-mdt-2">
+                {lastSimulatedPaths.length > 0 ? (
+                  <Button type="button" asChild>
+                    <Link href="/workbench">Open Workbench</Link>
+                  </Button>
+                ) : null}
                 <Button type="button" variant="secondary" onClick={handleCopySummary}>
                   Copy summary
                 </Button>

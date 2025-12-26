@@ -125,13 +125,17 @@ export function InstructionHealthPanel({ diagnostics, copySummaryText }: Instruc
               const suggestion = item.suggestion ?? (item.expectedPath ? `Expected path: ${item.expectedPath}` : null);
               const examplePath = item.expectedPath ?? template?.path ?? null;
               const showWorkbench = shouldSuggestWorkbench(item);
+              const isMissing = item.code.startsWith("missing.") || item.code === "override-without-base";
               return (
                 <li
                   key={`${item.code}-${index}`}
-                  className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2"
+                  className={`rounded-mdt-md border px-mdt-3 py-mdt-2 ${
+                    isMissing ? "border-mdt-border-strong bg-mdt-surface-raised" : "border-mdt-border bg-mdt-surface"
+                  }`}
                 >
                   <div className="flex flex-wrap items-center gap-mdt-2">
                     <Badge tone={severityTone[item.severity]}>{severityLabel[item.severity]}</Badge>
+                    {isMissing ? <Badge tone="warning">Missing file</Badge> : null}
                     <Text size="bodySm" weight="semibold">
                       {item.message}
                     </Text>
