@@ -68,4 +68,25 @@ describe("SimulatorInsights summary", () => {
     expect(screen.getByText(/Next step: add the missing instruction file/i)).toBeInTheDocument();
     expect(screen.getByText(/scan was truncated due to file limits/i)).toBeInTheDocument();
   });
+
+  it("renders expected patterns and precedence notes lists", () => {
+    const insights: SimulatorInsightsData = {
+      tool: "codex-cli",
+      expectedPatterns: [
+        { id: "codex-root", label: "Root instructions", pattern: "AGENTS.md" },
+        { id: "codex-override", label: "Root override", pattern: "AGENTS.override.md" },
+      ],
+      foundFiles: ["AGENTS.md"],
+      missingFiles: [],
+      precedenceNotes: ["Overrides win in the same folder.", "Deeper paths take precedence."],
+    };
+
+    render(<SimulatorInsights insights={insights} extraFiles={[]} />);
+
+    const expectedList = screen.getByRole("list", { name: "Expected patterns" });
+    expect(expectedList.querySelectorAll("li")).toHaveLength(2);
+
+    const notesList = screen.getByRole("list", { name: "Precedence notes" });
+    expect(notesList.querySelectorAll("li")).toHaveLength(2);
+  });
 });

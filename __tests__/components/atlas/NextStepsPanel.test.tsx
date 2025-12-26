@@ -42,4 +42,47 @@ describe("NextStepsPanel", () => {
     expect(screen.getByText("Error")).toBeInTheDocument();
     expect(screen.getByText("Add the root instruction file")).toBeInTheDocument();
   });
+
+  it("orders steps by severity and highlights the primary CTA", async () => {
+    const onAction = vi.fn();
+    const steps: NextStep[] = [
+      {
+        id: "info-step",
+        severity: "info",
+        title: "Review expected patterns",
+        body: "Check the patterns we scan.",
+        primaryAction: { id: "open-docs", label: "Open docs" },
+      },
+      {
+        id: "error-step",
+        severity: "error",
+        title: "Fix critical issue",
+        body: "Missing root instructions.",
+        primaryAction: { id: "copy-template", label: "Copy template" },
+        secondaryActions: [{ id: "open-docs", label: "Open docs" }],
+      },
+      {
+        id: "warning-step",
+        severity: "warning",
+        title: "Set cwd",
+        body: "Ancestor scans depend on cwd.",
+        primaryAction: { id: "set-cwd", label: "Set cwd" },
+      },
+    ];
+
+    const { container } = render(<NextStepsPanel steps={steps} onAction={onAction} />);
+
+    const titles = Array.from(container.querySelectorAll("p.font-semibold")).map((node) => node.textContent);
+    expect(titles).toEqual([
+      "Fix critical issue",
+      "Set cwd",
+      "Review expected patterns",
+    ]);
+
+    expect(screen.getByText("Start here")).toBeInTheDocument();
+
+    const openDocsButtons = screen.getAllByRole("button", { name: "Open docs" });
+    await userEvent.click(openDocsButtons[0]);
+    expect(onAction).toHaveBeenCalledWith(steps[1].secondaryActions?.[0], steps[1]);
+  });
 });

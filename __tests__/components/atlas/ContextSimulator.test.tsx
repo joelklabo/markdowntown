@@ -166,6 +166,38 @@ describe("ContextSimulator", () => {
     restorePicker(originalPicker);
   });
 
+  it("shows scanning progress while a scan is in flight", async () => {
+    let release: (() => void) | undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const delayedHandle: MockHandle = {
+      kind: "directory",
+      name: "repo",
+      async *entries() {
+        await gate;
+        const child = file("AGENTS.md");
+        yield [child.name, child];
+      },
+    };
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: async () => delayedHandle,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
+    expect(screen.getAllByText("Scanning…").length).toBeGreaterThan(0);
+
+    release?.();
+    expect(await screen.findByText(/1 instruction file found.*1 total file scanned/i)).toBeInTheDocument();
+
+    restorePicker(originalPicker);
+  });
+
   it("auto-detects tool and cwd after quick upload scan", async () => {
     featureFlags.scanQuickUploadV1 = true;
     const rootHandle = dir("repo", [file("AGENTS.md"), dir("apps", [dir("web", [file("AGENTS.md")])])]);
