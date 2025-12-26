@@ -13,6 +13,7 @@ export type ToolDetectionResult = {
   tool: SimulatorToolId | null;
   confidence: ToolDetectionConfidence;
   candidates: ToolDetectionCandidate[];
+  matchedTools: SimulatorToolId[];
   isMixed: boolean;
 };
 

@@ -136,6 +136,7 @@ export function detectTool(paths: string[]): ToolDetectionResult {
       tool: null,
       confidence: 'none',
       candidates: [],
+      matchedTools: [],
       isMixed: false,
     };
   }
@@ -143,12 +144,14 @@ export function detectTool(paths: string[]): ToolDetectionResult {
   const topScore = candidates[0].score;
   const topCandidates = candidates.filter((candidate) => candidate.score === topScore);
   const isMixed = candidates.length > 1;
+  const matchedTools = candidates.map((candidate) => candidate.tool);
 
   if (topCandidates.length > 1) {
     return {
       tool: null,
       confidence: 'low',
       candidates,
+      matchedTools,
       isMixed: true,
     };
   }
@@ -163,6 +166,7 @@ export function detectTool(paths: string[]): ToolDetectionResult {
     tool: top.tool,
     confidence,
     candidates,
+    matchedTools,
     isMixed,
   };
 }

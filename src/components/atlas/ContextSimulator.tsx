@@ -460,15 +460,29 @@ export function ContextSimulator() {
     if (!toolDetection) return null;
     if (toolDetection.tool) {
       const candidate = toolDetection.candidates.find((item) => item.tool === toolDetection.tool);
+      const otherTools = toolDetection.matchedTools.filter((item) => item !== toolDetection.tool);
+      const mixedNote = toolDetection.isMixed
+        ? otherTools.length > 0
+          ? `Also found: ${otherTools.map((item) => toolLabel(item)).join(", ")}. Switch tools if needed.`
+          : "Other tool instruction files were found—switch tools if you want a different scan."
+        : null;
       return {
         title: `Detected: ${toolLabel(toolDetection.tool)}`,
-        body: candidate?.reason ? `${candidate.reason}.` : "Matched known instruction files.",
+        body: [
+          candidate?.reason ? `${candidate.reason}.` : "Matched known instruction files.",
+          mixedNote,
+        ]
+          .filter(Boolean)
+          .join(" "),
       };
     }
     if (toolDetection.isMixed) {
+      const toolList = toolDetection.matchedTools.map((item) => toolLabel(item)).join(", ");
       return {
         title: "Multiple tool formats detected",
-        body: "Choose which tool to validate.",
+        body: toolList
+          ? `Found instruction files for ${toolList}. Choose the tool you want to validate.`
+          : "Found instruction files for more than one tool. Choose the tool you want to validate.",
       };
     }
     return {
@@ -658,7 +672,7 @@ export function ContextSimulator() {
     if (!quickUploadEnabled) return {};
     const detection = detectTool(paths);
     setToolDetection(detection);
-    if (detection.tool && !detection.isMixed) {
+    if (detection.tool && detection.confidence !== "low") {
       return {
         tool: detection.tool,
         cwd: suggestCwdFromDetection(detection),
