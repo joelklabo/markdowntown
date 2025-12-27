@@ -24,7 +24,7 @@ export function WorkbenchOnboardingCard() {
         <div className="space-y-mdt-1">
           <Text size="caption" tone="muted">Start here</Text>
           <Heading level="h3" as="h2">Build an agents.md</Heading>
-          <Text tone="muted">Add scopes, write instruction blocks, then export.</Text>
+          <Text tone="muted">Add scopes, write instruction blocks, define skills, then export.</Text>
         </div>
 
         <ol className="space-y-mdt-2 text-body-sm text-mdt-muted">
@@ -38,6 +38,10 @@ export function WorkbenchOnboardingCard() {
           </li>
           <li className="flex gap-mdt-2">
             <span className="font-semibold text-mdt-text">3.</span>
+            <span>Add skills to describe reusable capabilities.</span>
+          </li>
+          <li className="flex gap-mdt-2">
+            <span className="font-semibold text-mdt-text">4.</span>
             <span>Preview and export your agents.md.</span>
           </li>
         </ol>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScopesPanel } from './ScopesPanel';
 import { BlocksPanel } from './BlocksPanel';
+import { SkillsPanel } from './SkillsPanel';
 import { Text } from '@/components/ui/Text';
 
 export function StructurePanel() {
@@ -25,15 +26,17 @@ export function StructurePanel() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-mdt-3">
+    <div className="flex h-full min-h-0 flex-col gap-mdt-3 overflow-y-auto pr-mdt-2">
       <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
         <Text size="caption" tone="muted" leading="relaxed">
-          Scopes target folders. Blocks are the instruction sections inside each scope.
+          Scopes target folders. Blocks are the instruction sections inside each scope. Skills capture reusable capabilities.
         </Text>
       </div>
       <ScopesPanel />
       <div className="h-px bg-mdt-border" />
       <BlocksPanel />
+      <div className="h-px bg-mdt-border" />
+      <SkillsPanel />
     </div>
   );
 }
