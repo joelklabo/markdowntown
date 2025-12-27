@@ -3,6 +3,8 @@
 ## Goal
 Provide a curated set of Codex skills that cover core markdowntown workflows: scan → workbench → export, testing, docs, analytics/privacy, and beads (bd) operations.
 
+See `docs/skills/index.md` for the quick overview and maintenance steps.
+
 ## Skill inventory
 
 | Skill name | Trigger phrases (examples) | Intended scope | Primary workflows |
