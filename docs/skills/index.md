@@ -15,7 +15,10 @@
 - Installed skills sync to `~/.codex/skills/<skill-name>/`.
 
 ## Maintenance workflow
-1. Update `codex/skills/<skill>/SKILL.md` or references.
-2. Validate: `node scripts/codex/validate-skills.mjs`.
-3. Sync: `scripts/codex/sync-skills.sh --verbose`.
-4. Re-run Codex CLI if needed to reload skills.
+1. Initialize a new skill: `scripts/codex/init-skill.sh <skill-name> [resources]`.
+2. Update `codex/skills/<skill>/SKILL.md` or references.
+3. Validate: `node scripts/codex/validate-skills.mjs`.
+4. Sync: `scripts/codex/sync-skills.sh --verbose`.
+5. Re-run Codex CLI if needed to reload skills.
+
+Note: this repo uses `scripts/codex/init-skill.sh` instead of the `init_skill.py` helper referenced in generic Codex guidance.
