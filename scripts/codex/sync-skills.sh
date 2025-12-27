@@ -52,4 +52,8 @@ for skill_dir in "$SRC_DIR"/*; do
   cp -a "$skill_dir" "$target"
 done
 
-echo "Synced skills to $DEST_DIR"
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "Dry-run complete. No changes written to $DEST_DIR."
+else
+  echo "Synced skills to $DEST_DIR"
+fi

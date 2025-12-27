@@ -5,14 +5,17 @@ import path from 'node:path';
 
 const args = process.argv.slice(2);
 let root = process.cwd();
+let showSmokeHints = false;
 
 for (let i = 0; i < args.length; i += 1) {
   const arg = args[i];
   if (arg === '--root' && args[i + 1]) {
     root = path.resolve(args[i + 1]);
     i += 1;
+  } else if (arg === '--smoke') {
+    showSmokeHints = true;
   } else if (arg === '--help') {
-    console.log('Usage: node scripts/codex/validate-skills.mjs [--root <path>]');
+    console.log('Usage: node scripts/codex/validate-skills.mjs [--root <path>] [--smoke]');
     process.exit(0);
   }
 }
@@ -127,3 +130,10 @@ if (errors.length > 0) {
 }
 
 console.log('Skill validation passed.');
+
+if (showSmokeHints) {
+  console.log('\nSmoke check hints:');
+  console.log('- Run: scripts/codex/sync-skills.sh --verbose');
+  console.log('- In Codex CLI: /skills and confirm all markdowntown-* skills appear.');
+  console.log('- Prompt examples: \"workbench export\", \"scan flow\", \"run tests\", \"analytics redaction\".');
+}
