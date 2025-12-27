@@ -6,7 +6,7 @@ import type { PublicSkillDetail } from '@/lib/skills/skillTypes';
 import { createEmptyUamV1 } from '@/lib/uam/uamTypes';
 
 vi.mock('next/link', () => {
-  type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children: React.ReactNode };
+  type LinkProps = React.HTMLAttributes<HTMLSpanElement> & { href: string; children: React.ReactNode };
   return {
     __esModule: true,
     default: ({ href, children, onClick, ...rest }: LinkProps) => (

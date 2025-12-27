@@ -23,6 +23,8 @@ describe("Workbench flow", () => {
       await page.goto("/workbench", { waitUntil: "domcontentloaded" });
 
       await page.getByText("Scopes").waitFor({ state: "visible" });
+      await page.getByText("Skills").waitFor({ state: "visible" });
+      await page.getByText("No skills yet").waitFor({ state: "visible" });
 
       await page.getByRole("button", { name: /add scope/i }).click();
       await page.getByLabel("Scope glob pattern").fill("README.md");
