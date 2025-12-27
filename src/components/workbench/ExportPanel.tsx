@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Radio } from '@/components/ui/Radio';
 import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
-import { track } from '@/lib/analytics';
+import { track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/analytics';
 import { applySkillExportSelection, getSkillExportSelection, type SkillExportSelection } from '@/lib/skills/skillExport';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
@@ -135,6 +135,12 @@ export function ExportPanel() {
     if (!target) return;
     const options = applySkillExportSelection(target.options ?? {}, selection);
     updateTarget(targetId, { options });
+    trackSkillExportConfig({
+      targetId,
+      mode: selection.mode,
+      allowListCount: selection.allowList.length,
+      totalSkills: skills.length,
+    });
   };
 
   const handleDownload = async () => {
@@ -145,6 +151,11 @@ export function ExportPanel() {
       track('workbench_export_download', {
         targetIds,
         fileCount: result.files.length,
+      });
+      trackSkillExportAction({
+        action: 'download',
+        targetIds,
+        skillCount: uam.capabilities.length,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -384,6 +395,12 @@ export function ExportPanel() {
                         track('workbench_export_copy', {
                           path: f.path,
                           targetId: uam.targets.length === 1 ? uam.targets[0]?.targetId : undefined,
+                        });
+                        trackSkillExportAction({
+                          action: 'copy',
+                          path: f.path,
+                          targetId: uam.targets.length === 1 ? uam.targets[0]?.targetId : undefined,
+                          skillCount: uam.capabilities.length,
                         });
                       } catch {
                         // ignore

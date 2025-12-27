@@ -12,6 +12,8 @@ vi.mock('@/lib/compile/zip', () => ({
 
 vi.mock('@/lib/analytics', () => ({
   track: vi.fn(),
+  trackSkillExportAction: vi.fn(),
+  trackSkillExportConfig: vi.fn(),
 }));
 
 global.URL.createObjectURL = vi.fn(() => 'blob:url');

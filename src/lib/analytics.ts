@@ -100,3 +100,59 @@ export function trackError(event: string, error: Error, properties?: Record<stri
     ...properties,
   });
 }
+
+export function trackSkillsListView(properties: {
+  count: number;
+  q?: string;
+  tags?: string[];
+  targets?: string[];
+  sort?: string;
+}) {
+  trackUiEvent("skills_list_view", properties);
+}
+
+export function trackSkillDetailView(properties: {
+  id: string;
+  slug?: string;
+  title?: string;
+  targets?: string[];
+  capabilityCount?: number;
+}) {
+  trackUiEvent("skills_detail_view", properties);
+}
+
+export function trackSkillOpenWorkbench(properties: {
+  id: string;
+  slug?: string;
+  title?: string;
+  source: string;
+}) {
+  trackUiEvent("skills_open_workbench", properties);
+}
+
+export function trackSkillExportConfig(properties: {
+  targetId: string;
+  mode: string;
+  allowListCount: number;
+  totalSkills: number;
+}) {
+  trackUiEvent("skills_export_config", properties);
+}
+
+export function trackSkillExportAction(properties: {
+  action: "download" | "copy";
+  targetIds?: string[];
+  targetId?: string;
+  path?: string;
+  skillCount: number;
+}) {
+  trackUiEvent("skills_export_action", properties);
+}
+
+export function trackSkillWorkbenchEdit(properties: {
+  action: "add" | "remove" | "select" | "update";
+  id?: string;
+  field?: string;
+}) {
+  trackUiEvent("skills_workbench_edit", properties);
+}

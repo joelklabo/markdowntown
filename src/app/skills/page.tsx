@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/Text";
 import { SkillsFilters } from "@/components/skills/SkillsFilters";
 import { SkillsList } from "@/components/skills/SkillsList";
 import { SkillsEmptyState } from "@/components/skills/SkillsEmptyState";
+import { SkillsListTracker } from "@/components/skills/SkillsListTracker";
 import type { ListPublicSkillsInput } from "@/lib/skills/skillTypes";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +70,7 @@ export default async function SkillsPage(props: { searchParams: Promise<SearchPa
   return (
     <Container className="py-mdt-10 md:py-mdt-12">
       <Stack gap={8}>
+        <SkillsListTracker count={skills.length} q={q} tags={tags} targets={targets} sort={sort} />
         <Stack gap={2}>
           <Text size="caption" tone="muted" className="uppercase tracking-wide">
             Skills library

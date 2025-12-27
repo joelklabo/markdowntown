@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { TextArea } from '@/components/ui/TextArea';
 import { cn } from '@/lib/cn';
+import { trackSkillWorkbenchEdit } from '@/lib/analytics';
 
 function formatParams(params?: Record<string, unknown>) {
   if (!params || Object.keys(params).length === 0) return '';
@@ -50,6 +51,7 @@ export function SkillsPanel() {
 
   const handleAdd = () => {
     const id = addSkill({ title: 'New skill' });
+    trackSkillWorkbenchEdit({ action: 'add', id });
     selectSkill(id);
   };
 
@@ -62,6 +64,7 @@ export function SkillsPanel() {
     }
     setParamsError(null);
     updateSkill(selectedSkill.id, { params: result.value });
+    trackSkillWorkbenchEdit({ action: 'update', id: selectedSkill.id, field: 'params' });
   };
 
   return (
@@ -90,7 +93,10 @@ export function SkillsPanel() {
             >
               <button
                 type="button"
-                onClick={() => selectSkill(skill.id)}
+                onClick={() => {
+                  selectSkill(skill.id);
+                  trackSkillWorkbenchEdit({ action: 'select', id: skill.id });
+                }}
                 className="flex-1 min-w-0 text-left"
                 aria-current={selected ? 'true' : undefined}
               >
@@ -102,6 +108,7 @@ export function SkillsPanel() {
                 onClick={(e) => {
                   e.stopPropagation();
                   removeSkill(skill.id);
+                  trackSkillWorkbenchEdit({ action: 'remove', id: skill.id });
                 }}
                 className="px-mdt-1 text-mdt-muted opacity-0 group-hover:opacity-100 hover:text-mdt-danger"
                 aria-label="Remove skill"
@@ -142,6 +149,7 @@ export function SkillsPanel() {
               name="skillTitle"
               value={selectedSkill.title ?? ''}
               onChange={(e) => updateSkill(selectedSkill.id, { title: e.target.value })}
+              onBlur={() => trackSkillWorkbenchEdit({ action: 'update', id: selectedSkill.id, field: 'title' })}
               placeholder="Short skill title"
               size="sm"
             />
@@ -156,6 +164,7 @@ export function SkillsPanel() {
               name="skillDescription"
               value={selectedSkill.description ?? ''}
               onChange={(e) => updateSkill(selectedSkill.id, { description: e.target.value })}
+              onBlur={() => trackSkillWorkbenchEdit({ action: 'update', id: selectedSkill.id, field: 'description' })}
               placeholder="What does this skill do?"
               size="sm"
               rows={3}

@@ -8,6 +8,7 @@ import { Row, Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { cn } from "@/lib/cn";
 import type { PublicSkillSummary } from "@/lib/skills/skillTypes";
+import { trackSkillOpenWorkbench } from "@/lib/analytics";
 
 const TARGET_LABELS: Record<string, string> = {
   "agents-md": "Codex CLI",
@@ -104,7 +105,19 @@ export function SkillCard({ skill, className, ...rest }: { skill: PublicSkillSum
           <Link href={detailHref}>View skill</Link>
         </Button>
         <Button size="sm" variant="secondary" asChild>
-          <Link href={`/workbench?id=${skill.id}`}>Open in Workbench</Link>
+          <Link
+            href={`/workbench?id=${skill.id}`}
+            onClick={() =>
+              trackSkillOpenWorkbench({
+                id: skill.id,
+                slug,
+                title: skill.title,
+                source: "skills_list",
+              })
+            }
+          >
+            Open in Workbench
+          </Link>
         </Button>
       </div>
     </Card>

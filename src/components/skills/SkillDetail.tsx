@@ -8,6 +8,7 @@ import { Text } from "@/components/ui/Text";
 import type { PublicSkillDetail } from "@/lib/skills/skillTypes";
 import { SkillMetadata } from "@/components/skills/SkillMetadata";
 import { SkillParams } from "@/components/skills/SkillParams";
+import { trackSkillOpenWorkbench } from "@/lib/analytics";
 
 export function SkillDetail({ skill }: { skill: PublicSkillDetail }) {
   const capabilities = skill.content.capabilities ?? [];
@@ -19,7 +20,19 @@ export function SkillDetail({ skill }: { skill: PublicSkillDetail }) {
           <SkillMetadata skill={skill} />
           <div className="flex w-full flex-col gap-mdt-3 lg:w-auto">
             <Button size="md" asChild>
-              <Link href={`/workbench?id=${skill.id}`}>Open in Workbench</Link>
+              <Link
+                href={`/workbench?id=${skill.id}`}
+                onClick={() =>
+                  trackSkillOpenWorkbench({
+                    id: skill.id,
+                    slug: skill.slug ?? skill.id,
+                    title: skill.title,
+                    source: "skills_detail",
+                  })
+                }
+              >
+                Open in Workbench
+              </Link>
             </Button>
             <Button size="md" variant="secondary" asChild>
               <Link href="/skills">Back to Skills</Link>
@@ -42,7 +55,19 @@ export function SkillDetail({ skill }: { skill: PublicSkillDetail }) {
               Add capabilities in Workbench to make this skill actionable.
             </Text>
             <Button size="sm" asChild>
-              <Link href={`/workbench?id=${skill.id}`}>Add capabilities</Link>
+              <Link
+                href={`/workbench?id=${skill.id}`}
+                onClick={() =>
+                  trackSkillOpenWorkbench({
+                    id: skill.id,
+                    slug: skill.slug ?? skill.id,
+                    title: skill.title,
+                    source: "skills_detail_empty_state",
+                  })
+                }
+              >
+                Add capabilities
+              </Link>
             </Button>
           </Card>
         ) : (
