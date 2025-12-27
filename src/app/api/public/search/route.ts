@@ -5,7 +5,7 @@ import { withAPM } from "@/lib/observability";
 import { rateLimit } from "@/lib/rateLimiter";
 
 function parseType(input: string | null): PublicItemType | "all" {
-  if (input === "snippet" || input === "template" || input === "file") return input;
+  if (input === "snippet" || input === "template" || input === "file" || input === "agent" || input === "skill") return input;
   return "all";
 }
 

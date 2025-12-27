@@ -48,7 +48,16 @@ export function LibraryCard({
   ...rest
 }: { item: Item } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
-  const typeLabel = item.type === "snippet" ? "Snippet" : item.type === "template" ? "Template" : item.type === "agent" ? "Agent" : "File";
+  const typeLabel =
+    item.type === "snippet"
+      ? "Snippet"
+      : item.type === "template"
+        ? "Template"
+        : item.type === "agent"
+          ? "Agent"
+          : item.type === "skill"
+            ? "Skill"
+            : "File";
   const slug = item.slug ?? item.id;
   const visibleTags = item.tags.slice(0, 3);
   const overflowCount = item.tags.length - visibleTags.length;
@@ -58,7 +67,7 @@ export function LibraryCard({
       ? `/templates/${slug}`
       : item.type === "file"
         ? `/files/${slug}`
-        : item.type === "agent"
+        : item.type === "agent" || item.type === "skill"
           ? `/a/${slug}`
           : `/snippets/${slug}`;
 

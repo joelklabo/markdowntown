@@ -1,4 +1,4 @@
-export type SampleItemType = "snippet" | "template" | "file" | "agent";
+export type SampleItemType = "snippet" | "template" | "file" | "agent" | "skill";
 
 export type SampleItem = {
   id: string;

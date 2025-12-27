@@ -19,7 +19,7 @@ export type ArtifactRowItem = {
   targets: string[];
   hasScopes: boolean;
   stats: { views: number; copies: number; votes: number };
-  type: "snippet" | "template" | "file" | "agent";
+  type: "snippet" | "template" | "file" | "agent" | "skill";
 };
 
 function typeLabel(type: ArtifactRowItem["type"]) {
@@ -27,6 +27,7 @@ function typeLabel(type: ArtifactRowItem["type"]) {
   if (type === "template") return "Template";
   if (type === "file") return "File";
   if (type === "agent") return "Agent";
+  if (type === "skill") return "Skill";
   return "Artifact";
 }
 

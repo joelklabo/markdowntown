@@ -67,7 +67,7 @@ function demoPublicItemDetail(slug: string): PublicItemDetail | null {
   };
 }
 
-export type PublicItemType = "snippet" | "template" | "file" | "agent";
+export type PublicItemType = "snippet" | "template" | "file" | "agent" | "skill";
 
 export type PublicItem = {
   id: string;
@@ -133,11 +133,13 @@ const artifactTypeByPublicType: Record<PublicItemType, ArtifactType> = {
   template: "TEMPLATE",
   file: "ARTIFACT",
   agent: "ARTIFACT",
+  skill: "SKILL",
 };
 
 function toPublicType(t: ArtifactType): PublicItemType {
   if (t === "TEMPLATE") return "template";
   if (t === "MODULE") return "snippet";
+  if (t === "SKILL") return "skill";
   return "agent";
 }
 

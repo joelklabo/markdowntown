@@ -20,7 +20,7 @@ function asArray(input?: string | string[]): string[] {
 }
 
 function parseType(input?: string): PublicItemType | "all" {
-  if (input === "snippet" || input === "template" || input === "file" || input === "agent") return input;
+  if (input === "snippet" || input === "template" || input === "file" || input === "agent" || input === "skill") return input;
   return "all";
 }
 

@@ -88,12 +88,13 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
             Type
           </Text>
           <Row wrap gap={2}>
-            {(["all", "agent", "template", "snippet", "file"] as const).map((t) => {
+            {(["all", "agent", "skill", "template", "snippet", "file"] as const).map((t) => {
               const active = type === t;
+              const label = t === "all" ? "All" : t === "agent" ? "Artifacts" : t === "skill" ? "Skills" : t[0]!.toUpperCase() + t.slice(1);
               return (
                 <Link key={t} href={buildHref({ ...selected, type: t })}>
                   <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
-                    {t === "all" ? "All" : t === "agent" ? "Artifacts" : t[0]!.toUpperCase() + t.slice(1)}
+                    {label}
                   </Pill>
                 </Link>
               );
