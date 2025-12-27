@@ -1,5 +1,6 @@
 import type { Adapter, CompiledFile } from './types';
-import type { UamScopeV1, UamV1 } from '../uam/uamTypes';
+import type { UamScopeV1, UamTargetV1, UamV1 } from '../uam/uamTypes';
+import { parseSkillExportConfig, renderSkillsInlineSection, resolveSkillExport } from '../skills/skillExport';
 
 function slugify(value: string): string {
   const slug = value
@@ -34,7 +35,7 @@ export const githubCopilotAdapter: Adapter = {
   version: '1',
   label: 'GitHub Copilot',
   description: 'Exports UAM v1 to GitHub Copilot instruction files.',
-  compile: (uam: UamV1) => {
+  compile: (uam: UamV1, target?: UamTargetV1) => {
     const warnings: string[] = [];
     const info: string[] = [];
 
@@ -74,10 +75,20 @@ export const githubCopilotAdapter: Adapter = {
 
     const files: CompiledFile[] = [];
 
-    if (globalParts.length > 0) {
+    const { exportAll, allowList } = parseSkillExportConfig(target as UamTargetV1 | undefined);
+    let skillsSection = '';
+    if (exportAll || allowList) {
+      const resolved = resolveSkillExport(uam, { exportAll, allowList });
+      warnings.push(...resolved.warnings);
+      skillsSection = renderSkillsInlineSection(resolved.capabilities, 'Skills');
+    }
+
+    const globalPartsWithSkills = skillsSection.length > 0 ? [...globalParts, skillsSection] : globalParts;
+
+    if (globalPartsWithSkills.length > 0) {
       files.push({
         path: '.github/copilot-instructions.md',
-        content: globalParts.join('\n\n'),
+        content: globalPartsWithSkills.join('\n\n'),
       });
     }
 
@@ -105,4 +116,3 @@ export const githubCopilotAdapter: Adapter = {
     return { files, warnings, info };
   },
 };
-

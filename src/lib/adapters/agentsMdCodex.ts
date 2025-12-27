@@ -1,5 +1,6 @@
 import type { Adapter, CompiledFile } from './types';
-import type { UamScopeV1, UamV1 } from '../uam/uamTypes';
+import type { UamScopeV1, UamTargetV1, UamV1 } from '../uam/uamTypes';
+import { parseSkillExportConfig, renderSkillsInlineSection, resolveSkillExport } from '../skills/skillExport';
 
 function normalizeDirScope(dir: string): string {
   const normalized = dir.replace(/\\/g, '/').trim().replace(/^\.\/+/, '').replace(/\/+$/, '');
@@ -23,7 +24,7 @@ export const agentsMdCodexAdapter: Adapter = {
   version: '1',
   label: 'AGENTS.md',
   description: 'Exports UAM v1 scopes into AGENTS.md files.',
-  compile: (uam: UamV1) => {
+  compile: (uam: UamV1, target?: UamTargetV1) => {
     const warnings: string[] = [];
     const info: string[] = [];
 
@@ -58,6 +59,19 @@ export const agentsMdCodexAdapter: Adapter = {
       contentsByPath.set(path, contentParts);
     }
 
+    const { exportAll, allowList } = parseSkillExportConfig(target as UamTargetV1 | undefined);
+    if (exportAll || allowList) {
+      const resolved = resolveSkillExport(uam, { exportAll, allowList });
+      warnings.push(...resolved.warnings);
+      const skillsSection = renderSkillsInlineSection(resolved.capabilities, 'Skills');
+      if (skillsSection.length > 0) {
+        const path = 'AGENTS.md';
+        const contentParts = contentsByPath.get(path) ?? [];
+        contentParts.push(skillsSection);
+        contentsByPath.set(path, contentParts);
+      }
+    }
+
     const files: CompiledFile[] = Array.from(contentsByPath.entries())
       .map(([path, parts]) => ({
         path,
@@ -68,4 +82,3 @@ export const agentsMdCodexAdapter: Adapter = {
     return { files, warnings, info };
   },
 };
-

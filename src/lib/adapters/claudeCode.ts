@@ -1,5 +1,6 @@
 import type { Adapter, CompiledFile } from "./types";
 import type { UamScopeV1, UamTargetV1, UamV1 } from "../uam/uamTypes";
+import { parseSkillExportConfig, renderSkillMarkdown, resolveSkillExport } from "../skills/skillExport";
 
 function slugify(value: string): string {
   const slug = value
@@ -33,36 +34,6 @@ function scopeHeader(scope: Extract<UamScopeV1, { kind: "dir" | "glob" }>): stri
   }
   const patterns = scope.patterns.join(", ");
   return `# Rules for ${patterns.length > 0 ? patterns : "glob"}`;
-}
-
-type SkillExportConfig = {
-  exportAll: boolean;
-  allowList: string[] | null;
-};
-
-function parseSkillExportConfig(target?: UamTargetV1): SkillExportConfig {
-  const options = (target?.options ?? {}) as Record<string, unknown>;
-  const exportAll = options.exportSkills === true;
-
-  const allowListRaw = options.skills ?? options.exportSkills;
-  if (Array.isArray(allowListRaw)) {
-    const ids = allowListRaw.map((v) => String(v).trim()).filter(Boolean);
-    return { exportAll: false, allowList: ids.length > 0 ? ids : null };
-  }
-
-  return { exportAll, allowList: null };
-}
-
-function renderSkillMarkdown(capability: { id: string; title?: string; description?: string; params?: Record<string, unknown> }) {
-  const title = capability.title?.trim();
-  const heading = `# ${title && title.length > 0 ? title : capability.id}`;
-  const desc = capability.description?.trim();
-  const parts: string[] = [heading];
-  if (desc && desc.length > 0) parts.push(desc);
-  if (capability.params && Object.keys(capability.params).length > 0) {
-    parts.push("```json\n" + JSON.stringify(capability.params, null, 2) + "\n```");
-  }
-  return parts.join("\n\n").trimEnd() + "\n";
 }
 
 export const claudeCodeAdapter: Adapter = {
@@ -121,16 +92,11 @@ export const claudeCodeAdapter: Adapter = {
       });
     }
 
-    const { exportAll, allowList } = parseSkillExportConfig(target);
+    const { exportAll, allowList } = parseSkillExportConfig(target as UamTargetV1 | undefined);
     if (exportAll || allowList) {
-      const requestedIds = allowList ?? uam.capabilities.map((c) => c.id);
-      const capabilityById = new Map(uam.capabilities.map((c) => [c.id, c] as const));
-      for (const id of requestedIds) {
-        const cap = capabilityById.get(id);
-        if (!cap) {
-          warnings.push(`Unknown skill capability id '${id}'. Skipped.`);
-          continue;
-        }
+      const resolved = resolveSkillExport(uam, { exportAll, allowList });
+      warnings.push(...resolved.warnings);
+      for (const cap of resolved.capabilities) {
         const dir = slugify(cap.id);
         files.push({
           path: `.claude/skills/${dir}/SKILL.md`,

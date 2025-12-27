@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { FileTree } from '@/components/ui/FileTree';
 import { Input } from '@/components/ui/Input';
+import { Radio } from '@/components/ui/Radio';
 import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
 import { track } from '@/lib/analytics';
+import { applySkillExportSelection, getSkillExportSelection, type SkillExportSelection } from '@/lib/skills/skillExport';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 
@@ -20,6 +22,8 @@ const TARGETS: Array<{ targetId: string; label: string }> = [
   { targetId: 'claude-code', label: 'Claude Code' },
   { targetId: 'gemini-cli', label: 'Gemini CLI' },
 ];
+
+const SKILL_EXPORT_TARGETS = new Set(['agents-md', 'github-copilot', 'claude-code']);
 
 function hasTarget(targets: UamTargetV1[], targetId: string) {
   return targets.some(t => t.targetId === targetId);
@@ -34,6 +38,7 @@ export function ExportPanel() {
   const setUam = useWorkbenchStore(s => s.setUam);
   const result = useWorkbenchStore(s => s.compilationResult);
   const setCompilationResult = useWorkbenchStore(s => s.setCompilationResult);
+  const skills = useWorkbenchStore(s => s.skills);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +130,13 @@ export function ExportPanel() {
     setUam({ ...uam, targets: nextTargets });
   };
 
+  const updateSkillSelection = (targetId: string, selection: SkillExportSelection) => {
+    const target = uam.targets.find((t) => t.targetId === targetId);
+    if (!target) return;
+    const options = applySkillExportSelection(target.options ?? {}, selection);
+    updateTarget(targetId, { options });
+  };
+
   const handleDownload = async () => {
     if (!result || result.files.length === 0) return;
     try {
@@ -181,6 +193,8 @@ export function ExportPanel() {
             {uam.targets.map((target) => {
               const adapterId = `workbench-${target.targetId}-adapter`;
               const optionsId = `workbench-${target.targetId}-options`;
+              const skillSelection = getSkillExportSelection(target);
+              const supportsSkillExport = SKILL_EXPORT_TARGETS.has(target.targetId);
               return (
                 <div
                   key={target.targetId}
@@ -212,6 +226,7 @@ export function ExportPanel() {
                     Options (JSON)
                   </label>
                   <TextArea
+                    key={`${optionsId}:${JSON.stringify(target.options ?? {})}`}
                     id={optionsId}
                     name={optionsId}
                     defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
@@ -240,6 +255,63 @@ export function ExportPanel() {
                     </div>
                   ) : null}
                 </div>
+
+                {supportsSkillExport ? (
+                  <div className="space-y-mdt-2">
+                    <div className="text-caption text-mdt-muted">Skills export</div>
+                    <div className="flex flex-wrap gap-mdt-3">
+                      <Radio
+                        name={`skills-${target.targetId}`}
+                        checked={skillSelection.mode === 'off'}
+                        onChange={() => updateSkillSelection(target.targetId, { mode: 'off', allowList: [] })}
+                        label="Off"
+                      />
+                      <Radio
+                        name={`skills-${target.targetId}`}
+                        checked={skillSelection.mode === 'all'}
+                        onChange={() => updateSkillSelection(target.targetId, { mode: 'all', allowList: [] })}
+                        label="All skills"
+                      />
+                      <Radio
+                        name={`skills-${target.targetId}`}
+                        checked={skillSelection.mode === 'allowlist'}
+                        onChange={() => updateSkillSelection(target.targetId, { mode: 'allowlist', allowList: skillSelection.allowList })}
+                        label="Allowlist"
+                      />
+                    </div>
+
+                    {skillSelection.mode === 'allowlist' ? (
+                      <div className="space-y-mdt-1 rounded-mdt-sm border border-mdt-border bg-mdt-surface-subtle p-mdt-2">
+                        {skills.length === 0 ? (
+                          <div className="text-caption text-mdt-muted">
+                            Add skills in the Workbench to build an allowlist.
+                          </div>
+                        ) : (
+                          skills.map((skill) => {
+                            const checked = skillSelection.allowList.includes(skill.id);
+                            return (
+                              <Checkbox
+                                key={skill.id}
+                                checked={checked}
+                                onChange={() => {
+                                  const nextAllowList = checked
+                                    ? skillSelection.allowList.filter((id) => id !== skill.id)
+                                    : [...skillSelection.allowList, skill.id];
+                                  updateSkillSelection(target.targetId, { mode: 'allowlist', allowList: nextAllowList });
+                                }}
+                              >
+                                <span className="flex flex-col">
+                                  <span>{skill.title?.trim() || skill.id}</span>
+                                  <span className="text-caption font-mono text-mdt-muted">{skill.id}</span>
+                                </span>
+                              </Checkbox>
+                            );
+                          })
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
               );
             })}
