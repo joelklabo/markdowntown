@@ -3,6 +3,7 @@ import { compile } from '@/lib/uam/compile';
 import { UniversalAgentDefinitionSchema } from '@/lib/uam/schema';
 import { z } from 'zod';
 
+// This endpoint compiles the legacy UniversalAgentDefinition schema (pre-UAM v1).
 const RequestSchema = z.object({
   definition: UniversalAgentDefinitionSchema,
   targets: z.array(z.string()),

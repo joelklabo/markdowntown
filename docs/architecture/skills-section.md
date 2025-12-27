@@ -3,6 +3,8 @@
 ## Overview
 Skills are stored as a dedicated artifact type backed by UAM v1 payloads. The Skills surface reads/writes the same artifact + artifact version tables, but the UAM payload emphasizes `capabilities` as the source of truth for skill definitions.
 
+Note: `src/lib/uam/schema.ts` defines the legacy UniversalAgentDefinition (pre-UAM v1) used by the `/translate` compile API. Skills should use UAM v1 types (`src/lib/uam/uamTypes.ts`) and validation (`src/lib/uam/uamValidate.ts`).
+
 ## Artifact model
 - Artifact.type: `SKILL` (new enum value)
 - Artifact.title: skill pack title

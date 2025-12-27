@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+// Legacy UniversalAgentDefinition (pre-UAM v1).
+// Used by the /translate compile API; newer UAM v1 flows use uamTypes.ts + uamValidate.ts.
+
 const UAMMetadataSchema = z.object({
   name: z.string().min(1),
   version: z.string().min(1),
