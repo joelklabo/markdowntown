@@ -35,7 +35,7 @@ describe("Atlas smoke", () => {
         { href: "/atlas", heading: /^atlas$/i },
         { href: "/atlas/platforms/codex-cli", heading: /^codex cli$/i },
         { href: "/atlas/compare", heading: /^compare$/i },
-        { href: "/atlas/simulator", heading: /^simulator$/i },
+        { href: "/atlas/simulator", heading: /^scan a folder$/i },
         { href: "/atlas/changelog", heading: /^changelog$/i },
         { href: "/atlas/concepts/scoping", heading: /^scoping$/i },
         { href: "/atlas/recipes/safe-shell-commands", heading: /^safe shell commands$/i },
@@ -49,4 +49,3 @@ describe("Atlas smoke", () => {
     }, "atlas-smoke");
   });
 });
-

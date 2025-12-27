@@ -209,6 +209,7 @@ export function ExportPanel() {
               return (
                 <div
                   key={target.targetId}
+                  data-testid={`export-target-${target.targetId}`}
                   className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface p-mdt-3"
                 >
                 <div className="flex flex-wrap items-center gap-mdt-3">
@@ -268,7 +269,7 @@ export function ExportPanel() {
                 </div>
 
                 {supportsSkillExport ? (
-                  <div className="space-y-mdt-2">
+                  <div className="space-y-mdt-2" data-testid={`skills-export-${target.targetId}`}>
                     <div className="text-caption text-mdt-muted">Skills export</div>
                     <div className="flex flex-wrap gap-mdt-3">
                       <Radio

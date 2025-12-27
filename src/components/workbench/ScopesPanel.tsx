@@ -55,7 +55,7 @@ export function ScopesPanel() {
   };
 
   return (
-    <div>
+    <div data-testid="workbench-scopes-panel">
       <div className="mb-mdt-3 flex items-center justify-between">
         <span className="text-caption font-semibold uppercase tracking-wider text-mdt-muted">Scopes</span>
         <Button

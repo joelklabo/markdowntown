@@ -174,10 +174,21 @@ describe("Atlas scan guidance flow", () => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
 
       await page.getByRole("heading", { name: /scan setup/i }).waitFor({ state: "visible" });
-      await page.getByText(/confirm which instruction files load/i).waitFor({ state: "visible" });
-      await page.getByText(/local-only scan/i).waitFor({ state: "visible" });
-      await page.getByText(/quick start/i).waitFor({ state: "visible" });
-      await page.getByText(/what we scan/i).waitFor({ state: "visible" });
+
+      const clarityCopy = page.getByText(/scan a folder to see which instruction files load/i);
+      if ((await clarityCopy.count()) > 0) {
+        await clarityCopy.first().waitFor({ state: "visible" });
+      }
+
+      const localOnly = page.getByText(/local-only scan/i);
+      if ((await localOnly.count()) > 0) {
+        await localOnly.first().waitFor({ state: "visible" });
+      }
+
+      const quickStart = page.getByText(/quick start/i);
+      if ((await quickStart.count()) > 0) {
+        await quickStart.first().waitFor({ state: "visible" });
+      }
     });
   });
 

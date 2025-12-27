@@ -89,10 +89,6 @@ export function trackUiEvent(event: string, properties?: Record<string, unknown>
   track(event, withPageContext(properties));
 }
 
-export function trackWebVital(metric: string, value: number, properties?: Record<string, unknown>) {
-  track(`web_vital_${metric}`, withPageContext({ value, ...properties }));
-}
-
 export function trackError(event: string, error: Error, properties?: Record<string, unknown>) {
   track(event, {
     message: error.message,

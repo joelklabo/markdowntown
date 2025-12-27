@@ -21,7 +21,7 @@ describe("Atlas simulator flow", () => {
   maybe("switches tools and updates loaded files", { timeout: 45000 }, async () => {
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: /^simulator$/i }).first().waitFor({ state: "visible" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
 
       const loadedList = page.getByRole("list", { name: /loaded files/i });
       await loadedList.waitFor({ state: "visible" });
@@ -71,7 +71,7 @@ describe("Atlas simulator flow", () => {
       });
 
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: /^simulator$/i }).first().waitFor({ state: "visible" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
 
       await page.getByLabel(/local folder/i).check();
 

@@ -60,7 +60,7 @@ describe("Skills section flow", () => {
       await page.getByRole("link", { name: /open in workbench/i }).click();
       await page.waitForURL(/\/workbench\?/);
 
-      await page.getByText("Skills").waitFor({ state: "visible" });
+      await page.getByTestId("workbench-skills-panel").waitFor({ state: "visible" });
       await page.locator("#skill-title").waitFor({ state: "visible" });
       expect(await page.inputValue("#skill-title")).toContain(skillTitle);
     }, "skills-section");

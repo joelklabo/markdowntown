@@ -71,7 +71,7 @@ describe("Scan to workbench export flow", () => {
         await page.getByText(/scan defaults applied/i).waitFor({ state: "visible" });
         await page.getByText(/GitHub Copilot · cwd \(repo root\)/i).waitFor({ state: "visible" });
 
-        await page.getByText("Scopes").waitFor({ state: "visible" });
+        await page.getByTestId("workbench-scopes-panel").waitFor({ state: "visible" });
 
         await page.getByRole("button", { name: /add scope/i }).click();
         await page.getByLabel("Scope glob pattern").fill("src/**/*.ts");

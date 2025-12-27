@@ -22,7 +22,7 @@ describe("Workbench export flow", () => {
     await withE2EPage(browser, { baseURL }, async (page) => {
       await page.goto("/workbench", { waitUntil: "domcontentloaded" });
 
-      await page.getByText("Scopes").waitFor({ state: "visible" });
+      await page.getByTestId("workbench-scopes-panel").waitFor({ state: "visible" });
 
       await page.getByRole("button", { name: /\\+ skill/i }).click();
       await page.locator("#skill-title").fill("Export skill");
@@ -44,27 +44,18 @@ describe("Workbench export flow", () => {
       await page.getByLabel("Claude Code").click();
 
       await page.getByRole("button", { name: /advanced/i }).click();
-      await page.getByText("Skills export").waitFor({ state: "visible" });
 
-      const agentsCard = page
-        .locator("div")
-        .filter({ hasText: "agents-md" })
-        .filter({ hasText: "Skills export" })
-        .first();
+      const agentsCard = page.getByTestId("export-target-agents-md");
+      await agentsCard.waitFor({ state: "visible" });
+      await agentsCard.getByText("Skills export").waitFor({ state: "visible" });
       await agentsCard.getByLabel("All skills").click();
 
-      const copilotCard = page
-        .locator("div")
-        .filter({ hasText: "github-copilot" })
-        .filter({ hasText: "Skills export" })
-        .first();
+      const copilotCard = page.getByTestId("export-target-github-copilot");
+      await copilotCard.waitFor({ state: "visible" });
       await copilotCard.getByLabel("All skills").click();
 
-      const claudeCard = page
-        .locator("div")
-        .filter({ hasText: "claude-code" })
-        .filter({ hasText: "Skills export" })
-        .first();
+      const claudeCard = page.getByTestId("export-target-claude-code");
+      await claudeCard.waitFor({ state: "visible" });
       await claudeCard.getByLabel("All skills").click();
       await page.getByRole("button", { name: /^compile$/i }).click();
 

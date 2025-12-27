@@ -68,7 +68,7 @@ export function SkillsPanel() {
   };
 
   return (
-    <div className="flex flex-col gap-mdt-3">
+    <div className="flex flex-col gap-mdt-3" data-testid="workbench-skills-panel">
       <div className="flex items-center justify-between">
         <span className="text-caption font-semibold uppercase tracking-wider text-mdt-muted">Skills</span>
         <Button size="xs" onClick={handleAdd}>

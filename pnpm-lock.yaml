@@ -141,9 +141,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: 4.0.14
         version: 4.0.14(vitest@4.0.14(@opentelemetry/api@1.9.0)(@types/node@20.19.25)(jiti@2.6.1)(jsdom@25.0.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
-      baseline-browser-mapping:
-        specifier: 2.9.11
-        version: 2.9.11
       dependency-cruiser:
         specifier: ^17.3.4
         version: 17.3.4

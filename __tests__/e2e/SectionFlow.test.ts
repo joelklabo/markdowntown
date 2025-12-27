@@ -35,8 +35,9 @@ describe("Section flow", () => {
         const builder = await page.goto("/builder", { waitUntil: "domcontentloaded", timeout: 15000 });
         expect(builder?.status()).toBeGreaterThanOrEqual(200);
         expect(builder?.status()).toBeLessThan(400);
-        expect(page.url()).toMatch(/\/workbench/);
-        await page.getByRole("textbox", { name: /agent title/i }).waitFor({ state: "visible" });
+        expect(page.url()).toMatch(/\/builder/);
+        await page.getByRole("heading", { name: /builder lives inside workbench now/i }).waitFor({ state: "visible" });
+        await page.getByRole("link", { name: /open workbench/i }).waitFor({ state: "visible" });
       });
     }
   );
