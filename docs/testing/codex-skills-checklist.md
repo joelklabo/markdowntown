@@ -24,5 +24,10 @@
 - [ ] "analytics redaction" → markdowntown-analytics
 - [ ] "design system" or "layout" → markdowntown-frontend
 
+## Rollout verification
+- [ ] Follow `docs/runbooks/codex-skills-rollout.md` install steps.
+- [ ] Confirm `~/.codex/skills` contains the synced markdowntown folders.
+- [ ] Reload Codex CLI and re-run `/skills` if newly synced skills are missing.
+
 ## Notes
 - Log any missing skills or misfires as follow-up bd issues.
