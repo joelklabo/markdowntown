@@ -33,4 +33,5 @@ description: Use this when instrumenting analytics, reviewing event taxonomy, or
 
 ## Guardrails
 - Analytics should be optional (env controlled) and must not break UI.
+- Never include secrets, file paths, cwd values, or raw content in analytics payloads.
 - Always log follow-up tasks when you spot missing events or gaps.

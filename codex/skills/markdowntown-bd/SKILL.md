@@ -22,6 +22,7 @@ description: Beads (bd) issue workflow and repo operations for markdowntown. Use
 - Always run compile, lint, and unit tests before committing.
 - Push to `main` after each completed task.
 - Avoid destructive git commands unless explicitly requested.
+- Never paste secrets (tokens, keys, credentials) into issues, commits, or logs.
 
 ## References
 - docs/BEADS.md
