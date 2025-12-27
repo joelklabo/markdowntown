@@ -60,6 +60,13 @@ pnpm start
 - `pnpm prisma studio` (if you add the script) to explore the DB.
 - `pnpm test:visual` to update Playwright visual snapshots.
 
+## Codex skills
+Validate and install local Codex skills:
+```bash
+node scripts/codex/validate-skills.mjs
+scripts/codex/sync-skills.sh --verbose
+```
+
 ## GitHub Actions
 CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure Container Apps on `main` using secrets `AZURE_CREDENTIALS` and `DATABASE_URL`.
 
