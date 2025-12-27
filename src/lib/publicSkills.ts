@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { cacheTags } from "./cacheTags";
 import { normalizeTags } from "./tags";
 import { hasDatabaseEnv, prisma } from "./prisma";
-import { safeParseUamV1 } from "./uam/uamValidate";
+import { validateSkillPayload, SkillValidationError } from "./skills/skillValidate";
 import type { PublicSkillDetail, PublicSkillSummary, ListPublicSkillsInput, SkillCapabilitySummary } from "./skills/skillTypes";
 import { ArtifactType, Prisma } from "@prisma/client";
 
@@ -25,10 +25,8 @@ function normalizeInputTargets(input?: unknown): string[] {
   return [];
 }
 
-function summarizeCapabilities(raw: unknown): { capabilities: SkillCapabilitySummary[]; capabilityCount: number } {
-  const parsed = safeParseUamV1(raw);
-  if (!parsed.success) return { capabilities: [], capabilityCount: 0 };
-  const capabilities = parsed.data.capabilities.map(({ id, title, description }) => ({ id, title, description }));
+function summarizeCapabilities(uam: { capabilities: SkillCapabilitySummary[] }): { capabilities: SkillCapabilitySummary[]; capabilityCount: number } {
+  const capabilities = uam.capabilities.map(({ id, title, description }) => ({ id, title, description }));
   return { capabilities, capabilityCount: capabilities.length };
 }
 
@@ -64,8 +62,20 @@ async function listPublicSkillsRaw(input: ListPublicSkillsInput = {}): Promise<P
     ];
   }
 
+  let artifacts: Array<{
+    id: string;
+    slug: string | null;
+    title: string;
+    description: string | null;
+    tags: string[];
+    targets: string[];
+    createdAt: Date;
+    updatedAt: Date;
+    versions: Array<{ uam: unknown }>;
+  }> = [];
+
   try {
-    const artifacts = await prisma.artifact.findMany({
+    artifacts = await prisma.artifact.findMany({
       where,
       take: Math.min(limit, 100),
       orderBy: sortOrder(input.sort),
@@ -78,8 +88,17 @@ async function listPublicSkillsRaw(input: ListPublicSkillsInput = {}): Promise<P
       },
     });
 
-    return artifacts.map(artifact => {
-      const { capabilities, capabilityCount } = summarizeCapabilities(artifact.versions[0]?.uam);
+  } catch (err) {
+    console.warn("publicSkills: error fetching skills", err);
+    return [];
+  }
+
+  return artifacts.map(artifact => {
+      const validation = validateSkillPayload(artifact.versions[0]?.uam);
+      if (!validation.success) {
+        throw new SkillValidationError(artifact.slug ?? artifact.id, validation.issues);
+      }
+      const { capabilities, capabilityCount } = summarizeCapabilities(validation.data);
       return {
         id: artifact.id,
         slug: artifact.slug,
@@ -93,17 +112,25 @@ async function listPublicSkillsRaw(input: ListPublicSkillsInput = {}): Promise<P
         updatedAt: artifact.updatedAt,
       };
     });
-  } catch (err) {
-    console.warn("publicSkills: error fetching skills", err);
-    return [];
-  }
 }
 
 async function getPublicSkillRaw(idOrSlug: string): Promise<PublicSkillDetail | null> {
   if (!hasDatabaseEnv) return null;
 
+  let artifact: {
+    id: string;
+    slug: string | null;
+    title: string;
+    description: string | null;
+    tags: string[];
+    targets: string[];
+    createdAt: Date;
+    updatedAt: Date;
+    versions: Array<{ uam: unknown; version: string; createdAt: Date }>;
+  } | null = null;
+
   try {
-    const artifact = await prisma.artifact.findFirst({
+    artifact = await prisma.artifact.findFirst({
       where: {
         OR: [{ id: idOrSlug }, { slug: idOrSlug }],
         visibility: "PUBLIC",
@@ -116,32 +143,34 @@ async function getPublicSkillRaw(idOrSlug: string): Promise<PublicSkillDetail | 
         },
       },
     });
-
-    if (!artifact) return null;
-
-    const latest = artifact.versions[0];
-    const { capabilities, capabilityCount } = summarizeCapabilities(latest?.uam);
-    const parsed = safeParseUamV1(latest?.uam ?? {});
-    if (!parsed.success) return null;
-
-    return {
-      id: artifact.id,
-      slug: artifact.slug,
-      title: artifact.title,
-      description: artifact.description ?? "",
-      tags: normalizeTags(artifact.tags, { strict: false }).tags,
-      targets: artifact.targets,
-      capabilityCount,
-      capabilities,
-      createdAt: artifact.createdAt,
-      updatedAt: latest?.createdAt ?? artifact.updatedAt,
-      content: parsed.data,
-      version: latest?.version ?? "draft",
-    };
   } catch (err) {
     console.warn("publicSkills: error fetching skill detail", err);
     return null;
   }
+
+  if (!artifact) return null;
+
+  const latest = artifact.versions[0];
+  const validation = validateSkillPayload(latest?.uam ?? {});
+  if (!validation.success) {
+    throw new SkillValidationError(artifact.slug ?? artifact.id, validation.issues);
+  }
+  const { capabilities, capabilityCount } = summarizeCapabilities(validation.data);
+
+  return {
+    id: artifact.id,
+    slug: artifact.slug,
+    title: artifact.title,
+    description: artifact.description ?? "",
+    tags: normalizeTags(artifact.tags, { strict: false }).tags,
+    targets: artifact.targets,
+    capabilityCount,
+    capabilities,
+    createdAt: artifact.createdAt,
+    updatedAt: latest?.createdAt ?? artifact.updatedAt,
+    content: validation.data,
+    version: latest?.version ?? "draft",
+  };
 }
 
 const listCache = unstable_cache(

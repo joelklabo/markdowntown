@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { DEFAULT_ADAPTER_VERSION, UAM_V1_SCHEMA_VERSION, type UamV1 } from './uamTypes';
 
+const MAX_CAPABILITIES = 64;
+const MAX_CAPABILITY_ID = 80;
+const MAX_CAPABILITY_TITLE = 120;
+const MAX_CAPABILITY_DESCRIPTION = 4000;
+const MAX_CAPABILITY_PARAM_KEYS = 32;
+const MAX_CAPABILITY_PARAM_KEY_LENGTH = 64;
+const MAX_CAPABILITY_PARAMS_BYTES = 32768;
+const CAPABILITY_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/i;
+
 function isValidGlobPattern(pattern: string): boolean {
   if (pattern.trim().length === 0) return false;
 
@@ -90,11 +99,41 @@ const UamBlockV1Schema = z.object({
   body: z.string(),
 });
 
+const UamCapabilityParamsSchema = z
+  .record(z.string().min(1).max(MAX_CAPABILITY_PARAM_KEY_LENGTH), z.unknown())
+  .superRefine((params, ctx) => {
+    const keys = Object.keys(params);
+    if (keys.length > MAX_CAPABILITY_PARAM_KEYS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Capability params exceed ${MAX_CAPABILITY_PARAM_KEYS} keys`,
+      });
+    }
+
+    try {
+      const size = JSON.stringify(params).length;
+      if (size > MAX_CAPABILITY_PARAMS_BYTES) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Capability params exceed ${MAX_CAPABILITY_PARAMS_BYTES} bytes`,
+        });
+      }
+    } catch {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Capability params must be JSON-serializable',
+      });
+    }
+  })
+  .optional();
+
 const UamCapabilityV1Schema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1).optional(),
-  description: z.string().optional(),
-  params: z.record(z.string(), z.unknown()).optional(),
+  id: z.string().min(1).max(MAX_CAPABILITY_ID).regex(CAPABILITY_ID_PATTERN, {
+    message: 'Capability id must be slug-like (letters, numbers, ., _, -)',
+  }),
+  title: z.string().min(1).max(MAX_CAPABILITY_TITLE).optional(),
+  description: z.string().max(MAX_CAPABILITY_DESCRIPTION).optional(),
+  params: UamCapabilityParamsSchema,
 });
 
 export const UamTargetV1Schema = z.object({
@@ -138,6 +177,27 @@ export const UamV1Schema = z
           path: ['blocks', index, 'scopeId'],
           message: `Unknown scopeId: ${block.scopeId}`,
         });
+      }
+    });
+
+    if (value.capabilities.length > MAX_CAPABILITIES) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['capabilities'],
+        message: `Capabilities exceed ${MAX_CAPABILITIES} entries`,
+      });
+    }
+
+    const capabilityIds = new Set<string>();
+    value.capabilities.forEach((capability, index) => {
+      if (capabilityIds.has(capability.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['capabilities', index, 'id'],
+          message: `Duplicate capability id: ${capability.id}`,
+        });
+      } else {
+        capabilityIds.add(capability.id);
       }
     });
   });
