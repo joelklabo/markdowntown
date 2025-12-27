@@ -81,6 +81,7 @@ describe("SiteNav", () => {
     const [desktopNav] = screen.getAllByRole("navigation", { name: "Primary" });
     const desktopLibrary = within(desktopNav).getByRole("link", { name: "Library" });
     const desktopWorkbench = within(desktopNav).getByRole("link", { name: "Workbench" });
+    const desktopSkills = within(desktopNav).getByRole("link", { name: "Skills" });
     const desktopTranslate = within(desktopNav).getByRole("link", { name: "Translate" });
     const desktopScan = within(desktopNav).getByRole("link", { name: "Scan" });
     const desktopDocs = within(desktopNav).getByRole("link", { name: "Docs" });
@@ -88,10 +89,11 @@ describe("SiteNav", () => {
 
     expect(desktopLibrary).toHaveAttribute("aria-current", "page");
     expect(desktopWorkbench).not.toHaveAttribute("aria-current");
+    expect(desktopSkills).not.toHaveAttribute("aria-current");
     expect(desktopTranslate).not.toHaveAttribute("aria-current");
     expect(desktopScan).not.toHaveAttribute("aria-current");
     expect(desktopDocs).not.toHaveAttribute("aria-current");
-    expect(desktopLinks).toHaveLength(5);
+    expect(desktopLinks).toHaveLength(6);
     expect(desktopLibrary.className).toContain("focus-visible:ring-2");
   });
 

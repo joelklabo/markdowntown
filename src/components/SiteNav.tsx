@@ -12,7 +12,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/Sheet";
 import { ThemeToggle } from "./ThemeToggle";
 import { DensityToggle } from "./DensityToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
-import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, TranslateIcon, WorkbenchIcon, type NavIconProps } from "./icons/NavIcons";
+import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, SkillsIcon, TranslateIcon, WorkbenchIcon, type NavIconProps } from "./icons/NavIcons";
 import { emitCityWordmarkEvent } from "./wordmark/sim/bridge";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
@@ -21,6 +21,7 @@ import { featureFlags } from "@/lib/flags";
 const links = [
   { href: "/atlas/simulator", label: "Scan" },
   { href: "/workbench", label: "Workbench", title: "Build agents.md in Workbench" },
+  { href: "/skills", label: "Skills" },
   { href: "/library", label: "Library" },
   { href: "/translate", label: "Translate" },
   { href: "/docs", label: "Docs" },
@@ -310,6 +311,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
   const bottomNavItems: BottomNavItem[] = [
     { href: "/atlas/simulator", label: "Scan", icon: AtlasIcon, type: "link" },
     { href: "/workbench", label: "Workbench", icon: WorkbenchIcon, type: "link" },
+    { href: "/skills", label: "Skills", icon: SkillsIcon, type: "link" },
     { href: "/library", label: "Library", icon: LibraryIcon, type: "link" },
     { href: "/translate", label: "Translate", icon: TranslateIcon, type: "link" },
     { label: "Search", icon: SearchIcon, type: "search" },
@@ -323,6 +325,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
   ];
 
   const overflowLinks = [
+    { href: "/skills", label: "Skills" },
     { href: "/docs", label: "Docs" },
     { href: "/atlas", label: "Atlas" },
     { href: "/changelog", label: "Changelog" },

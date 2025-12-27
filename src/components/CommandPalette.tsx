@@ -119,6 +119,10 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
     const baseCommands: CommandItem[] = [
       { label: "Go to home", action: () => router.push("/"), group: "Go to" },
       { label: "Browse library", action: () => router.push("/library"), group: "Go to", hint: "⌘B" },
+      { label: "Browse skills", action: () => router.push("/skills"), group: "Go to" },
+      { label: "Skills: Codex CLI", action: () => router.push("/skills?target=agents-md"), group: "Go to" },
+      { label: "Skills: Copilot CLI", action: () => router.push("/skills?target=github-copilot"), group: "Go to" },
+      { label: "Skills: Claude Code", action: () => router.push("/skills?target=claude-code"), group: "Go to" },
       { label: "Open workbench", action: () => router.push("/workbench"), group: "Go to", hint: "⌘Shift+B" },
       {
         label: "Search Atlas…",
