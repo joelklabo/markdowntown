@@ -28,8 +28,8 @@ description: Use this when instrumenting analytics, reviewing event taxonomy, or
    - Add/adjust tests for redaction and analytics utilities.
 
 ## References
-- Event taxonomy + monitoring: `references/analytics.md`
-- Redaction + privacy rules: `references/redaction.md`
+- codex/skills/markdowntown-analytics/references/analytics.md
+- codex/skills/markdowntown-analytics/references/redaction.md
 
 ## Guardrails
 - Analytics should be optional (env controlled) and must not break UI.

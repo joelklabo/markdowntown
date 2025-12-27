@@ -26,8 +26,8 @@ description: Use this when running or adding tests (compile/lint/unit/E2E), upda
 - If a test fails due to output changes, update snapshots/fixtures and document why.
 
 ## References
-- Test commands and configs: `references/tests.md`
-- E2E + Playwright notes: `references/playwright.md`
+- codex/skills/markdowntown-testing/references/tests.md
+- codex/skills/markdowntown-testing/references/playwright.md
 
 ## Guardrails
 - Keep tests deterministic; avoid time-based flakiness where possible.

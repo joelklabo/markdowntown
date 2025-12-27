@@ -30,8 +30,8 @@ description: Use this when writing or updating docs/ content, UX specs, or cross
    - Update any references, diagrams, or CTA text if UI changed.
 
 ## References
-- Doc map + locations: `references/docs-map.md`
-- Content style + microcopy rules: `references/content-style.md`
+- codex/skills/markdowntown-docs/references/docs-map.md
+- codex/skills/markdowntown-docs/references/content-style.md
 
 ## Guardrails
 - Keep SKILL.md concise; move long detail to references.

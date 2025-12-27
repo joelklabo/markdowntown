@@ -5,6 +5,7 @@
 - **markdowntown-frontend** — UI, layout, design system constraints.
 - **markdowntown-atlas-scan** — scan + simulator flow and handoff.
 - **markdowntown-workbench** — Workbench state, export/compile pipeline.
+- **markdowntown-backend** — API routes, Prisma, server-side validation.
 - **markdowntown-testing** — test commands, E2E + Playwright guidance.
 - **markdowntown-docs** — docs locations, terminology, content style.
 - **markdowntown-analytics** — event tracking, privacy, redaction rules.

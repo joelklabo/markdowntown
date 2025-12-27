@@ -39,8 +39,8 @@ description: Use this when working on the Workbench UI, Workbench state/store, e
    - If you change export behavior, check any Workbench/E2E references and update tests as needed.
 
 ## References
-- Workbench UI, panels, and store context: `references/workbench-ui.md`
-- Compile + adapters and export pipeline: `references/compile-adapters.md`
+- codex/skills/markdowntown-workbench/references/workbench-ui.md
+- codex/skills/markdowntown-workbench/references/compile-adapters.md
 
 ## Guardrails
 - Prefer UAM v1 helpers (`createUamTargetV1`, `normalizeUamTargetsV1`) to avoid drift.

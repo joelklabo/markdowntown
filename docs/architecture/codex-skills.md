@@ -13,6 +13,7 @@ See `docs/skills/index.md` for the quick overview and maintenance steps.
 | markdowntown-frontend | "UI change", "design system", "tailwind", "layout" | frontend UX + design rules | workbench UX, library/skills UI |
 | markdowntown-atlas-scan | "scan flow", "atlas simulator", "folder upload" | scan + simulator logic | scan flow, onboarding funnel |
 | markdowntown-workbench | "workbench export", "compile adapters", "targets" | workbench + adapters | build/export pipeline |
+| markdowntown-backend | "API route", "Prisma", "migration", "server validation" | backend routes + data layer | API handlers, Prisma, validation |
 | markdowntown-testing | "run tests", "playwright", "E2E" | test strategy + commands | testing + validation |
 | markdowntown-docs | "update docs", "architecture doc", "UX spec" | docs location + style | docs and content updates |
 | markdowntown-analytics | "events", "redaction", "telemetry" | analytics + privacy | analytics/security |
@@ -24,6 +25,7 @@ See `docs/skills/index.md` for the quick overview and maintenance steps.
 - **Docs**: markdowntown-docs
 - **Analytics/security**: markdowntown-analytics
 - **bd workflow**: markdowntown-bd
+- **Backend/data layer**: markdowntown-backend
 
 ## Assumptions
 - Skills should be terse, referencing repo docs rather than duplicating them.
@@ -31,6 +33,5 @@ See `docs/skills/index.md` for the quick overview and maintenance steps.
 - Skills should avoid network usage unless explicitly needed.
 
 ## Open questions
-- Should we add a dedicated skill for Prisma/migrations once Skills artifact type lands?
 - Do we need a separate skill for public API routes vs UI components?
 - Is there a need for a "release + deploy" skill beyond bd workflow notes?
