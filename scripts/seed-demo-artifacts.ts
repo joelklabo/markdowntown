@@ -122,6 +122,60 @@ function buildSeedDefinitions(): SeedDefinition[] {
   ];
   snippet.targets = [createUamTargetV1("agents-md"), createUamTargetV1("github-copilot")];
 
+  const codexSkill = createEmptyUamV1({
+    title: "Official: Codex CLI skill pack",
+    description: "Core skills for Codex CLI sessions in markdowntown.",
+  });
+  codexSkill.scopes = [
+    { id: GLOBAL_SCOPE_ID, kind: "global", name: "Global" },
+    { id: "src", kind: "dir", dir: "src", name: "Source" },
+  ];
+  codexSkill.capabilities = [
+    {
+      id: "codex-cli-basics",
+      title: "Codex CLI basics",
+      description: "Apply repo conventions, tests, and safe command usage in Codex CLI.",
+      params: { tool: "codex-cli" },
+    },
+  ];
+  codexSkill.targets = [createUamTargetV1("agents-md")];
+
+  const copilotSkill = createEmptyUamV1({
+    title: "Official: Copilot CLI skill pack",
+    description: "Skills tuned for GitHub Copilot CLI workflows in markdowntown.",
+  });
+  copilotSkill.scopes = [
+    { id: GLOBAL_SCOPE_ID, kind: "global", name: "Global" },
+    { id: "docs", kind: "glob", patterns: ["docs/**/*.md", "README.md"], name: "Docs" },
+  ];
+  copilotSkill.capabilities = [
+    {
+      id: "copilot-cli-ops",
+      title: "Copilot CLI ops",
+      description: "Guide Copilot CLI through common repo tasks and checks.",
+      params: { tool: "copilot-cli" },
+    },
+  ];
+  copilotSkill.targets = [createUamTargetV1("github-copilot")];
+
+  const claudeSkill = createEmptyUamV1({
+    title: "Official: Claude Code skill pack",
+    description: "Skills for Claude Code exports and repository context.",
+  });
+  claudeSkill.scopes = [
+    { id: GLOBAL_SCOPE_ID, kind: "global", name: "Global" },
+    { id: "workbench", kind: "dir", dir: "src", name: "Workbench" },
+  ];
+  claudeSkill.capabilities = [
+    {
+      id: "claude-code-export",
+      title: "Claude Code export",
+      description: "Prepare Claude Code exports with consistent formatting and metadata.",
+      params: { tool: "claude-code" },
+    },
+  ];
+  claudeSkill.targets = [createUamTargetV1("claude-code")];
+
   return [
     {
       slug: "official-repo-assistant",
@@ -149,6 +203,33 @@ function buildSeedDefinitions(): SeedDefinition[] {
       tags: ["checklist", "ops", SEED_TAG],
       uam: snippet,
       stats: { views: 760, copies: 130, votesUp: 27 },
+    },
+    {
+      slug: "official-codex-cli-skills",
+      type: ArtifactType.SKILL,
+      title: codexSkill.meta.title,
+      description: codexSkill.meta.description ?? "",
+      tags: ["skill", "codex-cli", SEED_TAG],
+      uam: codexSkill,
+      stats: { views: 520, copies: 95, votesUp: 18 },
+    },
+    {
+      slug: "official-copilot-cli-skills",
+      type: ArtifactType.SKILL,
+      title: copilotSkill.meta.title,
+      description: copilotSkill.meta.description ?? "",
+      tags: ["skill", "copilot-cli", SEED_TAG],
+      uam: copilotSkill,
+      stats: { views: 410, copies: 70, votesUp: 14 },
+    },
+    {
+      slug: "official-claude-code-skills",
+      type: ArtifactType.SKILL,
+      title: claudeSkill.meta.title,
+      description: claudeSkill.meta.description ?? "",
+      tags: ["skill", "claude-code", SEED_TAG],
+      uam: claudeSkill,
+      stats: { views: 460, copies: 82, votesUp: 16 },
     },
   ];
 }
