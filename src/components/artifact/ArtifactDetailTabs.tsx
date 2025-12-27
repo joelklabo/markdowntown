@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ReactMarkdown from "react-markdown";
+import dynamic from "next/dynamic";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import { Button } from "@/components/ui/Button";
@@ -10,6 +10,10 @@ import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "@/components/ui/Ta
 import { lintUamV1 } from "@/lib/uam/uamLint";
 import { safeParseUamV1 } from "@/lib/uam/uamValidate";
 import type { UamScopeV1 } from "@/lib/uam/uamTypes";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  loading: () => <div>Loading...</div>,
+});
 
 type CompileResult = {
   files: Array<{ path: string; content: string }>;
