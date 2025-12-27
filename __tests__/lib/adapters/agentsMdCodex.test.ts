@@ -43,4 +43,23 @@ describe('AGENTS.md (Codex) v1 adapter', () => {
     expect(result.files[0]?.content).toBe('One\n\nTwo');
     expect(result.warnings.some(w => w.includes('Multiple scopes map'))).toBe(true);
   });
+
+  it('inlines skills into AGENTS.md when configured', async () => {
+    const uam = makeUam({
+      scopes: [{ id: 'global', kind: 'global' }],
+      blocks: [{ id: 'b1', scopeId: 'global', kind: 'markdown', body: 'Root content' }],
+      capabilities: [{ id: 'review', title: 'Review', description: 'Check changes' }],
+    });
+
+    const result = await agentsMdCodexAdapter.compile(uam, {
+      targetId: 'agents-md',
+      adapterVersion: '1',
+      options: { exportSkills: true },
+    });
+
+    const root = result.files.find((file) => file.path === 'AGENTS.md')?.content ?? '';
+    expect(root).toContain('Root content');
+    expect(root).toContain('## Skills');
+    expect(root).toContain('Review');
+  });
 });

@@ -92,4 +92,23 @@ describe('GitHub Copilot v1 adapter', () => {
       '.github/instructions/rules.instructions.md',
     ]);
   });
+
+  it('inlines skills into the global instruction file when configured', async () => {
+    const uam = makeUam({
+      scopes: [{ id: 'global', kind: 'global' }],
+      blocks: [{ id: 'b1', scopeId: 'global', kind: 'markdown', body: 'Global rules' }],
+      capabilities: [{ id: 'review', title: 'Review', description: 'Check changes' }],
+    });
+
+    const result = await githubCopilotAdapter.compile(uam, {
+      targetId: 'github-copilot',
+      adapterVersion: '1',
+      options: { exportSkills: true },
+    });
+
+    const global = result.files.find((file) => file.path === '.github/copilot-instructions.md')?.content ?? '';
+    expect(global).toContain('Global rules');
+    expect(global).toContain('## Skills');
+    expect(global).toContain('Review');
+  });
 });

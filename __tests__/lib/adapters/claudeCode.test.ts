@@ -78,4 +78,25 @@ describe("Claude Code v1 adapter", () => {
     expect(skill).toContain("# Review");
     expect(skill).toContain('"level": "strict"');
   });
+
+  it("exports allowlisted skills and warns on unknown ids", async () => {
+    const uam = makeUam({
+      scopes: [{ id: "global", kind: "global" }],
+      blocks: [{ id: "b1", scopeId: "global", kind: "markdown", body: "Global rules" }],
+      capabilities: [
+        { id: "review", title: "Review", description: "Review changes carefully" },
+        { id: "lint", title: "Lint", description: "Run lint checks" },
+      ],
+    });
+
+    const target: UamTargetV1 = {
+      targetId: "claude-code",
+      adapterVersion: "1",
+      options: { skills: ["review", "missing"] },
+    };
+    const result = await claudeCodeAdapter.compile(uam, target);
+
+    expect(result.files.map((f) => f.path)).toEqual([".claude/skills/review/SKILL.md", "CLAUDE.md"]);
+    expect(result.warnings.some((warning) => warning.includes("Unknown skill capability id 'missing'"))).toBe(true);
+  });
 });

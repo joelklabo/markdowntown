@@ -60,9 +60,49 @@ describe('UAM v1 validation', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects duplicate capability ids', () => {
+    const result = safeParseUamV1({
+      schemaVersion: 1,
+      meta: { title: 'Test' },
+      capabilities: [{ id: 'dup' }, { id: 'dup' }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects invalid capability ids', () => {
+    const result = safeParseUamV1({
+      schemaVersion: 1,
+      meta: { title: 'Test' },
+      capabilities: [{ id: 'Not Allowed' }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects too many capabilities', () => {
+    const capabilities = Array.from({ length: 65 }, (_, index) => ({ id: `cap-${index}` }));
+    const result = safeParseUamV1({
+      schemaVersion: 1,
+      meta: { title: 'Test' },
+      capabilities,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects non-serializable capability params', () => {
+    const result = safeParseUamV1({
+      schemaVersion: 1,
+      meta: { title: 'Test' },
+      capabilities: [{ id: 'json-only', params: { value: BigInt(1) } }],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('helper constructors create valid UAM v1', () => {
     expect(() => parseUamV1(createEmptyUamV1())).not.toThrow();
     expect(() => parseUamV1(wrapMarkdownAsGlobal('# Hello'))).not.toThrow();
   });
 });
-
