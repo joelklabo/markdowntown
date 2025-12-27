@@ -10,6 +10,7 @@ import {
   normalizeUamTargetsV1,
   type UamBlockKindV1,
   type UamBlockV1,
+  type UamCapabilityV1,
   type UamScopeV1,
   type UamTargetV1,
   type UamV1,
@@ -124,6 +125,11 @@ function ensureSelectedScopeId(uam: UamV1, selectedScopeId: string | null | unde
   return uam.scopes.some(s => s.id === GLOBAL_SCOPE_ID) ? GLOBAL_SCOPE_ID : (uam.scopes[0]?.id ?? GLOBAL_SCOPE_ID);
 }
 
+function ensureSelectedSkillId(uam: UamV1, selectedSkillId: string | null | undefined): string | null {
+  if (selectedSkillId && uam.capabilities.some(c => c.id === selectedSkillId)) return selectedSkillId;
+  return uam.capabilities[0]?.id ?? null;
+}
+
 function normalizeWorkbenchUam(uam: UamV1): UamV1 {
   const withGlobal = ensureGlobalScope(uam);
   return {
@@ -141,6 +147,7 @@ type PersistedWorkbenchState = {
   uam: UamV1;
   selectedScopeId?: string;
   selectedBlockId?: string | null;
+  selectedSkillId?: string | null;
   visibility?: ArtifactVisibility;
   tags?: string[];
 };
@@ -156,11 +163,13 @@ interface WorkbenchState {
   scopes: string[];
   blocks: UAMBlock[];
   targets: UamTargetV1[];
+  skills: UamCapabilityV1[];
 
   // Selection
   selectedScopeId: string;
   selectedScope: string | null;
   selectedBlockId: string | null;
+  selectedSkillId: string | null;
 
   visibility: ArtifactVisibility;
   tags: string[];
@@ -193,6 +202,11 @@ interface WorkbenchState {
   moveBlock: (id: string, newIndex: number) => void;
 
   selectBlock: (id: string | null) => void;
+
+  addSkill: (skill: Partial<UamCapabilityV1>) => string;
+  updateSkill: (id: string, updates: Partial<UamCapabilityV1>) => void;
+  removeSkill: (id: string) => void;
+  selectSkill: (id: string | null) => void;
 
   toggleTarget: (targetId: string) => void;
   setCompilationResult: (result: CompilationResult | null) => void;
@@ -233,6 +247,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
       const deriveFromUam = (uam: UamV1, selectedScopeIdHint: string | null | undefined) => {
         const normalized = normalizeWorkbenchUam(uam);
         const selectedScopeId = ensureSelectedScopeId(normalized, selectedScopeIdHint);
+        const selectedSkillId = ensureSelectedSkillId(normalized, get().selectedSkillId);
         const scopes = normalized.scopes.map(legacyScopeLabel);
         const blocks = syncLegacyBlocksFromUam(normalized.blocks);
         const targets = normalized.targets;
@@ -240,12 +255,14 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         return {
           uam: normalized,
           selectedScopeId,
+          selectedSkillId,
           selectedScope: legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
           title: normalized.meta.title,
           description: normalized.meta.description ?? '',
           scopes,
           blocks,
           targets,
+          skills: normalized.capabilities,
         };
       };
 
@@ -259,10 +276,12 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         scopes: ['root'],
         blocks: [],
         targets: [],
+        skills: [],
 
         selectedScopeId: GLOBAL_SCOPE_ID,
         selectedScope: 'root',
         selectedBlockId: null,
+        selectedSkillId: null,
 
         visibility: 'PRIVATE',
         tags: [],
@@ -487,6 +506,72 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           onPersisted();
         },
 
+        addSkill: (skillInput) => {
+          const id = skillInput.id?.trim() || `skill_${randomId()}`;
+          const skill: UamCapabilityV1 = {
+            id,
+            title: skillInput.title?.trim() || undefined,
+            description: skillInput.description?.trim() || undefined,
+            params: skillInput.params,
+          };
+
+          set((state) => {
+            if (state.uam.capabilities.some((cap) => cap.id === id)) return {};
+            const nextCapabilities = [...state.uam.capabilities, skill];
+            return {
+              skills: nextCapabilities,
+              selectedSkillId: id,
+              uam: { ...state.uam, capabilities: nextCapabilities },
+            };
+          });
+          markDirty();
+          onPersisted();
+          return id;
+        },
+
+        updateSkill: (id, updates) => {
+          set((state) => {
+            const nextCapabilities = state.uam.capabilities.map((cap) =>
+              cap.id === id
+                ? {
+                    ...cap,
+                    ...(typeof updates.title === 'string' ? { title: updates.title.trim() || undefined } : {}),
+                    ...(typeof updates.description === 'string'
+                      ? { description: updates.description.trim() || undefined }
+                      : {}),
+                    ...(updates.params ? { params: updates.params } : {}),
+                  }
+                : cap
+            );
+            return { skills: nextCapabilities, uam: { ...state.uam, capabilities: nextCapabilities } };
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        removeSkill: (id) => {
+          set((state) => {
+            const nextCapabilities = state.uam.capabilities.filter((cap) => cap.id !== id);
+            const nextSelected = state.selectedSkillId === id ? nextCapabilities[0]?.id ?? null : state.selectedSkillId;
+            return {
+              skills: nextCapabilities,
+              selectedSkillId: nextSelected,
+              uam: { ...state.uam, capabilities: nextCapabilities },
+            };
+          });
+          markDirty();
+          onPersisted();
+        },
+
+        selectSkill: (id) => {
+          set((state) => {
+            if (!id) return { selectedSkillId: null };
+            if (!state.uam.capabilities.some((cap) => cap.id === id)) return {};
+            return { selectedSkillId: id };
+          });
+          onPersisted();
+        },
+
         toggleTarget: (targetId) => {
           set((state) => {
             const nextTargets = state.targets.some((t) => t.targetId === targetId)
@@ -661,6 +746,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         uam: state.uam,
         selectedScopeId: state.selectedScopeId,
         selectedBlockId: state.selectedBlockId,
+        selectedSkillId: state.selectedSkillId,
         visibility: state.visibility,
         tags: state.tags,
       }),
@@ -675,6 +761,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             uam: normalized,
             selectedBlockId: persisted.selectedBlockId ?? null,
             selectedScopeId: persisted.selectedScopeId,
+            selectedSkillId: persisted.selectedSkillId ?? null,
             visibility: persisted.visibility,
             tags: persisted.tags,
           } satisfies PersistedWorkbenchState;
@@ -711,6 +798,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           uam,
           selectedBlockId: legacy.selectedBlockId ?? null,
           selectedScopeId,
+          selectedSkillId: null,
         } satisfies PersistedWorkbenchState;
       },
       merge: (persistedState, currentState) => {
@@ -719,11 +807,13 @@ export const useWorkbenchStore = create<WorkbenchState>()(
 
         const normalized = normalizeWorkbenchUam(next.uam);
         const selectedScopeId = ensureSelectedScopeId(normalized, next.selectedScopeId);
+        const selectedSkillId = ensureSelectedSkillId(normalized, next.selectedSkillId);
 
         return {
           ...next,
           uam: normalized,
           selectedScopeId,
+          selectedSkillId,
           selectedScope:
             legacyScopeLabel(normalized.scopes.find(s => s.id === selectedScopeId) ?? normalized.scopes[0]!),
           title: normalized.meta.title,
@@ -731,6 +821,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           scopes: normalized.scopes.map(legacyScopeLabel),
           blocks: syncLegacyBlocksFromUam(normalized.blocks),
           targets: normalized.targets,
+          skills: normalized.capabilities,
           visibility: next.visibility ?? 'PRIVATE',
           tags: next.tags ?? [],
         };
