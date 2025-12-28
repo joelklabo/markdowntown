@@ -53,7 +53,14 @@ export function NextStepsPanel({
 
   const orderedSteps = useMemo(() => {
     if (steps.length <= 1) return steps;
-    return [...steps].sort((a, b) => severityPriority[a.severity] - severityPriority[b.severity]);
+    const hasBlocking = steps.some((step) => step.severity === "error" || step.severity === "warning");
+    const sorted = [...steps].sort((a, b) => severityPriority[a.severity] - severityPriority[b.severity]);
+    if (hasBlocking) {
+      return sorted;
+    }
+    const readySteps = sorted.filter((step) => step.severity === "ready");
+    const remaining = sorted.filter((step) => step.severity !== "ready");
+    return [...readySteps, ...remaining];
   }, [steps]);
 
   const { visibleSteps, hiddenCount } = useMemo(() => {

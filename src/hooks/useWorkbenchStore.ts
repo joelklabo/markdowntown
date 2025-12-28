@@ -79,6 +79,17 @@ function normalizeDirScope(dir: string): string {
   return normalized;
 }
 
+const MAX_SCAN_PATHS = 200;
+
+function normalizeScanPath(path: string): string {
+  return path.replace(/\\/g, '/').trim().replace(/^\.\/+/, '').replace(/\/+$/, '');
+}
+
+function normalizeScanPaths(paths: string[]): string[] {
+  const normalized = paths.map((path) => normalizeScanPath(String(path))).filter(Boolean);
+  return Array.from(new Set(normalized)).slice(0, MAX_SCAN_PATHS);
+}
+
 function legacyScopeLabel(scope: UamScopeV1): string {
   if (scope.kind === 'global') return 'root';
   if (scope.kind === 'dir') return normalizeDirScope(scope.dir);
@@ -716,8 +727,13 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         },
 
         applyScanContext: (context) => {
-          set({ scanContext: context });
-          const targetId = targetIdForScanTool(context.tool);
+          const nextContext = {
+            tool: context.tool,
+            cwd: normalizeDirScope(context.cwd ?? ''),
+            paths: normalizeScanPaths(context.paths ?? []),
+          };
+          set({ scanContext: nextContext });
+          const targetId = targetIdForScanTool(nextContext.tool);
           if (!targetId) return;
           const nextUam = { ...get().uam, targets: [createUamTargetV1(targetId)] };
           get().setUam(nextUam);

@@ -268,7 +268,8 @@ export function computeNextSteps(input: NextStepsInput): NextStep[] {
   }
 
   steps.push(...errorSteps, ...warningSteps, ...infoSteps);
-  if (errorSteps.length === 0 && !input.isStale) {
+  const isValid = !input.isStale && errorSteps.length === 0 && warningSteps.length === 0;
+  if (isValid) {
     steps.push(buildReadyStep());
   }
   return steps;

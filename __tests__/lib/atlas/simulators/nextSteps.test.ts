@@ -164,6 +164,6 @@ describe('atlas/simulators/nextSteps', () => {
     expect(steps[0].primaryAction?.id).toBe('scan-smaller-folder');
     const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
     expect(secondaryIds).toContain('paste-paths');
-    expect(steps.some((step) => step.id === 'ready')).toBe(true);
+    expect(steps.some((step) => step.id === 'ready')).toBe(false);
   });
 });
