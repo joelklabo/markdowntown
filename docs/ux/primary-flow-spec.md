@@ -38,8 +38,15 @@ Last updated: Dec 28, 2025
 - Home hero CTA -> `/atlas/simulator` (Scan a folder).
 - Navigation primary -> `Scan` -> `/atlas/simulator`.
 - Secondary CTA -> `/workbench` (Open Workbench).
-- Secondary CTA -> `/library` (Browse Library).
+- Tertiary CTA -> `/library` (Browse Library; use once on Home or Library preview).
 - Tertiary entry points (de-emphasized): `/templates`, `/tags`, `/atlas`.
+
+## Home layout mapping (scan-first)
+1. Hero: scan-first value + primary/secondary CTAs.
+2. Quick-start steps: Scan → Review → Export.
+3. Proof/preview: confirms Workbench output readiness.
+4. Minimal Library preview: secondary discovery path only.
+5. Final CTA block: reinforce Scan → Workbench.
 
 ## Related documentation
 - User guide: `docs/USER_GUIDE.md`.
