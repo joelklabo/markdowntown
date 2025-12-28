@@ -116,9 +116,7 @@ jobs:
 
       - name: Bundle size budget
         env:
-          # Budget increased from 1.4MB to 1.5MB to accommodate current build output.
-          # TODO: Follow up with bundle size optimization work to reduce this budget again.
-          BUNDLE_BUDGET_BYTES: 1500000
+          BUNDLE_BUDGET_BYTES: 1400000
         run: pnpm bundle:check
 
       - name: Coverage
