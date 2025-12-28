@@ -12,6 +12,8 @@ export function WorkbenchOnboardingCard() {
   const selectedScopeId = useWorkbenchStore(s => s.selectedScopeId);
   const addBlock = useWorkbenchStore(s => s.addBlock);
   const selectBlock = useWorkbenchStore(s => s.selectBlock);
+  const scanContext = useWorkbenchStore(s => s.scanContext);
+  const hasScanContext = Boolean(scanContext);
 
   const handleAddBlock = () => {
     const id = addBlock({ kind: 'markdown', scopeId: selectedScopeId, body: '' });
@@ -22,15 +24,23 @@ export function WorkbenchOnboardingCard() {
     <Card className="p-mdt-4 md:p-mdt-5">
       <Stack gap={3}>
         <div className="space-y-mdt-1">
-          <Text size="caption" tone="muted">Start here</Text>
-          <Heading level="h3" as="h2">Build an agents.md</Heading>
-          <Text tone="muted">Add scopes, write instruction blocks, define skills, then export.</Text>
+          <Text size="caption" tone="muted">{hasScanContext ? 'Next step' : 'Start here'}</Text>
+          <Heading level="h3" as="h2">{hasScanContext ? 'Continue in Workbench' : 'Build an agents.md'}</Heading>
+          <Text tone="muted">
+            {hasScanContext
+              ? 'Your scan defaults are loaded. Add a block, refine the instructions, then export.'
+              : 'Add scopes, write instruction blocks, define skills, then export.'}
+          </Text>
         </div>
 
         <ol className="space-y-mdt-2 text-body-sm text-mdt-muted">
           <li className="flex gap-mdt-2">
             <span className="font-semibold text-mdt-text">1.</span>
-            <span>Keep the Global scope or add a folder scope.</span>
+            <span>
+              {hasScanContext
+                ? 'Review scan defaults and keep the Global scope or add a folder scope.'
+                : 'Keep the Global scope or add a folder scope.'}
+            </span>
           </li>
           <li className="flex gap-mdt-2">
             <span className="font-semibold text-mdt-text">2.</span>
@@ -51,7 +61,7 @@ export function WorkbenchOnboardingCard() {
             Add a block
           </Button>
           <Button size="sm" variant="secondary" asChild>
-            <Link href="/atlas/simulator">Scan a folder</Link>
+            <Link href="/atlas/simulator">{hasScanContext ? 'Back to Scan' : 'Scan a folder'}</Link>
           </Button>
         </div>
       </Stack>
