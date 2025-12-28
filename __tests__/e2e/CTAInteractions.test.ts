@@ -53,7 +53,9 @@ describe("CTA interactions", () => {
         await copy.click();
         await page.getByText(/^copied$/i).first().waitFor({ state: "visible" });
 
-        const openWorkbench = firstRow.getByRole("link", { name: /open workbench/i }).first();
+        const openWorkbench = firstRow
+          .getByRole("link", { name: /open (in )?workbench/i })
+          .first();
         await openWorkbench.waitFor({ state: "visible" });
         await openWorkbench.click();
         await page.waitForURL(/\/workbench/);
