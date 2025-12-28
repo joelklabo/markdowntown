@@ -77,6 +77,28 @@ describe("redactAnalyticsPayload", () => {
     });
   });
 
+  it("redacts open-workbench next-step payloads", () => {
+    const input = {
+      actionId: "open-workbench",
+      stepId: "ready",
+      tool: "github-copilot",
+      repoSource: "scan",
+      cwd: "/Users/name/secret-repo",
+      paths: ["AGENTS.md", ".github/copilot-instructions.md"],
+      fileCount: 2,
+      isStale: false,
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual({
+      actionId: "open-workbench",
+      stepId: "ready",
+      tool: "github-copilot",
+      repoSource: "scan",
+      fileCount: 2,
+      isStale: false,
+    });
+  });
+
   it("returns undefined when given undefined", () => {
     expect(redactAnalyticsPayload(undefined)).toBeUndefined();
   });
