@@ -53,6 +53,7 @@ describe("Atlas simulator flow", () => {
       expect(copilotText.trim().length).toBeGreaterThan(0);
 
       // Switch to Codex CLI and refresh results.
+      await page.getByText(/show advanced settings/i).click();
       await page.getByLabel("Tool", { exact: true }).selectOption("codex-cli");
       const refreshButtons = page.getByRole("button", { name: /refresh results/i });
       if ((await refreshButtons.count()) > 0) {
@@ -102,6 +103,7 @@ describe("Atlas simulator flow", () => {
       const missingList = page.getByRole("list", { name: /missing instruction files/i });
       await missingList.getByText("Scoped instructions", { exact: true }).waitFor({ state: "visible" });
 
+      await page.getByText(/show advanced settings/i).click();
       await page.getByLabel("Tool", { exact: true }).selectOption("codex-cli");
       const refreshButtons = page.getByRole("button", { name: /refresh results/i });
       if ((await refreshButtons.count()) > 0) {
