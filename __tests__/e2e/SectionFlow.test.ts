@@ -26,6 +26,14 @@ describe("Section flow", () => {
         expect(home?.status()).toBeGreaterThanOrEqual(200);
         expect(home?.status()).toBeLessThan(400);
         await page.getByRole("link", { name: /library/i }).first().waitFor({ state: "visible" });
+        const buildSection = page.locator("#build-in-60s");
+        if ((await buildSection.count()) > 0) {
+          await buildSection.waitFor({ state: "visible" });
+          await page.locator("#library-preview").waitFor({ state: "visible" });
+          await page.getByRole("heading", { name: /browse curated public artifacts/i }).waitFor({ state: "visible" });
+        } else {
+          await page.getByRole("heading", { name: /scan a folder to start/i }).waitFor({ state: "visible" });
+        }
 
         const library = await page.goto("/library", { waitUntil: "domcontentloaded", timeout: 15000 });
         expect(library?.status()).toBeGreaterThanOrEqual(200);

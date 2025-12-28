@@ -28,15 +28,26 @@ describe("Site responsive smoke", () => {
         page.getByRole("contentinfo").waitFor({ state: "visible" }),
       ]);
 
-      const browseLink = page.getByRole("link", { name: /browse (the )?library/i });
-      const browseButton = page.getByRole("button", { name: /browse library/i });
+      const buildSection = page.locator("#build-in-60s");
+      const hasFullHome = (await buildSection.count()) > 0;
+      if (hasFullHome) {
+        await page.getByRole("heading", { name: /what you get after scanning/i }).waitFor({ state: "visible" });
+        await page.getByRole("heading", { name: /a clear, scan-first path/i }).waitFor({ state: "visible" });
+        await page.getByRole("heading", { name: /browse curated public artifacts/i }).waitFor({ state: "visible" });
+      } else {
+        await page.getByRole("heading", { name: /scan a folder to start/i }).waitFor({ state: "visible" });
+      }
+
+      const scanCta = page.getByRole("link", { name: /^scan a folder$/i }).first();
+      const workbenchCta = page.getByRole("link", { name: /^open workbench$/i }).first();
+      await scanCta.waitFor({ state: "visible" });
+      await workbenchCta.waitFor({ state: "visible" });
+
+      const browseLink = page.getByRole("link", { name: /^browse library$/i }).first();
+
       const headerLibrary = page.locator("header").getByRole("link", { name: /^library$/i });
       if ((await browseLink.count()) > 0) {
-        await browseLink.first().waitFor({ state: "visible" });
-        await browseLink.first().click();
-      } else if ((await browseButton.count()) > 0) {
-        await browseButton.first().waitFor({ state: "visible" });
-        await browseButton.first().click();
+        await browseLink.click();
       } else {
         await headerLibrary.first().waitFor({ state: "visible" });
         await headerLibrary.first().click();
@@ -69,16 +80,24 @@ describe("Site responsive smoke", () => {
         page.getByRole("contentinfo").waitFor({ state: "visible" }),
       ]);
 
-      const browseLink = page.getByRole("link", { name: /browse (the )?library/i });
-      const browseButton = page.getByRole("button", { name: /browse library/i });
+      const buildSection = page.locator("#build-in-60s");
+      const hasFullHome = (await buildSection.count()) > 0;
+      if (hasFullHome) {
+        await page.getByRole("heading", { name: /what you get after scanning/i }).waitFor({ state: "visible" });
+        await page.getByRole("heading", { name: /browse curated public artifacts/i }).waitFor({ state: "visible" });
+      } else {
+        await page.getByRole("heading", { name: /scan a folder to start/i }).waitFor({ state: "visible" });
+      }
+
+      const scanCta = page.getByRole("link", { name: /^scan a folder$/i }).first();
+      await scanCta.waitFor({ state: "visible" });
+
       const bottomNav = page.getByRole("navigation", { name: /primary/i }).last();
       const bottomLibrary = bottomNav.getByRole("link", { name: /^library$/i });
+      const browseLink = page.getByRole("link", { name: /^browse library$/i }).first();
       if ((await browseLink.count()) > 0) {
-        await browseLink.first().waitFor({ state: "visible" });
-        await browseLink.first().click();
-      } else if ((await browseButton.count()) > 0) {
-        await browseButton.first().waitFor({ state: "visible" });
-        await browseButton.first().click();
+        await browseLink.waitFor({ state: "visible" });
+        await browseLink.click();
       } else {
         await bottomNav.waitFor({ state: "visible" });
         await bottomLibrary.first().waitFor({ state: "visible" });
@@ -92,7 +111,22 @@ describe("Site responsive smoke", () => {
       const innerWidth = await page.evaluate(() => window.innerWidth);
       expect(scrollWidth).toBeLessThanOrEqual(innerWidth + 32);
 
+      await scanCta.scrollIntoViewIfNeeded();
       await bottomNav.waitFor({ state: "visible" });
+      const overlapCheck = await page.evaluate(() => {
+        const cta = document.querySelector('a[href=\"/atlas/simulator\"]');
+        const nav = Array.from(document.querySelectorAll("nav")).find((el) =>
+          (el.getAttribute("aria-label") ?? "").toLowerCase().includes("primary")
+        );
+        if (!cta || !nav) return null;
+        const ctaRect = cta.getBoundingClientRect();
+        const navRect = nav.getBoundingClientRect();
+        return { ctaBottom: ctaRect.bottom, navTop: navRect.top };
+      });
+      expect(overlapCheck).toBeTruthy();
+      if (overlapCheck) {
+        expect(overlapCheck.ctaBottom).toBeLessThan(overlapCheck.navTop + 4);
+      }
 
       const openSearch = bottomNav.getByRole("button", { name: /open search/i });
       await openSearch.click();
