@@ -47,7 +47,7 @@ Last updated: Dec 20, 2025
 
 ## Legacy and redirect routes
 - `/browse` -> `/library` (keep for external links)
-- `/builder` -> `/workbench` (keep for external links)
+- `/builder` -> `/workbench` (legacy redirect; avoid the Builder label in UI)
 
 ## Authenticated surfaces (not in primary nav)
 - `/documents` Your saved agents.md files (requires sign-in)
