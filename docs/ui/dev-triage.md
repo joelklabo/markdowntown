@@ -49,6 +49,11 @@
 - MCP health output (include retries/timeouts used).
 - Whether `WATCHPACK_POLLING`/`WATCHPACK_POLLING_INTERVAL` were set.
 
+### Fallback evidence (if MCP remains unavailable)
+- Run the smoke helper: `node scripts/qa/devtools-smoke.mjs --url http://localhost:3000/translate`.
+- Capture a screenshot: `pnpm exec playwright screenshot http://localhost:3000/translate docs/screenshots/translate-download/translate-download.png`.
+- Attach `/tmp/markdowntown-dev.log` to the QA notes.
+
 ## Watchpack EMFILE / route 404s in dev
 
 ### Symptoms
