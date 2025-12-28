@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import { chromium, type Browser, type Page } from "playwright";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
@@ -202,7 +202,7 @@ describe("Atlas scan guidance flow", () => {
       await page.getByText(/no files would be loaded for this input/i).waitFor({ state: "visible" });
       await page.getByRole("list", { name: /missing instruction files/i }).waitFor({ state: "visible" });
 
-      await page.getByRole("link", { name: /open workbench/i }).first().waitFor({ state: "visible" });
+      expect(await page.getByTestId("next-steps-open-workbench").count()).toBe(0);
     }, "scan-empty");
   });
 
@@ -219,7 +219,7 @@ describe("Atlas scan guidance flow", () => {
       const extraList = page.getByRole("list", { name: /extra instruction files/i });
       await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
-      await page.getByRole("link", { name: /open workbench/i }).first().waitFor({ state: "visible" });
+      await page.getByTestId("next-steps-open-workbench").waitFor({ state: "visible" });
     }, "scan-sample");
   });
 

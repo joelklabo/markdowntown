@@ -40,7 +40,6 @@ describe("Scan to workbench export flow", () => {
               ".github",
               makeDir(".github", [["copilot-instructions.md", makeFile("copilot-instructions.md")]]),
             ],
-            ["AGENTS.md", makeFile("AGENTS.md")],
           ]);
 
           (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker = async () => root;
@@ -53,17 +52,14 @@ describe("Scan to workbench export flow", () => {
 
         const loadedList = page.getByRole("list", { name: /loaded files/i });
         await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
-        const extraList = page.getByRole("list", { name: /extra instruction files/i });
-        await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
-
         const refreshButtons = page.getByRole("button", { name: /refresh results/i });
         if ((await refreshButtons.count()) > 0) {
           await refreshButtons.first().click();
         }
 
-        await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
-
-        await page.getByRole("link", { name: /open workbench/i }).click();
+        const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
+        await openWorkbenchCta.waitFor({ state: "visible" });
+        await openWorkbenchCta.click();
         await page.waitForURL(/\/workbench/);
 
         await page.getByText(/scan defaults applied/i).waitFor({ state: "visible" });
