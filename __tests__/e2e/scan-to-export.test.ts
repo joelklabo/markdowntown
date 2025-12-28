@@ -80,7 +80,10 @@ describe("Scan to workbench export flow", () => {
         await page.getByRole("button", { name: /^\+ add$/i }).click();
         await page.getByLabel("Block title").fill("Scan Export Block");
         await page.getByPlaceholder(/write markdown instructions/i).fill("Export from scan flow");
-        await page.getByLabel("GitHub Copilot").click();
+        const copilotTarget = page.getByRole("checkbox", { name: /github copilot/i });
+        if (!(await copilotTarget.isChecked())) {
+          await copilotTarget.check();
+        }
 
         await page.getByRole("button", { name: /^compile$/i }).click();
         await page.getByText("Manifest").waitFor({ state: "visible" });

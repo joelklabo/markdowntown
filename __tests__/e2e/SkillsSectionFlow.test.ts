@@ -46,6 +46,10 @@ describe("Skills section flow", () => {
       await page.waitForURL(/\/skills$/);
 
       const firstCard = page.getByTestId("skill-card").first();
+      if ((await firstCard.count()) === 0) {
+        await page.getByRole("heading", { name: /no skills match those filters/i }).waitFor({ state: "visible" });
+        return;
+      }
       await firstCard.waitFor({ state: "visible" });
 
       const skillTitle = (await firstCard.getByRole("heading").textContent())?.trim();

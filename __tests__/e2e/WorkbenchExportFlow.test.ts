@@ -73,8 +73,8 @@ describe("Workbench export flow", () => {
 
       const agentsFile = page
         .locator("div")
-        .filter({ hasText: "AGENTS.md" })
         .filter({ has: page.locator("pre") })
+        .filter({ has: page.locator("div.font-mono", { hasText: /^AGENTS\\.md$/ }) })
         .first();
       const agentsPre = agentsFile.locator("pre").first();
       await agentsPre.waitFor({ state: "visible" });
@@ -84,8 +84,8 @@ describe("Workbench export flow", () => {
 
       const copilotFile = page
         .locator("div")
-        .filter({ hasText: ".github/copilot-instructions.md" })
         .filter({ has: page.locator("pre") })
+        .filter({ has: page.locator("div.font-mono", { hasText: /\.github\/copilot-instructions\.md$/ }) })
         .first();
       const copilotPre = copilotFile.locator("pre").first();
       await copilotPre.waitFor({ state: "visible" });
