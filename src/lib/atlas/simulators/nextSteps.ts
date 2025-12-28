@@ -69,9 +69,9 @@ function buildReadyStep(): NextStep {
     id: 'ready',
     severity: 'ready',
     title: "You're ready to go",
-    body: 'These files should load for the selected tool. You can share the summary or continue.',
-    primaryAction: action('copy-summary', 'Copy summary'),
-    secondaryActions: [action('download-report', 'Download report')],
+    body: 'These files should load for the selected tool. Open Workbench to continue or share the summary.',
+    primaryAction: action('open-workbench', 'Open Workbench'),
+    secondaryActions: [action('copy-summary', 'Copy summary'), action('download-report', 'Download report')],
   };
 }
 

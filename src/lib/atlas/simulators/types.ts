@@ -99,6 +99,7 @@ export type NextStepActionId =
   | 'refresh-results'
   | 'copy-template'
   | 'open-docs'
+  | 'open-workbench'
   | 'set-cwd'
   | 'copy-base-template'
   | 'switch-tool'

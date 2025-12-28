@@ -89,6 +89,9 @@ describe('atlas/simulators/nextSteps', () => {
     expect(steps).toHaveLength(1);
     expect(steps[0].id).toBe('ready');
     expect(steps[0].severity).toBe('ready');
+    expect(steps[0].primaryAction?.id).toBe('open-workbench');
+    const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
+    expect(secondaryIds).toEqual(['copy-summary', 'download-report']);
   });
 
   it('includes expected path for missing root instructions', () => {
