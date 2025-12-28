@@ -29,7 +29,11 @@ Last updated: Dec 20, 2025
   - Lead: "Preview which instruction files a tool would load."
   - Next step CTA: "Open Workbench".
 - **Workbench**: reinforce progress toward export.
-  - Lead: "Assemble scopes and export agents.md."
+  - Lead: "Build your agents.md."
+  - Helper: "Add scopes and blocks, then export."
+  - With scan: "Scan defaults applied."
+  - Without scan: "No scan context yet. Scan a folder to prefill Workbench."
+  - Export CTA: "Export agents.md".
 
 ## Error and empty states
 - Start with what happened, then the fix.
