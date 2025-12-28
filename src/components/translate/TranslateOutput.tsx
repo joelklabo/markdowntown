@@ -63,10 +63,10 @@ export function TranslateOutput({
       <Surface padding="lg" className="space-y-mdt-4">
         <div className="flex flex-wrap items-start justify-between gap-mdt-3">
           <div className="space-y-mdt-1">
-            <Text size="caption" tone="muted">Output</Text>
-            <Heading level="h3" as="h2">Targets & compile</Heading>
+            <Text size="caption" tone="muted">Step 1 · Targets</Text>
+            <Heading level="h3" as="h2">Select targets</Heading>
             <Text size="bodySm" tone="muted">
-              Choose targets, compile your files, and review the generated outputs below.
+              Choose targets, compile your files, and download the results below.
             </Text>
           </div>
           <div className="flex flex-wrap items-center gap-mdt-2">
@@ -190,11 +190,19 @@ export function TranslateOutput({
         </Surface>
 
         <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+          <Text size="caption" tone="muted" className="uppercase tracking-wide">
+            Step 3 · Compile + download
+          </Text>
           <Row gap={2} align="center" wrap>
-            <Button onClick={onCompile} disabled={disabledCompile || loading || targets.length === 0} size="sm">
+            <Button
+              onClick={onCompile}
+              disabled={disabledCompile || loading || targets.length === 0}
+              variant="secondary"
+              size="sm"
+            >
               {loading ? 'Compiling…' : 'Compile'}
             </Button>
-            <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
+            <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="primary" size="sm">
               Download zip
             </Button>
           </Row>

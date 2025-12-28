@@ -43,7 +43,7 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
       <div className="flex flex-wrap items-center justify-between gap-mdt-3">
         <div className="space-y-mdt-1">
           <Text as="label" htmlFor="translate-input-content" size="caption" tone="muted">
-            Input
+            Step 2 · Input
           </Text>
           <Text size="bodySm" tone="muted">
             Paste Markdown or UAM v1 JSON. You can also drop a file into this panel.

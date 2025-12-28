@@ -128,6 +128,15 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
           </Text>
         </Stack>
 
+        <div className="flex flex-wrap items-center gap-mdt-4 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3">
+          <Text size="caption" tone="muted" className="uppercase tracking-wide">
+            Steps
+          </Text>
+          <Text size="bodySm" tone="muted">1. Select targets</Text>
+          <Text size="bodySm" tone="muted">2. Paste input</Text>
+          <Text size="bodySm" tone="muted">3. Compile + download</Text>
+        </div>
+
         <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr),minmax(0,1fr)] lg:items-start">
           <TranslateInput value={input} onChange={setInput} disabled={loading} helperText={helperText} />
           <TranslateOutput
