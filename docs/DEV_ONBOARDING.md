@@ -76,7 +76,7 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - Prisma errors with Postgres: ensure your IP is allowed in the DB firewall and `sslmode=require` is present.
 - OAuth callback mismatch: set `NEXTAUTH_URL` to your running URL and update GitHub OAuth callback accordingly.
 - UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
-- DevTools MCP or browser console shows HMR WebSocket errors / pages 404: restart with polling to avoid watchpack `EMFILE` errors, e.g. `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev` (interval defaults to 1000ms when set via config).
+- DevTools MCP or browser console shows HMR WebSocket errors / pages 404: restart with polling to avoid watchpack `EMFILE` errors, e.g. `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev` (interval defaults to 1000ms when set via config). For E2E runs, keep the polling dev server running and verify `/tmp/markdowntown-dev.log` stays free of `EMFILE` warnings.
 - DevTools MCP timeouts: confirm the app responds (`curl -I http://localhost:3000`) and loads in a browser, then run `pnpm mcp:health` (or `MCP_HEALTH_RETRIES=3 MCP_HEALTH_TIMEOUT=3000 pnpm mcp:health`) before restarting the MCP bridge/agent and opening a fresh DevTools page. Capture the MCP error text + health output + `WATCHPACK_POLLING` settings; see `docs/ui/dev-triage.md` for the full checklist.
 - MCP readiness check: run `pnpm mcp:health` to confirm localhost reachability before opening MCP DevTools pages (retry knobs: `MCP_HEALTH_RETRIES`, `MCP_HEALTH_TIMEOUT`).
 

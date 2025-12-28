@@ -22,7 +22,7 @@
 
 ## DevTools MCP timeouts
 
-### Symptoms
+### Symptoms (Watchpack)
 - DevTools MCP commands time out when opening pages.
 - QA automation cannot capture console/network logs.
 
@@ -48,3 +48,23 @@
 - Dev server status output (`curl -I http://localhost:3000`).
 - MCP health output (include retries/timeouts used).
 - Whether `WATCHPACK_POLLING`/`WATCHPACK_POLLING_INTERVAL` were set.
+
+## Watchpack EMFILE / route 404s in dev
+
+### Symptoms
+- `EMFILE: too many open files` warnings in dev logs.
+- `/` or `/atlas/simulator` returns 404 after hot reloads.
+- HMR WebSocket disconnects during E2E runs.
+
+### Mitigation (Watchpack)
+- Restart dev with polling: `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
+- Keep `/tmp/markdowntown-dev.log` open and confirm no `EMFILE` warnings.
+
+### Repro (Watchpack)
+1. Run `pnpm dev` without polling in a large repo.
+2. Trigger multiple file changes and reload `/atlas/simulator`.
+3. Observe 404s or `EMFILE` in logs.
+
+### Capture on failure (Watchpack)
+- `/tmp/markdowntown-dev.log` excerpt showing `EMFILE` or 404s.
+- Dev command used (include WATCHPACK variables).
