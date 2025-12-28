@@ -272,6 +272,10 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
             {uam.targets.map((target) => {
               const adapterId = `workbench-${target.targetId}-adapter`;
               const optionsId = `workbench-${target.targetId}-options`;
+              const optionsErrorId = `workbench-${target.targetId}-options-error`;
+              const skillsOffId = `skills-${target.targetId}-off`;
+              const skillsAllId = `skills-${target.targetId}-all`;
+              const skillsAllowId = `skills-${target.targetId}-allowlist`;
               const skillSelection = getSkillExportSelection(target);
               const supportsSkillExport = SKILL_EXPORT_TARGETS.has(target.targetId);
               return (
@@ -312,6 +316,8 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                     defaultValue={JSON.stringify(target.options ?? {}, null, 2)}
                     rows={4}
                     className="font-mono text-xs"
+                    aria-describedby={optionsErrors[target.targetId] ? optionsErrorId : undefined}
+                    aria-invalid={Boolean(optionsErrors[target.targetId])}
                     onBlur={(e) => {
                       const text = e.target.value.trim();
                       try {
@@ -330,7 +336,10 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                     aria-label={`Options for ${target.targetId}`}
                   />
                   {optionsErrors[target.targetId] ? (
-                    <div className="mt-mdt-1 text-caption text-[color:var(--mdt-color-danger)]">
+                    <div
+                      id={optionsErrorId}
+                      className="mt-mdt-1 text-caption text-[color:var(--mdt-color-danger)]"
+                    >
                       {optionsErrors[target.targetId]}
                     </div>
                   ) : null}
@@ -341,18 +350,21 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                     <div className="text-caption text-mdt-muted">Skills export</div>
                     <div className="flex flex-wrap gap-mdt-3">
                       <Radio
+                        id={skillsOffId}
                         name={`skills-${target.targetId}`}
                         checked={skillSelection.mode === 'off'}
                         onChange={() => updateSkillSelection(target.targetId, { mode: 'off', allowList: [] })}
                         label="Off"
                       />
                       <Radio
+                        id={skillsAllId}
                         name={`skills-${target.targetId}`}
                         checked={skillSelection.mode === 'all'}
                         onChange={() => updateSkillSelection(target.targetId, { mode: 'all', allowList: [] })}
                         label="All skills"
                       />
                       <Radio
+                        id={skillsAllowId}
                         name={`skills-${target.targetId}`}
                         checked={skillSelection.mode === 'allowlist'}
                         onChange={() => updateSkillSelection(target.targetId, { mode: 'allowlist', allowList: skillSelection.allowList })}
@@ -369,9 +381,12 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                         ) : (
                           skills.map((skill) => {
                             const checked = skillSelection.allowList.includes(skill.id);
+                            const allowlistId = `skill-allowlist-${target.targetId}-${skill.id.replace(/[^a-z0-9_-]+/gi, '-')}`;
                             return (
                               <Checkbox
                                 key={skill.id}
+                                id={allowlistId}
+                                name={allowlistId}
                                 checked={checked}
                                 onChange={() => {
                                   const nextAllowList = checked

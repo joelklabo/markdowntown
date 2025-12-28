@@ -1295,7 +1295,12 @@ export function ContextSimulator() {
                     <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
                       Tool
                     </label>
-                    <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+                    <Select
+                      id="sim-tool"
+                      name="sim-tool"
+                      value={tool}
+                      onChange={(e) => setTool(e.target.value as SimulatorToolId)}
+                    >
                       {TOOL_OPTIONS.map((option) => (
                         <option key={option.id} value={option.id}>
                           {option.label}
@@ -1310,6 +1315,7 @@ export function ContextSimulator() {
                     </label>
                     <Input
                       id="sim-cwd"
+                      name="sim-cwd"
                       placeholder="e.g. src/app"
                       value={cwd}
                       onChange={(e) => setCwd(e.target.value)}
@@ -1333,6 +1339,7 @@ export function ContextSimulator() {
                     {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
                     <TextArea
                       id="sim-tree-preview"
+                      name="sim-tree-preview"
                       rows={8}
                       value={scannedPreview}
                       readOnly
@@ -1377,6 +1384,7 @@ export function ContextSimulator() {
                     </Text>
                     <TextArea
                       id="sim-tree-manual"
+                      name="sim-tree-manual"
                       rows={8}
                       value={repoText}
                       onChange={(e) => {
@@ -1484,7 +1492,12 @@ export function ContextSimulator() {
                     <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
                       Tool
                     </label>
-                    <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+                    <Select
+                      id="sim-tool"
+                      name="sim-tool"
+                      value={tool}
+                      onChange={(e) => setTool(e.target.value as SimulatorToolId)}
+                    >
                       {TOOL_OPTIONS.map((option) => (
                         <option key={option.id} value={option.id}>
                           {option.label}
@@ -1499,6 +1512,7 @@ export function ContextSimulator() {
                     </label>
                     <Input
                       id="sim-cwd"
+                      name="sim-cwd"
                       placeholder="e.g. src/app"
                       value={cwd}
                       onChange={(e) => setCwd(e.target.value)}
@@ -1514,6 +1528,7 @@ export function ContextSimulator() {
                     </Text>
                     <TextArea
                       id="sim-tree-preview"
+                      name="sim-tree-preview"
                       rows={8}
                       value={scannedPreview}
                       readOnly
@@ -1551,6 +1566,7 @@ export function ContextSimulator() {
                     </Text>
                     <TextArea
                       id="sim-tree-manual"
+                      name="sim-tree-manual"
                       rows={8}
                       value={repoText}
                       onChange={(e) => {

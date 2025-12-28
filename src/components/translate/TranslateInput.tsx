@@ -17,6 +17,9 @@ interface TranslateInputProps {
 export function TranslateInput({ value, onChange, disabled, helperText }: TranslateInputProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const helperTextId = helperText ? "translate-input-helper" : undefined;
+  const tipId = "translate-input-tip";
+  const describedBy = helperTextId ? `${helperTextId} ${tipId}` : tipId;
 
   const readFile = useCallback(
     async (file: File) => {
@@ -95,15 +98,16 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
           onChange={(e) => onChange(e.target.value)}
           className="min-h-[320px] flex-1 font-mono text-body-sm resize-none"
           placeholder="Paste Markdown or UAM v1 JSON…"
+          aria-describedby={describedBy}
           disabled={disabled}
         />
         <div className="space-y-mdt-1">
           {helperText && (
-            <Text size="caption" tone="muted">
+            <Text id={helperTextId} size="caption" tone="muted">
               {helperText}
             </Text>
           )}
-          <Text size="caption" tone="muted">
+          <Text id={tipId} size="caption" tone="muted">
             Tip: drop a single file here to replace the input.
           </Text>
         </div>
