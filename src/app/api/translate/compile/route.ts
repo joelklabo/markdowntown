@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     if (!body.success) {
       return NextResponse.json(
-        { error: 'Invalid payload', details: body.error.issues },
+        { error: 'Invalid payload' },
         { status: 400 }
       );
     }
@@ -50,7 +50,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Compilation error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Compilation error:', message);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }

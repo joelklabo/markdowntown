@@ -88,7 +88,17 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
       if (!res.ok) {
         const body = await res.json().catch(() => null);
         const message = body?.error ?? 'Compilation failed';
-        throw new Error(message);
+        let safeMessage = message;
+        if (message === 'Invalid payload') {
+          safeMessage = 'Input is invalid. Please check the format and try again.';
+        } else if (message === 'Payload too large' || message.includes('Payload too large')) {
+          safeMessage = 'Input is too large. Please shorten it and try again.';
+        } else if (message === 'No valid targets selected' || message === 'Unknown target selection') {
+          safeMessage = 'Select at least one supported target to compile.';
+        } else if (message === 'Rate limit exceeded') {
+          safeMessage = 'You are doing that too often. Please wait a moment and try again.';
+        }
+        throw new Error(safeMessage);
       }
 
       const data = await res.json();
