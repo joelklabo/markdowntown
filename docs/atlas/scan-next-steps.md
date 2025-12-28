@@ -134,9 +134,9 @@ Mobile:
 ### 8) Ready state
 **When:** no errors/warnings.
 - Title: “You’re ready to go”
-- Body: “These files should load for the selected tool. You can share the summary or continue.”
-- Primary CTA: “Copy summary”
-- Secondary CTA: “Download report”
+- Body: “These files should load for the selected tool. Open Workbench to build and export.”
+- Primary CTA: “Open Workbench”
+- Secondary CTA: “Copy summary”, “Download report”
 
 ## Section helper text updates
 Use short, action-oriented copy beneath section headings:

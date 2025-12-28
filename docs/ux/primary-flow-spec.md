@@ -16,7 +16,7 @@ Last updated: Dec 26, 2025
    - Output: list of loaded instruction files, ordering/precedence, and missing files, plus scan summary badges.
 2. **Review insights**
    - User action: read what loaded, what did not, and why.
-   - Output: clear next step prompt (primary CTA).
+   - Output: clear next step prompt (primary CTA) that routes to Workbench when ready.
 3. **Build in Workbench**
    - Entry: `/workbench` (prefilled with scan context when available).
    - User action: assemble scopes and blocks; edit text.
@@ -49,6 +49,11 @@ Last updated: Dec 26, 2025
 - Use consistent language: "Scan", "Workbench", "Export".
 - Preserve scan context (tool + cwd) when sending users to Workbench.
 - Document recovery affordances (retry on permission error, fall back to folder upload).
+
+## CTA hierarchy rules
+- **Ready state:** primary CTA is **Open Workbench**; secondary actions are Share (Copy summary) and Download report.
+- **Error/warning states:** one primary fix action per step (Copy template, Set cwd, Switch tool). Secondary actions are optional and should not compete.
+- **No scan state:** primary CTA is Scan a folder (or Upload folder when picker is unavailable); secondary CTA is Paste paths.
 
 ## Critical edge cases
 - **No instruction files found**: explain what is expected and link to Docs.
