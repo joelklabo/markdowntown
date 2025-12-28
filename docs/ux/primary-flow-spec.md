@@ -5,6 +5,13 @@ Last updated: Dec 28, 2025
 ## Primary persona
 - New visitor with a repo who needs to understand how instruction files (AGENTS.md, agents.md, tool-specific files) will be loaded.
 
+## Core user stories (guide for interfaces)
+1) As a repo owner, I scan a folder to see what instruction files load and go straight to Workbench to export agents.md.
+2) As a team member, I start from a public artifact in Library and open it in Workbench to customize and export.
+3) As a maintainer, I paste existing instructions into Translate to convert and export agents.md quickly.
+4) As a new user, I land on the homepage and immediately understand the 3-step path to value with a single primary CTA.
+5) As a cautious user, I want to confirm scans are local-only and no repo contents leave my device.
+
 ## Flow objective
 - Make it obvious how to go from a folder scan to an exported agents.md.
 - Remove ambiguity about which files are used and what to do next.
