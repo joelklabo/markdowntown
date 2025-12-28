@@ -4,7 +4,7 @@ Date: 2025-12-28
 Owner: UX
 
 ## Objective
-Provide a fast, low-friction path from pasted instructions to a downloadable `agents.md` (or target format), with clear steps and minimal ambiguity.
+Provide a fast, low-friction path from pasted instructions to Workbench so users can export agents.md with confidence.
 
 ## Primary flow (happy path)
 1. **Select target(s)**
@@ -13,31 +13,31 @@ Provide a fast, low-friction path from pasted instructions to a downloadable `ag
 2. **Paste input**
    - Accept Markdown or UAM JSON.
    - Detect input type and surface a “Detected: Markdown/UAM v1” badge.
-3. **Compile**
-   - Primary CTA is “Compile”.
-   - On success, show Results with generated files.
-4. **Download**
-   - Secondary CTA “Download zip” becomes enabled after a successful compile.
-   - Zip filename: `outputs.zip`.
-5. **Review (optional)**
-   - Users can view generated file contents and copy individual files.
+3. **Translate**
+   - Primary CTA is “Translate”.
+   - On success, show a short summary of generated outputs.
+4. **Open in Workbench**
+   - Primary CTA becomes “Open in Workbench”.
+   - Workbench opens with translated files ready to export.
+5. **Export**
+   - Users export or copy agents.md in Workbench.
 
 ## CTA hierarchy
-- **Primary:** Compile
-- **Secondary:** Download zip (disabled until compile succeeds)
-- **Tertiary:** Advanced options toggle
+- **Primary:** Translate → Open in Workbench
+- **Secondary:** Advanced options toggle
+- **Tertiary:** Download zip (optional fallback only)
 
 ## Validation + error states
-- **No targets selected:** Disable Compile and show “Select a target”.
-- **Empty input:** Disable Compile; keep results empty.
-- **Input too large (>200k chars):** Block compile with “Input is too large to compile.”
+- **No targets selected:** Disable Translate and show “Select a target”.
+- **Empty input:** Disable Translate; keep results empty.
+- **Input too large (>200k chars):** Block translate with “Input is too large to convert.”
 - **Invalid advanced options JSON:** Inline error “Invalid JSON options”.
-- **API/compile error:** Show error message in Output panel.
+- **API/compile error:** Show error message in Output panel with a single retry action.
 
 ## Target selection rules
-- Targets are required to compile; at least one must be selected.
+- Targets are required to translate; at least one must be selected.
 - Advanced options allow adapter version overrides and per-target options JSON.
-- When multiple targets are selected, compile produces multiple files.
+- When multiple targets are selected, Workbench opens with multiple files.
 
 ## Edge cases
 - Example query params can prefill input; missing examples show an inline error.
@@ -47,8 +47,8 @@ Provide a fast, low-friction path from pasted instructions to a downloadable `ag
 ## Copy + terminology
 - Use “Translate” as the surface label.
 - Use **AGENTS.md** for repo instruction file and **agents.md** for exported output.
-- Keep helper text to 1–2 sentences, action-oriented.
+- Confirm destination: “Opens in Workbench for export.”
 
 ## References
 - docs/ux/microcopy-guidelines.md
-- docs/design/content-design-system.md
+- docs/ux/primary-flow-spec.md
