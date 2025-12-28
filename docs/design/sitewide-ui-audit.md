@@ -38,6 +38,7 @@ Breakpoints: Desktop (>= 1024px), Tablet (>= 768px < 1024px), Mobile (< 768px)
 3) Home sections feel repetitive (multiple library grids + tags cloud). (P2, Visual hierarchy)
    - Target: `src/app/page.tsx`
    - Proposed fix: consolidate into a scan-first narrative (hero, steps, proof, minimal library preview, final CTA).
+   - Note (Dec 28, 2025): landing will be reduced to the 3 core flows with a single primary CTA per section.
 
 ## Library / Browse
 1) Filter sidebar padding is inconsistent: header spacing and input spacing are tight. (P2, Spacing)
