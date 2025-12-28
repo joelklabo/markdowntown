@@ -1,14 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/artifacts/fork/route';
-import { getServerSession } from 'next-auth';
+import { requireSession } from '@/lib/requireSession';
 import { prisma } from '@/lib/prisma';
 
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+vi.mock('@/lib/requireSession', () => ({
+  requireSession: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -27,14 +23,16 @@ describe('POST /api/artifacts/fork', () => {
   });
 
   it('rejects unauthorized requests', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      response: new Response(null, { status: 401 }),
+    });
     const req = new Request('http://localhost', { method: 'POST' });
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
 
   it('forks an artifact successfully', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u2' } });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u2' } } });
     
     // Mock original artifact
     (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -88,7 +86,7 @@ describe('POST /api/artifacts/fork', () => {
   });
 
   it('prevents forking private artifact of another user', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u2' } });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u2' } } });
     
     (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: 'a1',
