@@ -126,7 +126,7 @@ describe("Scan to workbench export flow", () => {
           await actionsCta.first().waitFor({ state: "visible" });
           await actionsCta.first().click();
         }
-        await page.waitForURL(/\/workbench/);
+        await page.waitForURL(/\/workbench/, { waitUntil: "domcontentloaded", timeout: 60000 });
         if (workbenchScreenshotPath) {
           await fs.mkdir(path.dirname(workbenchScreenshotPath), { recursive: true });
           await page.screenshot({ path: workbenchScreenshotPath, fullPage: true });

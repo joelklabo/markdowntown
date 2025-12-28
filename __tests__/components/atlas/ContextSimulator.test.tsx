@@ -295,11 +295,12 @@ describe("ContextSimulator", () => {
     render(<ContextSimulator />);
 
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
-    expect(await screen.findByText(/unable to scan folder/i)).toBeInTheDocument();
+    const scanErrorNotices = await screen.findAllByText(/unable to scan folder/i);
+    expect(scanErrorNotices.length).toBeGreaterThan(0);
 
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
     expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
-    expect(screen.queryByText(/unable to scan folder/i)).not.toBeInTheDocument();
+    expect(screen.queryAllByText(/unable to scan folder/i)).toHaveLength(0);
 
     restorePicker(originalPicker);
   });

@@ -352,7 +352,7 @@ export function ContextSimulator() {
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
   const [toolDetection, setToolDetection] = useState<ToolDetectionResult | null>(null);
   const [scanMeta, setScanMeta] = useState<RepoScanMeta | null>(null);
-  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<{ message: string; kind: "permission-denied" | "not-found" | "generic" } | null>(null);
   const [scanNotice, setScanNotice] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<RepoScanMeta | null>(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -538,23 +538,26 @@ export function ContextSimulator() {
     [cwd, instructionDiagnostics, isStale, tool],
   );
   const resultsSummary = useMemo(() => {
+    if (scanError) {
+      return `${scanError.message} Use Next steps to recover.`;
+    }
     if (result.loaded.length === 0) {
-      return "No instruction files would load yet. Start with Next steps.";
+      return "No instruction files would load yet. Start with Next steps. Scans stay local.";
     }
     if (scanMeta?.truncated) {
-      return "Scan truncated. Results may be incomplete—consider narrowing the folder.";
+      return "Scan truncated. Results may be incomplete—consider narrowing the folder. Scans stay local.";
     }
     if (insights.missingFiles.length === 0 && result.warnings.length === 0) {
-      return "All expected instruction files were found. Open Workbench to export agents.md.";
+      return "All expected instruction files were found. Open Workbench to build and export agents.md. Scans stay local.";
     }
     if (insights.missingFiles.length > 0) {
-      return "Missing instruction files. Add the files or copy a template, then rescan.";
+      return "Missing instruction files. Add the files or copy a template, then rescan. Scans stay local.";
     }
     if (result.warnings.length > 0) {
-      return "Warnings detected. Review them before exporting.";
+      return "Warnings detected. Review them before exporting. Scans stay local.";
     }
-    return "Review the results and move on when ready.";
-  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length, scanMeta?.truncated]);
+    return "Review the results and move on when ready. Scans stay local.";
+  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length, scanError, scanMeta?.truncated]);
   const contentLintResult = useMemo(() => {
     if (!contentLintOptIn || repoSource !== "folder") return null;
     return lintInstructionContent(scannedTree ?? { files: [] });
@@ -570,6 +573,8 @@ export function ContextSimulator() {
         warnings: result.warnings,
         insights,
         extraFiles: extraInstructionFiles,
+        scanError: scanError?.kind ?? null,
+        truncated: scanMeta?.truncated ?? false,
       }),
     [
       extraInstructionFiles,
@@ -579,6 +584,8 @@ export function ContextSimulator() {
       repoFileCount,
       repoSource,
       result.warnings,
+      scanError,
+      scanMeta?.truncated,
       tool,
     ],
   );
@@ -587,8 +594,11 @@ export function ContextSimulator() {
     [nextSteps],
   );
   const nextStepsSummary = useMemo(() => {
+    if (scanError) {
+      return "Scan failed. Choose a different folder or paste paths to continue. Files stay local.";
+    }
     if (hasNextStepsOpenWorkbench && insights.missingFiles.length === 0 && result.warnings.length === 0) {
-      return "You're ready. Open Workbench to build and export agents.md.";
+      return "You're ready. Open Workbench to build and export agents.md. Files stay local.";
     }
     const loadedCount = result.loaded.length;
     const missingCount = insights.missingFiles.length;
@@ -596,8 +606,8 @@ export function ContextSimulator() {
     const loadedLabel = `${loadedCount} loaded file${loadedCount === 1 ? "" : "s"}`;
     const missingLabel = `${missingCount} missing pattern${missingCount === 1 ? "" : "s"}`;
     const warningLabel = `${warningCount} warning${warningCount === 1 ? "" : "s"}`;
-    return `Scan summary: ${loadedLabel}, ${missingLabel}, ${warningLabel}. Start with the top fix.`;
-  }, [hasNextStepsOpenWorkbench, insights.missingFiles.length, result.loaded.length, result.warnings.length]);
+    return `Scan summary: ${loadedLabel}, ${missingLabel}, ${warningLabel}. Start with the top fix. Files stay local.`;
+  }, [hasNextStepsOpenWorkbench, insights.missingFiles.length, result.loaded.length, result.warnings.length, scanError]);
   const showSummaryWorkbench =
     lastSimulatedPaths.length > 0 && (!featureFlags.scanNextStepsV1 || !hasNextStepsOpenWorkbench);
 
@@ -720,13 +730,22 @@ export function ContextSimulator() {
   const formatScanErrorMessage = (error: unknown) => {
     if (error instanceof DOMException) {
       if (error.name === "NotAllowedError" || error.name === "SecurityError") {
-        return "Permission denied. Check folder access and try again.";
+        return {
+          message: "Permission denied. Check folder access and try again. Files stay local.",
+          kind: "permission-denied" as const,
+        };
       }
       if (error.name === "NotFoundError") {
-        return "Folder not found. Choose a different folder and try again.";
+        return {
+          message: "Folder not found. Choose a different folder and try again. Files stay local.",
+          kind: "not-found" as const,
+        };
       }
     }
-    return "Unable to scan folder. Check permissions and try again.";
+    return {
+      message: "Unable to scan folder. Check permissions and try again. Files stay local.",
+      kind: "generic" as const,
+    };
   };
 
   const runFolderScan = async (
@@ -821,7 +840,10 @@ export function ContextSimulator() {
     }
     const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
     if (!picker) {
-      setScanError("File System Access API not available");
+      setScanError({
+        message: "File System Access API not available. Paste paths instead. Files stay local.",
+        kind: "generic",
+      });
       return;
     }
     setScanError(null);
@@ -1222,7 +1244,7 @@ export function ContextSimulator() {
 
                 {scanError ? (
                   <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
-                    {scanError}
+                    {scanError.message}
                   </div>
                 ) : null}
                 {scanNotice ? (
@@ -1437,7 +1459,7 @@ export function ContextSimulator() {
 
                 {scanError ? (
                   <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
-                    {scanError}
+                    {scanError.message}
                   </div>
                 ) : null}
                 {scanNotice ? (

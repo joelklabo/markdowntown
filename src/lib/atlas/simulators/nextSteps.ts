@@ -10,6 +10,7 @@ import type {
 } from './types';
 
 type RepoSource = 'manual' | 'folder';
+type ScanErrorKind = 'permission-denied' | 'not-found' | 'generic';
 
 export type NextStepsInput = {
   tool: SimulatorToolId;
@@ -20,6 +21,8 @@ export type NextStepsInput = {
   warnings: SimulationWarning[];
   insights: SimulatorInsights;
   extraFiles: string[];
+  scanError?: ScanErrorKind | null;
+  truncated?: boolean;
 };
 
 const missingRootCodes = new Set<string>([
@@ -48,6 +51,46 @@ function buildNoScanStep(repoSource: RepoSource): NextStep {
     severity: 'info',
     title: 'Upload a folder to get next steps',
     body: 'Upload a folder (or paste paths) so we can detect your tool and show what to fix.',
+    primaryAction: primary,
+    secondaryActions: [secondary],
+  };
+}
+
+function buildScanErrorStep(kind: ScanErrorKind, repoSource: RepoSource): NextStep {
+  const primary = repoSource === 'manual'
+    ? action('paste-paths', 'Paste paths')
+    : action('scan-folder', 'Upload a folder');
+  const secondary = repoSource === 'manual'
+    ? action('scan-folder', 'Upload a folder')
+    : action('paste-paths', 'Paste paths');
+  const message = kind === 'permission-denied'
+    ? 'Permission denied. Choose a different folder and try again. Your files stay local.'
+    : kind === 'not-found'
+      ? 'Folder not found. Pick a different folder and try again. Your files stay local.'
+      : 'Unable to scan folder. Check permissions and try again. Your files stay local.';
+
+  return {
+    id: `scan-error:${kind}`,
+    severity: 'error',
+    title: 'Scan failed',
+    body: message,
+    primaryAction: primary,
+    secondaryActions: [secondary],
+  };
+}
+
+function buildTruncatedStep(repoSource: RepoSource): NextStep {
+  const primary = repoSource === 'folder'
+    ? action('scan-smaller-folder', 'Scan a smaller folder')
+    : action('paste-paths', 'Paste repo paths');
+  const secondary = repoSource === 'folder'
+    ? action('paste-paths', 'Paste repo paths')
+    : action('scan-smaller-folder', 'Scan a smaller folder');
+  return {
+    id: 'scan-truncated',
+    severity: 'warning',
+    title: 'Scan limit reached',
+    body: 'Results are truncated. Scan a smaller folder or paste paths to narrow the scope.',
     primaryAction: primary,
     secondaryActions: [secondary],
   };
@@ -234,13 +277,21 @@ function buildMissingPatternsStep(insights: SimulatorInsights): NextStep {
 }
 
 export function computeNextSteps(input: NextStepsInput): NextStep[] {
-  if (input.repoFileCount === 0) {
+  if (input.repoFileCount === 0 && !input.scanError) {
     return [buildNoScanStep(input.repoSource)];
   }
 
   const errorSteps: NextStep[] = [];
   const warningSteps: NextStep[] = [];
   const infoSteps: NextStep[] = [];
+
+  if (input.scanError) {
+    errorSteps.push(buildScanErrorStep(input.scanError, input.repoSource));
+  }
+
+  if (input.truncated) {
+    warningSteps.push(buildTruncatedStep(input.repoSource));
+  }
 
   for (const diag of input.diagnostics.diagnostics) {
     const step = buildDiagnosticStep(diag, input.extraFiles.length > 0);

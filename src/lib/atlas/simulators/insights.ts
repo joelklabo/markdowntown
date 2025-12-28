@@ -115,7 +115,7 @@ export function formatInsightsSummary(insights: SimulatorInsights, extraFilesCou
   } else if (foundCount === 0) {
     nextStep = "Next step: add a tool instruction file to get guidance, then rescan.";
   } else {
-    nextStep = "Next step: review precedence notes and any warnings below.";
+    nextStep = "Next step: open Workbench to build and export agents.md.";
   }
 
   const note =
