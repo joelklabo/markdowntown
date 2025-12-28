@@ -104,11 +104,17 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
   const handleDownload = async () => {
     if (!result) return;
     try {
+      const downloadName =
+        targets.length === 1
+          ? `${targets[0].targetId}.zip`
+          : targets.length > 1
+            ? `translate-${targets.map((target) => target.targetId).join('-')}.zip`
+            : 'translate-output.zip';
       const blob = await createZip(result.files);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'outputs.zip';
+      a.download = downloadName;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err: unknown) {

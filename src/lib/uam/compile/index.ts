@@ -57,3 +57,22 @@ export async function compile(
     info: aggregatedInfo,
   };
 }
+
+export function validateTargets(targetIds: string[]): { valid: string[]; invalid: string[] } {
+  const seen = new Set<string>();
+  const valid: string[] = [];
+  const invalid: string[] = [];
+
+  for (const id of targetIds) {
+    const normalized = id.trim();
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    if (getAdapter(normalized)) {
+      valid.push(normalized);
+    } else {
+      invalid.push(normalized);
+    }
+  }
+
+  return { valid, invalid };
+}
