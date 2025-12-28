@@ -3,8 +3,8 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
 const triggerBase = cn(
   "inline-flex min-h-[var(--mdt-space-11)] items-center justify-center gap-mdt-2 rounded-mdt-pill px-mdt-3 py-mdt-2 text-body-sm font-medium border border-transparent whitespace-nowrap",
-  "text-[color:var(--mdt-color-text-muted)] hover:bg-[color:var(--mdt-color-surface-subtle)]",
-  "data-[state=active]:bg-[color:var(--mdt-color-surface-strong)] data-[state=active]:border-[color:var(--mdt-color-border)] data-[state=active]:text-[color:var(--mdt-color-text)] data-[state=active]:shadow-mdt-sm",
+  "text-[color:var(--mdt-color-text-muted)] hover:bg-[color:var(--mdt-color-surface-subtle)] hover:text-[color:var(--mdt-color-text)]",
+  "data-[state=active]:bg-[color:var(--mdt-color-surface)] data-[state=active]:border-[color:var(--mdt-color-border-strong)] data-[state=active]:text-[color:var(--mdt-color-primary-strong)] data-[state=active]:shadow-mdt-sm",
   interactiveBase,
   focusRing
 );

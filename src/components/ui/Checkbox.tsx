@@ -18,7 +18,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(functi
         type="checkbox"
         ref={ref}
         className={cn(
-          "h-mdt-5 w-mdt-5 shrink-0 cursor-pointer appearance-none rounded-mdt-sm border border-mdt-border bg-mdt-surface",
+          "h-mdt-5 w-mdt-5 shrink-0 cursor-pointer appearance-none rounded-mdt-sm border border-mdt-border bg-mdt-surface hover:border-mdt-border-strong hover:bg-mdt-surface-subtle",
           interactiveBase,
           focusRing,
           "checked:border-transparent checked:bg-[color:var(--mdt-color-primary)] checked:shadow-mdt-sm",

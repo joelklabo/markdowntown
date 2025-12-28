@@ -36,8 +36,8 @@ export function Pagination({ current, total, onPageChange, className }: Props) {
                 interactiveBase,
                 focusRing,
                 active
-                  ? "bg-[color:var(--mdt-color-primary-soft)] text-[color:var(--mdt-color-text)] border border-mdt-border"
-                  : "text-mdt-text-muted hover:bg-[color:var(--mdt-color-surface-subtle)] border-transparent"
+                  ? "bg-[color:var(--mdt-color-primary-soft)] text-[color:var(--mdt-color-primary-strong)] border border-mdt-border-strong shadow-mdt-sm"
+                  : "text-mdt-text-muted hover:bg-[color:var(--mdt-color-surface-subtle)] hover:text-[color:var(--mdt-color-text)] border-transparent"
               )}
               aria-current={active ? "page" : undefined}
             >
