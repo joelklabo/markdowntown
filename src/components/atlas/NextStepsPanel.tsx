@@ -118,6 +118,7 @@ export function NextStepsPanel({
                         <Button
                           size="sm"
                           variant={isPrimary ? "primary" : "secondary"}
+                          data-testid={primaryAction.id === "open-workbench" ? "next-steps-open-workbench" : undefined}
                           onClick={() => handleAction(primaryAction, step)}
                         >
                           {primaryAction.label}

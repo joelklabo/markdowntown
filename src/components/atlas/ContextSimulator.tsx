@@ -588,6 +588,10 @@ export function ContextSimulator() {
       tool,
     ],
   );
+  const hasNextStepsOpenWorkbench = useMemo(
+    () => nextSteps.some((step) => step.primaryAction?.id === "open-workbench"),
+    [nextSteps],
+  );
 
   const announceStatus = (message: string) => {
     setActionStatus(message);
@@ -923,7 +927,7 @@ export function ContextSimulator() {
     }
   };
 
-  const handleOpenWorkbenchCta = (source: "post_scan" | "actions") => {
+  const handleOpenWorkbenchCta = (source: "post_scan" | "actions" | "next_steps") => {
     emitUiTelemetryEvent({
       name: "scan_results_cta",
       properties: {
@@ -959,6 +963,12 @@ export function ContextSimulator() {
 
     if (action.id === "refresh-results") {
       refreshResults(true);
+      return;
+    }
+
+    if (action.id === "open-workbench") {
+      handleOpenWorkbenchCta("next_steps");
+      window.location.assign(workbenchHref);
       return;
     }
 
@@ -1557,7 +1567,7 @@ export function ContextSimulator() {
               </Text>
               <div className="flex flex-wrap gap-mdt-2">
                 {lastSimulatedPaths.length > 0 ? (
-                  <Button type="button" asChild>
+                  <Button type="button" asChild variant={hasNextStepsOpenWorkbench ? "secondary" : "primary"}>
                     <Link href={workbenchHref} onClick={() => handleOpenWorkbenchCta("actions")}>
                       Open Workbench
                     </Link>
