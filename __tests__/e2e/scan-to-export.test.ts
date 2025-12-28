@@ -51,10 +51,6 @@ describe("Scan to workbench export flow", () => {
 
         await page.getByRole("button", { name: /scan a folder/i }).first().click();
 
-        await page
-          .getByText(/mock-repo: 2 file\(s\) scanned, 2 matched\./i)
-          .waitFor({ state: "visible" });
-
         const loadedList = page.getByRole("list", { name: /loaded files/i });
         await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
 

@@ -23,7 +23,7 @@ describe("Skills section flow", () => {
       await page.goto("/skills", { waitUntil: "domcontentloaded", timeout: 20000 });
       await page.getByRole("heading", { name: /^skills$/i }).waitFor({ state: "visible" });
 
-      const advancedFiltersToggle = page.getByRole("button", { name: /advanced filters/i });
+      const advancedFiltersToggle = page.getByText(/^advanced filters$/i);
       await advancedFiltersToggle.click();
 
       const clearFilters = page.getByRole("link", { name: "Clear" });

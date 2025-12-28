@@ -28,9 +28,15 @@ describe("Site responsive smoke", () => {
         page.getByRole("contentinfo").waitFor({ state: "visible" }),
       ]);
 
-      const browseCta = page.getByRole("button", { name: /browse library/i });
-      await browseCta.waitFor({ state: "visible" });
-      await browseCta.click();
+      const browseLink = page.getByRole("link", { name: /browse (the )?library/i });
+      const browseButton = page.getByRole("button", { name: /browse library/i });
+      if ((await browseLink.count()) > 0) {
+        await browseLink.first().waitFor({ state: "visible" });
+        await browseLink.first().click();
+      } else {
+        await browseButton.first().waitFor({ state: "visible" });
+        await browseButton.first().click();
+      }
       await page.waitForURL(/\/library/);
 
       const header = page.locator("header");
@@ -43,9 +49,9 @@ describe("Site responsive smoke", () => {
       await page.waitForFunction(() => window.location.search.includes("q=agents"));
       expect(page.url()).toMatch(/library\?q=agents/);
 
-      await header.getByRole("link", { name: /^atlas$/i }).first().click();
+      await header.getByRole("link", { name: /^scan$/i }).first().click();
       await page.waitForURL(/\/atlas/);
-      await page.getByRole("heading", { name: /^atlas$/i }).waitFor({ state: "visible" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).waitFor({ state: "visible" });
     });
   });
 
@@ -59,9 +65,15 @@ describe("Site responsive smoke", () => {
         page.getByRole("contentinfo").waitFor({ state: "visible" }),
       ]);
 
-      const browseCta = page.getByRole("button", { name: /browse library/i });
-      await browseCta.waitFor({ state: "visible" });
-      await browseCta.click();
+      const browseLink = page.getByRole("link", { name: /browse (the )?library/i });
+      const browseButton = page.getByRole("button", { name: /browse library/i });
+      if ((await browseLink.count()) > 0) {
+        await browseLink.first().waitFor({ state: "visible" });
+        await browseLink.first().click();
+      } else {
+        await browseButton.first().waitFor({ state: "visible" });
+        await browseButton.first().click();
+      }
       await page.waitForURL(/\/library/);
 
       const scrollWidth = await page.evaluate(
@@ -87,9 +99,9 @@ describe("Site responsive smoke", () => {
       await page.waitForFunction(() => window.location.search.includes("q=agents"));
       expect(page.url()).toMatch(/library\?q=agents/);
 
-      await bottomNav.getByRole("link", { name: /^atlas$/i }).click();
+      await bottomNav.getByRole("link", { name: /^scan$/i }).click();
       await page.waitForURL(/\/atlas/);
-      await page.getByRole("heading", { name: /^atlas$/i }).waitFor({ state: "visible" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).waitFor({ state: "visible" });
     });
   });
 });

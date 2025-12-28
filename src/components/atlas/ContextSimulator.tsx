@@ -1601,25 +1601,27 @@ export function ContextSimulator() {
               <Text as="h3" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
                 Loaded files
               </Text>
-              {result.loaded.length === 0 ? (
-                <Stack gap={1}>
-                  <Text tone="muted" size="bodySm">No files would be loaded for this input.</Text>
-                  {emptyStateHint ? (
-                    <Text tone="muted" size="bodySm">
-                      {emptyStateHint}
-                    </Text>
-                  ) : null}
-                </Stack>
-              ) : (
-                <ul className="space-y-mdt-2" aria-label="Loaded files">
-                  {result.loaded.map((file) => (
+              <ul className="space-y-mdt-2" aria-label="Loaded files">
+                {result.loaded.length === 0 ? (
+                  <li className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Stack gap={1}>
+                      <Text tone="muted" size="bodySm">No files would be loaded for this input.</Text>
+                      {emptyStateHint ? (
+                        <Text tone="muted" size="bodySm">
+                          {emptyStateHint}
+                        </Text>
+                      ) : null}
+                    </Stack>
+                  </li>
+                ) : (
+                  result.loaded.map((file) => (
                     <li key={file.path} className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
                       <div className="font-mono text-body-sm text-mdt-text">{file.path}</div>
                       <div className="text-body-xs text-mdt-muted">{file.reason}</div>
                     </li>
-                  ))}
-                </ul>
-              )}
+                  ))
+                )}
+              </ul>
             </div>
 
             <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">

@@ -23,8 +23,15 @@ describe("Workbench export flow", () => {
       await page.goto("/workbench", { waitUntil: "domcontentloaded" });
 
       await page.getByTestId("workbench-scopes-panel").waitFor({ state: "visible" });
+      const skillsPanel = page.getByTestId("workbench-skills-panel");
+      await skillsPanel.waitFor({ state: "visible" });
 
-      await page.getByRole("button", { name: /\\+ skill/i }).click();
+      const addSkill = skillsPanel.getByRole("button", { name: /\\+ skill/i });
+      if ((await addSkill.count()) > 0) {
+        await addSkill.click();
+      } else {
+        await skillsPanel.getByRole("button", { name: /add a skill/i }).click();
+      }
       await page.locator("#skill-title").fill("Export skill");
       await page.locator("#skill-description").fill("Skill used in export tests.");
 

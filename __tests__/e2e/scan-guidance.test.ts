@@ -259,7 +259,7 @@ describe("Atlas scan guidance flow", () => {
       });
 
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
-      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+      await page.getByLabel("Upload folder").waitFor({ state: "visible" });
 
       await setWebkitDirectoryFiles(page, "scan-sample");
 
