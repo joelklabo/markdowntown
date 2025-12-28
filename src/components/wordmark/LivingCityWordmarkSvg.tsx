@@ -40,8 +40,8 @@ type LivingCityWordmarkSvgProps = {
 
 const ACCESSIBLE_TITLE = "mark downtown";
 const VISUAL_WORD = "MARKDOWNTOWN";
-const SIREN_RED: Rgb = [255, 84, 84];
-const SIREN_BLUE: Rgb = [84, 148, 255];
+const SIREN_RED: Rgb = [223, 42, 72];
+const SIREN_BLUE: Rgb = [34, 186, 241];
 const BASE_VOXEL_PIXEL_SCALE = 3;
 
 function logWordmarkError(scope: string, error: unknown, context?: Record<string, unknown>) {
