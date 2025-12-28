@@ -3,10 +3,13 @@ import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 import fs from "node:fs/promises";
 import path from "node:path";
+import JSZip from "jszip";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
-const screenshotPath = process.env.E2E_SCREENSHOT_PATH;
+// Plan-specified default path, overridable by env
+const screenshotPath =
+  process.env.E2E_SCREENSHOT_PATH || "docs/screenshots/core-flows/library-workbench-export.png";
 
 describe("Library to export", () => {
   let browser: Browser;
@@ -30,7 +33,9 @@ describe("Library to export", () => {
         acceptDownloads: true,
       },
       async (page) => {
+        // 1. Open /library
         await page.goto("/library", { waitUntil: "domcontentloaded" });
+        
         const rows = page.getByTestId("artifact-row");
         const emptyState = page
           .getByRole("heading", { name: /no public items match those filters|no public items/i })
@@ -44,65 +49,83 @@ describe("Library to export", () => {
         const rowCount = await rows.count();
         expect(rowCount).toBeGreaterThan(0);
 
-        const agentsRow = rows.filter({ hasText: "AGENTS.md" });
-        const targetRow = (await agentsRow.count()) > 0 ? agentsRow.first() : rows.first();
+        // 2. Choose a row (Prefer seeded item known to have AGENTS.md/agents-md target)
+        // Seed title: "Official: Repo-aware coding assistant"
+        const seedRow = rows.filter({ hasText: "Repo-aware coding assistant" });
+        const targetRow = (await seedRow.count()) > 0 ? seedRow.first() : rows.first();
+        
         const openLink = targetRow.getByRole("link", { name: /open in workbench/i });
         await openLink.click();
 
+        // 3. Ensure workbench loaded
         await page.waitForURL(/\/workbench/);
         await page.getByTestId("workbench-scopes-panel").waitFor({ state: "visible", timeout: 20000 });
-        await page.getByRole("button", { name: /^compile$/i }).first().waitFor({ state: "visible", timeout: 20000 });
-
-        const editorPanel = page.locator("#workbench-editor-panel");
-        const addBlockButton = editorPanel.getByRole("button", { name: /add a block/i }).first();
-        if ((await addBlockButton.count()) > 0 && (await addBlockButton.isVisible())) {
-          await addBlockButton.click();
-        }
-        const openFirstBlock = editorPanel.getByRole("button", { name: /open first block/i }).first();
-        if ((await openFirstBlock.count()) > 0 && (await openFirstBlock.isVisible())) {
-          await openFirstBlock.click();
-        }
-
-        const blockBody = page.locator("#workbench-block-body");
-        await blockBody.waitFor({ state: "visible", timeout: 20000 });
-        await blockBody.fill("# Library export test\n\nThis ensures compile outputs.");
-        const blockHandle = await blockBody.elementHandle();
-        if (blockHandle) {
-          await page.waitForFunction((el) => (el as HTMLTextAreaElement).value.length > 0, blockHandle);
-        }
-
-        const targetCheckbox = page.getByRole("checkbox", { name: "AGENTS.md" });
-        await targetCheckbox.waitFor({ state: "visible" });
-        if (!(await targetCheckbox.isChecked())) {
-          await targetCheckbox.click({ force: true });
-          await page.waitForFunction((el) => (el as HTMLInputElement).checked, await targetCheckbox.elementHandle());
-        }
-
+        
+        // Wait for compiler to be ready (button visible)
         const compileButton = page.getByRole("button", { name: /^compile$/i }).first();
-        const compileHandle = await compileButton.elementHandle();
-        if (compileHandle) {
-          await page.waitForFunction((button) => !button.hasAttribute("disabled"), compileHandle);
-        }
-        const compileResponse = page.waitForResponse((response) => {
-          return response.url().includes("/api/compile") && response.status() === 200;
-        });
-        await compileButton.click();
-        await compileResponse;
+        await compileButton.waitFor({ state: "visible", timeout: 20000 });
 
+        // Add a block if empty (ensure body content)
+        const editorPanel = page.locator("#workbench-editor-panel");
+        const blockBody = page.locator("#workbench-block-body");
+        
+        // If we landed on a fresh workbench or empty state, ensure we have a block
+        // (The seed item usually has blocks, but let's be safe)
+        if (await blockBody.count() === 0) {
+            const addBlockButton = editorPanel.getByRole("button", { name: /add a block/i }).first();
+            if (await addBlockButton.isVisible()) {
+                await addBlockButton.click();
+            }
+        }
+        
+        await blockBody.waitFor({ state: "visible", timeout: 20000 });
+        // Fill block body to ensure we have content to compile
+        await blockBody.fill("# E2E Test Export\n\nVerifying compile and export flow.");
+
+        // 4. Select AGENTS.md target
+        // The seed item uses 'agents-md' target. Label might be "AGENTS.md" or "agents-md".
+        // We use a regex to be flexible.
+        const targetCheckbox = page.getByRole("checkbox", { name: /agents\.md|agents-md/i });
+        await targetCheckbox.waitFor({ state: "visible" });
+        
+        if (!(await targetCheckbox.isChecked())) {
+          await targetCheckbox.check();
+        }
+
+        // 5. Compile
+        const compilePromise = page.waitForResponse((response) => 
+          response.url().includes("/api/compile") && response.status() === 200
+        );
+        await compileButton.click();
+        await compilePromise;
+
+        // Wait for Manifest to appear
         await page.getByText("Manifest").waitFor({ state: "visible", timeout: 20000 });
 
+        // 6. Export and Assert Zip
         const exportButton = page.getByRole("button", { name: /export/i }).first();
-        const exportHandle = await exportButton.elementHandle();
-        if (exportHandle) {
-          await page.waitForFunction((button) => !button.hasAttribute("disabled"), exportHandle);
-        }
+        await exportButton.waitFor({ state: "visible", timeout: 20000 });
+        expect(await exportButton.isEnabled()).toBe(true);
+
         const [download] = await Promise.all([
           page.waitForEvent("download"),
           exportButton.click(),
         ]);
 
         expect(download.suggestedFilename()).toBe("outputs.zip");
+        
+        // Verify ZIP content
+        const zipPath = await download.path();
+        const zipData = await fs.readFile(zipPath);
+        const zip = await JSZip.loadAsync(zipData);
+        
+        // We expect AGENTS.md because we selected it
+        // The key in zip might be "AGENTS.md" or inside a folder depending on implementation
+        const files = Object.keys(zip.files);
+        const hasAgentsMd = files.some(f => f.endsWith("AGENTS.md"));
+        expect(hasAgentsMd, `ZIP should contain AGENTS.md. Found: ${files.join(", ")}`).toBe(true);
 
+        // 7. Capture Screenshot
         if (screenshotPath) {
           await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
           await page.screenshot({ path: screenshotPath, fullPage: true });
