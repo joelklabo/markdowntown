@@ -2,7 +2,7 @@
 
 ## Turbopack module factory error
 
-### Symptoms
+### Symptoms (MCP)
 - Dev server logs: "module factory is not available" for app route modules.
 - Affected pages briefly return 500 after Fast Refresh.
 
@@ -19,3 +19,14 @@
 1. Run `pnpm dev:turbo`.
 2. Edit a client component (e.g., `src/components/atlas/AtlasSearch.tsx`) a few times to trigger Fast Refresh.
 3. Reload `/atlas/simulator` or `/workbench` and observe the console error.
+
+## DevTools MCP timeouts
+
+### Symptoms
+- DevTools MCP commands time out when opening pages.
+- QA automation cannot capture console/network logs.
+
+### Checks
+1. Confirm the dev server responds: `curl -I http://localhost:3000`.
+2. Close any stale DevTools MCP pages and open a fresh page.
+3. If timeouts persist, restart the MCP bridge/agent and retry the page load.

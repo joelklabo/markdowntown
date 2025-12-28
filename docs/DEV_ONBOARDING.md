@@ -76,6 +76,7 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - OAuth callback mismatch: set `NEXTAUTH_URL` to your running URL and update GitHub OAuth callback accordingly.
 - UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
 - DevTools MCP or browser console shows HMR WebSocket errors / pages 404: restart with polling to avoid watchpack `EMFILE` errors, e.g. `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
+- DevTools MCP timeouts: confirm the app responds (`curl -I http://localhost:3000`), then restart the MCP bridge/agent and open a fresh DevTools page.
 
 ## Feature flags
 - UI flags (default off): `NEXT_PUBLIC_THEME_REFRESH_V1`, `NEXT_PUBLIC_UX_CLARITY_V1`, `NEXT_PUBLIC_INSTRUCTION_HEALTH_V1`, `NEXT_PUBLIC_SCAN_NEXT_STEPS_V1`, `NEXT_PUBLIC_SCAN_QUICK_UPLOAD_V1`.
