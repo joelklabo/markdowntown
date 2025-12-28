@@ -25,7 +25,7 @@ export function Tooltip({ content, children, side = "top", align = "center" }: T
             )}
           >
             {content}
-            <TooltipPrimitive.Arrow className="fill-[color:var(--mdt-color-surface)]" />
+            <TooltipPrimitive.Arrow className="fill-[color:var(--mdt-color-surface-raised)]" />
           </TooltipPrimitive.Content>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>

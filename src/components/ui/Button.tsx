@@ -13,9 +13,9 @@ const buttonVariants = cva(base, {
   variants: {
     variant: {
       primary:
-        "bg-[color:var(--mdt-color-primary)] text-[color:var(--mdt-color-text-on-strong)] shadow-mdt-btn hover:bg-[color:var(--mdt-color-primary-strong)] hover:shadow-mdt-btn-hover active:shadow-mdt-sm",
+        "bg-[color:var(--mdt-color-primary)] text-[color:var(--mdt-color-text-on-strong)] shadow-mdt-btn hover:bg-[color:var(--mdt-color-primary-strong)] hover:shadow-mdt-btn-hover active:bg-[color:var(--mdt-color-primary-strong)] active:shadow-mdt-sm",
       secondary:
-        "bg-[color:var(--mdt-color-surface)] text-[color:var(--mdt-color-text)] border-[color:var(--mdt-color-border)] hover:bg-[color:var(--mdt-color-surface-subtle)] hover:border-[color:var(--mdt-color-border-strong)] active:bg-[color:var(--mdt-color-surface-strong)]",
+        "bg-[color:var(--mdt-color-surface)] text-[color:var(--mdt-color-text)] border-[color:var(--mdt-color-border)] hover:bg-[color:var(--mdt-color-surface-subtle)] hover:border-[color:var(--mdt-color-border-strong)] active:bg-[color:var(--mdt-color-surface-strong)] active:border-[color:var(--mdt-color-border-strong)]",
       ghost:
         "bg-transparent text-[color:var(--mdt-color-text)] border-transparent hover:bg-[color:var(--mdt-color-surface-subtle)] active:bg-[color:var(--mdt-color-surface-strong)]",
     },

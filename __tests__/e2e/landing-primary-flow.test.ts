@@ -27,7 +27,7 @@ describe("Landing primary flow", () => {
 
       await Promise.all([
         page.getByRole("banner").waitFor({ state: "visible" }),
-        page.getByRole("main").waitFor({ state: "visible" }),
+        page.locator("#main-content").waitFor({ state: "visible" }),
         page.getByRole("contentinfo").waitFor({ state: "visible" }),
       ]);
 
@@ -65,7 +65,7 @@ describe("Landing primary flow", () => {
   maybe("mobile: core CTA still visible", { timeout: 45000 }, async () => {
     await withE2EPage(browser, { baseURL, viewport: { width: 360, height: 740 } }, async (page) => {
       await page.goto("/", { waitUntil: "domcontentloaded" });
-      await page.getByRole("main").waitFor({ state: "visible" });
+      await page.locator("#main-content").waitFor({ state: "visible" });
 
       const scanCta = page.getByRole("link", { name: /^scan a folder$/i }).first();
       const workbenchCta = page.getByRole("link", { name: /^open workbench$/i }).first();

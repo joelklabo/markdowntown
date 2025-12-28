@@ -13,7 +13,9 @@ export function Card({
     <Surface
       className={cn(
         "transition duration-mdt-base ease-mdt-emphasized motion-reduce:transition-none",
-        tone === "raised" ? "hover:shadow-mdt-md hover:border-mdt-border-strong" : undefined,
+        tone === "raised"
+          ? "hover:shadow-mdt-md hover:border-mdt-border-strong active:shadow-mdt-sm active:border-mdt-border-strong"
+          : undefined,
         className
       )}
       tone={tone}

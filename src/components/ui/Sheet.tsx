@@ -27,17 +27,17 @@ const sideStyles: Record<
   top: {
     motion: "mdt-radix-panel-slide",
     panel:
-      "fixed inset-x-0 top-0 z-50 w-full max-h-[85vh] overflow-auto border-b border-mdt-border bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
+      "fixed inset-x-0 top-0 z-50 w-full max-h-[85vh] overflow-auto border-b border-mdt-border-strong bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
   },
   bottom: {
     motion: "mdt-radix-panel-slide",
     panel:
-      "fixed inset-x-0 bottom-0 z-50 w-full max-h-[85vh] overflow-auto border-t border-mdt-border bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
+      "fixed inset-x-0 bottom-0 z-50 w-full max-h-[85vh] overflow-auto border-t border-mdt-border-strong bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
   },
   right: {
     motion: "mdt-radix-panel-slide-right",
     panel:
-      "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col overflow-auto border-l border-mdt-border bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
+      "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col overflow-auto border-l border-mdt-border-strong bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
   },
 };
 
