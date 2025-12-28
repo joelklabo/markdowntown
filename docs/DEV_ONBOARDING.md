@@ -92,6 +92,14 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - UI flags (default off): `NEXT_PUBLIC_THEME_REFRESH_V1`, `NEXT_PUBLIC_UX_CLARITY_V1`, `NEXT_PUBLIC_INSTRUCTION_HEALTH_V1`, `NEXT_PUBLIC_SCAN_NEXT_STEPS_V1`, `NEXT_PUBLIC_SCAN_QUICK_UPLOAD_V1`.
 - Wordmark flags (default on): `NEXT_PUBLIC_WORDMARK_ANIM_V1`, `NEXT_PUBLIC_WORDMARK_BANNER_V1`.
 
+### Theme refresh preview
+Enable the palette refresh and validate token output:
+```bash
+NEXT_PUBLIC_THEME_REFRESH_V1=1 pnpm dev
+```
+- Visit `/tokens` and confirm the “Theme refresh: ON” pill.
+- Toggle light/dark via the theme toggle to verify both palettes.
+
 ### Scan flow QA flags
 Use these to reproduce the scan flow Next steps UI during local QA:
 ```bash

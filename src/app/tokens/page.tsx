@@ -120,6 +120,10 @@ export const metadata: Metadata = {
   description: "Audit view for MDT design tokens (colors, shadows, radii, typography, spacing, motion).",
 };
 
+const themeRefreshFlag = process.env.NEXT_PUBLIC_THEME_REFRESH_V1 ?? "";
+const themeRefreshEnabled = themeRefreshFlag === "1" || themeRefreshFlag.toLowerCase() === "true";
+const themeRefreshLabel = themeRefreshEnabled ? "Theme refresh: ON" : "Theme refresh: OFF";
+
 function ColorSwatch({ name, varName }: { name: string; varName: string }) {
   return (
     <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface p-3 shadow-mdt-sm flex items-center gap-3">
@@ -210,6 +214,12 @@ export default function TokensPage() {
           Single source of truth for color, shadow, radius, typography, spacing, and motion tokens. Values are sourced
           from CSS custom properties so updates cascade across Tailwind and components.
         </p>
+        <div className="flex flex-wrap items-center gap-2 text-caption">
+          <span className="inline-flex items-center rounded-mdt-pill border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-1 text-mdt-text">
+            {themeRefreshLabel}
+          </span>
+          <span className="text-mdt-muted">Toggle with `NEXT_PUBLIC_THEME_REFRESH_V1=1` and restart dev.</span>
+        </div>
       </header>
 
       <section className="space-y-4">
