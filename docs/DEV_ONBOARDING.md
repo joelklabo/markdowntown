@@ -75,7 +75,7 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - Prisma errors with Postgres: ensure your IP is allowed in the DB firewall and `sslmode=require` is present.
 - OAuth callback mismatch: set `NEXTAUTH_URL` to your running URL and update GitHub OAuth callback accordingly.
 - UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
-- DevTools MCP or browser console shows HMR WebSocket errors / pages 404: restart with polling to avoid watchpack `EMFILE` errors, e.g. `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
+- DevTools MCP or browser console shows HMR WebSocket errors / pages 404: restart with polling to avoid watchpack `EMFILE` errors, e.g. `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev` (interval defaults to 1000ms when set via config).
 - DevTools MCP timeouts: confirm the app responds (`curl -I http://localhost:3000`), then restart the MCP bridge/agent and open a fresh DevTools page.
 
 ## Feature flags
