@@ -26,11 +26,28 @@ export async function withE2EPage(
   label?: string
 ) {
   const dir = artifactsDir(label);
+  const videoPath = process.env.E2E_VIDEO_PATH;
+  const videoLabel = process.env.E2E_VIDEO_LABEL;
+  const shouldRecordVideo = Boolean(videoPath && (!videoLabel || (label && label === videoLabel)));
+  const recordVideo = shouldRecordVideo ? { dir: path.dirname(videoPath!) } : undefined;
   await fs.mkdir(dir, { recursive: true });
+  if (recordVideo) {
+    await fs.mkdir(recordVideo.dir, { recursive: true });
+  }
 
-  const context = await browser.newContext(contextOptions);
+  const context = await browser.newContext({
+    ...contextOptions,
+    ...(recordVideo ? { recordVideo } : {}),
+  });
+  if (recordVideo) {
+    const page = await context.newPage();
+    await page.goto("about:blank");
+    await page.waitForTimeout(300);
+    await page.close();
+  }
   await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
   const page = await context.newPage();
+  const video = recordVideo ? page.video() : null;
 
   let error: unknown;
   try {
@@ -52,6 +69,11 @@ export async function withE2EPage(
     await context.close().catch(() => {});
   }
 
+  if (video && videoPath && shouldRecordVideo) {
+    const source = await video.path();
+    await fs.rm(videoPath, { force: true }).catch(() => {});
+    await fs.rename(source, videoPath);
+  }
+
   if (error) throw error;
 }
-
