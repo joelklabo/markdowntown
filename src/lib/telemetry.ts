@@ -1,6 +1,11 @@
 export const UI_TELEMETRY_EVENT = "mdt_ui_telemetry";
 
-export type UiTelemetryEventName = "scan_start" | "scan_complete" | "scan_cancel" | "scan_results_cta";
+export type UiTelemetryEventName =
+  | "scan_start"
+  | "scan_complete"
+  | "scan_cancel"
+  | "scan_results_cta"
+  | "scan_next_step_click";
 
 export type UiTelemetryEventDetail = {
   name: UiTelemetryEventName;

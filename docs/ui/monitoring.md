@@ -18,6 +18,7 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 - `ui_scan_start`: scan funnel entry (`method`, `tool`).
 - `ui_scan_complete`: scan funnel completion (`method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`).
 - `ui_scan_results_cta`: results CTA clicks (`source`, `tool`, `repoSource`, `loaded`, `missing`). Sources include `next_steps` (primary Open Workbench CTA), `actions`, and `post_scan`.
+- `ui_scan_next_step_click`: Next steps CTA clicks (`actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source`=`next_steps`).
 
 ## Critical action events (track)
 These are emitted by specific surfaces and should be reviewed by feature area:

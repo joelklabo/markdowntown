@@ -14,6 +14,14 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `route`
 - `nav_click` — navigation clicks.
   - Properties: `href`, `placement`, optional `cta`
+- `ui_scan_start`
+  - Properties: `method` (`directory_picker` | `file_input`), `tool`
+- `ui_scan_complete`
+  - Properties: `method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`
+- `ui_scan_results_cta`
+  - Properties: `source` (`next_steps` | `actions` | `post_scan`), `tool`, `repoSource`, `loaded`, `missing`
+- `ui_scan_next_step_click`
+  - Properties: `actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source` (`next_steps`)
 
 ## Onboarding funnel events
 
@@ -27,7 +35,7 @@ This file defines canonical event names and properties for the UX and onboarding
 - `atlas_simulator_scan_cancel`
   - Properties: `method`, `tool`, `cwd`
 - `atlas_simulator_scan_error`
-  - Properties: `method`, `tool`, `cwd`, `message` (from error tracking)
+  - Properties: `method`, `tool`, `cwd`, `errorName`
 - `atlas_simulator_simulate`
   - Properties: `tool`, `repoSource`, `trigger`, `cwd`, `fileCount`
 - `atlas_simulator_health_check`

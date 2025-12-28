@@ -949,6 +949,18 @@ export function ContextSimulator() {
   };
 
   const handleNextStepAction = async (action: NextStepAction, stepId: string) => {
+    emitUiTelemetryEvent({
+      name: "scan_next_step_click",
+      properties: {
+        actionId: action.id,
+        stepId,
+        tool,
+        repoSource,
+        isStale,
+        fileCount: lastSimulatedPaths.length,
+        source: "next_steps",
+      },
+    });
     track("atlas_simulator_next_step_action", {
       tool,
       repoSource,
