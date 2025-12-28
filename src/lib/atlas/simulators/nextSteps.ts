@@ -262,15 +262,14 @@ export function computeNextSteps(input: NextStepsInput): NextStep[] {
     infoSteps.push(buildMissingPatternsStep(input.insights));
   }
 
-  if (errorSteps.length === 0 && warningSteps.length === 0 && !input.isStale) {
-    return [buildReadyStep()];
-  }
-
   const steps: NextStep[] = [];
   if (input.isStale) {
     steps.push(buildStaleStep());
   }
 
   steps.push(...errorSteps, ...warningSteps, ...infoSteps);
+  if (errorSteps.length === 0 && !input.isStale) {
+    steps.push(buildReadyStep());
+  }
   return steps;
 }
