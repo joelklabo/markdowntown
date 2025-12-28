@@ -104,11 +104,6 @@ describe("Scan to workbench export flow", () => {
           await refreshButtons.first().click();
         }
 
-        if (scanScreenshotPath) {
-          await fs.mkdir(path.dirname(scanScreenshotPath), { recursive: true });
-          await page.screenshot({ path: scanScreenshotPath, fullPage: true });
-        }
-
         const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
         if ((await openWorkbenchCta.count()) > 0) {
           try {
@@ -155,13 +150,18 @@ describe("Scan to workbench export flow", () => {
         await instructionsInput.scrollIntoViewIfNeeded();
         await instructionsInput.fill("Export from scan flow");
         const copilotTarget = page.getByRole("checkbox", { name: /github copilot/i });
-        if (!(await copilotTarget.isChecked())) {
-          await copilotTarget.check();
-        }
+        await copilotTarget.waitFor({ state: "visible" });
+        expect(await copilotTarget.isChecked()).toBe(true);
 
         await page.getByRole("button", { name: /^compile$/i }).click();
         await page.getByText("Manifest").waitFor({ state: "visible" });
         await page.getByRole("button", { name: "src-ts.instructions.md" }).waitFor({ state: "visible" });
+
+        await page.getByText(/ready to export/i).waitFor({ state: "visible" });
+        const exportButton = page.getByRole("button", { name: /^export/i });
+        expect(await exportButton.isEnabled()).toBe(true);
+        await exportButton.click();
+        await page.getByText(/export complete/i).waitFor({ state: "visible" });
 
         if (scanScreenshotPath && !workbenchScreenshotPath) {
           await fs.mkdir(path.dirname(scanScreenshotPath), { recursive: true });
