@@ -147,6 +147,9 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
                     <Link href="/atlas/simulator">Scan a folder</Link>
                   </Button>
                   <Button size="sm" variant="secondary" asChild>
+                    <Link href="/workbench">Open Workbench</Link>
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild>
                     <Link href="/library">Clear filters</Link>
                   </Button>
                 </div>
