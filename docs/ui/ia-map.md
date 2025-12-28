@@ -22,6 +22,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 - Theme + density toggles (header / overflow)
 - Auth: Sign in/out → `/signin`, `/api/auth/*`
 - “Use a template” CTA → `/templates` (de-emphasized, not primary nav)
+- Templates/Tags live inside Library filters; no primary nav entries.
 
 ## Core surfaces
 
