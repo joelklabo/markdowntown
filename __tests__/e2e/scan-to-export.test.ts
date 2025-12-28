@@ -53,13 +53,15 @@ describe("Scan to workbench export flow", () => {
 
         const loadedList = page.getByRole("list", { name: /loaded files/i });
         await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+        const extraList = page.getByRole("list", { name: /extra instruction files/i });
+        await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
         const refreshButtons = page.getByRole("button", { name: /refresh results/i });
         if ((await refreshButtons.count()) > 0) {
           await refreshButtons.first().click();
         }
 
-        await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+        await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
         await page.getByRole("link", { name: /open workbench/i }).click();
         await page.waitForURL(/\/workbench/);
@@ -113,15 +115,15 @@ describe("Scan to workbench export flow", () => {
         await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
         await page.getByRole("button", { name: /scan a folder/i }).first().click();
 
-        const loadedList = page.getByRole("list", { name: /loaded files/i });
-        await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+        const extraList = page.getByRole("list", { name: /extra instruction files/i });
+        await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
         const refreshButtons = page.getByRole("button", { name: /refresh results/i });
         if ((await refreshButtons.count()) > 0) {
           await refreshButtons.first().click();
         }
 
-        const text = (await loadedList.allTextContents()).join("\n");
+        const text = (await extraList.allTextContents()).join("\n");
         expect(text).toContain("AGENTS.md");
       },
       "scan-refresh"

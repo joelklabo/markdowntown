@@ -1,5 +1,5 @@
 import { chromium, Browser } from "playwright";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
@@ -76,16 +76,22 @@ describe("Workbench export flow", () => {
         .filter({ hasText: "AGENTS.md" })
         .filter({ has: page.locator("pre") })
         .first();
-      await agentsFile.getByText("## Skills").waitFor({ state: "visible" });
-      await agentsFile.getByText("### Export skill").waitFor({ state: "visible" });
+      const agentsPre = agentsFile.locator("pre").first();
+      await agentsPre.waitFor({ state: "visible" });
+      const agentsText = (await agentsPre.textContent()) ?? "";
+      expect(agentsText).toContain("## Skills");
+      expect(agentsText).toContain("### Export skill");
 
       const copilotFile = page
         .locator("div")
         .filter({ hasText: ".github/copilot-instructions.md" })
         .filter({ has: page.locator("pre") })
         .first();
-      await copilotFile.getByText("## Skills").waitFor({ state: "visible" });
-      await copilotFile.getByText("### Export skill").waitFor({ state: "visible" });
+      const copilotPre = copilotFile.locator("pre").first();
+      await copilotPre.waitFor({ state: "visible" });
+      const copilotText = (await copilotPre.textContent()) ?? "";
+      expect(copilotText).toContain("## Skills");
+      expect(copilotText).toContain("### Export skill");
     });
   }, 60000);
 });

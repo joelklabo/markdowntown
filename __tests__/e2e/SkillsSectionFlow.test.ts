@@ -26,7 +26,7 @@ describe("Skills section flow", () => {
       const advancedFiltersToggle = page.getByText(/^advanced filters$/i);
       await advancedFiltersToggle.click();
 
-      const clearFilters = page.getByRole("link", { name: "Clear" });
+      const clearFilters = page.getByRole("link", { name: "Clear", exact: true });
 
       await page.getByRole("link", { name: "Codex CLI" }).first().click();
       await page.waitForURL(/target=agents-md/);
