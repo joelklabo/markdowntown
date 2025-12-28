@@ -8,7 +8,6 @@ import { HomeStepList } from "@/components/home/HomeStepList";
 import { HomeTrackedButton } from "@/components/home/HomeTrackedButton";
 import type { SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
-import { hasDatabaseEnv, prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 import { Container } from "@/components/ui/Container";
 import { Stack, Row } from "@/components/ui/Stack";
@@ -21,44 +20,14 @@ export const metadata: Metadata = {
   description: "Scan a repo to see which instructions load, then build and export agents.md with confidence.",
 };
 
-type HomeCounters = {
-  artifacts: number;
-  copies: number;
-  views: number;
-};
-
-async function getPublicCounters(): Promise<HomeCounters> {
-  if (!hasDatabaseEnv) return { artifacts: 0, copies: 0, views: 0 };
-
-  try {
-    const agg = await prisma.artifact.aggregate({
-      where: { visibility: "PUBLIC" },
-      _count: { _all: true },
-      _sum: { copies: true, views: true },
-    });
-
-    return {
-      artifacts: agg._count._all,
-      copies: agg._sum.copies ?? 0,
-      views: agg._sum.views ?? 0,
-    };
-  } catch (err) {
-    console.warn("home: failed to compute counters", err);
-    return { artifacts: 0, copies: 0, views: 0 };
-  }
-}
-
 const buildSteps = [
   { title: "Scan a folder", description: "Run a local scan to see what loads." },
-  { title: "Review insights", description: "Confirm missing or conflicting files." },
-  { title: "Build & export", description: "Open Workbench and export agents.md." },
+  { title: "Review what loads", description: "Spot missing or conflicting files fast." },
+  { title: "Build & export agents.md", description: "Open Workbench and export." },
 ];
 
 export default async function Home() {
-  const [publicItems, counters] = await Promise.all([
-    listPublicItems({ limit: 60, sort: "recent", type: "all" }),
-    getPublicCounters(),
-  ]);
+  const publicItems = await listPublicItems({ limit: 60, sort: "recent", type: "all" });
 
   const toCard = (item: PublicItem): SampleItem => ({
     id: item.id,
@@ -116,12 +85,6 @@ export default async function Home() {
     );
   }
 
-  const proof = [
-    { label: "Public artifacts", value: counters.artifacts.toLocaleString(), hint: "Live library count" },
-    { label: "Total copies", value: counters.copies.toLocaleString(), hint: "Across public artifacts" },
-    { label: "Total views", value: counters.views.toLocaleString(), hint: "Across public artifacts" },
-  ];
-
   const previewItems = items
     .slice()
     .sort((a, b) => b.stats.copies - a.stats.copies || b.stats.views - a.stats.views)
@@ -148,10 +111,13 @@ export default async function Home() {
               </Row>
               <Stack gap={3}>
                 <Heading level="display" leading="tight" className="max-w-[22ch]">
-                  Scan your repo. See which instructions load.
+                  Scan your repo. See what loads locally.
                 </Heading>
                 <Text tone="muted" className="max-w-2xl">
                   Local scan, clear insights, export agents.md in minutes.
+                </Text>
+                <Text size="caption" tone="muted">
+                  Local-only scans. Nothing leaves your device.
                 </Text>
               </Stack>
 
@@ -176,23 +142,14 @@ export default async function Home() {
                 </div>
               </Card>
 
-              <div className="grid gap-mdt-4 sm:grid-cols-3">
-                {proof.map((item) => (
-                  <Card key={item.label} tone="subtle" padding="md" className="space-y-mdt-1">
-                    <Text size="caption" tone="muted">{item.label}</Text>
-                    <Heading level="h2" as="p">{item.value}</Heading>
-                    <Text size="caption" tone="muted">{item.hint}</Text>
-                  </Card>
-                ))}
-              </div>
             </div>
 
             <div className="relative">
               <Surface tone="raised" padding="lg" className="space-y-mdt-6">
                 <Row align="center" justify="between" gap={3}>
                   <Stack gap={1}>
-                    <Text size="caption" tone="muted">Proof</Text>
-                    <Heading level="h3" as="h2">What you get after scanning</Heading>
+                    <Text size="caption" tone="muted">After the scan</Text>
+                    <Heading level="h3" as="h2">Ready-to-export output</Heading>
                   </Stack>
                   <HomeTrackedButton
                     label="Open Workbench"
@@ -207,14 +164,14 @@ export default async function Home() {
                 <Surface tone="subtle" padding="md" className="space-y-mdt-4">
                   <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
                     <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-success)]" aria-hidden />
-                    Sample output ready - autosaves disabled for anon
+                    Sample output ready - autosave off for anon
                   </Row>
                   <div className="grid gap-mdt-2 md:grid-cols-2">
                     {[
-                      { title: "Cache intent", subtitle: "edge / safe" },
                       { title: "Guardrails", subtitle: "sanitized markdown" },
-                      { title: "Sections", subtitle: "7 building blocks" },
+                      { title: "Sections", subtitle: "structured blocks" },
                       { title: "Status", subtitle: "ready to export" },
+                      { title: "Targets", subtitle: "agents.md" },
                     ].map((item) => (
                       <Surface key={item.title} padding="sm">
                         <Text size="bodySm" weight="semibold">{item.title}</Text>
@@ -277,8 +234,8 @@ export default async function Home() {
           <Surface as="section" id="library-preview" padding="lg" className="space-y-mdt-6 border-mdt-border-strong">
             <HomeSectionHeader
               eyebrow="Library preview"
-              title="Browse curated public artifacts"
-              description="When you want inspiration, the Library has templates, snippets, and files ready to reuse."
+              title="Reuse a public artifact"
+              description="Need inspiration? Start from a public artifact and open it in Workbench."
             />
             <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
               {previewItems.map((item) => (
