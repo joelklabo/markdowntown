@@ -9,7 +9,6 @@ import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
 import { HomeStepList } from "@/components/home/HomeStepList";
 import type { SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
-import { listTopTags } from "@/lib/publicTags";
 import { hasDatabaseEnv, prisma } from "@/lib/prisma";
 import { normalizeTags } from "@/lib/tags";
 import { Container } from "@/components/ui/Container";
@@ -50,25 +49,6 @@ async function getPublicCounters(): Promise<HomeCounters> {
   }
 }
 
-const features = [
-  {
-    title: "Scan + insights",
-    desc: "See which instruction files load, what is missing, and why before you build.",
-  },
-  {
-    title: "Guided Workbench",
-    desc: "Assemble scopes and blocks, reorder, and preview live before export.",
-  },
-  {
-    title: "Copy or download",
-    desc: "Grab markdown instantly or export agents.md files for your repos and tools.",
-  },
-  {
-    title: "Light/dark parity",
-    desc: "Every surface, chip, and card keeps contrast and focus states aligned.",
-  },
-];
-
 const buildSteps = [
   { title: "Scan a folder", description: "Run a local scan to see what loads." },
   { title: "Review insights", description: "Confirm missing or conflicting files." },
@@ -76,8 +56,7 @@ const buildSteps = [
 ];
 
 export default async function Home() {
-  const [tags, publicItems, counters] = await Promise.all([
-    listTopTags(8, 30),
+  const [publicItems, counters] = await Promise.all([
     listPublicItems({ limit: 60, sort: "recent", type: "all" }),
     getPublicCounters(),
   ]);
@@ -133,14 +112,10 @@ export default async function Home() {
     { label: "Total views", value: counters.views.toLocaleString(), hint: "Across public artifacts" },
   ];
 
-  const trending = items
+  const previewItems = items
     .slice()
     .sort((a, b) => b.stats.copies - a.stats.copies || b.stats.views - a.stats.views)
-    .slice(0, 6);
-
-  const copiedFiles = items.filter((i) => i.type === "file").slice(0, 3);
-  const recentItems = items.slice(0, 6);
-  const spotlightTemplates = items.filter((i) => i.type === "template").slice(0, 6);
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-mdt-bg text-mdt-text">
@@ -187,15 +162,6 @@ export default async function Home() {
                     secondary={{ label: "Open Workbench", href: "/workbench" }}
                     align="right"
                   />
-                  <Text size="caption" tone="muted" className="sm:text-right">
-                    Prefer inspiration first?{" "}
-                    <Link
-                      href="/library"
-                      className="font-medium text-mdt-text underline decoration-mdt-border-strong underline-offset-4"
-                    >
-                      Browse the Library.
-                    </Link>
-                  </Text>
                 </div>
               </Card>
 
@@ -214,17 +180,17 @@ export default async function Home() {
               <Surface tone="raised" padding="lg" className="space-y-mdt-6">
                 <Row align="center" justify="between" gap={3}>
                   <Stack gap={1}>
-                    <Text size="caption" tone="muted">Live Workbench preview</Text>
-                    <Heading level="h3" as="h2">Structured agents.md</Heading>
+                    <Text size="caption" tone="muted">Proof</Text>
+                    <Heading level="h3" as="h2">What you get after scanning</Heading>
                   </Stack>
-                    <Button size="xs" variant="secondary" asChild>
-                      <Link href="/workbench">Open Workbench</Link>
-                    </Button>
+                  <Button size="xs" variant="secondary" asChild>
+                    <Link href="/workbench">Open Workbench</Link>
+                  </Button>
                 </Row>
                 <Surface tone="subtle" padding="md" className="space-y-mdt-4">
                   <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
                     <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-success)]" aria-hidden />
-                    Live preview ready - autosaves disabled for anon
+                    Sample output ready - autosaves disabled for anon
                   </Row>
                   <div className="grid gap-mdt-2 md:grid-cols-2">
                     {[
@@ -237,6 +203,13 @@ export default async function Home() {
                         <Text size="bodySm" weight="semibold">{item.title}</Text>
                         <Text size="caption" tone="muted">{item.subtitle}</Text>
                       </Surface>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-mdt-2">
+                    {["Local-only scan", "Linted output", "No login required", "Copy or export"].map((label) => (
+                      <Pill key={label} tone="gray">
+                        {label}
+                      </Pill>
                     ))}
                   </div>
                   <div className="grid gap-mdt-2">
@@ -268,179 +241,39 @@ export default async function Home() {
               </Row>
             </Stack>
 
-            <Surface tone="subtle" padding="md" className="space-y-mdt-5 border-dashed">
-              <Text size="caption" tone="muted">Quality signals</Text>
-              <div className="grid gap-mdt-3 sm:grid-cols-2">
-                {["Live preview", "Copy without login", "Keyboard shortcuts", "Light & dark"].map((label) => (
-                  <Surface key={label} padding="sm" className="text-body-sm">
-                    {label}
-                  </Surface>
-                ))}
-              </div>
-              <Surface padding="sm" className="text-body-sm text-mdt-muted">
-                Use a template to jump to curated rails, and the bottom nav keeps Workbench one tap away on mobile.
-              </Surface>
+            <Surface tone="subtle" padding="md" className="space-y-mdt-3 border-dashed">
+              <Text size="caption" tone="muted">Why it feels fast</Text>
+              <Text size="bodySm" tone="muted">
+                Scan locally, review what loads, and move straight into Workbench. The same flow works on desktop and mobile without extra setup.
+              </Text>
+              <Text size="bodySm" tone="muted">
+                Save time by starting from a clean scan and exporting agents.md with consistent structure.
+              </Text>
             </Surface>
           </Surface>
 
-          <section className="space-y-mdt-5" id="features">
-            <Stack gap={2}>
-              <Text size="caption" tone="muted">Why teams ship with markdowntown</Text>
-              <Heading level="h2" as="h3">Everything you need to move fast</Heading>
-              <Text size="bodySm" tone="muted" className="max-w-2xl">
-                From discovery to export, every step stays structured, shareable, and consistent with your agents.md standards.
-              </Text>
-            </Stack>
-            <div className="grid gap-mdt-4 md:grid-cols-2">
-              {features.map((feature) => (
-                <Card key={feature.title} className="space-y-mdt-3 bg-[color:var(--mdt-color-surface)] motion-reduce:transition-none">
-                  <Heading level="h3" as="h4">{feature.title}</Heading>
-                  <Text size="bodySm" tone="muted">{feature.desc}</Text>
-                </Card>
+          <Surface as="section" id="library-preview" padding="lg" className="space-y-mdt-6 border-mdt-border-strong">
+            <HomeSectionHeader
+              eyebrow="Library preview"
+              title="Browse curated public artifacts"
+              description="When you want inspiration, the Library has templates, snippets, and files ready to reuse."
+            />
+            <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
+              {previewItems.map((item) => (
+                <LibraryCard key={item.id} item={item} variant="preview" />
               ))}
+              {previewItems.length === 0 && (
+                <Card className="p-mdt-4 text-sm text-mdt-muted">
+                  No public items yet. Run a scan to create one.
+                </Card>
+              )}
             </div>
-          </section>
-
-          <section className="grid gap-mdt-6 lg:grid-cols-[2fr_1fr]" id="templates">
-            <div className="space-y-mdt-4">
-              <div className="flex flex-col gap-mdt-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-caption text-mdt-muted">Featured</p>
-                  <h3 className="text-h2">Trending snippets & templates</h3>
-                </div>
-                <Button variant="secondary" asChild>
-                  <Link href="/library">Browse all</Link>
-                </Button>
-              </div>
-              <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
-                {trending.map((item) => (
-                  <LibraryCard key={item.id} item={item} />
-                ))}
-                {trending.length === 0 && (
-                  <Card className="p-mdt-4 text-sm text-mdt-muted">No public items yet. Check back soon.</Card>
-                )}
-              </div>
-            </div>
-
-            <Card className="space-y-mdt-4">
-              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-caption text-mdt-muted">Tags</p>
-                  <h3 className="text-h3">What people search</h3>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/tags">View tags</Link>
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-mdt-2">
-                {tags.slice(0, 18).map(({ tag, count }) => (
-                  <Link
-                    key={tag}
-                    href={`/library?tag=${encodeURIComponent(tag)}`}
-                    className="inline-flex items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-1 text-body-sm text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:-translate-y-[1px] hover:bg-mdt-surface hover:border-mdt-border-strong hover:shadow-mdt-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                  >
-                    <span className="font-medium">#{tag}</span>
-                    <span className="text-caption text-mdt-muted">{count}</span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-          </section>
-
-          <section className="space-y-mdt-8" id="featured">
-            <div className="grid gap-mdt-6 lg:grid-cols-[2fr_1fr]">
-              <Card className="space-y-mdt-4">
-                <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-caption text-mdt-muted">Most copied</p>
-                    <h3 className="text-h3">agents.md files people grab</h3>
-                  </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/library?sort=copied">See list</Link>
-                  </Button>
-                </div>
-                <div className="space-y-mdt-3">
-                  {copiedFiles.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex flex-col gap-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-3 text-sm sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="space-y-mdt-1">
-                        <div className="flex items-center gap-mdt-2">
-                          <Pill tone="blue">agents.md</Pill>
-                          {item.badge && <Pill tone="yellow">{item.badge}</Pill>}
-                        </div>
-                        <p className="font-semibold text-mdt-text">{item.title}</p>
-                        <p className="text-xs text-mdt-muted">
-                          {item.stats.copies.toLocaleString()} copies - {item.stats.views.toLocaleString()} views
-                        </p>
-                      </div>
-                      <Button size="sm" className="w-full sm:w-auto" asChild>
-                        <Link href={`/files/${item.slug ?? item.id}`}>Copy</Link>
-                      </Button>
-                    </div>
-                  ))}
-                  {copiedFiles.length === 0 && <p className="text-sm text-mdt-muted">No public files yet.</p>}
-                </div>
-              </Card>
-
-              <Card className="space-y-mdt-4 border border-dashed border-mdt-border bg-mdt-surface-subtle">
-                <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
-                  <h3 className="text-h3">Why sign in</h3>
-                  <Pill tone="yellow">Optional</Pill>
-                </div>
-                <ul className="list-disc space-y-mdt-2 pl-mdt-5 text-sm text-mdt-muted">
-                  <li>Save agents.md documents and favorites.</li>
-                  <li>Resume Workbench with your snippets and templates.</li>
-                  <li>Vote, comment, and track copies/downloads.</li>
-                </ul>
-                <div className="flex flex-wrap gap-mdt-2">
-                  <Button asChild>
-                    <Link href="/signin?callbackUrl=/">Sign in</Link>
-                  </Button>
-                  <Button variant="secondary" asChild>
-                    <Link href="/library">Keep browsing</Link>
-                  </Button>
-                </div>
-              </Card>
-            </div>
-
-            <Card className="space-y-mdt-4" id="new">
-              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-caption text-mdt-muted">New this week</p>
-                  <h3 className="text-h3">Fresh snippets, templates, and files</h3>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/library?sort=new">See all new</Link>
-                </Button>
-              </div>
-              <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
-                {recentItems.map((item) => (
-                  <LibraryCard key={item.id} item={item} />
-                ))}
-                {recentItems.length === 0 && <Card className="p-mdt-4 text-sm text-mdt-muted">No new items yet.</Card>}
-              </div>
-            </Card>
-
-            <Card className="space-y-mdt-4" id="template-spotlight">
-              <div className="flex flex-col gap-mdt-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-caption text-mdt-muted">Template spotlight</p>
-                  <h3 className="text-h3">Start from a proven template</h3>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/templates">View templates</Link>
-                </Button>
-              </div>
-              <div className="grid gap-mdt-4 sm:grid-cols-2 lg:grid-cols-3">
-                {spotlightTemplates.map((item) => (
-                  <LibraryCard key={item.id} item={item} />
-                ))}
-                {spotlightTemplates.length === 0 && <Card className="p-mdt-4 text-sm text-mdt-muted">No templates yet.</Card>}
-              </div>
-            </Card>
-          </section>
+            <Row justify="start">
+              <Button variant="secondary" asChild>
+                <Link href="/library">Browse Library</Link>
+              </Button>
+            </Row>
+          </Surface>
 
           <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border-strong bg-[color:var(--mdt-color-surface-raised)] p-mdt-10 text-center shadow-mdt-lg space-y-mdt-4 sm:p-mdt-12">
             <Heading level="h1" as="h2" align="center">Start with a scan</Heading>

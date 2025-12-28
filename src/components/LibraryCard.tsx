@@ -44,10 +44,12 @@ export function LibraryCard({
   draggable,
   onDragStart,
   onDragEnd,
+  variant = "default",
   className,
   ...rest
-}: { item: Item } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
+}: { item: Item; variant?: "default" | "preview" } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
+  const isPreview = variant === "preview";
   const typeLabel =
     item.type === "snippet"
       ? "Snippet"
@@ -59,7 +61,7 @@ export function LibraryCard({
             ? "Skill"
             : "File";
   const slug = item.slug ?? item.id;
-  const visibleTags = item.tags.slice(0, 3);
+  const visibleTags = item.tags.slice(0, isPreview ? 2 : 3);
   const overflowCount = item.tags.length - visibleTags.length;
   const actionSize = "sm" as const;
   const detailHref =
@@ -198,15 +200,17 @@ export function LibraryCard({
             {item.stats.votes.toLocaleString()} votes
           </Text>
         </Row>
-        <Row gap={2} align="center" wrap className="relative z-10 w-full justify-start sm:justify-end">
-          {onPreview && (
-            <Button variant="ghost" size={actionSize} onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
-              Preview
-            </Button>
-          )}
-          {renderPrimary()}
-          {renderSecondary()}
-        </Row>
+        {!isPreview && (
+          <Row gap={2} align="center" wrap className="relative z-10 w-full justify-start sm:justify-end">
+            {onPreview && (
+              <Button variant="ghost" size={actionSize} onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
+                Preview
+              </Button>
+            )}
+            {renderPrimary()}
+            {renderSecondary()}
+          </Row>
+        )}
       </div>
     </Card>
   );
