@@ -28,6 +28,12 @@ Flow overview: scan a folder → review Next steps → open Workbench with tool 
 4. Compile and review the output files (step 3).
 5. Download the zip and unzip into your repo.
 
+## Library flow (4 steps)
+1. Open **Library** and search or filter for a template/snippet.
+2. Use the primary **Open in Workbench** action on the card.
+3. Review and edit in Workbench as needed.
+4. Export `agents.md` or download the zip.
+
 ## Edge cases and recovery
 - **Directory picker not supported** → use the folder upload input (`webkitdirectory`).
 - **Permission error** → re-open the picker and grant access to the repo folder, then retry the scan.

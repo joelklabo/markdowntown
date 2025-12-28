@@ -8,6 +8,11 @@ Issue: markdowntown-7z8.26
 - Filters are simplified: type + sort + top tags; advanced filters live in a “More filters” drawer.
 - Empty state guidance explains how to broaden filters or start with a scan.
 
+## CTA hierarchy
+- Primary: **Open in Workbench** on every card (button style).
+- Secondary: **Preview**, **Copy**, **Download** (inline secondary buttons or overflow menu).
+- Tertiary: **Share** / **Fork** (overflow-only).
+
 ## Layout
 - Top bar: search input (⌘/) + sort (Recent, Trending, Most copied) + type filter pills (All, Snippets, Templates, Files).
 - Filters (desktop rail / mobile sheet): top tags, reset button, advanced filters collapsed behind “More filters”.
