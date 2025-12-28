@@ -1,12 +1,11 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
 import { HomeCtaCluster } from "@/components/home/HomeCtaCluster";
 import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
 import { HomeStepList } from "@/components/home/HomeStepList";
+import { HomeTrackedButton } from "@/components/home/HomeTrackedButton";
 import type { SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { hasDatabaseEnv, prisma } from "@/lib/prisma";
@@ -89,12 +88,23 @@ export default async function Home() {
                 The Library is empty right now. Scan a repo to preview instruction files and open Workbench to export agents.md.
               </Text>
               <Row justify="center" gap={3} wrap>
-                <Button size="lg" asChild>
-                  <Link href="/atlas/simulator">Scan a folder</Link>
-                </Button>
-                <Button variant="secondary" size="lg" asChild>
-                  <Link href="/workbench">Open Workbench</Link>
-                </Button>
+                <HomeTrackedButton
+                  label="Scan a folder"
+                  href="/atlas/simulator"
+                  ctaId="scan"
+                  placement="empty-state"
+                  slot="primary"
+                  size="lg"
+                />
+                <HomeTrackedButton
+                  label="Open Workbench"
+                  href="/workbench"
+                  ctaId="workbench"
+                  placement="empty-state"
+                  slot="secondary"
+                  size="lg"
+                  variant="secondary"
+                />
               </Row>
               <Text size="caption" tone="muted">
                 Tip: Make an artifact public to show it on the homepage.
@@ -158,9 +168,10 @@ export default async function Home() {
                 </Stack>
                 <div className="space-y-mdt-2 sm:text-right">
                   <HomeCtaCluster
-                    primary={{ label: "Scan a folder", href: "/atlas/simulator" }}
-                    secondary={{ label: "Open Workbench", href: "/workbench" }}
+                    primary={{ id: "scan", label: "Scan a folder", href: "/atlas/simulator" }}
+                    secondary={{ id: "workbench", label: "Open Workbench", href: "/workbench" }}
                     align="right"
+                    placement="hero"
                   />
                 </div>
               </Card>
@@ -183,9 +194,15 @@ export default async function Home() {
                     <Text size="caption" tone="muted">Proof</Text>
                     <Heading level="h3" as="h2">What you get after scanning</Heading>
                   </Stack>
-                  <Button size="xs" variant="secondary" asChild>
-                    <Link href="/workbench">Open Workbench</Link>
-                  </Button>
+                  <HomeTrackedButton
+                    label="Open Workbench"
+                    href="/workbench"
+                    ctaId="workbench"
+                    placement="proof"
+                    slot="secondary"
+                    size="xs"
+                    variant="secondary"
+                  />
                 </Row>
                 <Surface tone="subtle" padding="md" className="space-y-mdt-4">
                   <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
@@ -235,9 +252,14 @@ export default async function Home() {
               />
               <HomeStepList steps={buildSteps} />
               <Row wrap gap={3}>
-                <Button variant="secondary" asChild>
-                  <Link href="/workbench">Open Workbench</Link>
-                </Button>
+                <HomeTrackedButton
+                  label="Open Workbench"
+                  href="/workbench"
+                  ctaId="workbench"
+                  placement="build-steps"
+                  slot="single"
+                  variant="secondary"
+                />
               </Row>
             </Stack>
 
@@ -269,9 +291,14 @@ export default async function Home() {
               )}
             </div>
             <Row justify="start">
-              <Button variant="secondary" asChild>
-                <Link href="/library">Browse Library</Link>
-              </Button>
+              <HomeTrackedButton
+                label="Browse Library"
+                href="/library"
+                ctaId="library"
+                placement="library-preview"
+                slot="single"
+                variant="secondary"
+              />
             </Row>
           </Surface>
 
@@ -281,12 +308,23 @@ export default async function Home() {
               Scan a repo to see what loads, then open Workbench to refine and export agents.md. Use the Library when you want inspiration.
             </Text>
             <Row justify="center" gap={3} className="mt-mdt-6">
-              <Button size="lg" asChild>
-                <Link href="/atlas/simulator">Scan a folder</Link>
-              </Button>
-              <Button variant="secondary" size="lg" asChild>
-                <Link href="/workbench">Open Workbench</Link>
-              </Button>
+              <HomeTrackedButton
+                label="Scan a folder"
+                href="/atlas/simulator"
+                ctaId="scan"
+                placement="final-cta"
+                slot="primary"
+                size="lg"
+              />
+              <HomeTrackedButton
+                label="Open Workbench"
+                href="/workbench"
+                ctaId="workbench"
+                placement="final-cta"
+                slot="secondary"
+                size="lg"
+                variant="secondary"
+              />
             </Row>
           </div>
         </Stack>

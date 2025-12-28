@@ -14,6 +14,8 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `route`
 - `nav_click` — navigation clicks.
   - Properties: `href`, `placement`, optional `cta`
+- `ui_home_cta_click` — home page CTA clicks.
+  - Properties: `cta` (`scan` | `workbench` | `library`), `slot` (`primary` | `secondary` | `tertiary` | `single`), `placement`, `href`
 - `ui_scan_start`
   - Properties: `method` (`directory_picker` | `file_input`), `tool`
 - `ui_scan_complete`

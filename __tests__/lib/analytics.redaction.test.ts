@@ -101,6 +101,17 @@ describe("redactAnalyticsPayload", () => {
     });
   });
 
+  it("preserves home CTA payload fields", () => {
+    const input = {
+      cta: "scan",
+      href: "/atlas/simulator",
+      placement: "hero",
+      slot: "primary",
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual(input);
+  });
+
   it("returns undefined when given undefined", () => {
     expect(redactAnalyticsPayload(undefined)).toBeUndefined();
   });

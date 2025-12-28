@@ -1,11 +1,15 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/Button";
 import { Row } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
+import { trackHomeCtaClick } from "@/lib/analytics";
+import { HomeTrackedButton } from "@/components/home/HomeTrackedButton";
 
 type CtaLink = {
+  id: string;
   label: string;
   href: string;
 };
@@ -14,6 +18,7 @@ export type HomeCtaClusterProps = React.HTMLAttributes<HTMLDivElement> & {
   primary: CtaLink;
   secondary?: CtaLink;
   tertiary?: CtaLink;
+  placement?: string;
   align?: "left" | "center" | "right";
 };
 
@@ -21,6 +26,7 @@ export function HomeCtaCluster({
   primary,
   secondary,
   tertiary,
+  placement = "hero",
   align = "left",
   className,
   ...props
@@ -35,13 +41,24 @@ export function HomeCtaCluster({
   return (
     <div className={cn("space-y-mdt-2", className)} {...props}>
       <Row wrap gap={2} className={rowAlign}>
-        <Button size="lg" asChild>
-          <Link href={primary.href}>{primary.label}</Link>
-        </Button>
+        <HomeTrackedButton
+          label={primary.label}
+          href={primary.href}
+          ctaId={primary.id}
+          placement={placement}
+          slot="primary"
+          size="lg"
+        />
         {secondary ? (
-          <Button variant="secondary" size="lg" asChild>
-            <Link href={secondary.href}>{secondary.label}</Link>
-          </Button>
+          <HomeTrackedButton
+            label={secondary.label}
+            href={secondary.href}
+            ctaId={secondary.id}
+            placement={placement}
+            slot="secondary"
+            size="lg"
+            variant="secondary"
+          />
         ) : null}
       </Row>
       {tertiary ? (
@@ -53,6 +70,14 @@ export function HomeCtaCluster({
           <Link
             href={tertiary.href}
             className="font-medium text-mdt-text underline decoration-mdt-border-strong underline-offset-4"
+            onClick={() =>
+              trackHomeCtaClick({
+                cta: tertiary.id,
+                href: tertiary.href,
+                placement,
+                slot: "tertiary",
+              })
+            }
           >
             {tertiary.label}
           </Link>

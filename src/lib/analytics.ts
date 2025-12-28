@@ -89,6 +89,15 @@ export function trackUiEvent(event: string, properties?: Record<string, unknown>
   track(event, withPageContext(properties));
 }
 
+export function trackHomeCtaClick(properties: {
+  cta: string;
+  href: string;
+  placement: string;
+  slot?: string;
+}) {
+  trackUiEvent("ui_home_cta_click", properties);
+}
+
 export function trackError(event: string, error: Error, properties?: Record<string, unknown>) {
   track(event, {
     message: error.message,

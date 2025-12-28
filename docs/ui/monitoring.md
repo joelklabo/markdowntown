@@ -15,6 +15,7 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 - `ui_theme_change`: theme toggles (`theme`, `previous`).
 - `ui_density_change`: density toggles (`density`, `previous`).
 - `ui_command_palette_open`: command palette entry (`origin`).
+- `ui_home_cta_click`: home CTA clicks (`cta`, `slot`, `placement`, `href`).
 - `ui_scan_start`: scan funnel entry (`method`, `tool`).
 - `ui_scan_complete`: scan funnel completion (`method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`).
 - `ui_scan_results_cta`: results CTA clicks (`source`, `tool`, `repoSource`, `loaded`, `missing`). Sources include `next_steps` (primary Open Workbench CTA), `actions`, and `post_scan`.
