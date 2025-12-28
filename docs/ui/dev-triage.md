@@ -40,7 +40,7 @@
 3. Observe tool timeout: `timed out awaiting tools/call after 60s` (no page opened).
 4. Run `pnpm mcp:health` and include output in the repro notes.
 
-### Notes (Scan flags)
+### Notes (MCP timeouts)
 - Timeouts may occur even when the dev server is healthy; capture the MCP error text in QA notes.
 
 ### Capture on failure
@@ -71,6 +71,17 @@
 
 ## Scan flow feature flags
 
-### Notes
+### Notes (Scan flags)
 - `NEXT_PUBLIC_SCAN_NEXT_STEPS_V1=1` enables the Next steps panel; unset/0 hides it.
 - `NEXT_PUBLIC_SCAN_QUICK_UPLOAD_V1=1` shows the quick upload fallback when directory picker is unavailable.
+
+## Unit test timeouts
+
+### Symptoms (Unit tests)
+- `pnpm test:unit` exceeds default timeouts in CI or automation.
+
+### Mitigation (Unit tests)
+- Rerun with a higher timeout: `pnpm test:unit -- --testTimeout=30000`.
+
+### Capture on failure (Unit tests)
+- Command used and any timeout stack traces.
