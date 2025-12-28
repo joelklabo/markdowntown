@@ -28,8 +28,10 @@
 
 ### Checks
 1. Confirm the dev server responds: `curl -I http://localhost:3000`.
-2. Close any stale DevTools MCP pages and open a fresh page.
-3. If timeouts persist, restart the MCP bridge/agent and retry the page load.
+2. Load `http://localhost:3000/` in a local browser to verify it renders.
+3. Close any stale DevTools MCP pages and open a fresh page.
+4. If timeouts persist, restart the MCP bridge/agent and retry the page load.
+5. Capture the exact MCP error text and dev server status in QA notes.
 
 ### Repro (Codex MCP)
 1. Start dev server: `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
@@ -38,3 +40,8 @@
 
 ### Notes
 - Timeouts may occur even when the dev server is healthy; capture the MCP error text in QA notes.
+
+### Capture on failure
+- MCP error text (full timeout message).
+- Dev server status output (`curl -I http://localhost:3000`).
+- Whether `WATCHPACK_POLLING`/`WATCHPACK_POLLING_INTERVAL` were set.
