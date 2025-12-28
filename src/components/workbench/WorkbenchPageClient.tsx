@@ -10,7 +10,7 @@ import { WorkbenchOnboardingCard } from '@/components/workbench/WorkbenchOnboard
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import type { Session } from 'next-auth';
-import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import { readStoredScanContext, useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
 import type { UamV1 } from '@/lib/uam/uamTypes';
 
@@ -90,11 +90,13 @@ export function WorkbenchPageClient({
   useEffect(() => {
     if (!mounted) return;
     if (appliedScanRef.current) return;
-    if (!initialScanContext) return;
     if (initialArtifactId || initialTemplateUam) return;
-    applyScanContext(initialScanContext);
+    if (scanContext) return;
+    const context = initialScanContext ?? readStoredScanContext();
+    if (!context) return;
+    applyScanContext(context);
     appliedScanRef.current = true;
-  }, [applyScanContext, initialArtifactId, initialScanContext, initialTemplateUam, mounted]);
+  }, [applyScanContext, initialArtifactId, initialScanContext, initialTemplateUam, mounted, scanContext]);
 
   const scanSummary = useMemo(() => {
     if (!scanContext) return null;

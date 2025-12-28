@@ -59,6 +59,71 @@ function safeLocalStorage(): StateStorage {
   };
 }
 
+const SCAN_CONTEXT_STORAGE_KEY = 'workbench-scan-context-v1';
+const SCAN_CONTEXT_STORAGE_VERSION = 1;
+
+type StoredScanContext = {
+  version: number;
+  storedAt: number;
+  context: ScanContext;
+};
+
+function safeSessionStorage() {
+  return typeof sessionStorage === 'undefined' ? null : sessionStorage;
+}
+
+function isValidScanContext(value: unknown): value is ScanContext {
+  if (!isRecord(value)) return false;
+  if (typeof value.tool !== 'string') return false;
+  if (!(value.tool in SCAN_TOOL_TARGET_MAP)) return false;
+  if (typeof value.cwd !== 'string') return false;
+  if (!Array.isArray(value.paths)) return false;
+  return value.paths.every((entry) => typeof entry === 'string');
+}
+
+export function readStoredScanContext(): ScanContext | null {
+  const storage = safeSessionStorage();
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(SCAN_CONTEXT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredScanContext;
+    if (!parsed || parsed.version !== SCAN_CONTEXT_STORAGE_VERSION) {
+      clearStoredScanContext();
+      return null;
+    }
+    if (!isValidScanContext(parsed.context)) {
+      clearStoredScanContext();
+      return null;
+    }
+    return parsed.context;
+  } catch {
+    clearStoredScanContext();
+    return null;
+  }
+}
+
+function writeStoredScanContext(context: ScanContext) {
+  const storage = safeSessionStorage();
+  if (!storage) return;
+  try {
+    const payload: StoredScanContext = {
+      version: SCAN_CONTEXT_STORAGE_VERSION,
+      storedAt: Date.now(),
+      context,
+    };
+    storage.setItem(SCAN_CONTEXT_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // ignore storage failures (quota, serialization, etc.)
+  }
+}
+
+function clearStoredScanContext() {
+  const storage = safeSessionStorage();
+  if (!storage) return;
+  storage.removeItem(SCAN_CONTEXT_STORAGE_KEY);
+}
+
 function debounce<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delayMs: number) {
   let timeout: ReturnType<typeof setTimeout> | null = null;
   return (...args: TArgs) => {
@@ -746,6 +811,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             paths: normalizeScanPaths(context.paths ?? []),
           };
           set({ scanContext: nextContext });
+          writeStoredScanContext(nextContext);
           const targetId = targetIdForScanTool(nextContext.tool);
           if (!targetId) return;
           const nextUam = { ...get().uam, targets: [createUamTargetV1(targetId)] };
@@ -755,6 +821,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         clearScanContext: () => {
           const context = get().scanContext;
           set({ scanContext: null });
+          clearStoredScanContext();
           if (!context) return;
           const targetId = targetIdForScanTool(context.tool);
           if (!targetId) return;
