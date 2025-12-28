@@ -14,6 +14,6 @@ describe("/atlas/simulator page", () => {
     expect(screen.getByLabelText("Tool")).toBeInTheDocument();
     expect(screen.getByLabelText("Current directory (cwd)")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Loaded files" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Actions" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Quick actions" })).toBeInTheDocument();
   });
 });

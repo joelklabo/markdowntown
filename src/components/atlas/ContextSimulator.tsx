@@ -537,30 +537,21 @@ export function ContextSimulator() {
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
   );
-  const nextStepsSummary = useMemo(() => {
-    const loadedCount = result.loaded.length;
-    const missingCount = insights.missingFiles.length;
-    const warningCount = result.warnings.length;
-    const loadedLabel = `${loadedCount} loaded file${loadedCount === 1 ? "" : "s"}`;
-    const missingLabel = `${missingCount} missing pattern${missingCount === 1 ? "" : "s"}`;
-    const warningLabel = `${warningCount} warning${warningCount === 1 ? "" : "s"}`;
-    return `Scan found ${loadedLabel}, ${missingLabel}, and ${warningLabel}. Start with the highest-impact fix below.`;
-  }, [insights.missingFiles.length, result.loaded.length, result.warnings.length]);
   const resultsSummary = useMemo(() => {
     if (result.loaded.length === 0) {
-      return "No instruction files would load yet. Start with Next steps or adjust tool/cwd.";
+      return "No instruction files would load yet. Start with Next steps.";
     }
     if (scanMeta?.truncated) {
       return "Scan truncated. Results may be incomplete—consider narrowing the folder.";
     }
     if (insights.missingFiles.length === 0 && result.warnings.length === 0) {
-      return "All expected instruction files were found. You're ready to move to Workbench.";
+      return "All expected instruction files were found. Open Workbench to export agents.md.";
     }
     if (insights.missingFiles.length > 0) {
-      return "Missing patterns found. Add the files or use templates, then re-scan.";
+      return "Missing instruction files. Add the files or copy a template, then rescan.";
     }
     if (result.warnings.length > 0) {
-      return "Warnings detected. Review them before continuing.";
+      return "Warnings detected. Review them before exporting.";
     }
     return "Review the results and move on when ready.";
   }, [insights.missingFiles.length, result.loaded.length, result.warnings.length, scanMeta?.truncated]);
@@ -595,6 +586,20 @@ export function ContextSimulator() {
     () => nextSteps.some((step) => step.primaryAction?.id === "open-workbench"),
     [nextSteps],
   );
+  const nextStepsSummary = useMemo(() => {
+    if (hasNextStepsOpenWorkbench && insights.missingFiles.length === 0 && result.warnings.length === 0) {
+      return "You're ready. Open Workbench to build and export agents.md.";
+    }
+    const loadedCount = result.loaded.length;
+    const missingCount = insights.missingFiles.length;
+    const warningCount = result.warnings.length;
+    const loadedLabel = `${loadedCount} loaded file${loadedCount === 1 ? "" : "s"}`;
+    const missingLabel = `${missingCount} missing pattern${missingCount === 1 ? "" : "s"}`;
+    const warningLabel = `${warningCount} warning${warningCount === 1 ? "" : "s"}`;
+    return `Scan summary: ${loadedLabel}, ${missingLabel}, ${warningLabel}. Start with the top fix.`;
+  }, [hasNextStepsOpenWorkbench, insights.missingFiles.length, result.loaded.length, result.warnings.length]);
+  const showSummaryWorkbench =
+    lastSimulatedPaths.length > 0 && (!featureFlags.scanNextStepsV1 || !hasNextStepsOpenWorkbench);
 
   const announceStatus = (message: string) => {
     setActionStatus(message);
@@ -1581,7 +1586,7 @@ export function ContextSimulator() {
         <Stack gap={5}>
           <Stack gap={2}>
             <Heading level="h2">Results</Heading>
-            <Text tone="muted">Start with Next steps, then review what loads and any warnings.</Text>
+            <Text tone="muted">Start with Next steps. Then review the summary and files below.</Text>
             {isStale ? (
               <div
                 className="flex flex-wrap items-center justify-between gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2 text-caption text-mdt-muted"
@@ -1619,11 +1624,11 @@ export function ContextSimulator() {
                 {resultsSummary}
               </Text>
               <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-                Actions
+                Quick actions
               </Text>
               <div className="flex flex-wrap gap-mdt-2">
-                {lastSimulatedPaths.length > 0 ? (
-                  <Button type="button" asChild variant={hasNextStepsOpenWorkbench ? "secondary" : "primary"}>
+                {showSummaryWorkbench ? (
+                  <Button type="button" asChild variant="primary">
                     <Link href={workbenchHref} onClick={() => handleOpenWorkbenchCta("actions")}>
                       Open Workbench
                     </Link>

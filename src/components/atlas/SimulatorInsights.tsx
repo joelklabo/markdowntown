@@ -11,6 +11,7 @@ type SimulatorInsightsProps = {
 
 export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsProps) {
   const summary = formatInsightsSummary(insights, extraFiles.length);
+  const nextStepText = summary.nextStep.replace(/^next step:\s*/i, "");
 
   return (
     <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
@@ -28,7 +29,7 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
               <Text size="bodySm" weight="semibold">{summary.title}</Text>
               <Text tone="muted" size="bodySm">{summary.body}</Text>
               <Text size="bodySm" weight="semibold">
-                Next step: {summary.nextStep}
+                Next step: {nextStepText}
               </Text>
               {summary.note ? <Text tone="muted" size="bodySm">{summary.note}</Text> : null}
             </Stack>
