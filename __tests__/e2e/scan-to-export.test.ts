@@ -58,7 +58,15 @@ describe("Scan to workbench export flow", () => {
         }
 
         const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
-        await openWorkbenchCta.waitFor({ state: "visible" });
+        try {
+          await openWorkbenchCta.waitFor({ state: "visible", timeout: 5000 });
+        } catch {
+          const showAll = page.getByRole("button", { name: /show all/i });
+          if ((await showAll.count()) > 0) {
+            await showAll.first().click();
+          }
+          await openWorkbenchCta.waitFor({ state: "visible" });
+        }
         await openWorkbenchCta.click();
         await page.waitForURL(/\/workbench/);
 

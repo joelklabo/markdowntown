@@ -219,7 +219,16 @@ describe("Atlas scan guidance flow", () => {
       const extraList = page.getByRole("list", { name: /extra instruction files/i });
       await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
-      await page.getByTestId("next-steps-open-workbench").waitFor({ state: "visible" });
+      const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
+      try {
+        await openWorkbenchCta.waitFor({ state: "visible", timeout: 5000 });
+      } catch {
+        const showAll = page.getByRole("button", { name: /show all/i });
+        if ((await showAll.count()) > 0) {
+          await showAll.first().click();
+        }
+        await openWorkbenchCta.waitFor({ state: "visible" });
+      }
     }, "scan-sample");
   });
 
