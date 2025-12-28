@@ -61,6 +61,7 @@ describe("redactAnalyticsPayload", () => {
       method: "directory_picker",
       tool: "codex",
       cwd: "/Users/name/secret-repo",
+      errorName: "SecurityError",
       totalFiles: 120,
       matchedFiles: 42,
       truncated: false,
@@ -71,6 +72,7 @@ describe("redactAnalyticsPayload", () => {
     expect(redactAnalyticsPayload(input)).toEqual({
       method: "directory_picker",
       tool: "codex",
+      errorName: "SecurityError",
       totalFiles: 120,
       matchedFiles: 42,
       truncated: false,

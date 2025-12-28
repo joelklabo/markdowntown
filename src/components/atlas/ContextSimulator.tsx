@@ -701,6 +701,26 @@ export function ContextSimulator() {
     return {};
   };
 
+  const trackScanError = (
+    error: unknown,
+    context: { method: string; tool: SimulatorToolId; cwd?: string },
+  ) => {
+    const errorName = error instanceof Error ? error.name : "UnknownError";
+    track("atlas_simulator_scan_error", { ...context, errorName });
+  };
+
+  const formatScanErrorMessage = (error: unknown) => {
+    if (error instanceof DOMException) {
+      if (error.name === "NotAllowedError" || error.name === "SecurityError") {
+        return "Permission denied. Check folder access and try again.";
+      }
+      if (error.name === "NotFoundError") {
+        return "Folder not found. Choose a different folder and try again.";
+      }
+    }
+    return "Unable to scan folder. Check permissions and try again.";
+  };
+
   const runFolderScan = async (
     method: "directory_picker" | "file_input",
     scan: (signal: AbortSignal, onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void) => Promise<{
@@ -776,14 +796,8 @@ export function ContextSimulator() {
         setScanNotice("Scan canceled. Scan a folder to continue.");
         return;
       }
-      if (err instanceof Error) {
-        trackError("atlas_simulator_scan_error", err, {
-          method,
-          tool,
-          cwd: scanCwd,
-        });
-      }
-      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+      trackScanError(err, { method, tool, cwd: scanCwd });
+      setScanError(formatScanErrorMessage(err));
     } finally {
       if (scanId !== scanIdRef.current) return;
       setIsScanning(false);
@@ -822,14 +836,8 @@ export function ContextSimulator() {
         setScanNotice("Scan canceled. Scan a folder to continue.");
         return;
       }
-      if (err instanceof Error) {
-        trackError("atlas_simulator_scan_error", err, {
-          method: "directory_picker",
-          tool,
-          cwd: scanCwd,
-        });
-      }
-      setScanError(err instanceof Error ? err.message : "Unable to scan folder");
+      trackScanError(err, { method: "directory_picker", tool, cwd: scanCwd });
+      setScanError(formatScanErrorMessage(err));
     }
   };
 

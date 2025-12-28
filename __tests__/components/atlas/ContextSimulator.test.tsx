@@ -265,11 +265,11 @@ describe("ContextSimulator", () => {
     render(<ContextSimulator />);
 
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
-    expect(await screen.findByText(/access denied/i)).toBeInTheDocument();
+    expect(await screen.findByText(/unable to scan folder/i)).toBeInTheDocument();
 
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
     expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
-    expect(screen.queryByText(/access denied/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/unable to scan folder/i)).not.toBeInTheDocument();
 
     restorePicker(originalPicker);
   });
