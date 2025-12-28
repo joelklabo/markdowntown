@@ -1,6 +1,6 @@
 # Scan-First UX Flow
 
-Date: 2025-12-26
+Date: 2025-12-28
 Scope: Atlas Simulator scan flow (first-time user to value).
 
 ## Goals
@@ -10,7 +10,7 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 
 ## Primary entry points
 - Global nav: Scan → `/atlas/simulator`
-- Home CTA(s): Scan a folder, Validate your setup
+- Home CTA: Scan a folder
 - Library empty state: link to Scan if no artifacts found
 - Docs: Scan quickstart
 
@@ -26,7 +26,7 @@ Scope: Atlas Simulator scan flow (first-time user to value).
    - Local-only callout visible above the CTA.
 2. **Scan a folder**
    - Primary CTA: "Scan a folder" (Directory Picker).
-   - Secondary: "Paste paths" (manual input).
+   - Secondary: "Upload folder" when picker is unavailable.
    - Advanced controls (tool selector + cwd input) collapsed by default.
 3. **Auto-detect tool + cwd**
    - After scan completes, detect likely tool based on instruction files.
@@ -35,6 +35,7 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 4. **Results summary**
    - Summary card: loaded, missing, extra, warnings.
    - Show missing patterns first with fix suggestions.
+   - Order: Summary → Next steps → Instruction health → Files list.
 5. **Next steps**
    - Primary action: "Open in Workbench"
    - Secondary action: "Rescan with different tool" / "Adjust CWD"

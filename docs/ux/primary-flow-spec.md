@@ -1,6 +1,6 @@
 # Primary flow spec (UX clarity)
 
-Last updated: Dec 26, 2025
+Last updated: Dec 28, 2025
 
 ## Primary persona
 - New visitor with a repo who needs to understand how instruction files (AGENTS.md, agents.md, tool-specific files) will be loaded.
@@ -8,6 +8,7 @@ Last updated: Dec 26, 2025
 ## Flow objective
 - Make it obvious how to go from a folder scan to an exported agents.md.
 - Remove ambiguity about which files are used and what to do next.
+- Keep the primary surfaces limited to Scan, Workbench, Library, Translate, and Docs.
 
 ## Canonical flow (scan -> understand -> build/export)
 1. **Start: Scan a folder**
@@ -38,6 +39,7 @@ Last updated: Dec 26, 2025
 - Navigation primary -> `Scan` -> `/atlas/simulator`.
 - Secondary CTA -> `/workbench` (Open Workbench).
 - Secondary CTA -> `/library` (Browse Library).
+- Tertiary entry points (de-emphasized): `/templates`, `/tags`, `/atlas`.
 
 ## Related documentation
 - User guide: `docs/USER_GUIDE.md`.
