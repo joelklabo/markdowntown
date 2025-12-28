@@ -376,6 +376,7 @@ export function ContextSimulator() {
   const [directorySupport, setDirectorySupport] = useState<"unknown" | "supported" | "unsupported">("unknown");
   const scanAbortRef = useRef<AbortController | null>(null);
   const scanIdRef = useRef(0);
+  const directoryPickerActiveRef = useRef(false);
 
   const scanClarityEnabled = featureFlags.scanClarityV1;
   const quickUploadEnabled = featureFlags.scanQuickUploadV1;
@@ -809,7 +810,7 @@ export function ContextSimulator() {
   };
 
   const handleDirectoryPickerScan = async () => {
-    if (isPickingDirectory) {
+    if (directoryPickerActiveRef.current || isPickingDirectory) {
       setScanNotice("Folder picker is already open. Finish or cancel to continue.");
       return;
     }
@@ -820,6 +821,7 @@ export function ContextSimulator() {
     }
     setScanError(null);
     setScanNotice(null);
+    directoryPickerActiveRef.current = true;
     setIsPickingDirectory(true);
     try {
       const handle = await picker();
@@ -852,6 +854,7 @@ export function ContextSimulator() {
       trackScanError(err, { method: "directory_picker", tool, cwd: scanCwd });
       setScanError(formatScanErrorMessage(err));
     } finally {
+      directoryPickerActiveRef.current = false;
       setIsPickingDirectory(false);
     }
   };
