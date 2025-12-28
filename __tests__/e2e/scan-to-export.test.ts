@@ -132,8 +132,8 @@ describe("Scan to workbench export flow", () => {
           await page.screenshot({ path: workbenchScreenshotPath, fullPage: true });
         }
 
-        await page.getByText(/scan defaults applied/i).waitFor({ state: "visible" });
-        await page.getByText(/GitHub Copilot · cwd \(repo root\)/i).waitFor({ state: "visible" });
+        await page.getByText(/scan defaults applied/i).first().waitFor({ state: "visible" });
+        await page.getByText(/GitHub Copilot · cwd \(repo root\)/i).first().waitFor({ state: "visible" });
 
         await page.getByTestId("workbench-scopes-panel").waitFor({ state: "visible" });
 
