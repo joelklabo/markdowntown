@@ -220,14 +220,19 @@ describe("Atlas scan guidance flow", () => {
       await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
 
       const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
-      try {
-        await openWorkbenchCta.waitFor({ state: "visible", timeout: 5000 });
-      } catch {
-        const showAll = page.getByRole("button", { name: /show all/i });
-        if ((await showAll.count()) > 0) {
-          await showAll.first().click();
+      if ((await openWorkbenchCta.count()) > 0) {
+        try {
+          await openWorkbenchCta.waitFor({ state: "visible", timeout: 5000 });
+        } catch {
+          const showAll = page.getByRole("button", { name: /show all/i });
+          if ((await showAll.count()) > 0) {
+            await showAll.first().click();
+          }
+          await openWorkbenchCta.waitFor({ state: "visible" });
         }
-        await openWorkbenchCta.waitFor({ state: "visible" });
+      } else {
+        const actionsCta = page.getByRole("link", { name: /open workbench/i });
+        await actionsCta.first().waitFor({ state: "visible" });
       }
     }, "scan-sample");
   });
