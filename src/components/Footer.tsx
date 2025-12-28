@@ -23,17 +23,17 @@ export function Footer() {
               Product
             </Text>
             <div className="flex flex-col gap-mdt-2 text-body-sm text-mdt-muted">
-              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/library">
-                Library
+              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/atlas/simulator">
+                Scan
               </Link>
               <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/workbench">
                 Workbench
               </Link>
+              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/library">
+                Library
+              </Link>
               <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/translate">
                 Translate
-              </Link>
-              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/atlas">
-                Atlas
               </Link>
             </div>
           </div>
@@ -45,17 +45,6 @@ export function Footer() {
               <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/docs">
                 Docs
               </Link>
-              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/changelog">
-                Changelog
-              </Link>
-              <a
-                className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text"
-                href="https://github.com/joelklabo/markdowntown"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
             </div>
           </div>
           <div className="space-y-mdt-2">

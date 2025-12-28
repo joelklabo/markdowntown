@@ -312,7 +312,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     { href: "/workbench", label: "Workbench", icon: WorkbenchIcon, type: "link" },
     { href: "/library", label: "Library", icon: LibraryIcon, type: "link" },
     { href: "/translate", label: "Translate", icon: TranslateIcon, type: "link" },
-    { label: "Search", icon: SearchIcon, type: "search" },
+    { href: "/docs", label: "Docs", icon: MenuIcon, type: "link" },
   ];
 
   const quickFilters: Array<{ label: string; params: Record<string, string> }> = [
@@ -322,15 +322,10 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
     { label: "agents.md", params: { type: "file" } },
   ];
 
-  const overflowLinks = [
-    { href: "/skills", label: "Skills" },
-    { href: "/templates", label: "Templates" },
-    { href: "/atlas", label: "Atlas" },
+  const overflowLinks: Array<{ href: string; label: string; external?: boolean }> = [
     { href: "/docs", label: "Docs" },
-    { href: "/changelog", label: "Changelog" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
-    { href: "https://github.com/joelklabo/markdowntown", label: "GitHub", external: true },
   ];
 
   return (
