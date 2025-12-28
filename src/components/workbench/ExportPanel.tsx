@@ -177,7 +177,13 @@ export function ExportPanel() {
           {TARGETS.map((t) => {
             const selected = uam.targets.find((target) => target.targetId === t.targetId) ?? null;
             return (
-              <Checkbox key={t.targetId} checked={targetIds.includes(t.targetId)} onChange={() => toggleTarget(t.targetId)}>
+              <Checkbox
+                key={t.targetId}
+                id={`workbench-target-${t.targetId}`}
+                name={`workbench-target-${t.targetId}`}
+                checked={targetIds.includes(t.targetId)}
+                onChange={() => toggleTarget(t.targetId)}
+              >
               <span className="inline-flex items-center gap-mdt-2">
                 <span>{t.label}</span>
                 {selected ? (

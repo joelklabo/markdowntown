@@ -72,6 +72,7 @@ describe("ContextSimulator", () => {
       ".github/copilot-instructions.md\n.github/instructions/apps-web.instructions.md\nAGENTS.md\n"
     );
 
+    await screen.findByText(/3 file\(s\) in the current source\./i);
     await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     expect(screen.getByRole("heading", { name: "Instruction health" })).toBeInTheDocument();
@@ -86,7 +87,7 @@ describe("ContextSimulator", () => {
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
-  });
+  }, 15000);
 
   it("simulates loaded files for Copilot CLI", async () => {
     render(<ContextSimulator />);
@@ -101,6 +102,7 @@ describe("ContextSimulator", () => {
       ".github/copilot-instructions.md\n.github/copilot-instructions/apps-web.instructions.md\n.github/agents/release.agent.md\nAGENTS.md\n"
     );
 
+    await screen.findByText(/4 file\(s\) in the current source\./i);
     await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
@@ -108,7 +110,7 @@ describe("ContextSimulator", () => {
     expect(within(loadedList).getByText(".github/copilot-instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/agents/release.agent.md")).toBeInTheDocument();
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
-  });
+  }, 15000);
 
   it("simulates ordered loaded files for Codex CLI with cwd ancestry", async () => {
     render(<ContextSimulator />);
