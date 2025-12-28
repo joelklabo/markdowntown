@@ -59,6 +59,7 @@ pnpm start
 - `pnpm prisma generate` to regen client after schema changes.
 - `pnpm prisma studio` (if you add the script) to explore the DB.
 - `pnpm test:visual` to update Playwright visual snapshots.
+- `pnpm mcp:health` to check local MCP readiness before DevTools QA.
 
 ## Codex skills
 Validate and install local Codex skills:
@@ -77,6 +78,7 @@ CI runs lint/type-check/tests on every push/PR. CD builds and deploys to Azure C
 - UI changes not showing in dev: hard-reload (Cmd/Ctrl+Shift+R) or disable cache in DevTools; Turbopack static chunks can stay cached.
 - DevTools MCP or browser console shows HMR WebSocket errors / pages 404: restart with polling to avoid watchpack `EMFILE` errors, e.g. `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev` (interval defaults to 1000ms when set via config).
 - DevTools MCP timeouts: confirm the app responds (`curl -I http://localhost:3000`), verify it loads in a browser, then restart the MCP bridge/agent and open a fresh DevTools page. Capture the MCP error text and `WATCHPACK_POLLING` settings; see `docs/ui/dev-triage.md` for the full checklist.
+- MCP readiness check: run `pnpm mcp:health` to confirm localhost reachability before opening MCP DevTools pages.
 
 ## Feature flags
 - UI flags (default off): `NEXT_PUBLIC_THEME_REFRESH_V1`, `NEXT_PUBLIC_UX_CLARITY_V1`, `NEXT_PUBLIC_INSTRUCTION_HEALTH_V1`, `NEXT_PUBLIC_SCAN_NEXT_STEPS_V1`, `NEXT_PUBLIC_SCAN_QUICK_UPLOAD_V1`.
