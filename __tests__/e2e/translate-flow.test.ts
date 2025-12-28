@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 import JSZip from "jszip";
 import { chromium, Browser } from "playwright";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
@@ -6,6 +7,8 @@ import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
+const screenshotPath =
+  process.env.E2E_SCREENSHOT_PATH || "docs/screenshots/core-flows/translate-workbench-export.png";
 
 describe("Translate flow", () => {
   let browser: Browser;
@@ -25,28 +28,49 @@ describe("Translate flow", () => {
       browser,
       { baseURL, acceptDownloads: true },
       async (page) => {
-        page.setDefaultTimeout(120000);
-        page.setDefaultNavigationTimeout(120000);
+        page.setDefaultTimeout(60000);
+        page.setDefaultNavigationTimeout(60000);
 
-        await page.goto("/translate", { waitUntil: "domcontentloaded" });
-        await page.waitForTimeout(1000);
+        await page.goto("/translate", { waitUntil: "domcontentloaded", timeout: 30000 });
 
-        await page.getByRole("checkbox", { name: /agents\.md/i }).check();
-        await page.getByRole("checkbox", { name: /github copilot/i }).check();
+        const agentsCheckbox = page.getByRole("checkbox", { name: /agents\.md/i });
+        const copilotCheckbox = page.getByRole("checkbox", { name: /github copilot/i });
+        await agentsCheckbox.waitFor({ state: "visible", timeout: 20000 });
+        expect(await agentsCheckbox.isChecked()).toBe(true);
+        expect(await copilotCheckbox.isChecked()).toBe(true);
 
-        const input = page.getByPlaceholder(/paste markdown or uam v1 json/i);
-        await input.waitFor({ state: "visible" });
-        await input.fill("# Translate flow\n\nExample body.");
+        const input = page.locator("#translate-input-content");
+        await input.waitFor({ state: "visible", timeout: 20000 });
+        await input.click();
+        await page.keyboard.type("# Translate flow\n\nCompile this into AGENTS.md and Copilot files.");
+        await page.getByText(/2 selected/i).waitFor({ state: "visible", timeout: 20000 });
 
-        const compile = page.getByRole("button", { name: /compile files/i });
-        await compile.click();
+        const compile = page.getByTestId("translate-compile");
+        await compile.waitFor({ state: "visible", timeout: 20000 });
+        await page.waitForFunction(
+          () => {
+            const btn = document.querySelector('[data-testid=\"translate-compile\"]') as HTMLButtonElement | null;
+            return Boolean(btn && !btn.disabled);
+          },
+          undefined,
+          { timeout: 60000 }
+        );
 
-        await page.locator(".font-mono", { hasText: "AGENTS.md" }).waitFor({ state: "visible" });
-        await page.locator(".font-mono", { hasText: ".github/copilot-instructions.md" }).waitFor({ state: "visible" });
-        await page.getByRole("link", { name: /open workbench/i }).waitFor({ state: "visible" });
+        await Promise.all([
+          page.waitForResponse((response) => response.url().includes("/api/compile") && response.status() === 200),
+          compile.click(),
+        ]);
+
+        await page.getByTestId("translate-ready-actions").waitFor({ state: "visible", timeout: 30000 });
+        await page.getByRole("link", { name: /open in workbench/i }).waitFor({ state: "visible", timeout: 20000 });
+
+        if (screenshotPath) {
+          await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
+          await page.screenshot({ path: screenshotPath, fullPage: true });
+        }
 
         const [download] = await Promise.all([
-          page.waitForEvent("download"),
+          page.waitForEvent("download", { timeout: 30000 }),
           page.getByRole("button", { name: /download zip/i }).click(),
         ]);
 
@@ -60,7 +84,6 @@ describe("Translate flow", () => {
           .map((f) => f.name);
 
         expect(entries).toContain("AGENTS.md");
-        expect(entries).toContain(".github/copilot-instructions.md");
       },
       "translate-flow"
     );

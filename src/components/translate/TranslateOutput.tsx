@@ -74,7 +74,7 @@ export function TranslateOutput({
             <Text size="caption" tone="muted">Step 1 · Targets</Text>
             <Heading level="h3" as="h2">Select targets</Heading>
             <Text size="bodySm" tone="muted">
-              Choose targets to generate files, then open Workbench to refine and export.
+              Choose targets to generate files, then open in Workbench to refine and export.
             </Text>
           </div>
           <div className="flex flex-wrap items-center gap-mdt-2">
@@ -83,7 +83,7 @@ export function TranslateOutput({
           </div>
         </div>
 
-        <Surface tone="subtle" padding="md" className="space-y-mdt-3">
+        <Surface tone="subtle" padding="md" className="space-y-mdt-3" data-testid="translate-actions">
           <div className="flex flex-wrap items-center justify-between gap-mdt-2">
             <Text size="caption" tone="muted" className="uppercase tracking-wide">
               Targets
@@ -199,7 +199,7 @@ export function TranslateOutput({
 
         <Surface tone="subtle" padding="md" className="space-y-mdt-3">
           <Text size="caption" tone="muted" className="uppercase tracking-wide">
-            Step 3 · Compile + open Workbench
+            Step 3 · Compile + open in Workbench
           </Text>
           {error ? (
             <div className="space-y-mdt-2 rounded-mdt-md border border-[color:var(--mdt-color-danger-soft)] bg-[color:var(--mdt-color-danger-soft)]/40 px-mdt-3 py-mdt-3">
@@ -217,13 +217,14 @@ export function TranslateOutput({
                   Ready for Workbench
                 </Text>
                 <Text size="caption" tone="muted">
-                  Open a fresh Workbench draft in a new tab. Keep this page open to copy or download the compiled files.
+                  Open a fresh Workbench draft in a new tab. Keep this page open so you can copy or download the compiled files
+                  into Workbench.
                 </Text>
               </div>
-              <Row gap={2} align="center" wrap>
+              <Row gap={2} align="center" wrap data-testid="translate-ready-actions">
                 <Button size="sm" asChild>
                   <Link href="/workbench" target="_blank" rel="noreferrer noopener" onClick={onOpenWorkbench}>
-                    Open Workbench
+                    Open in Workbench
                   </Link>
                 </Button>
                 <Button
@@ -241,7 +242,13 @@ export function TranslateOutput({
             </div>
           ) : (
             <Row gap={2} align="center" wrap>
-              <Button onClick={onCompile} disabled={compileDisabled} variant="primary" size="sm">
+              <Button
+                onClick={onCompile}
+                disabled={compileDisabled}
+                variant="primary"
+                size="sm"
+                data-testid="translate-compile"
+              >
                 {loading ? 'Compiling…' : 'Compile files'}
               </Button>
               <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
@@ -250,7 +257,7 @@ export function TranslateOutput({
             </Row>
           )}
           <Text size="caption" tone="muted">
-            Compile generates instruction files. Open Workbench to refine and export your final output.
+            Compile generates instruction files you can copy or download before opening Workbench to refine and export.
           </Text>
         </Surface>
       </Surface>

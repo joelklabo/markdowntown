@@ -19,6 +19,8 @@ import {
   trackTranslateStart,
 } from '@/lib/analytics';
 
+const COMPILE_TIMEOUT_MS = 30_000;
+
 type TranslatePageClientProps = {
   initialInput: string;
   initialTargets: UamTargetV1[];
@@ -80,6 +82,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
       inputChars: input.length,
       detectedLabel: detected.label,
     };
+    let timeoutId: number | null = null;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -95,6 +98,9 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
         return;
       }
 
+      const controller = new AbortController();
+      timeoutId = window.setTimeout(() => controller.abort(), COMPILE_TIMEOUT_MS);
+
       const res = await fetch('/api/compile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,6 +108,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
           uam: detected.uam,
           targets,
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -129,11 +136,21 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
         infoCount: Array.isArray(data?.info) ? data.info.length : 0,
       });
     } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        const timeoutError = new Error('Compilation timed out. Please try again.');
+        trackTranslateError(timeoutError, { ...analyticsContext, reason: 'timeout' });
+        setError(timeoutError.message);
+        emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
+        return;
+      }
       const error = err instanceof Error ? err : new Error('Error compiling');
       trackTranslateError(error, { ...analyticsContext, reason: 'compile_failed' });
       setError(error.message);
       emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     } finally {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
       setLoading(false);
     }
   };
@@ -182,7 +199,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
           <Text size="caption" tone="muted">Translate</Text>
           <Heading level="display" leading="tight">Translate instructions into Workbench-ready files</Heading>
           <Text tone="muted" leading="relaxed">
-            Paste your instructions, choose targets, compile, and open Workbench to refine and export.
+            Paste your instructions, choose targets, compile, and open in Workbench to refine and export.
           </Text>
         </Stack>
 

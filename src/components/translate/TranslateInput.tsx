@@ -46,7 +46,8 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
             Step 2 · Input
           </Text>
           <Text size="bodySm" tone="muted">
-            Paste your instructions or drop a file. We detect Markdown vs UAM JSON automatically.
+            Paste your instructions or drop a file. We detect Markdown vs UAM JSON automatically, then compile files you can
+            take into Workbench.
           </Text>
         </div>
         <div className="flex items-center gap-mdt-2">

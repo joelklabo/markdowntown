@@ -34,12 +34,10 @@ describe("Translate to Workbench CTA", () => {
         await input.click();
         await page.keyboard.type("# Translate to Workbench\n\nReady to export.");
 
-        const compile = page.getByRole("button", { name: /compile files/i });
+        const compile = page.getByTestId("translate-compile");
         await page.waitForFunction(
           () => {
-            const btn = Array.from(document.querySelectorAll("button")).find((b) => b.textContent?.trim() === "Compile files") as
-              | HTMLButtonElement
-              | undefined;
+            const btn = document.querySelector('[data-testid=\"translate-compile\"]') as HTMLButtonElement | null;
             return Boolean(btn && !btn.disabled);
           },
           undefined,
@@ -47,7 +45,7 @@ describe("Translate to Workbench CTA", () => {
         );
         await compile.click();
 
-        const openWorkbench = page.getByRole("link", { name: /open workbench/i });
+        const openWorkbench = page.getByRole("link", { name: /open in workbench/i });
         await openWorkbench.waitFor({ state: "visible" });
         expect(await openWorkbench.getAttribute("href")).toBe("/workbench");
       },
