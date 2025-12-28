@@ -205,11 +205,13 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
       track('workbench_export_download', {
         targetIds,
         fileCount: result.files.length,
+        entrySource,
       });
       trackSkillExportAction({
         action: 'download',
         targetIds,
         skillCount: uam.capabilities.length,
+        entrySource,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -491,12 +493,14 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                         track('workbench_export_copy', {
                           path: f.path,
                           targetId: uam.targets.length === 1 ? uam.targets[0]?.targetId : undefined,
+                          entrySource,
                         });
                         trackSkillExportAction({
                           action: 'copy',
                           path: f.path,
                           targetId: uam.targets.length === 1 ? uam.targets[0]?.targetId : undefined,
                           skillCount: uam.capabilities.length,
+                          entrySource,
                         });
                       } catch {
                         // ignore

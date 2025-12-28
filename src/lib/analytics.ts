@@ -11,11 +11,17 @@ const REDACT_KEYS = new Set([
   "filepath",
   "filelist",
   "files",
+  "filename",
   "rootname",
+  "repo",
+  "repository",
   "templatepath",
   "expectedpath",
   "instructionpath",
   "scanpath",
+  "absolute_path",
+  "absolutepath",
+  "url",
   "tree",
   "repotree",
   "repopaths",
@@ -150,6 +156,7 @@ export function trackSkillExportAction(properties: {
   targetId?: string;
   path?: string;
   skillCount: number;
+  entrySource?: string;
 }) {
   trackUiEvent("skills_export_action", properties);
 }
@@ -217,7 +224,7 @@ export function trackLibraryAction(properties: {
   id: string;
   slug?: string;
   title?: string;
-  source?: string;
+  source: string;
   targetIds?: string[];
 }) {
   trackUiEvent("library_action", properties);

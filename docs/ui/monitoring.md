@@ -18,8 +18,8 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 - `ui_home_cta_click`: home CTA clicks (`cta`, `slot`, `placement`, `href`).
 - `ui_scan_start`: scan funnel entry (`method`, `tool`).
 - `ui_scan_complete`: scan funnel completion (`method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`).
-- `ui_scan_results_cta`: results CTA clicks (`source`, `tool`, `repoSource`, `loaded`, `missing`). Sources include `next_steps` (primary Open Workbench CTA), `actions`, and `post_scan`.
-- `ui_scan_next_step_click`: Next steps CTA clicks (`actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source`=`next_steps`).
+- `ui_scan_results_cta`: results CTA clicks (`source`, `tool`, `repoSource`, `loaded`, `missing`, `truncated`, `fileCount`). Sources include `next_steps` (primary Open Workbench CTA), `actions`, and `post_scan`.
+- `ui_scan_next_step_click`: Next steps CTA clicks (`actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `truncated`, `source`=`next_steps`).
 - `translate_start`: translate funnel entry (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`).
 - `translate_complete`: translate completion (`targetIds`, `targetCount`, `inputChars`, `fileCount`).
 - `translate_download`: translate downloads (`targetIds`, `targetCount`, `fileCount`, `byteSize`).
@@ -30,7 +30,7 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 These are emitted by specific surfaces and should be reviewed by feature area:
 - Navigation: `nav_click`, `nav_search_submit`, `nav_search_suggestion_click`.
 - Atlas Simulator: `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_next_step_action`.
-- Workbench: `workbench_export_download`, `workbench_export_copy`, `workbench_save_artifact`.
+- Workbench: `workbench_export_download`, `workbench_export_copy`, `workbench_save_artifact` (export events include `entrySource`).
 - Library: `library_action`.
 - Translate: `translate_download`.
 - Builder/Browse/Templates/Snippets: `builder_copy`, `browse_card_use_template`, `template_use_builder`, etc.

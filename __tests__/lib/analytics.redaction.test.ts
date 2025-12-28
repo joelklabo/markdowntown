@@ -11,9 +11,15 @@ describe("redactAnalyticsPayload", () => {
       rootName: "secret-repo",
       path: "/atlas/simulator",
       fileCount: 2,
+      filename: "AGENTS.md",
+      repo: "secret-repo",
+      repository: "secret-repo",
+      absolute_path: "/Users/name/secret-repo/AGENTS.md",
+      url: "file:///Users/name/secret-repo/AGENTS.md",
       nested: {
         contents: "nested",
         scannedPaths: ["x"],
+        filename: "nested.md",
         keep: "ok",
       },
     };
@@ -35,9 +41,15 @@ describe("redactAnalyticsPayload", () => {
       rootName: "secret-repo",
       path: "/atlas/simulator",
       fileCount: 2,
+      filename: "AGENTS.md",
+      repo: "secret-repo",
+      repository: "secret-repo",
+      absolute_path: "/Users/name/secret-repo/AGENTS.md",
+      url: "file:///Users/name/secret-repo/AGENTS.md",
       nested: {
         contents: "nested",
         scannedPaths: ["x"],
+        filename: "nested.md",
         keep: "ok",
       },
     });

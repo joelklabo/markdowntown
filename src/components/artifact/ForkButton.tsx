@@ -47,15 +47,13 @@ export function ForkButton({
       if (!res.ok) throw new Error('Fork failed');
       
       const data = await res.json();
-      if (analytics) {
-        trackLibraryAction({
-          action: 'fork',
-          id: artifactId,
-          title: analytics.title,
-          slug: analytics.slug,
-          source: analytics.source,
-        });
-      }
+      trackLibraryAction({
+        action: 'fork',
+        id: artifactId,
+        title: analytics?.title,
+        slug: analytics?.slug,
+        source: analytics?.source ?? 'artifact_fork',
+      });
       router.push(`/workbench?id=${data.id}`);
     } catch (error) {
       console.error(error);

@@ -989,6 +989,8 @@ export function ContextSimulator() {
         repoSource,
         loaded: result.loaded.length,
         missing: insights.missingFiles.length,
+        truncated: scanMeta?.truncated ?? false,
+        fileCount: lastSimulatedPaths.length,
       },
     });
   };
@@ -1003,6 +1005,7 @@ export function ContextSimulator() {
         repoSource,
         isStale,
         fileCount: lastSimulatedPaths.length,
+        truncated: scanMeta?.truncated ?? false,
         source: "next_steps",
       },
     });
