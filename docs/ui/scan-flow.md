@@ -66,3 +66,6 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 - scan_complete (loaded_count, missing_count, warning_count, truncated)
 - scan_error (type, reason)
 - scan_next_step_click (cta, tool, missing_count)
+
+## Feature flags
+- Local QA flags: see `docs/DEV_ONBOARDING.md#scan-flow-qa-flags`.

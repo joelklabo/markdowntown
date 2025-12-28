@@ -40,7 +40,7 @@
 3. Observe tool timeout: `timed out awaiting tools/call after 60s` (no page opened).
 4. Run `pnpm mcp:health` and include output in the repro notes.
 
-### Notes
+### Notes (Scan flags)
 - Timeouts may occur even when the dev server is healthy; capture the MCP error text in QA notes.
 
 ### Capture on failure
@@ -68,3 +68,9 @@
 ### Capture on failure (Watchpack)
 - `/tmp/markdowntown-dev.log` excerpt showing `EMFILE` or 404s.
 - Dev command used (include WATCHPACK variables).
+
+## Scan flow feature flags
+
+### Notes
+- `NEXT_PUBLIC_SCAN_NEXT_STEPS_V1=1` enables the Next steps panel; unset/0 hides it.
+- `NEXT_PUBLIC_SCAN_QUICK_UPLOAD_V1=1` shows the quick upload fallback when directory picker is unavailable.
