@@ -37,6 +37,7 @@ This file defines canonical event names and properties for the UX and onboarding
 - `atlas_simulator_next_step_action`
   - Properties: `tool`, `repoSource`, `cwd`, `actionId`, `stepId`, `isStale`, `fileCount`
   - Action IDs:
+    - `open-workbench` (primary CTA when Ready state is shown)
     - `open-docs`
     - `refresh-results`
     - `scan-folder`
