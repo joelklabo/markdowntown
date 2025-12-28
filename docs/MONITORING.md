@@ -41,6 +41,18 @@ Suggested alert thresholds (PostHog or similar):
 - **Export rate drop:** `< 15%` over 24h (export surface broken).
 - **Time-to-export spike:** median `> 10 minutes` over 24h (performance regression).
 
+## Translate funnel (select → compile → download)
+Translate KPIs and suggested targets:
+- **Translate completion rate:** `translate_complete / translate_start` → target 60%+.
+- **Translate error rate:** `translate_error / translate_start` → target < 5%.
+- **Translate download rate:** `translate_download / translate_complete` → target 80%+ (if `translate_download` is not yet tracked, treat `translate_complete` as a proxy for now).
+- **Median time to download:** time from `translate_start` to download → target < 2 minutes.
+
+Suggested alert thresholds:
+- **Translate completion drop:** `< 40%` over 24h (flow broken or confusing).
+- **Translate error spike:** `> 10%` over 1h (compile/regression).
+- **Translate download drop:** `< 60%` over 24h (download CTA broken or unclear).
+
 ## Instruction health check KPIs
 - **Health check run rate:** `atlas_simulator_health_check / atlas_simulator_simulate` → target 95%+ (feature enabled)
 - **Pass rate:** share of `atlas_simulator_health_check` where `errorCount = 0` → target 50%+ (improves as guidance lands)
