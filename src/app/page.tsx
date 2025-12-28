@@ -70,9 +70,9 @@ const features = [
 ];
 
 const buildSteps = [
-  { title: "Scan a folder", description: "Preview which instruction files load and in what order." },
-  { title: "Review insights", description: "Confirm missing files and precedence before editing." },
-  { title: "Build & export", description: "Open Workbench to edit and export agents.md." },
+  { title: "Scan a folder", description: "Run a local scan to see what loads." },
+  { title: "Review insights", description: "Confirm missing or conflicting files." },
+  { title: "Build & export", description: "Open Workbench and export agents.md." },
 ];
 
 export default async function Home() {
@@ -158,15 +158,15 @@ export default async function Home() {
           >
             <div className="space-y-mdt-6">
               <Row align="center" gap={2}>
-                <Pill tone="yellow" className="uppercase tracking-wide">Public-first</Pill>
-                <Text size="caption" tone="muted">Copy without login</Text>
+                <Pill tone="yellow" className="uppercase tracking-wide">Scan-first</Pill>
+                <Text size="caption" tone="muted">Local-only scan</Text>
               </Row>
               <Stack gap={3}>
                 <Heading level="display" leading="tight" className="max-w-[22ch]">
                   Scan your repo. See which instructions load.
                 </Heading>
                 <Text tone="muted" className="max-w-2xl">
-                  Review insights, refine in Workbench, and export agents.md with confidence in minutes.
+                  Local scan, clear insights, export agents.md in minutes.
                 </Text>
               </Stack>
 
@@ -175,10 +175,10 @@ export default async function Home() {
                 className="grid gap-mdt-5 sm:grid-cols-[1fr_auto] sm:items-center"
               >
                 <Stack gap={3}>
-                  <Text size="caption" tone="muted">Start here</Text>
+                  <Text size="caption" tone="muted">Start with scan</Text>
                   <Heading level="h3" as="h2">Scan a folder</Heading>
                   <Text size="bodySm" tone="muted">
-                    Preview which instruction files load, then open Workbench to export agents.md.
+                    See what loads locally, then open Workbench to export agents.md.
                   </Text>
                 </Stack>
                 <div className="space-y-mdt-2 sm:text-right">
@@ -258,6 +258,7 @@ export default async function Home() {
               <HomeSectionHeader
                 eyebrow="Scan to export"
                 title="A clear, scan-first path"
+                description="Three steps from scan to export."
               />
               <HomeStepList steps={buildSteps} />
               <Row wrap gap={3}>
