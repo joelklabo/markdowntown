@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { LibraryCard } from "@/components/LibraryCard";
+import { HomeCtaCluster } from "@/components/home/HomeCtaCluster";
+import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
+import { HomeStepList } from "@/components/home/HomeStepList";
 import type { SampleItem } from "@/lib/sampleContent";
 import { listPublicItems, type PublicItem } from "@/lib/publicItems";
 import { listTopTags } from "@/lib/publicTags";
@@ -67,9 +70,9 @@ const features = [
 ];
 
 const buildSteps = [
-  { title: "Scan a folder", copy: "Preview which instruction files load and in what order." },
-  { title: "Review insights", copy: "Confirm missing files and precedence before editing." },
-  { title: "Build & export", copy: "Open Workbench to edit and export agents.md." },
+  { title: "Scan a folder", description: "Preview which instruction files load and in what order." },
+  { title: "Review insights", description: "Confirm missing files and precedence before editing." },
+  { title: "Build & export", description: "Open Workbench to edit and export agents.md." },
 ];
 
 export default async function Home() {
@@ -179,15 +182,12 @@ export default async function Home() {
                   </Text>
                 </Stack>
                 <div className="space-y-mdt-2 sm:text-right">
-                  <Row wrap gap={2} justify="end" className="sm:justify-end">
-                    <Button size="lg" asChild>
-                      <Link href="/atlas/simulator">Scan a folder</Link>
-                    </Button>
-                    <Button variant="secondary" size="lg" asChild>
-                      <Link href="/workbench">Open Workbench</Link>
-                    </Button>
-                  </Row>
-                  <Text size="caption" tone="muted">
+                  <HomeCtaCluster
+                    primary={{ label: "Scan a folder", href: "/atlas/simulator" }}
+                    secondary={{ label: "Open Workbench", href: "/workbench" }}
+                    align="right"
+                  />
+                  <Text size="caption" tone="muted" className="sm:text-right">
                     Prefer inspiration first?{" "}
                     <Link
                       href="/library"
@@ -255,21 +255,11 @@ export default async function Home() {
         <Stack gap={12}>
           <Surface as="section" id="build-in-60s" padding="lg" className="grid gap-mdt-6 border-mdt-border-strong md:grid-cols-[1.4fr_1fr]">
             <Stack gap={3}>
-              <Text size="caption" tone="muted">Scan to export</Text>
-              <Heading level="h2" as="h3">A clear, scan-first path</Heading>
-              <Stack gap={4}>
-                {buildSteps.map((step, idx) => (
-                  <Surface key={step.title} tone="subtle" padding="sm" className="flex items-start gap-mdt-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--mdt-color-primary-soft)] text-sm font-semibold text-[color:var(--mdt-color-primary-strong)]">
-                      {idx + 1}
-                    </span>
-                    <div>
-                      <Text weight="semibold">{step.title}</Text>
-                      <Text size="bodySm" tone="muted">{step.copy}</Text>
-                    </div>
-                  </Surface>
-                ))}
-              </Stack>
+              <HomeSectionHeader
+                eyebrow="Scan to export"
+                title="A clear, scan-first path"
+              />
+              <HomeStepList steps={buildSteps} />
               <Row wrap gap={3}>
                 <Button variant="secondary" asChild>
                   <Link href="/workbench">Open Workbench</Link>
