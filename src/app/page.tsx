@@ -101,14 +101,14 @@ export default async function Home() {
                 <Pill tone="yellow">Library empty</Pill>
               </Row>
               <Heading level="display" leading="tight" className="mx-auto max-w-[20ch]">
-                Nothing public yet
+                Scan a folder to start
               </Heading>
               <Text tone="muted" className="mx-auto max-w-2xl">
-                Publish an artifact to seed the Library. Until then, you can still build agents.md locally.
+                The Library is empty right now. Scan a repo to preview instruction files and open Workbench to export agents.md.
               </Text>
               <Row justify="center" gap={3} wrap>
                 <Button size="lg" asChild>
-                  <Link href="/library">Browse library</Link>
+                  <Link href="/atlas/simulator">Scan a folder</Link>
                 </Button>
                 <Button variant="secondary" size="lg" asChild>
                   <Link href="/workbench">Open Workbench</Link>

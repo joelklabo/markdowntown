@@ -12,7 +12,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle } from "./ui/Sheet";
 import { ThemeToggle } from "./ThemeToggle";
 import { DensityToggle } from "./DensityToggle";
 import { COMMAND_PALETTE_OPEN_EVENT } from "./CommandPalette";
-import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, SkillsIcon, TranslateIcon, WorkbenchIcon, type NavIconProps } from "./icons/NavIcons";
+import { AtlasIcon, LibraryIcon, MenuIcon, SearchIcon, TranslateIcon, WorkbenchIcon, type NavIconProps } from "./icons/NavIcons";
 import { emitCityWordmarkEvent } from "./wordmark/sim/bridge";
 import { track } from "@/lib/analytics";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
@@ -21,7 +21,6 @@ import { featureFlags } from "@/lib/flags";
 const links = [
   { href: "/atlas/simulator", label: "Scan" },
   { href: "/workbench", label: "Workbench", title: "Build agents.md in Workbench" },
-  { href: "/skills", label: "Skills" },
   { href: "/library", label: "Library" },
   { href: "/translate", label: "Translate" },
   { href: "/docs", label: "Docs" },
@@ -45,7 +44,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
   const headerRef = useRef<HTMLElement | null>(null);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const ctaHref = pathname === "/" ? "#templates" : "/templates";
+  const ctaHref = "/atlas/simulator";
 
   function openCommandPalette(origin: string) {
     track("command_palette_entry_click", { origin });
@@ -311,7 +310,6 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
   const bottomNavItems: BottomNavItem[] = [
     { href: "/atlas/simulator", label: "Scan", icon: AtlasIcon, type: "link" },
     { href: "/workbench", label: "Workbench", icon: WorkbenchIcon, type: "link" },
-    { href: "/skills", label: "Skills", icon: SkillsIcon, type: "link" },
     { href: "/library", label: "Library", icon: LibraryIcon, type: "link" },
     { href: "/translate", label: "Translate", icon: TranslateIcon, type: "link" },
     { label: "Search", icon: SearchIcon, type: "search" },
@@ -326,8 +324,9 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
 
   const overflowLinks = [
     { href: "/skills", label: "Skills" },
-    { href: "/docs", label: "Docs" },
+    { href: "/templates", label: "Templates" },
     { href: "/atlas", label: "Atlas" },
+    { href: "/docs", label: "Docs" },
     { href: "/changelog", label: "Changelog" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
@@ -485,11 +484,11 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                     <Link
                       href={ctaHref}
                       onClick={() => {
-                        track("nav_click", { href: ctaHref, cta: "use_template", placement: "desktop" });
-                        emitCityWordmarkEvent({ type: "publish", kind: "template" });
+                        track("nav_click", { href: ctaHref, cta: "scan_folder", placement: "desktop" });
+                        emitCityWordmarkEvent({ type: "upload", kind: "file" });
                       }}
                     >
-                      Use a template
+                      Scan a folder
                     </Link>
                   </Button>
                 </div>
