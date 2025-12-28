@@ -49,7 +49,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 - `/a/[slug]` (artifact detail)
 
 ### Translate
-- `/translate` (compile markdown/UAM to target formats)
+- `/translate` (select target → paste → compile → download)
 
 ### Docs / Legal
 - `/docs`
@@ -81,7 +81,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 2. **Template discovery**
    - Home/Library → Open artifact → Workbench (edit) → Export
 3. **Translation path**
-   - Translate → Paste or upload → Compile → Download
+   - Translate → Select target → Paste input → Compile → Download
 4. **Docs-driven**
    - Docs → Atlas (concepts/recipes/platforms) → Scan or Workbench
 
