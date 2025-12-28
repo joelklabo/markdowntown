@@ -135,25 +135,8 @@ async function mockDirectoryPickerWithFailure(page: Page, fixtureName: string) {
 }
 
 async function setWebkitDirectoryFiles(page: Page, fixtureName: string) {
-  const paths = await listFixturePaths(fixtureName);
-  await page.evaluate(
-    ({ paths, rootName }) => {
-      const input = document.querySelector("input[type=\"file\"]") as HTMLInputElement | null;
-      if (!input) return;
-      const dataTransfer = new DataTransfer();
-      for (const relativePath of paths) {
-        const name = relativePath.split("/").pop() ?? relativePath;
-        const file = new File([""], name);
-        Object.defineProperty(file, "webkitRelativePath", {
-          value: `${rootName}/${relativePath}`,
-        });
-        dataTransfer.items.add(file);
-      }
-      input.files = dataTransfer.files;
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-    },
-    { paths, rootName: fixtureName }
-  );
+  const root = path.join(fixturesRoot, fixtureName);
+  await page.locator("input[aria-label=\"Upload folder\"]").setInputFiles(root);
 }
 
 describe("Atlas scan guidance flow", () => {

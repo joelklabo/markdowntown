@@ -64,7 +64,7 @@ describe("ContextSimulator", () => {
     expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
     await userEvent.clear(manualPathsInput);
     await userEvent.type(
@@ -92,9 +92,9 @@ describe("ContextSimulator", () => {
   it("simulates loaded files for Copilot CLI", async () => {
     render(<ContextSimulator />);
 
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "copilot-cli");
 
-    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
     const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
     await userEvent.clear(manualPathsInput);
     await userEvent.type(
@@ -115,11 +115,11 @@ describe("ContextSimulator", () => {
   it("simulates ordered loaded files for Codex CLI with cwd ancestry", async () => {
     render(<ContextSimulator />);
 
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "packages/app");
 
-    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
     const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
     await userEvent.clear(manualPathsInput);
     await userEvent.type(
@@ -149,6 +149,7 @@ describe("ContextSimulator", () => {
 
     render(<ContextSimulator />);
 
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");

@@ -1333,34 +1333,6 @@ export function ContextSimulator() {
             </div>
           ) : (
             <div className="space-y-mdt-4">
-              <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-                <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                  Tool
-                </label>
-                <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
-                  {TOOL_OPTIONS.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-
-              <div className="space-y-mdt-2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-                <label htmlFor="sim-cwd" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
-                  Current directory (cwd)
-                </label>
-                <Input
-                  id="sim-cwd"
-                  placeholder="e.g. src/app"
-                  value={cwd}
-                  onChange={(e) => setCwd(e.target.value)}
-                />
-                <Text tone="muted" size="bodySm">
-                  Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
-                </Text>
-              </div>
-
               <div className="space-y-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
                 {canPickDirectory ? (
                   <Text as="p" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
@@ -1372,7 +1344,7 @@ export function ContextSimulator() {
                   </label>
                 )}
                 <Text tone="muted" size="bodySm">{directorySupportMessage}</Text>
-                <div className="space-y-mdt-3">
+                <div className="flex flex-wrap gap-mdt-2">
                   {canPickDirectory ? (
                     <Button
                       type="button"
@@ -1399,39 +1371,91 @@ export function ContextSimulator() {
                       }}
                     />
                   )}
+                </div>
+                <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                  <Text size="bodySm" weight="semibold">
+                    Local-only scan
+                  </Text>
+                  <Text tone="muted" size="bodySm">
+                    Files are scanned in your browser. Nothing is uploaded.
+                  </Text>
+                </div>
 
-                  {isScanning ? (
-                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
-                      <Text size="bodySm" weight="semibold">
-                        Scanning…
-                      </Text>
-                      <Text tone="muted" size="bodySm">
-                        {scanProgressLabel || "Reading files from your folder."}
-                      </Text>
-                    </div>
-                  ) : null}
+                {isScanning ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text size="bodySm" weight="semibold">
+                      Scanning…
+                    </Text>
+                    <Text tone="muted" size="bodySm">
+                      {scanProgressLabel || "Reading files from your folder."}
+                    </Text>
+                  </div>
+                ) : null}
 
-                  {scanError ? (
-                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
-                      {scanError}
-                    </div>
-                  ) : null}
-                  {scanNotice ? (
-                    <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
-                      {scanNotice}
-                    </div>
-                  ) : null}
+                {scanError ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-[color:var(--mdt-color-danger)]">
+                    {scanError}
+                  </div>
+                ) : null}
+                {scanNotice ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
+                    {scanNotice}
+                  </div>
+                ) : null}
 
-                  {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+                {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+              </div>
 
-                  <TextArea
-                    id="sim-tree-preview"
-                    rows={8}
-                    value={scannedPreview}
-                    readOnly
-                    placeholder="Scanned paths will appear here."
-                    aria-label="Scanned paths preview"
-                  />
+              <details
+                className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3"
+                open={advancedOpen}
+                onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
+              >
+                <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">
+                  Show advanced settings
+                </summary>
+                <div className="mt-mdt-3 space-y-mdt-3">
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                      Tool
+                    </label>
+                    <Select id="sim-tool" value={tool} onChange={(e) => setTool(e.target.value as SimulatorToolId)}>
+                      {TOOL_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <label htmlFor="sim-cwd" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                      Current directory (cwd)
+                    </label>
+                    <Input
+                      id="sim-cwd"
+                      placeholder="e.g. src/app"
+                      value={cwd}
+                      onChange={(e) => setCwd(e.target.value)}
+                    />
+                    <Text tone="muted" size="bodySm">
+                      Used for tools that scan parent directories (e.g., `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`).
+                    </Text>
+                  </div>
+
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                      Scan preview
+                    </Text>
+                    <TextArea
+                      id="sim-tree-preview"
+                      rows={8}
+                      value={scannedPreview}
+                      readOnly
+                      placeholder="Scanned paths will appear here."
+                      aria-label="Scanned paths preview"
+                    />
+                  </div>
 
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
                     <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
@@ -1452,17 +1476,11 @@ export function ContextSimulator() {
                       Only instruction files are read. Files larger than {maxContentKb} KB are skipped.
                     </Text>
                   </div>
-                </div>
 
-                <details
-                  className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2"
-                  open={advancedOpen}
-                  onToggle={(event) => setShowAdvanced((event.currentTarget as HTMLDetailsElement).open)}
-                >
-                  <summary className="cursor-pointer text-body-sm font-semibold text-mdt-text">
-                    Advanced: paste repo paths
-                  </summary>
-                  <div className="mt-mdt-3 space-y-mdt-3">
+                  <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                    <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                      Paste repo paths
+                    </Text>
                     <Text tone="muted" size="bodySm">
                       Use this when you can’t scan a folder. One path per line.
                     </Text>
@@ -1478,12 +1496,12 @@ export function ContextSimulator() {
                       placeholder="One path per line (e.g. .github/copilot-instructions.md)"
                     />
                   </div>
-                </details>
 
-                <Text tone="muted" size="bodySm">
-                  {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
-                </Text>
-              </div>
+                  <Text tone="muted" size="bodySm">
+                    {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
+                  </Text>
+                </div>
+              </details>
             </div>
           )}
 
@@ -1590,7 +1608,7 @@ export function ContextSimulator() {
               <NextStepsPanel
                 steps={nextSteps}
                 subtitle={nextStepsSummary}
-                className="border-mdt-border-strong bg-mdt-surface-raised shadow-mdt-sm"
+                className="border-mdt-border-strong bg-mdt-surface-raised shadow-mdt-lg"
                 onAction={(action, step) => {
                   void handleNextStepAction(action, step.id);
                 }}
