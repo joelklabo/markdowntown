@@ -19,6 +19,9 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 
 type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export type ArtifactVisibility = 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+type ArtifactLoadResult =
+  | { status: 'loaded'; title: string }
+  | { status: 'error'; message: string };
 type ScanContext = {
   tool: SimulatorToolId;
   cwd: string;
@@ -225,7 +228,7 @@ interface WorkbenchState {
   saveArtifact: () => Promise<string | null>;
   resetDraft: () => void;
   initializeFromTemplate: (uam: UamV1) => void;
-  loadArtifact: (idOrSlug: string) => Promise<void>;
+  loadArtifact: (idOrSlug: string) => Promise<ArtifactLoadResult>;
   applyScanContext: (context: ScanContext) => void;
   clearScanContext: () => void;
 }
@@ -687,7 +690,12 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           try {
             const res = await fetch(`/api/artifacts/${idOrSlug}`);
             if (!res.ok) {
-              throw new Error(`Failed to load artifact (${res.status})`);
+              const body = await res.json().catch(() => null);
+              const message =
+                typeof body?.error === 'string' && body.error.length > 0
+                  ? body.error
+                  : `Failed to load artifact (${res.status})`;
+              throw new Error(message);
             }
 
             const data = (await res.json()) as {
@@ -721,8 +729,13 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               cloudLastSavedAt: null,
               scanContext: null,
             });
+            return { status: 'loaded', title: normalized.meta.title ?? 'Untitled Agent' };
           } catch (err) {
             console.error(err);
+            return {
+              status: 'error',
+              message: err instanceof Error ? err.message : 'Failed to load artifact',
+            };
           }
         },
 

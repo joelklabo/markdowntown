@@ -3,7 +3,8 @@ import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { authOptions } from '@/lib/auth';
 import { auditLog, withAPM } from '@/lib/observability';
-import { prisma } from '@/lib/prisma';
+import { prisma, hasDatabaseEnv } from '@/lib/prisma';
+import { getPublicItem } from '@/lib/publicItems';
 import { Visibility } from '@prisma/client';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -14,6 +15,22 @@ export async function GET(_req: Request, context: RouteContext) {
     const viewerId = session?.user?.id ?? null;
 
     const { id: idOrSlug } = await context.params;
+
+    if (!hasDatabaseEnv) {
+      const fallback = await getPublicItem(idOrSlug);
+      if (!fallback) {
+        return NextResponse.json({ error: 'Artifact not found' }, { status: 404 });
+      }
+      return NextResponse.json({
+        artifact: {
+          id: fallback.id,
+          slug: fallback.slug,
+          visibility: 'PUBLIC',
+          tags: fallback.tags,
+        },
+        latestVersion: { uam: fallback.content },
+      });
+    }
 
     const artifact = await prisma.artifact.findFirst({
       where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },

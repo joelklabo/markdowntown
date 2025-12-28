@@ -43,6 +43,12 @@ export function WorkbenchPageClient({
 }: WorkbenchPageClientProps) {
   const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>('structure');
   const [mounted, setMounted] = useState(false);
+  const [artifactNotice, setArtifactNotice] = useState<{
+    status: 'idle' | 'loading' | 'loaded' | 'error';
+    title?: string;
+    message?: string;
+  }>({ status: 'idle' });
+  const [showArtifactNotice, setShowArtifactNotice] = useState(false);
   const appliedScanRef = useRef(false);
 
   const loadArtifact = useWorkbenchStore(s => s.loadArtifact);
@@ -61,8 +67,19 @@ export function WorkbenchPageClient({
     if (!mounted) return;
 
     if (initialArtifactId && initialArtifactId.length > 0) {
-      void loadArtifact(initialArtifactId);
-      return;
+      let cancelled = false;
+      void loadArtifact(initialArtifactId).then((result) => {
+        if (cancelled) return;
+        if (result.status === 'loaded') {
+          setArtifactNotice({ status: 'loaded', title: result.title });
+        } else {
+          setArtifactNotice({ status: 'error', message: result.message });
+        }
+        setShowArtifactNotice(true);
+      });
+      return () => {
+        cancelled = true;
+      };
     }
 
     if (initialTemplateUam) {
@@ -114,6 +131,33 @@ export function WorkbenchPageClient({
   return (
     <div className="flex h-[calc(100vh-64px)] min-h-0 flex-col bg-mdt-bg">
       <WorkbenchHeader session={session} />
+
+      {showArtifactNotice && (artifactNotice.status === 'loaded' || artifactNotice.status === 'error') ? (
+        <div className="border-b border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3">
+          <div className="flex flex-wrap items-start justify-between gap-mdt-3">
+            <div className="space-y-mdt-1">
+              <Text size="caption" tone="muted">
+                {artifactNotice.status === 'loaded' ? 'Library item loaded' : 'Library item unavailable'}
+              </Text>
+              <Text weight="semibold">
+                {artifactNotice.status === 'loaded'
+                  ? artifactNotice.title ?? 'Loaded into Workbench'
+                  : artifactNotice.message ?? 'Unable to load that library item.'}
+              </Text>
+              <Text size="bodySm" tone="muted">
+                {artifactNotice.status === 'loaded'
+                  ? 'You can edit this item in Workbench and export when you are ready.'
+                  : 'Try opening a different item from the Library or check your access.'}
+              </Text>
+            </div>
+            <div className="flex flex-wrap items-center gap-mdt-2">
+              <Button size="sm" variant="secondary" onClick={() => setShowArtifactNotice(false)}>
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {scanSummary ? (
         <div className="border-b border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3">

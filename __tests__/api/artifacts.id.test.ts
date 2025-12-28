@@ -12,6 +12,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 
 vi.mock('@/lib/prisma', () => ({
+  hasDatabaseEnv: true,
   prisma: {
     artifact: {
       findFirst: vi.fn(),
