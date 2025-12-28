@@ -29,14 +29,16 @@
 ### Checks
 1. Confirm the dev server responds: `curl -I http://localhost:3000`.
 2. Load `http://localhost:3000/` in a local browser to verify it renders.
-3. Close any stale DevTools MCP pages and open a fresh page.
-4. If timeouts persist, restart the MCP bridge/agent and retry the page load.
-5. Capture the exact MCP error text and dev server status in QA notes.
+3. Run `pnpm mcp:health` (retry example: `MCP_HEALTH_RETRIES=3 MCP_HEALTH_TIMEOUT=3000 pnpm mcp:health`).
+4. Close any stale DevTools MCP pages and open a fresh page.
+5. If timeouts persist, restart the MCP bridge/agent and retry the page load.
+6. Capture the exact MCP error text and dev server status in QA notes.
 
 ### Repro (Codex MCP)
 1. Start dev server: `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
 2. Attempt a new page via MCP (e.g., `chrome-devtools/new_page` to `http://localhost:3000/`).
 3. Observe tool timeout: `timed out awaiting tools/call after 60s` (no page opened).
+4. Run `pnpm mcp:health` and include output in the repro notes.
 
 ### Notes
 - Timeouts may occur even when the dev server is healthy; capture the MCP error text in QA notes.
@@ -44,4 +46,5 @@
 ### Capture on failure
 - MCP error text (full timeout message).
 - Dev server status output (`curl -I http://localhost:3000`).
+- MCP health output (include retries/timeouts used).
 - Whether `WATCHPACK_POLLING`/`WATCHPACK_POLLING_INTERVAL` were set.
