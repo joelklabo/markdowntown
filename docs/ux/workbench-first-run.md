@@ -11,17 +11,32 @@ Provide a calm, scan-aware onboarding path so first-time users know what to do n
 - Users feel safe: no repo content is uploaded; scan stays local-only.
 
 ## Entry states
-### A) With scan context (preferred)
-- Entry: from Atlas simulator via "Open Workbench" CTA.
-- Signals to show:
-  - Tool + cwd or scan paths summary.
-  - Note that scan is local-only.
+### Entry matrix (state + focus + CTA)
+- **Scan entry:** Atlas simulator → "Open Workbench".
+  - State: scan defaults applied (tool + cwd/paths).
+  - Initial focus: Export panel header or first missing required field.
+  - Primary CTA: "Export agents.md".
+- **Library entry:** Library → "Open in Workbench".
+  - State: artifact content prefilled.
+  - Initial focus: Export panel header.
+  - Primary CTA: "Export agents.md".
+- **Translate entry:** Translate → "Open in Workbench".
+  - State: translated output prefilled.
+  - Initial focus: Export panel header.
+  - Primary CTA: "Export agents.md".
+- **Direct entry:** /workbench without context.
+  - State: empty workbench.
+  - Initial focus: "Scan a folder" CTA.
+  - Primary CTA: "Scan a folder".
 
-### B) Without scan context
-- Entry: direct visit to /workbench or via Library/Translate.
-- Signals to show:
-  - Short explanation of what Workbench does.
-  - CTA to scan a folder as the fastest path.
+### State handoff + conflict resolution
+- If a new entry arrives and the current Workbench state is dirty, prompt to replace or cancel.
+- If state is clean, replace with the new entry context.
+- If the entry payload is invalid/malformed, show an error with "Retry" and "Start fresh" actions.
+
+### Navigation + exit
+- Back/exit should return to the originating surface when possible (Scan → Atlas, Library → Library).
+- Direct entry uses browser back; provide a secondary CTA to "Browse Library" when empty.
 
 ## Page structure (first run)
 1) **Header summary**
@@ -29,6 +44,7 @@ Provide a calm, scan-aware onboarding path so first-time users know what to do n
    - Subtext: "Add scopes and blocks, then export."
 2) **Context panel**
    - If scan exists: "Scan defaults applied" + tool + cwd/paths.
+   - If Library/Translate entry: "Imported content ready" + source label.
    - If no scan: "No scan context yet" + CTA "Scan a folder".
 3) **Next actions**
    - Primary: "Add scope" (or "Add block")
@@ -59,10 +75,16 @@ Provide a calm, scan-aware onboarding path so first-time users know what to do n
 ## Success and empty states
 - **After export**: "Export complete. agents.md is ready."
 - **Empty workbench**: "Add a scope or block to start building."
+- **Invalid handoff**: "We couldn't load that context. Try again or start fresh."
 
 ## Edge cases
 - Scan context present but missing files: keep CTA "Open Workbench" and show a note "Some instruction files are missing."
 - Multiple targets: prompt to select a target before export.
+- Mobile view: ensure primary CTA remains visible above the fold and safe-area compliant.
+
+## Accessibility + motion
+- Initial focus targets must match the entry matrix above.
+- Respect `prefers-reduced-motion` for entry transitions or success animations.
 
 ## Notes
 - Use consistent terms: Scan, Workbench, Library, Translate, Export.
