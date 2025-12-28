@@ -53,6 +53,18 @@ Suggested alert thresholds:
 - **Translate error spike:** `> 10%` over 1h (compile/regression).
 - **Translate download drop:** `< 60%` over 24h (download CTA broken or unclear).
 
+## Library funnel (discover → open → export)
+Library KPIs and suggested targets:
+- **Library CTR:** `library_action(action=open_workbench) / ui_route_view(route=/library)` → target 15%+.
+- **Preview CTR:** `library_action(action=open_workbench, source=library_preview) / ui_route_view(route=/library)` → target 5%+.
+- **Export rate:** `workbench_export_download or workbench_export_copy / library_action(action=open_workbench)` → target 30%+.
+- **Library error rate:** `library_action(action=error) / ui_route_view(route=/library)` → target < 2% (if errors are emitted).
+
+Suggested alert thresholds:
+- **Library CTR drop:** `< 8%` over 24h (discovery or CTA regression).
+- **Export rate drop:** `< 20%` over 24h (handoff or export regression).
+- **Preview CTR drop:** `< 2%` over 24h (preview not engaging or broken).
+
 ## Instruction health check KPIs
 - **Health check run rate:** `atlas_simulator_health_check / atlas_simulator_simulate` → target 95%+ (feature enabled)
 - **Pass rate:** share of `atlas_simulator_health_check` where `errorCount = 0` → target 50%+ (improves as guidance lands)

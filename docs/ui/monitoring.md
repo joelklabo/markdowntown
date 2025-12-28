@@ -64,6 +64,11 @@ Events emitted by `PerfVitals`:
 - Translate error rate (`translate_error / translate_start`): target < 5%.
 - Translate download rate (`translate_download / translate_complete`): target 80%+ (use `translate_complete` as a proxy until download clicks are tracked).
 
+## Library funnel targets
+- Library CTR (`library_action` with `action=open_workbench` / `ui_route_view` for `/library`): target 15%+.
+- Preview CTR (`library_action` with `action=open_workbench` and `source=library_preview` / `ui_route_view` for `/library`): target 5%+.
+- Export rate (`workbench_export_download` or `workbench_export_copy` / `library_action` open_workbench): target 30%+.
+
 ## Escalation guidance
 - P0: sustained `perf_budget_violation` spikes on `/` or `/atlas/simulator`.
 - P1: repeated `atlas_simulator_scan_error` or `workbench_export_*` failures.
