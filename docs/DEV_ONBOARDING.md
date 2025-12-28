@@ -60,6 +60,7 @@ pnpm start
 - `pnpm prisma studio` (if you add the script) to explore the DB.
 - `pnpm test:visual` to update Playwright visual snapshots.
 - `pnpm mcp:health` to check local MCP readiness before DevTools QA.
+- QA video capture: see `docs/testing/qa-video-capture.md`.
 
 ## Codex skills
 Validate and install local Codex skills:
