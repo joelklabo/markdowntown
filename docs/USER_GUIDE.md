@@ -18,8 +18,15 @@ Flow overview: scan a folder → review Next steps → open Workbench with tool 
 ## Helpful tips
 - Use the Instruction health guide for tool-specific checklists: `docs/atlas/instruction-health.md`.
 - Use Library to browse public artifacts and open them in Workbench.
-- Use Translate to convert between instruction formats for different tools.
+- Use Translate to convert between instruction formats for different tools (`docs/translate/quickstart.md`).
 - Terminology: AGENTS.md refers to a repo file; agents.md is the exported output from Workbench.
+
+## Translate quickstart (5 steps)
+1. Open **Translate** from the main navigation.
+2. Select one or more targets (step 1).
+3. Paste Markdown or UAM v1 JSON (step 2).
+4. Compile and review the output files (step 3).
+5. Download the zip and unzip into your repo.
 
 ## Edge cases and recovery
 - **Directory picker not supported** → use the folder upload input (`webkitdirectory`).
