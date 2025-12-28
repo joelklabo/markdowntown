@@ -172,6 +172,9 @@ export function WorkbenchPageClient({
               <Text size="bodySm" tone="muted">
                 {scanSummary.previewLabel}
               </Text>
+              <Text size="caption" tone="muted">
+                Local-only scan. Nothing leaves your device.
+              </Text>
             </div>
             <div className="flex flex-wrap items-center gap-mdt-2">
               <Button size="sm" variant="secondary" onClick={handleClearScan}>

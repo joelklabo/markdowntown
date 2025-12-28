@@ -44,6 +44,7 @@ export function ExportPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
+  const [exportedAt, setExportedAt] = useState<Date | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [optionsErrors, setOptionsErrors] = useState<Record<string, string>>({});
 
@@ -64,6 +65,11 @@ export function ExportPanel() {
     return 'Export outputs';
   }, [primaryTargetLabel, targetIds.length]);
   const exportStatus = useMemo(() => {
+    if (exportedAt) {
+      return primaryTargetLabel
+        ? `Export complete. ${primaryTargetLabel} is ready.`
+        : 'Export complete. Your files are ready.';
+    }
     if (loading) return 'Compiling for export…';
     if (result?.files?.length) {
       const count = result.files.length;
@@ -71,7 +77,7 @@ export function ExportPanel() {
     }
     if (targetIds.length === 0) return 'Select at least one target to compile outputs.';
     return 'Compile to preview outputs.';
-  }, [loading, result, targetIds.length]);
+  }, [exportedAt, loading, primaryTargetLabel, result, targetIds.length]);
 
   useEffect(() => {
     return () => {
@@ -126,6 +132,7 @@ export function ExportPanel() {
 
     pendingUamRef.current = nextUam;
     setLoading(true);
+    setExportedAt(null);
     emitCityWordmarkEvent({ type: 'publish', kind: 'artifact' });
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -141,12 +148,14 @@ export function ExportPanel() {
       ? uam.targets.filter(t => t.targetId !== targetId)
       : [...uam.targets, createUamTargetV1(targetId)];
 
+    setExportedAt(null);
     const nextUam = { ...uam, targets: nextTargets };
     setUam(nextUam);
   };
 
   const updateTarget = (targetId: string, patch: Partial<Omit<UamTargetV1, 'targetId'>>) => {
     const nextTargets = uam.targets.map((target) => (target.targetId === targetId ? { ...target, ...patch } : target));
+    setExportedAt(null);
     setUam({ ...uam, targets: nextTargets });
   };
 
@@ -168,6 +177,7 @@ export function ExportPanel() {
     try {
       emitCityWordmarkEvent({ type: 'publish', kind: 'file' });
       const blob = await createZip(result.files);
+      setExportedAt(new Date());
       track('workbench_export_download', {
         targetIds,
         fileCount: result.files.length,

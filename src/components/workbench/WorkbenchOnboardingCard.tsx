@@ -16,15 +16,14 @@ export function WorkbenchOnboardingCard() {
   const hasScanContext = Boolean(scanContext);
   const steps = hasScanContext
     ? [
-        'Confirm scan defaults and targets so we compile the right output.',
-        'Add or edit blocks to capture instructions for each scope.',
-        'Compile and export your outputs from the right panel.',
+        'Review scan defaults and confirm targets.',
+        'Add a scope or block to finalize instructions.',
+        'Export agents.md when ready.',
       ]
     : [
-        'Keep the Global scope or add a folder scope.',
-        'Add a block and write the instructions you want to ship.',
-        'Add skills to describe reusable capabilities.',
-        'Preview and export your agents.md.',
+        'Scan a folder to prefill Workbench.',
+        'Add a scope or block to start building.',
+        'Export agents.md when ready.',
       ];
 
   const handleAddBlock = () => {
@@ -36,12 +35,12 @@ export function WorkbenchOnboardingCard() {
     <Card className="p-mdt-4 md:p-mdt-5">
       <Stack gap={3}>
         <div className="space-y-mdt-1">
-          <Text size="caption" tone="muted">{hasScanContext ? 'Next step' : 'Start here'}</Text>
-          <Heading level="h3" as="h2">{hasScanContext ? 'Finish your export' : 'Build an agents.md'}</Heading>
+          <Text size="caption" tone="muted">{hasScanContext ? 'Scan defaults applied' : 'No scan context yet'}</Text>
+          <Heading level="h3" as="h2">Build your agents.md</Heading>
           <Text tone="muted">
             {hasScanContext
-              ? 'Your scan defaults are loaded. Add the final details and export the output your tool expects.'
-              : 'Add scopes, write instruction blocks, define skills, then export.'}
+              ? 'Local-only scan. Add scopes or blocks, then export when ready.'
+              : 'Scan a folder to see what loads, then build and export.'}
           </Text>
         </div>
 

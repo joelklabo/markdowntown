@@ -7,6 +7,7 @@ import type { Session } from 'next-auth';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
+import { Text } from '@/components/ui/Text';
 import { COMMAND_PALETTE_OPEN_EVENT } from '@/components/CommandPalette';
 import { track } from '@/lib/analytics';
 
@@ -65,25 +66,30 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
   return (
     <div className="border-b border-mdt-border bg-mdt-surface">
       <div className="flex flex-col gap-mdt-4 px-mdt-4 py-mdt-4 md:flex-row md:items-center md:justify-between md:px-mdt-6">
-        <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
-          <label htmlFor="workbench-title" className="sr-only">
-            Agent Title
-          </label>
-          <Input
-            id="workbench-title"
-            name="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            size="sm"
-            className="w-full font-semibold sm:w-72 md:w-80"
-          />
-          <Badge
-            tone={visibilityBadge.tone}
-            aria-label={`Visibility: ${visibilityBadge.label}`}
-            className="uppercase tracking-wide"
-          >
-            {visibilityBadge.label}
-          </Badge>
+        <div className="flex flex-col gap-mdt-1">
+          <div className="flex flex-col gap-mdt-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <label htmlFor="workbench-title" className="sr-only">
+              Agent Title
+            </label>
+            <Input
+              id="workbench-title"
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              size="sm"
+              className="w-full font-semibold sm:w-72 md:w-80"
+            />
+            <Badge
+              tone={visibilityBadge.tone}
+              aria-label={`Visibility: ${visibilityBadge.label}`}
+              className="uppercase tracking-wide"
+            >
+              {visibilityBadge.label}
+            </Badge>
+          </div>
+          <Text size="caption" tone="muted">
+            Build then export.
+          </Text>
         </div>
 
         <div className="flex flex-col gap-mdt-4 md:flex-row md:flex-wrap md:items-center md:justify-end">

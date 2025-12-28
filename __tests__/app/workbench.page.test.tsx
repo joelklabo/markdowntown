@@ -30,7 +30,7 @@ describe('WorkbenchPage', () => {
 
     // Editor Panel (starts with empty state guidance)
     expect(screen.getByText('Start with a block')).toBeInTheDocument();
-    expect(screen.getByText('Build an agents.md')).toBeInTheDocument();
+    expect(screen.getByText('Build your agents.md')).toBeInTheDocument();
 
     // Output Panel (starts with Export/Preview tabs)
     expect(screen.getByText('Export')).toBeInTheDocument();
