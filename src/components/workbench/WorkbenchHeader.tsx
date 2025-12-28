@@ -161,7 +161,12 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-mdt-2">
-              <Button size="sm" onClick={handleSave} disabled={saving || cloudSaveStatus === 'saving' || !session}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleSave}
+                disabled={saving || cloudSaveStatus === 'saving' || !session}
+              >
                 {saving || cloudSaveStatus === 'saving' ? 'Saving...' : 'Save'}
               </Button>
               {!session && (

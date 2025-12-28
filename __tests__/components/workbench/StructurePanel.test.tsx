@@ -30,7 +30,7 @@ describe('StructurePanel', () => {
 
     await waitFor(() => expect(screen.getByText('Scopes')).toBeInTheDocument());
     expect(
-      screen.getByText('Scopes target folders. Blocks are the instruction sections inside each scope. Skills capture reusable capabilities.')
+      screen.getByText('Scopes tell the model where instructions apply. Blocks are the actual instructions inside each scope. Skills capture reusable capabilities.')
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Add scope' }));

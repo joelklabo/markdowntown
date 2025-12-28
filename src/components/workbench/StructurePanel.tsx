@@ -29,7 +29,7 @@ export function StructurePanel() {
     <div className="flex h-full min-h-0 flex-col gap-mdt-3 overflow-y-auto pr-mdt-2">
       <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
         <Text size="caption" tone="muted" leading="relaxed">
-          Scopes target folders. Blocks are the instruction sections inside each scope. Skills capture reusable capabilities.
+          Scopes tell the model where instructions apply. Blocks are the actual instructions inside each scope. Skills capture reusable capabilities.
         </Text>
       </div>
       <ScopesPanel />

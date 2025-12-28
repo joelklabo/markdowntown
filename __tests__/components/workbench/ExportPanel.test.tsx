@@ -56,7 +56,7 @@ describe('ExportPanel', () => {
       expect(screen.getByText('# Hello')).toBeInTheDocument();
     });
 
-    const download = screen.getByRole('button', { name: /Download zip/i });
+    const download = screen.getByRole('button', { name: /Export AGENTS.md/i });
     expect(download).toBeEnabled();
 
     fireEvent.click(download);

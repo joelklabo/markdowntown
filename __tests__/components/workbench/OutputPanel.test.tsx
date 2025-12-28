@@ -60,6 +60,6 @@ describe('OutputPanel', () => {
       expect(screen.getByText('hello')).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('button', { name: 'Download zip' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Export AGENTS.md' })).toBeEnabled();
   });
 });

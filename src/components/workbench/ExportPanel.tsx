@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { FileTree } from '@/components/ui/FileTree';
 import { Input } from '@/components/ui/Input';
 import { Radio } from '@/components/ui/Radio';
+import { Text } from '@/components/ui/Text';
 import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
 import { track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/analytics';
@@ -52,6 +53,25 @@ export function ExportPanel() {
 
   const targetIds = useMemo(() => uam.targets.map(t => t.targetId), [uam.targets]);
   const manifestPaths = useMemo(() => result?.files.map(f => f.path) ?? [], [result]);
+  const primaryTargetLabel = useMemo(() => {
+    if (targetIds.length !== 1) return null;
+    const target = TARGETS.find((item) => item.targetId === targetIds[0]);
+    return target?.label ?? targetIds[0];
+  }, [targetIds]);
+  const exportLabel = useMemo(() => {
+    if (primaryTargetLabel) return `Export ${primaryTargetLabel}`;
+    if (targetIds.length > 1) return `Export ${targetIds.length} targets`;
+    return 'Export outputs';
+  }, [primaryTargetLabel, targetIds.length]);
+  const exportStatus = useMemo(() => {
+    if (loading) return 'Compiling for export…';
+    if (result?.files?.length) {
+      const count = result.files.length;
+      return `Ready to export ${count} file${count === 1 ? '' : 's'}.`;
+    }
+    if (targetIds.length === 0) return 'Select at least one target to compile outputs.';
+    return 'Compile to preview outputs.';
+  }, [loading, result, targetIds.length]);
 
   useEffect(() => {
     return () => {
@@ -337,19 +357,31 @@ export function ExportPanel() {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
-        <Button onClick={() => scheduleCompile(uam)} disabled={loading || uam.targets.length === 0} size="sm">
-          {loading ? 'Compiling…' : 'Compile'}
-        </Button>
-        <Button
-          onClick={handleDownload}
-          disabled={!result || result.files.length === 0}
-          variant="secondary"
-          size="sm"
-        >
-          Download zip
-        </Button>
-        {error && <div className="text-caption text-[color:var(--mdt-color-danger)]">{error}</div>}
+      <div className="flex flex-wrap items-center justify-between gap-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+        <div className="flex flex-wrap items-center gap-mdt-2">
+          <Button
+            onClick={() => scheduleCompile(uam)}
+            disabled={loading || uam.targets.length === 0}
+            variant="secondary"
+            size="sm"
+          >
+            {loading ? 'Compiling…' : 'Compile'}
+          </Button>
+          <Button
+            onClick={handleDownload}
+            disabled={loading || !result || result.files.length === 0}
+            variant="primary"
+            size="sm"
+          >
+            {exportLabel}
+          </Button>
+        </div>
+        <div className="flex flex-wrap items-center gap-mdt-3">
+          <Text size="caption" tone="muted">
+            {exportStatus}
+          </Text>
+          {error && <div className="text-caption text-[color:var(--mdt-color-danger)]">{error}</div>}
+        </div>
       </div>
 
       {result && (
