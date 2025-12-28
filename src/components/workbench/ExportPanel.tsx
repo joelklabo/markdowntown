@@ -14,6 +14,7 @@ import { track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/ana
 import { applySkillExportSelection, getSkillExportSelection, type SkillExportSelection } from '@/lib/skills/skillExport';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
+import type { WorkbenchEntrySource } from '@/components/workbench/workbenchEntry';
 
 const COMPILE_DEBOUNCE_MS = 250;
 
@@ -34,7 +35,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function ExportPanel() {
+type ExportPanelProps = {
+  entrySource?: WorkbenchEntrySource;
+};
+
+export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
   const uam = useWorkbenchStore(s => s.uam);
   const setUam = useWorkbenchStore(s => s.setUam);
   const result = useWorkbenchStore(s => s.compilationResult);
@@ -54,6 +59,7 @@ export function ExportPanel() {
 
   const targetIds = useMemo(() => uam.targets.map(t => t.targetId), [uam.targets]);
   const manifestPaths = useMemo(() => result?.files.map(f => f.path) ?? [], [result]);
+  const exportReady = useMemo(() => (result?.files?.length ?? 0) > 0, [result]);
   const primaryTargetLabel = useMemo(() => {
     if (targetIds.length !== 1) return null;
     const target = TARGETS.find((item) => item.targetId === targetIds[0]);
@@ -78,6 +84,24 @@ export function ExportPanel() {
     if (targetIds.length === 0) return 'Select at least one target to compile outputs.';
     return 'Compile to preview outputs.';
   }, [exportedAt, loading, primaryTargetLabel, result, targetIds.length]);
+  const entryLabel = useMemo(() => {
+    switch (entrySource) {
+      case 'scan':
+        return 'Scan defaults applied';
+      case 'library':
+        return 'Library item loaded';
+      case 'translate':
+        return 'Translation ready';
+      default:
+        return 'Start in Workbench';
+    }
+  }, [entrySource]);
+  const nextStep = useMemo(() => {
+    if (targetIds.length === 0) return 'Select at least one target to compile.';
+    if (loading) return 'Compiling outputs…';
+    if (exportReady) return 'Export your files when ready.';
+    return 'Compile to preview outputs.';
+  }, [exportReady, loading, targetIds.length]);
 
   useEffect(() => {
     return () => {
@@ -200,7 +224,15 @@ export function ExportPanel() {
   };
 
   return (
-    <div className="h-full overflow-auto space-y-mdt-4 p-mdt-4">
+    <div id="workbench-export-panel" tabIndex={-1} className="h-full overflow-auto space-y-mdt-4 p-mdt-4">
+      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+        <Text size="caption" tone="muted">
+          {entryLabel}
+        </Text>
+        <Text size="bodySm" tone="muted">
+          Next step: {nextStep}
+        </Text>
+      </div>
       <div>
         <h3 className="mb-mdt-2 text-caption font-semibold uppercase tracking-wide text-mdt-muted">Targets</h3>
         <div className="space-y-mdt-2">
@@ -372,7 +404,7 @@ export function ExportPanel() {
           <Button
             onClick={() => scheduleCompile(uam)}
             disabled={loading || uam.targets.length === 0}
-            variant="secondary"
+            variant={exportReady ? 'secondary' : 'primary'}
             size="sm"
           >
             {loading ? 'Compiling…' : 'Compile'}
@@ -380,7 +412,7 @@ export function ExportPanel() {
           <Button
             onClick={handleDownload}
             disabled={loading || !result || result.files.length === 0}
-            variant="primary"
+            variant={exportReady ? 'primary' : 'secondary'}
             size="sm"
           >
             {exportLabel}

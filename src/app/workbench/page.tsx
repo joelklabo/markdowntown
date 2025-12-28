@@ -60,6 +60,7 @@ export default async function WorkbenchPage(props: { searchParams: Promise<Searc
     null;
 
   const templateId = firstString(searchParams.templateId)?.trim() ?? null;
+  const entry = firstString(searchParams.entry)?.trim() ?? null;
 
   let initialTemplateUam: UamV1 | null = null;
   if (!idOrSlug && templateId && templateId.length > 0) {
@@ -75,6 +76,7 @@ export default async function WorkbenchPage(props: { searchParams: Promise<Searc
   return (
     <WorkbenchPageClient
       initialArtifactId={idOrSlug}
+      initialEntryHint={entry === 'translate' ? 'translate' : null}
       initialTemplateUam={initialTemplateUam}
       initialScanContext={initialScanContext}
       session={session}

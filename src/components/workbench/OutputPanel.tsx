@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from '@/components/ui/Tabs';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
@@ -9,13 +9,23 @@ import { PreviewPanel } from './PreviewPanel';
 import { LintPanel } from './LintPanel';
 import { DiffPanel } from './DiffPanel';
 import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import type { WorkbenchEntrySource } from '@/components/workbench/workbenchEntry';
 
-export function OutputPanel() {
-  const [tab, setTab] = useState<'preview' | 'export' | 'lint' | 'diff'>('export');
+type OutputPanelProps = {
+  entrySource?: WorkbenchEntrySource;
+  initialTab?: 'preview' | 'export' | 'lint' | 'diff';
+};
+
+export function OutputPanel({ entrySource = 'direct', initialTab = 'export' }: OutputPanelProps) {
+  const [tab, setTab] = useState<'preview' | 'export' | 'lint' | 'diff'>(initialTab);
   const selectedScopeId = useWorkbenchStore(s => s.selectedScopeId);
   const hasBlocks = useWorkbenchStore(s => s.uam.blocks.length > 0);
   const addBlock = useWorkbenchStore(s => s.addBlock);
   const selectBlock = useWorkbenchStore(s => s.selectBlock);
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
 
   const handleAddBlock = () => {
     const id = addBlock({ kind: 'markdown', scopeId: selectedScopeId, body: '' });
@@ -45,7 +55,7 @@ export function OutputPanel() {
 
       <div className="relative flex-1 overflow-hidden">
         <TabsContent value="export" className="!mt-0 h-full border-none bg-transparent p-0 shadow-none">
-          <ExportPanel />
+          <ExportPanel entrySource={entrySource} />
         </TabsContent>
         <TabsContent value="preview" className="!mt-0 h-full border-none bg-transparent p-0 shadow-none">
           <PreviewPanel />

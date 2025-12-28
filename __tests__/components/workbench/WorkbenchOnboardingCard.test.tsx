@@ -20,7 +20,7 @@ describe('WorkbenchOnboardingCard', () => {
   });
 
   it('renders fallback guidance when no scan context is present', () => {
-    render(<WorkbenchOnboardingCard />);
+    render(<WorkbenchOnboardingCard entrySource="direct" />);
 
     expect(screen.getByText(/no scan context yet/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /scan a folder/i })).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe('WorkbenchOnboardingCard', () => {
       useWorkbenchStore.setState({ scanContext: sampleScanContext });
     });
 
-    render(<WorkbenchOnboardingCard />);
+    render(<WorkbenchOnboardingCard entrySource="scan" />);
 
     expect(screen.getByText(/scan defaults applied/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /back to scan/i })).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('WorkbenchOnboardingCard', () => {
   });
 
   it('adds a block and selects it', () => {
-    render(<WorkbenchOnboardingCard />);
+    render(<WorkbenchOnboardingCard entrySource="direct" />);
 
     const before = useWorkbenchStore.getState().blocks.length;
     fireEvent.click(screen.getByRole('button', { name: /add a block/i }));

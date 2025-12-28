@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TabsList, TabsRoot, TabsTrigger } from '@/components/ui/Tabs';
 import { StructurePanel } from '@/components/workbench/StructurePanel';
 import { EditorPanel } from '@/components/workbench/EditorPanel';
@@ -9,10 +9,12 @@ import { WorkbenchHeader } from '@/components/workbench/WorkbenchHeader';
 import { WorkbenchOnboardingCard } from '@/components/workbench/WorkbenchOnboardingCard';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
+import { usePrefersReducedMotion } from '@/components/motion/usePrefersReducedMotion';
 import type { Session } from 'next-auth';
 import { readStoredScanContext, useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
 import type { UamV1 } from '@/lib/uam/uamTypes';
+import type { WorkbenchEntrySource } from '@/components/workbench/workbenchEntry';
 
 type ScanContext = {
   tool: SimulatorToolId;
@@ -22,6 +24,7 @@ type ScanContext = {
 
 type WorkbenchPageClientProps = {
   initialArtifactId: string | null;
+  initialEntryHint: 'translate' | null;
   initialTemplateUam: UamV1 | null;
   initialScanContext: ScanContext | null;
   session: Session | null;
@@ -37,11 +40,20 @@ const TOOL_LABELS: Record<SimulatorToolId, string> = {
 
 export function WorkbenchPageClient({
   initialArtifactId,
+  initialEntryHint,
   initialTemplateUam,
   initialScanContext,
   session,
 }: WorkbenchPageClientProps) {
-  const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>('structure');
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const storedScanContext = useMemo(() => readStoredScanContext(), []);
+
+  const [mobileTab, setMobileTab] = useState<'structure' | 'editor' | 'output'>(() => {
+    if (initialArtifactId || initialTemplateUam) return 'editor';
+    if (initialScanContext || storedScanContext) return 'output';
+    if (initialEntryHint === 'translate') return 'output';
+    return 'editor';
+  });
   const [mounted, setMounted] = useState(false);
   const [artifactNotice, setArtifactNotice] = useState<{
     status: 'idle' | 'loading' | 'loaded' | 'error';
@@ -50,6 +62,7 @@ export function WorkbenchPageClient({
   }>({ status: 'idle' });
   const [showArtifactNotice, setShowArtifactNotice] = useState(false);
   const appliedScanRef = useRef(false);
+  const focusAppliedRef = useRef(false);
 
   const loadArtifact = useWorkbenchStore(s => s.loadArtifact);
   const initializeFromTemplate = useWorkbenchStore(s => s.initializeFromTemplate);
@@ -116,6 +129,62 @@ export function WorkbenchPageClient({
       previewLabel,
     };
   }, [scanContext]);
+
+  const entrySource = useMemo<WorkbenchEntrySource>(() => {
+    if (initialArtifactId || initialTemplateUam) return 'library';
+    if (scanContext || initialScanContext || storedScanContext) return 'scan';
+    if (initialEntryHint === 'translate') return 'translate';
+    return 'direct';
+  }, [initialArtifactId, initialEntryHint, initialScanContext, initialTemplateUam, scanContext, storedScanContext]);
+
+  const preferredMobileTab = useMemo<'structure' | 'editor' | 'output'>(() => {
+    if (entrySource === 'scan' || entrySource === 'translate') return 'output';
+    return 'editor';
+  }, [entrySource]);
+
+  const focusById = useCallback((id: string) => {
+    if (typeof document === 'undefined') return false;
+    const element = document.getElementById(id);
+    if (!element) return false;
+    if ('focus' in element) {
+      try {
+        (element as HTMLElement).focus({ preventScroll: true });
+      } catch {
+        (element as HTMLElement).focus();
+      }
+    }
+    if ('scrollIntoView' in element) {
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'center',
+      });
+    }
+    return true;
+  }, [prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (focusAppliedRef.current) return;
+    if (mobileTab !== preferredMobileTab) return;
+
+    const targetIds =
+      entrySource === 'scan' || entrySource === 'translate'
+        ? ['workbench-export-panel']
+        : entrySource === 'library'
+          ? ['workbench-block-title', 'workbench-editor-panel', 'workbench-export-panel']
+          : ['workbench-scan-cta', 'workbench-block-title', 'workbench-editor-panel'];
+
+    const timer = window.setTimeout(() => {
+      for (const id of targetIds) {
+        if (focusById(id)) {
+          focusAppliedRef.current = true;
+          return;
+        }
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [entrySource, focusById, mobileTab, mounted, preferredMobileTab]);
 
   const handleClearScan = () => {
     clearScanContext();
@@ -215,9 +284,11 @@ export function WorkbenchPageClient({
         <div className={`relative h-full bg-mdt-surface ${mobileTab === 'editor' ? 'block' : 'hidden md:block'}`}>
           <div className="h-full overflow-hidden p-mdt-4 md:p-mdt-5">
             <div className="flex h-full flex-col gap-mdt-4">
-              {!hasBlocks && <WorkbenchOnboardingCard />}
+              {!hasBlocks && <WorkbenchOnboardingCard entrySource={entrySource} scanSummary={scanSummary} />}
               <div className="flex-1 min-h-0">
-                <EditorPanel />
+                <div id="workbench-editor-panel" tabIndex={-1} className="h-full">
+                  <EditorPanel />
+                </div>
               </div>
             </div>
           </div>
@@ -229,7 +300,7 @@ export function WorkbenchPageClient({
           }`}
         >
           <div className="flex h-full flex-col overflow-hidden p-mdt-4 md:p-mdt-5">
-            <OutputPanel />
+            <OutputPanel entrySource={entrySource} initialTab="export" />
           </div>
         </div>
       </div>
