@@ -3,11 +3,11 @@
 Single source of truth for the refreshed UI. Tokens live as CSS custom properties in `src/app/globals.css` and are mapped into Tailwind via `tailwind.config.ts`.
 
 ## Palette
-- `--mdt-color-primary` / `--mdt-color-primary-strong`: electric cyan highlight
-- `--mdt-color-accent`: soft mint accent
-- `--mdt-color-bg`, `--mdt-color-surface`, `--mdt-color-surface-subtle`, `--mdt-color-surface-strong`
-- `--mdt-color-border`, `--mdt-color-text`, `--mdt-color-text-muted`
-- Semantic support: `--mdt-color-success`, `--mdt-color-warning`, `--mdt-color-danger`, `--mdt-color-info`
+- **Primary**: cool cyan (`--mdt-color-primary`, `--mdt-color-primary-strong`, `--mdt-color-primary-soft`) for CTAs and focus.
+- **Accent**: warm amber (`--mdt-color-accent`, `--mdt-color-accent-soft`) for highlights and secondary emphasis.
+- **Surfaces**: `--mdt-color-bg`, `--mdt-color-surface`, `--mdt-color-surface-subtle`, `--mdt-color-surface-strong`, `--mdt-color-surface-raised`.
+- **Lines + text**: `--mdt-color-border`, `--mdt-color-border-strong`, `--mdt-color-text`, `--mdt-color-text-muted`, `--mdt-color-text-subtle`, `--mdt-color-text-on-strong`.
+- **Status support**: `--mdt-color-success`, `--mdt-color-warning`, `--mdt-color-danger`, `--mdt-color-info` (+ soft variants).
 
 Dark palette is the default; `.dark` applies it, while the root (no class) holds the light variant.
 
