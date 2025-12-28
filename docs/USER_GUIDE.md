@@ -7,8 +7,14 @@ Scans run locally in your browser and do not upload file contents.
 
 Flow overview: scan a folder → review Next steps → open Workbench with tool + cwd prefilled.
 
+## Home quick-start (scan-first)
+- The home page is optimized for the scan-first path.
+- Primary CTA: **Scan a folder** (starts the Atlas Simulator scan).
+- Secondary CTA: **Open Workbench** (jump straight into building).
+- Tertiary CTA: **Browse Library** (secondary discovery only).
+
 ## Primary flow (6 steps)
-1. Open the Atlas Simulator and click **Scan a folder** (Quickstart: `docs/atlas/scan-quickstart.md`).
+1. From Home, click **Scan a folder** (or open the Atlas Simulator directly). Quickstart: `docs/atlas/scan-quickstart.md`.
 2. Pick your repo root. If the directory picker is unavailable, use the folder upload input. If you hit a permission error, grant access and retry.
 3. Confirm the detected tool + cwd (open **Advanced** only if you need to adjust). Review **Next steps** first, then Instruction health, the ordered list of instruction files, and any warnings. Use **Copy template** or **Refresh results** to fix issues quickly.
 4. When you see **Open Workbench** in Next steps, click it. Scan context (tool + cwd) is prefilled so you can build immediately.

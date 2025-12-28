@@ -60,6 +60,7 @@ Last updated: Dec 28, 2025
 - Document recovery affordances (retry on permission error, fall back to folder upload).
 
 ## CTA hierarchy rules
+- **Home page:** one primary CTA (Scan a folder), one secondary CTA (Open Workbench), tertiary link (Browse Library) used once.
 - **Ready state:** primary CTA is **Open Workbench**; secondary actions are Share (Copy summary) and Download report.
 - **Error/warning states:** one primary fix action per step (Copy template, Set cwd, Switch tool). Secondary actions are optional and should not compete.
 - **No scan state:** primary CTA is Scan a folder (or Upload folder when picker is unavailable); secondary CTA is Paste paths.
