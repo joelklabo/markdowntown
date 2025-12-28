@@ -191,6 +191,14 @@ export function trackTranslateDownload(properties: {
   trackUiEvent("translate_download", properties);
 }
 
+export function trackTranslateOpenWorkbench(properties: {
+  targetIds: string[];
+  targetCount: number;
+  fileCount: number;
+}) {
+  trackUiEvent("translate_open_workbench", properties);
+}
+
 export function trackTranslateError(
   error: Error,
   properties: {

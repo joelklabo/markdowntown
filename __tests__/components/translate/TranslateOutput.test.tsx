@@ -18,6 +18,7 @@ describe('TranslateOutput', () => {
         onUpdateTarget={vi.fn()}
         onCompile={vi.fn()}
         onDownloadZip={vi.fn()}
+        onOpenWorkbench={vi.fn()}
         loading={false}
         error={null}
         detectedLabel="Markdown"

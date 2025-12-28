@@ -9,6 +9,7 @@
 - Never paste API keys, tokens, or credentials into prompts, logs, or docs.
 - Do not log file contents, repo names, paths, or cwd values in analytics payloads.
 - Prefer counts, booleans, or coarse labels over raw data.
+- For scan/translate telemetry, record only counts and target IDs; never include raw input, repo names, or file lists.
 
 ## Shell safety
 - Prefer read-only inspection tools (e.g., `rg`, `sed -n`, `ls`) before edits.

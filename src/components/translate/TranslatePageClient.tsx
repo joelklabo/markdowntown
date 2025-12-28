@@ -11,7 +11,13 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 import { createZip } from '@/lib/compile/zip';
 import { createUamTargetV1, wrapMarkdownAsGlobal, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
-import { trackTranslateComplete, trackTranslateDownload, trackTranslateError, trackTranslateStart } from '@/lib/analytics';
+import {
+  trackTranslateComplete,
+  trackTranslateDownload,
+  trackTranslateError,
+  trackTranslateOpenWorkbench,
+  trackTranslateStart,
+} from '@/lib/analytics';
 
 type TranslatePageClientProps = {
   initialInput: string;
@@ -160,6 +166,15 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
     }
   };
 
+  const handleOpenWorkbench = () => {
+    if (!result) return;
+    trackTranslateOpenWorkbench({
+      targetIds: targets.map((target) => target.targetId),
+      targetCount: targets.length,
+      fileCount: Array.isArray(result?.files) ? result.files.length : 0,
+    });
+  };
+
   return (
     <Container size="xl" padding="lg" className="py-mdt-10 md:py-mdt-12">
       <Stack gap={8}>
@@ -188,6 +203,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
             onUpdateTarget={updateTarget}
             onCompile={handleCompile}
             onDownloadZip={handleDownload}
+            onOpenWorkbench={handleOpenWorkbench}
             loading={loading}
             error={error}
             detectedLabel={detected.label}

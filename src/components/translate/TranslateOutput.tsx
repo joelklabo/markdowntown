@@ -30,6 +30,7 @@ interface TranslateOutputProps {
   onUpdateTarget: (targetId: string, patch: Partial<Omit<UamTargetV1, 'targetId'>>) => void;
   onCompile: () => void;
   onDownloadZip: () => void;
+  onOpenWorkbench: () => void;
   loading: boolean;
   error: string | null;
   detectedLabel: string;
@@ -43,6 +44,7 @@ export function TranslateOutput({
   onUpdateTarget,
   onCompile,
   onDownloadZip,
+  onOpenWorkbench,
   loading,
   error,
   detectedLabel,
@@ -220,7 +222,7 @@ export function TranslateOutput({
               </div>
               <Row gap={2} align="center" wrap>
                 <Button size="sm" asChild>
-                  <Link href="/workbench" target="_blank" rel="noreferrer noopener">
+                  <Link href="/workbench" target="_blank" rel="noreferrer noopener" onClick={onOpenWorkbench}>
                     Open Workbench
                   </Link>
                 </Button>

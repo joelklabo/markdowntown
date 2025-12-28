@@ -15,7 +15,8 @@ This file defines canonical event names and properties for the UX and onboarding
 - `nav_click` — navigation clicks.
   - Properties: `href`, `placement`, optional `cta`
 - `ui_home_cta_click` — home page CTA clicks.
-  - Properties: `cta` (`scan` | `workbench` | `library`), `slot` (`primary` | `secondary` | `tertiary` | `single`), `placement`, `href`
+  - Properties: `cta` (`scan` | `workbench` | `library`), `slot` (`primary` | `secondary` | `tertiary` | `single`),
+    `placement` (`hero` | `proof` | `build-steps` | `library-preview` | `final-cta` | `empty-state`), `href`
 - `ui_scan_start`
   - Properties: `method` (`directory_picker` | `file_input`), `tool`
 - `ui_scan_complete`
@@ -30,6 +31,8 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `targetIds`, `targetCount`, `inputChars`, `fileCount`, `warningCount`, `infoCount`
 - `translate_download`
   - Properties: `targetIds`, `targetCount`, `fileCount`, `byteSize`
+- `translate_open_workbench`
+  - Properties: `targetIds`, `targetCount`, `fileCount`
 - `translate_error`
   - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`, optional `reason`, plus error `message`
 - `library_action`
