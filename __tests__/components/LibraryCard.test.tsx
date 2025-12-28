@@ -45,7 +45,8 @@ describe("LibraryCard", () => {
     expect(screen.getByText("12 copies")).toBeInTheDocument();
     expect(screen.getByText("5 votes")).toBeInTheDocument();
 
-    screen.getByRole("button", { name: /open snippet demo in workbench/i });
+    screen.getByRole("button", { name: /open snippet demo in workbench/i }).click();
+    expect(onAdd).toHaveBeenCalledWith(item);
     screen.getByText("More").click();
     screen.getByRole("button", { name: /copy snippet/i }).click();
     expect(onCopy).toHaveBeenCalled();
