@@ -26,7 +26,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 ## Core surfaces
 
 ### Home
-- `/` (hero, CTA to Scan/Workbench, library previews)
+- `/` (hero, primary CTA to Scan a folder, secondary CTA to Workbench, library previews)
 
 ### Atlas (instruction discovery)
 - `/atlas/simulator` (Scan a folder)
@@ -64,7 +64,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 
 ### Entry points
 - Nav: Scan → `/atlas/simulator`
-- Home CTA: Scan a folder / Validate instructions
+- Home CTA: Scan a folder
 - Docs quickstart: Scan guide → `/atlas/simulator`
 - Library empty state: "Scan a folder to see what loads"
 

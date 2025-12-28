@@ -4,7 +4,7 @@ Use Atlas Simulator to confirm which instruction files load for a tool and what 
 
 ![Scan to Workbench flow](../assets/scan-workbench-flow.svg)
 
-Flow overview: scan a folder → review next steps → open Workbench with tool + cwd prefilled.
+Flow overview: scan a folder → review Next steps → open Workbench with tool + cwd prefilled.
 
 ## What you need
 - A local repo folder to scan.
@@ -13,9 +13,9 @@ Flow overview: scan a folder → review next steps → open Workbench with tool 
 ## 5-minute flow
 1. Open **Atlas → Simulator**.
 2. Click **Scan a folder** and select your repo root. If the picker is unavailable, use the folder upload input.
-3. Confirm the detected tool and cwd (adjust in **Advanced** if needed). Retry if you hit a permission prompt.
-4. Start with **Next steps** and follow the top action.
-5. Open **Workbench** when you’re ready to build or export `agents.md` (scan context carries over).
+3. Confirm the detected tool and cwd (open **Advanced** only if you need to adjust). Retry if you hit a permission prompt.
+4. Start with **Next steps** and follow the top action (typically **Open Workbench**).
+5. Open **Workbench** to build or export `agents.md` (scan context carries over).
 
 ## What you’ll see
 - **Summary badges**: Loaded, Missing, Extra, Warnings.
