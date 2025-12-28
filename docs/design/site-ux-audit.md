@@ -15,6 +15,11 @@ Breakpoints: Desktop (>= 1280px), Tablet (>= 768px), Mobile (< 768px), Small Mob
 - Severity: P0 blocking, P1 high, P2 medium, P3 low
 - Type: Hierarchy, Spacing, Consistency, Accessibility, Motion, Content, Performance
 
+## Palette + Component Polish (2025)
+- References: `docs/design/palette-refresh.md`, `docs/design/component-polish-2025.md`
+- Goal: align component states (hover/active/focus/disabled) with refreshed palette tokens.
+- Emphasis: dark mode state contrast, consistent borders, and predictable elevation tiers.
+
 ## Global Shell (Nav + Footer)
 1) Banner + nav stack feels visually dense on desktop; minimal breathing room between banner, nav row, and page hero. (P2, Spacing)
    - Targets: `src/components/SiteNav.tsx`, `src/app/layout.tsx`
@@ -170,4 +175,3 @@ Breakpoints: Desktop (>= 1280px), Tablet (>= 768px), Mobile (< 768px), Small Mob
 - Consider consolidating shared spacing and layout utilities for cards and panels.
 - Evaluate a shared “hero” component for landing + detail pages.
 - Audit nav/pill/tab components for shared interaction patterns.
-
