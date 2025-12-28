@@ -64,6 +64,7 @@
 ### Mitigation (Watchpack)
 - Restart dev with polling: `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
 - Keep `/tmp/markdowntown-dev.log` open and confirm no `EMFILE` warnings.
+- If routes still 404, ensure Webpack is forced: `pnpm dev` or `pnpm dev:webpack` (runs `next dev --webpack`).
 
 ### Repro (Watchpack)
 1. Run `pnpm dev` without polling in a large repo.

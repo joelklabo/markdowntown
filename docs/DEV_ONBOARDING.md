@@ -37,6 +37,9 @@ If using Postgres, set `DATABASE_URL` to your Postgres URI then run the same com
 pnpm dev
 ```
 The site runs at http://localhost:3000.
+By default `pnpm dev` runs `next dev --webpack` to avoid Turbopack 404s.
+Use `pnpm dev:turbo` only when validating Turbopack-specific behavior, or `pnpm dev:webpack`
+to explicitly rerun Webpack with the same flag.
 
 ## Tests & quality
 ```bash
