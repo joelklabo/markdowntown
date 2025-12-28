@@ -64,7 +64,7 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
 
   function handleWorkbench(item: SampleItem) {
     track("browse_card_add_builder", { id: item.id, type: item.type });
-    window.location.href = `/workbench?add=${item.slug ?? item.id}`;
+    window.location.href = item.slug ? `/workbench?slug=${item.slug}` : `/workbench?id=${item.id}`;
   }
 
   function handleDragStart(item: SampleItem) {
