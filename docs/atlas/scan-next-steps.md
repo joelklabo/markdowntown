@@ -5,6 +5,7 @@ This spec defines how the Atlas Simulator results page should guide first-time u
 ## Goals
 - Make the next action unambiguous for first-time users.
 - Prioritize the highest-impact fix first (errors > warnings > info).
+- Make “Open Workbench” the default primary CTA once the scan is ready.
 - Keep privacy/local-only messaging clear and consistent.
 - Keep CTAs short and action-oriented.
 
@@ -39,13 +40,13 @@ Ordering rules:
 5. Ready state shows a single “All set” step (no errors/warnings).
 
 ## CTA hierarchy
-- Primary CTA: a single, high-impact action that fixes the top issue.
-- Secondary CTAs: learn more, copy summary, download report, open Workbench.
+- Primary CTA: a single, high-impact action that fixes the top issue (or “Open Workbench” when ready).
+- Secondary CTAs: learn more, copy summary, download report, adjust tool/cwd.
 - Avoid more than 2 CTAs in one step.
 
 CTA style guidance:
-- Primary: solid button (e.g., “Copy template”, “Scan a folder”, “Refresh results”).
-- Secondary: ghost/outline (e.g., “Open docs”, “Copy summary”).
+- Primary: solid button (e.g., “Open Workbench”, “Copy template”, “Scan a folder”, “Refresh results”).
+- Secondary: ghost/outline (e.g., “Open docs”, “Copy summary”, “Download report”).
 
 ## Layout guidance (wireframe)
 Desktop:
@@ -78,9 +79,9 @@ Mobile:
   - Secondary: "Copy summary"
 - Ready state
   - Title: "You're ready to go"
-  - Body: "These files should load for the selected tool. You can share the summary or continue."
-  - Primary: "Copy summary"
-  - Secondary: "Download report"
+  - Body: "These files should load for the selected tool. Open Workbench to build and export agents.md."
+  - Primary: "Open Workbench"
+  - Secondary: "Copy summary", "Download report"
 
 ## State definitions and copy
 
@@ -134,14 +135,14 @@ Mobile:
 ### 8) Ready state
 **When:** no errors/warnings.
 - Title: “You’re ready to go”
-- Body: “These files should load for the selected tool. Open Workbench to build and export.”
+- Body: “These files should load for the selected tool. Open Workbench to build and export agents.md.”
 - Primary CTA: “Open Workbench”
 - Secondary CTA: “Copy summary”, “Download report”
 
 ## Section helper text updates
 Use short, action-oriented copy beneath section headings:
-- Summary: “Quick snapshot of what loads and what’s missing.”
-- Loaded files: “These files will be read by the tool based on your cwd.”
+- Summary: “Quick snapshot—what loads and what’s missing.”
+- Loaded files: “These files will load for the selected tool based on your cwd.”
 - Warnings: “Non-blocking issues that can still affect results.”
 - Expected patterns: “Where this tool looks for instruction files.”
 - Missing files: “Patterns that were expected but not found.”

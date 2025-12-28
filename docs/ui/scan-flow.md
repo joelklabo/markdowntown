@@ -38,15 +38,16 @@ Scope: Atlas Simulator scan flow (first-time user to value).
    - Show missing patterns first with fix suggestions.
    - Order: Summary → Next steps → Instruction health → Files list.
 5. **Next steps**
-   - Primary action: "Open in Workbench"
+   - Primary action: "Open Workbench" once results are ready.
    - Secondary action: "Rescan with different tool" / "Adjust CWD"
-   - Tertiary: "Export report" or "Copy results"
+   - Tertiary: "Download report" or "Copy summary"
 
 ## Key UI elements and copy requirements
 - Local-only messaging above the CTA (no uploads, processed in browser).
 - "What we look for" list: AGENTS.md, .github/copilot-instructions.md, etc.
 - Missing patterns explained in plain language (why they matter).
 - Results summary uses user-facing labels (not internal names).
+- Ready state copy explicitly points to Workbench as the next step to export agents.md.
 
 ## Empty and error states
 - Empty folder: show "No instruction files found" + suggested fixes.
