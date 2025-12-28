@@ -59,15 +59,6 @@ export function AtlasIcon(props: NavIconProps) {
   );
 }
 
-export function SkillsIcon(props: NavIconProps) {
-  return (
-    <svg {...baseProps(props)}>
-      <path d="m12 3 1.8 4.2 4.2 1.8-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z" />
-      <path d="m4 14 1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
-    </svg>
-  );
-}
-
 export function SearchIcon(props: NavIconProps) {
   return (
     <svg {...baseProps(props)}>
