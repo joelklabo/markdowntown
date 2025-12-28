@@ -130,6 +130,24 @@ describe("redactAnalyticsPayload", () => {
     });
   });
 
+  it("redacts library action payloads without leaking content", () => {
+    const input = {
+      action: "open_workbench",
+      id: "artifact-1",
+      title: "My Template",
+      source: "library_card",
+      content: "secret",
+      paths: ["private/path"],
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual({
+      action: "open_workbench",
+      id: "artifact-1",
+      title: "My Template",
+      source: "library_card",
+    });
+  });
+
   it("returns undefined when given undefined", () => {
     expect(redactAnalyticsPayload(undefined)).toBeUndefined();
   });

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button, type ButtonProps } from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
+import { trackLibraryAction } from '@/lib/analytics';
 
 export type ForkButtonProps = {
   artifactId: string;
@@ -10,6 +11,11 @@ export type ForkButtonProps = {
   variant?: ButtonProps['variant'];
   size?: ButtonProps['size'];
   className?: string;
+  analytics?: {
+    source?: string;
+    title?: string;
+    slug?: string;
+  };
 };
 
 export function ForkButton({
@@ -18,6 +24,7 @@ export function ForkButton({
   variant = 'secondary',
   size = 'md',
   className,
+  analytics,
 }: ForkButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -40,6 +47,15 @@ export function ForkButton({
       if (!res.ok) throw new Error('Fork failed');
       
       const data = await res.json();
+      if (analytics) {
+        trackLibraryAction({
+          action: 'fork',
+          id: artifactId,
+          title: analytics.title,
+          slug: analytics.slug,
+          source: analytics.source,
+        });
+      }
       router.push(`/workbench?id=${data.id}`);
     } catch (error) {
       console.error(error);

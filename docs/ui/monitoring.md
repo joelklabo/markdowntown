@@ -23,12 +23,14 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 - `translate_start`: translate funnel entry (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`).
 - `translate_complete`: translate completion (`targetIds`, `targetCount`, `inputChars`, `fileCount`).
 - `translate_error`: translate failures (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`, `reason`).
+- `library_action`: library CTA clicks (`action`, `id`, `source`, `targetIds`).
 
 ## Critical action events (track)
 These are emitted by specific surfaces and should be reviewed by feature area:
 - Navigation: `nav_click`, `nav_search_submit`, `nav_search_suggestion_click`.
 - Atlas Simulator: `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_next_step_action`.
 - Workbench: `workbench_export_download`, `workbench_export_copy`, `workbench_save_artifact`.
+- Library: `library_action`.
 - Builder/Browse/Templates/Snippets: `builder_copy`, `browse_card_use_template`, `template_use_builder`, etc.
 
 ## Error monitoring

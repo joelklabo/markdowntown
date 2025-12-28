@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { FileTree } from "@/components/ui/FileTree";
 import { Text } from "@/components/ui/Text";
 import { Drawer, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/Drawer";
+import { trackLibraryAction } from "@/lib/analytics";
 
 type CompileResult = {
   files: Array<{ path: string; content: string }>;
@@ -125,7 +126,19 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" asChild>
-              <Link href={`/workbench?id=${artifactId}`}>Open in Workbench</Link>
+              <Link
+                href={`/workbench?id=${artifactId}`}
+                onClick={() =>
+                  trackLibraryAction({
+                    action: "open_workbench",
+                    id: artifactId,
+                    title,
+                    source: "library_preview",
+                  })
+                }
+              >
+                Open in Workbench
+              </Link>
             </Button>
             <DrawerCloseButton />
           </div>

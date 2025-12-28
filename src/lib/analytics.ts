@@ -194,3 +194,14 @@ export function trackTranslateError(
 ) {
   trackError("translate_error", error, properties);
 }
+
+export function trackLibraryAction(properties: {
+  action: "open_workbench" | "copy" | "download" | "fork";
+  id: string;
+  slug?: string;
+  title?: string;
+  source?: string;
+  targetIds?: string[];
+}) {
+  trackUiEvent("library_action", properties);
+}
