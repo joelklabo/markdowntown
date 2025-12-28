@@ -43,10 +43,28 @@ Ordering rules:
 - Primary CTA: a single, high-impact action that fixes the top issue (or “Open Workbench” when ready).
 - Secondary CTAs: learn more, copy summary, download report, adjust tool/cwd.
 - Avoid more than 2 CTAs in one step.
+- Error states hide or disable “Open Workbench” until blocking issues are resolved.
+- Warning states may include “Open Workbench anyway” as a secondary CTA when the scan is usable but incomplete.
 
 CTA style guidance:
 - Primary: solid button (e.g., “Open Workbench”, “Copy template”, “Scan a folder”, “Refresh results”).
 - Secondary: ghost/outline (e.g., “Open docs”, “Copy summary”, “Download report”).
+
+## State matrix (summary)
+
+| State | Severity | Primary CTA | Can enter Workbench? |
+| --- | --- | --- | --- |
+| No scan yet | info | Scan a folder | No |
+| Stale results | warning | Refresh results | No (until refreshed) |
+| Permission denied | error | Allow access | No |
+| Missing root instructions | error | Copy template | No |
+| Empty scan | error | Add root file | No |
+| Missing cwd | warning | Set cwd | Yes (secondary) |
+| Override without base | warning | Copy base template | Yes (secondary) |
+| Mixed tools detected | warning | Switch tool | Yes (secondary) |
+| Large tree warning | warning | Scan a smaller folder | Yes (secondary) |
+| Ready state | ready | Open Workbench | Yes |
+
 
 ## Layout guidance (wireframe)
 Desktop:
@@ -99,40 +117,53 @@ Mobile:
 - Primary CTA: “Refresh results”
 - Secondary CTA: “Copy summary” (optional)
 
-### 3) Missing root instructions (error)
+### 3) Permission denied (error)
+**When:** folder picker returns an access error or permission is denied.
+- Title: “Allow folder access”
+- Body: “We can’t scan without read access. Allow access to continue.”
+- Primary CTA: “Allow access” (re-open picker)
+
+### 4) Missing root instructions (error)
 **When:** diagnostics include missing root file (e.g., `missing.agents`, `missing.claude`).
 - Title: “Add the root instruction file”
 - Body: “This tool won’t load any instructions without a root file.”
 - Primary CTA: “Copy template”
 - Secondary CTA: “Open docs”
 
-### 4) Missing cwd (warning)
+### 5) Empty scan (error)
+**When:** scan completed but no instruction files found.
+- Title: “No instruction files found”
+- Body: “Add a root instruction file so the tool can load instructions.”
+- Primary CTA: “Copy template”
+- Secondary CTA: “Open docs”
+
+### 6) Missing cwd (warning)
 **When:** diagnostics include `missing-cwd`.
 - Title: “Set the current directory (cwd)”
 - Body: “Ancestor scans depend on where the tool runs. Set cwd so we load the right instructions.”
 - Primary CTA: “Set cwd” (focus the input)
 
-### 5) Override without base (warning)
+### 7) Override without base (warning)
 **When:** diagnostics include `override-without-base`.
 - Title: “Add a base file for overrides”
 - Body: “Overrides replace a base file in the same folder. Add the base file so the override is valid.”
 - Primary CTA: “Copy base template”
 
-### 6) Mixed-tool instructions (warning)
+### 8) Mixed-tool instructions (warning)
 **When:** diagnostics include `mixed-tools`.
 - Title: “Multiple tool formats detected”
 - Body: “You may be scanning the wrong tool or have extra files for other CLIs.”
 - Primary CTA: “Switch tool” (open tool selector)
 - Secondary CTA: “Review extra files” (scroll to extra list)
 
-### 7) Large tree warning
+### 9) Large tree warning
 **When:** warning `scan-risk.large-tree`.
 - Title: “Limit the scan scope”
-- Body: “Large repos can bloat context. Consider scanning a narrower folder.”
+- Body: “Large repos can bloat context. Consider scanning a narrower folder or proceed with partial results.”
 - Primary CTA: “Scan a smaller folder”
 - Secondary CTA: “Paste repo paths”
 
-### 8) Ready state
+### 10) Ready state
 **When:** no errors/warnings.
 - Title: “You’re ready to go”
 - Body: “These files should load for the selected tool. Open Workbench to build and export agents.md.”
@@ -152,6 +183,7 @@ Use short, action-oriented copy beneath section headings:
 ## Privacy messaging (results area)
 Always include (or link to) a short reminder:
 - “Scans run locally in your browser. File contents are never uploaded.”
+- Place the reminder above the fold (near the summary or Next steps header).
 
 ## Examples by tool (abbreviated)
 - Codex CLI: root `AGENTS.md` missing -> “Copy AGENTS.md template.”
