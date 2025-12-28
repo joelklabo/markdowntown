@@ -27,6 +27,7 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 2. **Scan a folder**
    - Primary CTA: "Scan a folder" (Directory Picker).
    - Secondary: "Upload folder" when picker is unavailable.
+   - Disable the CTA while the picker is open to prevent duplicate picker errors.
    - Advanced controls (tool selector + cwd input) collapsed by default.
 3. **Auto-detect tool + cwd**
    - After scan completes, detect likely tool based on instruction files.

@@ -356,6 +356,7 @@ export function ContextSimulator() {
   const [scanNotice, setScanNotice] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<RepoScanMeta | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isPickingDirectory, setIsPickingDirectory] = useState(false);
   const [result, setResult] = useState<SimulationResult>(() =>
     simulateContextResolution({ tool: "github-copilot", cwd: "", tree: EMPTY_REPO_TREE }),
   );
@@ -404,6 +405,7 @@ export function ContextSimulator() {
   const isStale = currentSignature !== lastSimulatedSignature;
   const advancedOpen = showAdvanced || repoSource === "manual";
   const maxContentKb = Math.round(DEFAULT_MAX_CONTENT_BYTES / 1024);
+  const scanButtonLabel = isScanning ? "Scanning…" : isPickingDirectory ? "Picking folder…" : "Scan a folder";
 
   const scannedPreview = useMemo(() => {
     const paths = (scannedTree?.files ?? []).map((file) => file.displayPath ?? file.path);
@@ -807,11 +809,18 @@ export function ContextSimulator() {
   };
 
   const handleDirectoryPickerScan = async () => {
+    if (isPickingDirectory) {
+      setScanNotice("Folder picker is already open. Finish or cancel to continue.");
+      return;
+    }
     const picker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
     if (!picker) {
       setScanError("File System Access API not available");
       return;
     }
+    setScanError(null);
+    setScanNotice(null);
+    setIsPickingDirectory(true);
     try {
       const handle = await picker();
       const rootName = (handle as { name?: string }).name;
@@ -836,8 +845,14 @@ export function ContextSimulator() {
         setScanNotice("Scan canceled. Scan a folder to continue.");
         return;
       }
+      if (err instanceof DOMException && (err.name === "InvalidStateError" || err.message.includes("picker already"))) {
+        setScanNotice("Folder picker is already open. Finish or cancel to continue.");
+        return;
+      }
       trackScanError(err, { method: "directory_picker", tool, cwd: scanCwd });
       setScanError(formatScanErrorMessage(err));
+    } finally {
+      setIsPickingDirectory(false);
     }
   };
 
@@ -1148,7 +1163,7 @@ export function ContextSimulator() {
                   <Button
                     type="button"
                     className="w-full sm:w-auto"
-                    disabled={isScanning}
+                    disabled={isScanning || isPickingDirectory}
                     onClick={() => {
                       if (canPickDirectory) {
                         void handleDirectoryPickerScan();
@@ -1157,7 +1172,7 @@ export function ContextSimulator() {
                       }
                     }}
                   >
-                    {isScanning ? "Scanning…" : "Scan a folder"}
+                    {scanButtonLabel}
                   </Button>
                   <Button
                     type="button"
@@ -1369,12 +1384,12 @@ export function ContextSimulator() {
                     <Button
                       type="button"
                       className="w-full sm:w-auto"
-                      disabled={isScanning}
+                      disabled={isScanning || isPickingDirectory}
                       onClick={() => {
                         void handleDirectoryPickerScan();
                       }}
                     >
-                      {isScanning ? "Scanning…" : "Scan a folder"}
+                      {scanButtonLabel}
                     </Button>
                   ) : (
                     <Input

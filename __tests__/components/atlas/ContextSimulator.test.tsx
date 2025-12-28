@@ -201,6 +201,36 @@ describe("ContextSimulator", () => {
     restorePicker(originalPicker);
   });
 
+  it("guards against duplicate directory picker opens", async () => {
+    let resolvePicker: ((value: MockHandle) => void) | undefined;
+    const pickerPromise = new Promise<MockHandle>((resolve) => {
+      resolvePicker = resolve;
+    });
+    const rootHandle = dir("repo", [file("AGENTS.md")]);
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+    const picker = vi.fn().mockReturnValue(pickerPromise);
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: picker,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    const button = screen.getAllByRole("button", { name: "Scan a folder" })[0];
+    await userEvent.click(button);
+    expect(button).toBeDisabled();
+
+    await userEvent.click(button);
+    expect(picker).toHaveBeenCalledTimes(1);
+
+    resolvePicker?.(rootHandle);
+
+    expect(await screen.findByText(/1 instruction file found.*1 total file scanned/i)).toBeInTheDocument();
+
+    restorePicker(originalPicker);
+  });
+
   it("auto-detects tool and cwd after quick upload scan", async () => {
     featureFlags.scanQuickUploadV1 = true;
     const rootHandle = dir("repo", [file("AGENTS.md"), dir("apps", [dir("web", [file("AGENTS.md")])])]);
