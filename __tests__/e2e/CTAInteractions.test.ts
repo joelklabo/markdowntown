@@ -1,5 +1,5 @@
 import { chromium, Browser } from "playwright";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
@@ -33,9 +33,11 @@ describe("CTA interactions", () => {
         await page.waitForURL(/\/library/);
         await page.getByRole("heading", { name: /library/i }).waitFor({ state: "visible" });
 
-        // Legacy /templates should redirect into Library filters.
-        await page.locator("header").getByRole("link", { name: /use a template/i }).first().click();
-        await page.waitForURL(/\/library\?type=template/);
+        // Header CTA should route to the scan-first flow.
+        const scanCta = page.locator("header").getByRole("link", { name: /scan a folder/i }).first();
+        await scanCta.waitFor({ state: "visible" });
+        const scanHref = await scanCta.getAttribute("href");
+        expect(scanHref).toBe("/atlas/simulator");
 
         // Library CTAs: copy link + open workbench (if any rows exist).
         const rows = page.getByTestId("artifact-row");

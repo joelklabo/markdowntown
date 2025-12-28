@@ -25,7 +25,7 @@ describe("Navigation and browse layout integrity", () => {
 
       // Header buttons should not wrap
       const header = page.locator("header");
-      const cta = header.getByRole("link", { name: /Use a template/i });
+      const cta = header.getByRole("link", { name: /Scan a folder/i });
       const signIn = header.getByRole("link", { name: /Sign in/i });
       await Promise.all([cta.waitFor(), signIn.waitFor()]);
       const ctaBox = await cta.boundingBox();

@@ -30,12 +30,16 @@ describe("Site responsive smoke", () => {
 
       const browseLink = page.getByRole("link", { name: /browse (the )?library/i });
       const browseButton = page.getByRole("button", { name: /browse library/i });
+      const headerLibrary = page.locator("header").getByRole("link", { name: /^library$/i });
       if ((await browseLink.count()) > 0) {
         await browseLink.first().waitFor({ state: "visible" });
         await browseLink.first().click();
-      } else {
+      } else if ((await browseButton.count()) > 0) {
         await browseButton.first().waitFor({ state: "visible" });
         await browseButton.first().click();
+      } else {
+        await headerLibrary.first().waitFor({ state: "visible" });
+        await headerLibrary.first().click();
       }
       await page.waitForURL(/\/library/);
 
@@ -67,12 +71,18 @@ describe("Site responsive smoke", () => {
 
       const browseLink = page.getByRole("link", { name: /browse (the )?library/i });
       const browseButton = page.getByRole("button", { name: /browse library/i });
+      const bottomNav = page.getByRole("navigation", { name: /primary/i }).last();
+      const bottomLibrary = bottomNav.getByRole("link", { name: /^library$/i });
       if ((await browseLink.count()) > 0) {
         await browseLink.first().waitFor({ state: "visible" });
         await browseLink.first().click();
-      } else {
+      } else if ((await browseButton.count()) > 0) {
         await browseButton.first().waitFor({ state: "visible" });
         await browseButton.first().click();
+      } else {
+        await bottomNav.waitFor({ state: "visible" });
+        await bottomLibrary.first().waitFor({ state: "visible" });
+        await bottomLibrary.first().click();
       }
       await page.waitForURL(/\/library/);
 
@@ -82,7 +92,6 @@ describe("Site responsive smoke", () => {
       const innerWidth = await page.evaluate(() => window.innerWidth);
       expect(scrollWidth).toBeLessThanOrEqual(innerWidth + 32);
 
-      const bottomNav = page.getByRole("navigation", { name: /primary/i });
       await bottomNav.waitFor({ state: "visible" });
 
       const openSearch = bottomNav.getByRole("button", { name: /open search/i });
@@ -99,8 +108,11 @@ describe("Site responsive smoke", () => {
       await page.waitForFunction(() => window.location.search.includes("q=agents"));
       expect(page.url()).toMatch(/library\?q=agents/);
 
-      await bottomNav.getByRole("link", { name: /^scan$/i }).click();
-      await page.waitForURL(/\/atlas/);
+      const scanLink = bottomNav.getByRole("link", { name: /^scan$/i });
+      await scanLink.waitFor({ state: "visible" });
+      const scanHref = await scanLink.getAttribute("href");
+      expect(scanHref).toBe("/atlas/simulator");
+      await page.goto(scanHref ?? "/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /^scan a folder$/i }).waitFor({ state: "visible" });
     });
   });
