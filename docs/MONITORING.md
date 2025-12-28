@@ -28,6 +28,7 @@ Primary flow KPIs and suggested targets:
 - **Auto-detect adoption:** `atlas_simulator_simulate(repoSource=folder, trigger=scan) / atlas_simulator_scan_complete` → target 90%+
 - **Override rate:** `atlas_simulator_simulate(repoSource=folder, trigger=manual) / atlas_simulator_scan_complete` → target < 25%
 - **Workbench entry rate:** `ui_route_view(route=/workbench) / atlas_simulator_scan_complete` → target 40%+
+- **Open Workbench CTA rate:** `ui_scan_next_step_click(actionId=open-workbench) / atlas_simulator_scan_complete` → target 30%+
 - **Export rate:** `workbench_export_download or workbench_export_copy / ui_route_view(route=/workbench)` → target 25%+
 - **Median time to export:** time from `atlas_simulator_scan_start` to export → target < 5 minutes
 - **Scan error rate:** `atlas_simulator_scan_error / atlas_simulator_scan_start` → target < 5%
@@ -36,6 +37,7 @@ Suggested alert thresholds (PostHog or similar):
 - **Scan completion drop:** `< 50%` over 24h (baseline regression).
 - **Scan error spike:** `> 10%` over 1h (possible upload/permissions issue).
 - **Workbench entry drop:** `< 20%` over 24h (handoff broken).
+- **Open Workbench CTA drop:** `< 15%` over 24h (CTA not visible or broken).
 - **Export rate drop:** `< 15%` over 24h (export surface broken).
 - **Time-to-export spike:** median `> 10 minutes` over 24h (performance regression).
 

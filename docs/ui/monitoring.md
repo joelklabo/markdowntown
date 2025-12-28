@@ -53,6 +53,12 @@ Events emitted by `PerfVitals`:
 - Filter errors by route to identify failing surface.
 - Check `perf_budget_violation` events for LCP/CLS regressions.
 
+## Scan funnel targets
+- Scan completion rate (`atlas_simulator_scan_complete / atlas_simulator_scan_start`): target 70%+.
+- Open Workbench CTA rate (`ui_scan_next_step_click` where `actionId=open-workbench`): target 30%+.
+- Workbench entry rate (`ui_route_view` with `/workbench`): target 40%+.
+- Export rate (`workbench_export_download` or `workbench_export_copy`): target 25%+.
+
 ## Escalation guidance
 - P0: sustained `perf_budget_violation` spikes on `/` or `/atlas/simulator`.
 - P1: repeated `atlas_simulator_scan_error` or `workbench_export_*` failures.
