@@ -1,0 +1,32 @@
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { TranslateOutput, type TranslateCompileResult } from '@/components/translate/TranslateOutput';
+import { createUamTargetV1 } from '@/lib/uam/uamTypes';
+
+describe('TranslateOutput', () => {
+  it('renders compiled file list and enables download', () => {
+    const result: TranslateCompileResult = {
+      files: [{ path: 'AGENTS.md', content: '# Hello' }],
+      warnings: [],
+      info: [],
+    };
+
+    render(
+      <TranslateOutput
+        targets={[createUamTargetV1('agents-md')]}
+        onToggleTarget={vi.fn()}
+        onUpdateTarget={vi.fn()}
+        onCompile={vi.fn()}
+        onDownloadZip={vi.fn()}
+        loading={false}
+        error={null}
+        detectedLabel="Markdown"
+        disabledCompile={false}
+        result={result}
+      />
+    );
+
+    expect(screen.getAllByText('AGENTS.md').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /download zip/i })).toBeEnabled();
+  });
+});
