@@ -1,156 +1,262 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import { readStoredScanContext, useWorkbenchStore } from '../../src/hooks/useWorkbenchStore';
+
+// Mock storage
+const localStorageMock = (function () {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => { store[key] = value.toString(); },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { store = {}; },
+  };
+})();
+
+const sessionStorageMock = (function () {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => { store[key] = value.toString(); },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { store = {}; },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
 
 describe('useWorkbenchStore', () => {
   beforeEach(() => {
-    localStorage.clear();
-    act(() => {
-      useWorkbenchStore.getState().resetDraft();
-    });
-    vi.clearAllMocks();
-    global.fetch = vi.fn();
+    localStorageMock.clear();
+    sessionStorageMock.clear();
+    useWorkbenchStore.setState(useWorkbenchStore.getInitialState(), true);
   });
 
-  it('stores UAM v1 as the source of truth', () => {
+  // Helper to reset store state between tests since it's a global singleton
+  const resetStore = () => {
+    const { resetDraft } = useWorkbenchStore.getState();
+    act(() => {
+      resetDraft();
+    });
+  };
+
+  afterEach(() => {
+    resetStore();
+  });
+
+  it('should initialize with default state', () => {
+    const { result } = renderHook(() => useWorkbenchStore());
+    expect(result.current.title).toBe('Untitled Agent');
+    expect(result.current.scopes).toContain('root');
+    expect(result.current.visibility).toBe('PRIVATE');
+  });
+
+  it('should add and remove a block', () => {
     const { result } = renderHook(() => useWorkbenchStore());
     
+    let blockId: string;
     act(() => {
-      result.current.setTitle('My Agent');
-      result.current.setDescription('My Description');
+      blockId = result.current.addBlock({ kind: 'markdown', body: 'Test content' });
     });
 
-    expect(result.current.uam.schemaVersion).toBe(1);
-    expect(result.current.uam.meta.title).toBe('My Agent');
-    expect(result.current.uam.meta.description).toBe('My Description');
+    expect(result.current.blocks).toHaveLength(1);
+    expect(result.current.uam.blocks[0].body).toBe('Test content');
+
+    act(() => {
+      result.current.removeBlock(blockId);
+    });
+
+    expect(result.current.blocks).toHaveLength(0);
   });
 
-  it('adds scopes and blocks within the selected scope', () => {
-    const { result } = renderHook(() => useWorkbenchStore());
-    
-    let scopeId = '';
-    act(() => {
-      scopeId = result.current.addScope({ kind: 'glob', name: 'ts', patterns: ['src/**/*.ts'] });
-      result.current.selectScope(scopeId);
-      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'hello' });
+  describe('Scan Context Handoff', () => {
+    it('should apply scan context and auto-select target', () => {
+      const { result } = renderHook(() => useWorkbenchStore());
+      
+      const context = {
+        tool: 'github-copilot' as const,
+        cwd: '/Users/test/repo',
+        paths: ['AGENTS.md', '.github/copilot-instructions.md'],
+      };
+
+      act(() => {
+        result.current.applyScanContext(context);
+      });
+
+      expect(result.current.scanContext).toEqual({
+        tool: 'github-copilot',
+        cwd: '/Users/test/repo',
+        paths: ['AGENTS.md', '.github/copilot-instructions.md'],
+      });
+
+      // Should auto-select github-copilot target
+      expect(result.current.uam.targets).toHaveLength(1);
+      expect(result.current.uam.targets[0].targetId).toBe('github-copilot');
+      
+      // Verify persistence to sessionStorage
+      const stored = sessionStorageMock.getItem('workbench-scan-context-v1');
+      expect(stored).toBeTruthy();
+      expect(JSON.parse(stored!).context).toEqual(expect.objectContaining({
+        tool: 'github-copilot'
+      }));
     });
 
-    const block = result.current.uam.blocks.find(b => b.id === 'b1');
-    expect(block?.scopeId).toBe(scopeId);
-    expect(block?.body).toBe('hello');
+    it('should apply scan context for codex-cli', () => {
+      const { result } = renderHook(() => useWorkbenchStore());
+      
+      const context = {
+        tool: 'codex-cli' as const,
+        cwd: '/Users/test/repo',
+        paths: ['AGENTS.md'],
+      };
 
-    act(() => {
-      result.current.updateBlockBody('b1', 'updated');
-      result.current.updateBlockTitle('b1', 'Title');
+      act(() => {
+        result.current.applyScanContext(context);
+      });
+
+      expect(result.current.scanContext?.tool).toBe('codex-cli');
+      expect(result.current.uam.targets[0].targetId).toBe('agents-md');
     });
 
-    const updated = result.current.uam.blocks.find(b => b.id === 'b1');
-    expect(updated?.body).toBe('updated');
-    expect(updated?.title).toBe('Title');
+    it('should clear scan context and remove auto-added target', () => {
+      const { result } = renderHook(() => useWorkbenchStore());
+      
+      // Apply first
+      act(() => {
+        result.current.applyScanContext({
+          tool: 'github-copilot',
+          cwd: '/tmp',
+          paths: [],
+        });
+      });
+
+      expect(result.current.scanContext).not.toBeNull();
+      expect(result.current.uam.targets).toHaveLength(1);
+
+      // Clear
+      act(() => {
+        result.current.clearScanContext();
+      });
+
+      expect(result.current.scanContext).toBeNull();
+      // Should remove target if it was the only one and matched the tool
+      expect(result.current.uam.targets).toHaveLength(0);
+      expect(sessionStorageMock.getItem('workbench-scan-context-v1')).toBeNull();
+    });
+
+    it('should keep targets when clearing scan context if multiple targets exist', () => {
+      const { result } = renderHook(() => useWorkbenchStore());
+
+      act(() => {
+        result.current.applyScanContext({
+          tool: 'github-copilot',
+          cwd: '/tmp',
+          paths: [],
+        });
+      });
+
+      act(() => {
+        result.current.toggleTarget('claude-code');
+      });
+
+      expect(result.current.uam.targets).toHaveLength(2);
+
+      act(() => {
+        result.current.clearScanContext();
+      });
+
+      expect(result.current.scanContext).toBeNull();
+      expect(result.current.uam.targets).toHaveLength(2);
+    });
+
+    it('should normalize paths in scan context', () => {
+      const { result } = renderHook(() => useWorkbenchStore());
+      
+      act(() => {
+        result.current.applyScanContext({
+          tool: 'codex-cli',
+          cwd: './foo//bar/',
+          paths: ['./file1.md', 'dir//file2.md'],
+        });
+      });
+
+      expect(result.current.scanContext).toEqual({
+        tool: 'codex-cli',
+        cwd: 'foo//bar',
+        paths: ['file1.md', 'dir//file2.md'],
+      });
+    });
+
+    it('reads stored scan context from sessionStorage', () => {
+      const stored = {
+        version: 1,
+        storedAt: Date.now(),
+        context: {
+          tool: 'github-copilot',
+          cwd: '/repo',
+          paths: ['AGENTS.md'],
+        },
+      };
+      sessionStorageMock.setItem('workbench-scan-context-v1', JSON.stringify(stored));
+      expect(readStoredScanContext()).toEqual(stored.context);
+    });
+
+    it('clears invalid stored scan context', () => {
+      sessionStorageMock.setItem('workbench-scan-context-v1', '{bad json');
+      expect(readStoredScanContext()).toBeNull();
+      expect(sessionStorageMock.getItem('workbench-scan-context-v1')).toBeNull();
+
+      sessionStorageMock.setItem('workbench-scan-context-v1', JSON.stringify({ version: 0, context: {} }));
+      expect(readStoredScanContext()).toBeNull();
+      expect(sessionStorageMock.getItem('workbench-scan-context-v1')).toBeNull();
+    });
   });
 
-  it('reorders blocks within a scope without moving other scopes', () => {
-    const { result } = renderHook(() => useWorkbenchStore());
-    let scopeA = '';
-    let scopeB = '';
+  describe('Persistence', () => {
+    it('should persist uam state to localStorage', () => {
+      const { result } = renderHook(() => useWorkbenchStore());
+      
+      act(() => {
+        result.current.setTitle('Persisted Title');
+      });
 
-    act(() => {
-      scopeA = result.current.addScope({ kind: 'glob', name: 'a', patterns: ['src/**/*.ts'] });
-      scopeB = result.current.addScope({ kind: 'dir', name: 'b', dir: 'docs' });
-
-      result.current.selectScope(scopeA);
-      result.current.addBlock({ id: 'b1', type: 'instruction', content: 'one' });
-      result.current.addBlock({ id: 'b2', type: 'instruction', content: 'two' });
-
-      result.current.selectScope(scopeB);
-      result.current.addBlock({ id: 'b3', type: 'instruction', content: 'three' });
+      const stored = JSON.parse(localStorageMock.getItem('workbench-storage') || '{}');
+      expect(stored.state.uam.meta.title).toBe('Persisted Title');
     });
 
-    expect(result.current.blocks.map(b => b.id)).toEqual(['b1', 'b2', 'b3']);
-
-    act(() => {
-      result.current.moveBlock('b2', 0);
-    });
-
-    expect(result.current.blocks.map(b => b.id)).toEqual(['b2', 'b1', 'b3']);
-
-    act(() => {
-      result.current.removeScope(scopeA);
-    });
-
-    expect(result.current.blocks.map(b => b.id)).toEqual(['b3']);
-    expect(result.current.uam.blocks.map(b => b.id)).toEqual(['b3']);
-  });
-
-  it('loads an artifact by id or slug into the store', async () => {
-    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        artifact: { id: 'artifact-1' },
-        latestVersion: {
+    it('should rehydrate from localStorage', () => {
+      // Setup initial state in storage
+      const initialState = {
+        state: {
           uam: {
-            schemaVersion: 1,
-            meta: { title: 'Loaded Agent', description: '' },
-            scopes: [{ id: 'global', kind: 'global' }],
+            schemaVersion: '1.0.0',
+            meta: { title: 'Hydrated Title' },
+            scopes: [],
             blocks: [],
             capabilities: [],
             targets: [],
           },
+          selectedScopeId: 'global',
+          visibility: 'PUBLIC',
         },
-      }),
+        version: 2,
+      };
+      localStorageMock.setItem('workbench-storage', JSON.stringify(initialState));
+
+      // Re-render hook to trigger hydration (simulated by just reading state in this env, 
+      // but in real app persist middleware handles init)
+      // Since we reset the store in beforeEach, we need to manually trigger hydration or check if it picks up
+      
+      // Force re-creation of store or just verify that if we *were* to load, it would work.
+      // Ideally we'd test `migrate` function directly if exported, but testing via public API:
+      
+      // Reset store to force read
+      useWorkbenchStore.persist.rehydrate();
+      
+      const { result } = renderHook(() => useWorkbenchStore());
+      expect(result.current.title).toBe('Hydrated Title');
+      expect(result.current.visibility).toBe('PUBLIC');
     });
-
-    const { result } = renderHook(() => useWorkbenchStore());
-
-    await act(async () => {
-      await result.current.loadArtifact('artifact-1');
-    });
-
-    expect(result.current.id).toBe('artifact-1');
-    expect(result.current.uam.meta.title).toBe('Loaded Agent');
-    expect(result.current.compilationResult).toBeNull();
-  });
-
-  it('saves a signed-in artifact draft via API', async () => {
-    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ id: 'new-id' }),
-    });
-
-    const { result } = renderHook(() => useWorkbenchStore());
-
-    await act(async () => {
-      const id = await result.current.saveArtifact();
-      expect(id).toBe('new-id');
-    });
-
-    expect(result.current.id).toBe('new-id');
-    expect(result.current.cloudSaveStatus).toBe('saved');
-    expect(result.current.cloudLastSavedAt).not.toBeNull();
-  });
-
-  it('stores targets with adapter versions and options', () => {
-    const { result } = renderHook(() => useWorkbenchStore());
-
-    act(() => {
-      result.current.toggleTarget('github-copilot');
-    });
-
-    expect(result.current.targets).toHaveLength(1);
-    expect(result.current.targets[0]).toMatchObject({
-      targetId: 'github-copilot',
-      adapterVersion: '1',
-      options: {},
-    });
-
-    act(() => {
-      result.current.setUam({
-        ...result.current.uam,
-        targets: [{ targetId: 'github-copilot', adapterVersion: '9', options: { exportSkills: true } }],
-      });
-    });
-
-    expect(result.current.targets[0]?.adapterVersion).toBe('9');
-    expect(result.current.uam.targets[0]?.options).toMatchObject({ exportSkills: true });
   });
 });

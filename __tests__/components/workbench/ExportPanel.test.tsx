@@ -71,6 +71,7 @@ describe('ExportPanel', () => {
     expect(trackMock).toHaveBeenCalledWith('workbench_export_download', {
       targetIds: ['agents-md'],
       fileCount: 1,
+      entrySource: 'direct',
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
@@ -79,6 +80,7 @@ describe('ExportPanel', () => {
       expect(trackMock).toHaveBeenCalledWith('workbench_export_copy', {
         path: 'AGENTS.md',
         targetId: 'agents-md',
+        entrySource: 'direct',
       });
     });
   });

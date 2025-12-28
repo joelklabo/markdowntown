@@ -39,6 +39,40 @@ describe('WorkbenchOnboardingCard', () => {
     expect(screen.getByText(/local-only scan/i)).toBeInTheDocument();
   });
 
+  it('renders correct back link and steps per entry source', () => {
+    const cases = [
+      { entrySource: 'library' as const, label: /library item loaded/i, href: '/library', link: /back to library/i },
+      { entrySource: 'translate' as const, label: /translation ready/i, href: '/translate', link: /back to translate/i },
+      { entrySource: 'scan' as const, label: /scan defaults applied/i, href: '/atlas/simulator', link: /back to scan/i },
+      { entrySource: 'direct' as const, label: /no scan context yet/i, href: '/atlas/simulator', link: /scan a folder/i },
+    ];
+
+    cases.forEach(({ entrySource, label, href, link }) => {
+      const { unmount } = render(<WorkbenchOnboardingCard entrySource={entrySource} />);
+      expect(screen.getByText(label)).toBeInTheDocument();
+      const backLink = screen.getByRole('link', { name: link });
+      expect(backLink).toHaveAttribute('href', href);
+      expect(screen.getAllByRole('listitem')).toHaveLength(3);
+      unmount();
+    });
+  });
+
+  it('renders scan summary metadata when provided', () => {
+    render(
+      <WorkbenchOnboardingCard
+        entrySource="scan"
+        scanSummary={{
+          toolLabel: 'GitHub Copilot',
+          cwdLabel: '(repo root)',
+          fileCount: 12,
+          previewLabel: 'AGENTS.md',
+        }}
+      />
+    );
+
+    expect(screen.getByText(/GitHub Copilot · cwd \(repo root\)/i)).toBeInTheDocument();
+  });
+
   it('adds a block and selects it', () => {
     render(<WorkbenchOnboardingCard entrySource="direct" />);
 
