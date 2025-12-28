@@ -76,6 +76,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
     };
     setLoading(true);
     setError(null);
+    setResult(null);
     trackTranslateStart(analyticsContext);
     try {
       if (isTooLarge) {
@@ -164,9 +165,9 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
       <Stack gap={8}>
         <Stack gap={3} className="max-w-2xl">
           <Text size="caption" tone="muted">Translate</Text>
-          <Heading level="display" leading="tight">Translate markdown into agent-ready formats</Heading>
+          <Heading level="display" leading="tight">Translate instructions into Workbench-ready files</Heading>
           <Text tone="muted" leading="relaxed">
-            Paste Markdown or UAM JSON, choose your targets, and compile into ready-to-ship instruction files.
+            Paste your instructions, choose targets, compile, and open Workbench to refine and export.
           </Text>
         </Stack>
 
@@ -176,7 +177,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
           </Text>
           <Text size="bodySm" tone="muted">1. Select targets</Text>
           <Text size="bodySm" tone="muted">2. Paste input</Text>
-          <Text size="bodySm" tone="muted">3. Compile + download</Text>
+          <Text size="bodySm" tone="muted">3. Compile + open Workbench</Text>
         </div>
 
         <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr),minmax(0,1fr)] lg:items-start">

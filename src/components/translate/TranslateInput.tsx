@@ -46,7 +46,7 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
             Step 2 · Input
           </Text>
           <Text size="bodySm" tone="muted">
-            Paste Markdown or UAM v1 JSON. You can also drop a file into this panel.
+            Paste your instructions or drop a file. We detect Markdown vs UAM JSON automatically.
           </Text>
         </div>
         <div className="flex items-center gap-mdt-2">
@@ -103,7 +103,7 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
             </Text>
           )}
           <Text size="caption" tone="muted">
-            Tip: drag and drop a single file anywhere in this panel.
+            Tip: drop a single file here to replace the input.
           </Text>
         </div>
       </div>

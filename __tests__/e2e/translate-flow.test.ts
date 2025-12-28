@@ -29,6 +29,7 @@ describe("Translate flow", () => {
         page.setDefaultNavigationTimeout(120000);
 
         await page.goto("/translate", { waitUntil: "domcontentloaded" });
+        await page.waitForTimeout(1000);
 
         await page.getByRole("checkbox", { name: /agents\.md/i }).check();
         await page.getByRole("checkbox", { name: /github copilot/i }).check();
@@ -37,11 +38,12 @@ describe("Translate flow", () => {
         await input.waitFor({ state: "visible" });
         await input.fill("# Translate flow\n\nExample body.");
 
-        const compile = page.getByRole("button", { name: /^compile$/i });
+        const compile = page.getByRole("button", { name: /compile files/i });
         await compile.click();
 
         await page.locator(".font-mono", { hasText: "AGENTS.md" }).waitFor({ state: "visible" });
         await page.locator(".font-mono", { hasText: ".github/copilot-instructions.md" }).waitFor({ state: "visible" });
+        await page.getByRole("link", { name: /open workbench/i }).waitFor({ state: "visible" });
 
         const [download] = await Promise.all([
           page.waitForEvent("download"),

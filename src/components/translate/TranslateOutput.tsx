@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -51,6 +52,11 @@ export function TranslateOutput({
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [optionsErrors, setOptionsErrors] = useState<Record<string, string>>({});
+  const hasResult = Boolean(result);
+  const hasFiles = (result?.files.length ?? 0) > 0;
+  const compileDisabled = disabledCompile || loading || targets.length === 0;
+  const readyForWorkbench = hasResult && hasFiles && !error;
+  const showResult = !error ? result : null;
 
   const byId = new Map(targets.map((t) => [t.targetId, t] as const));
 
@@ -66,7 +72,7 @@ export function TranslateOutput({
             <Text size="caption" tone="muted">Step 1 · Targets</Text>
             <Heading level="h3" as="h2">Select targets</Heading>
             <Text size="bodySm" tone="muted">
-              Choose targets, compile your files, and download the results below.
+              Choose targets to generate files, then open Workbench to refine and export.
             </Text>
           </div>
           <div className="flex flex-wrap items-center gap-mdt-2">
@@ -191,53 +197,81 @@ export function TranslateOutput({
 
         <Surface tone="subtle" padding="md" className="space-y-mdt-3">
           <Text size="caption" tone="muted" className="uppercase tracking-wide">
-            Step 3 · Compile + download
+            Step 3 · Compile + open Workbench
           </Text>
-          <Row gap={2} align="center" wrap>
-            <Button
-              onClick={onCompile}
-              disabled={disabledCompile || loading || targets.length === 0}
-              variant="secondary"
-              size="sm"
-            >
-              {loading ? 'Compiling…' : 'Compile'}
-            </Button>
-            <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="primary" size="sm">
-              Download zip
-            </Button>
-          </Row>
-          <Text size="caption" tone="muted">
-            Compile generates instruction files. Download bundles the latest results into a zip.
-          </Text>
-          {error && (
-            <div className="rounded-mdt-md border border-[color:var(--mdt-color-danger-soft)] bg-[color:var(--mdt-color-danger-soft)]/40 px-mdt-3 py-mdt-2">
+          {error ? (
+            <div className="space-y-mdt-2 rounded-mdt-md border border-[color:var(--mdt-color-danger-soft)] bg-[color:var(--mdt-color-danger-soft)]/40 px-mdt-3 py-mdt-3">
               <Text size="bodySm" className="text-[color:var(--mdt-color-danger)]">
                 {error}
               </Text>
+              <Button onClick={onCompile} disabled={compileDisabled} variant="primary" size="sm">
+                {loading ? 'Compiling…' : 'Try compile again'}
+              </Button>
             </div>
+          ) : readyForWorkbench ? (
+            <div className="space-y-mdt-3 rounded-mdt-md border border-[color:var(--mdt-color-success-soft)] bg-[color:var(--mdt-color-success-soft)]/40 px-mdt-3 py-mdt-3">
+              <div className="space-y-mdt-1">
+                <Text size="bodySm" weight="semibold">
+                  Ready for Workbench
+                </Text>
+                <Text size="caption" tone="muted">
+                  Open a fresh Workbench draft in a new tab. Keep this page open to copy or download the compiled files.
+                </Text>
+              </div>
+              <Row gap={2} align="center" wrap>
+                <Button size="sm" asChild>
+                  <Link href="/workbench" target="_blank" rel="noreferrer noopener">
+                    Open Workbench
+                  </Link>
+                </Button>
+                <Button
+                  onClick={onDownloadZip}
+                  disabled={!result || result.files.length === 0}
+                  variant="secondary"
+                  size="sm"
+                >
+                  Download zip
+                </Button>
+                <Button onClick={onCompile} disabled={compileDisabled} variant="ghost" size="sm">
+                  Recompile
+                </Button>
+              </Row>
+            </div>
+          ) : (
+            <Row gap={2} align="center" wrap>
+              <Button onClick={onCompile} disabled={compileDisabled} variant="primary" size="sm">
+                {loading ? 'Compiling…' : 'Compile files'}
+              </Button>
+              <Button onClick={onDownloadZip} disabled={!result || result.files.length === 0} variant="secondary" size="sm">
+                Download zip
+              </Button>
+            </Row>
           )}
+          <Text size="caption" tone="muted">
+            Compile generates instruction files. Open Workbench to refine and export your final output.
+          </Text>
         </Surface>
       </Surface>
 
       <Surface padding="lg" className="space-y-mdt-4">
         <div className="flex flex-wrap items-center justify-between gap-mdt-3">
           <Heading level="h3" as="h2">Results</Heading>
-          {result ? (
+          {showResult ? (
             <Text size="caption" tone="muted">
-              {result.files.length} file{result.files.length === 1 ? '' : 's'}
+              {showResult.files.length} file{showResult.files.length === 1 ? '' : 's'}
             </Text>
           ) : null}
         </div>
 
-        {result ? (
+        {showResult ? (
           <Stack gap={3}>
-            {result.warnings.length > 0 && (
+            {showResult.warnings.length > 0 && (
               <div className="rounded-mdt-md border border-[color:var(--mdt-color-warning-soft)] bg-[color:var(--mdt-color-warning-soft)]/50 p-mdt-3">
                 <Text size="caption" weight="semibold" className="text-[color:var(--mdt-color-warning)]">
                   Warnings
                 </Text>
                 <ul className="mt-mdt-2 list-disc space-y-mdt-1 pl-mdt-5">
-                  {result.warnings.map((w, i) => (
+                  {showResult.warnings.map((w, i) => (
                     <Text as="li" key={i} size="bodySm" className="text-[color:var(--mdt-color-warning)]">
                       {w}
                     </Text>
@@ -246,13 +280,13 @@ export function TranslateOutput({
               </div>
             )}
 
-            {result.info.length > 0 && (
+            {showResult.info.length > 0 && (
               <div className="rounded-mdt-md border border-[color:var(--mdt-color-info-soft)] bg-[color:var(--mdt-color-info-soft)]/45 p-mdt-3">
                 <Text size="caption" weight="semibold" className="text-[color:var(--mdt-color-info)]">
                   Info
                 </Text>
                 <ul className="mt-mdt-2 list-disc space-y-mdt-1 pl-mdt-5">
-                  {result.info.map((infoItem, idx) => (
+                  {showResult.info.map((infoItem, idx) => (
                     <Text as="li" key={idx} size="bodySm" className="text-[color:var(--mdt-color-info)]">
                       {infoItem}
                     </Text>
@@ -261,13 +295,13 @@ export function TranslateOutput({
               </div>
             )}
 
-            {result.files.length === 0 && result.warnings.length === 0 && (
+            {showResult.files.length === 0 && showResult.warnings.length === 0 && (
               <Text size="bodySm" tone="muted">
                 No files generated yet. Adjust your targets or input and compile again.
               </Text>
             )}
 
-            {result.files.map((f) => (
+            {showResult.files.map((f) => (
               <Surface key={f.path} padding="none" className="overflow-hidden">
                 <div className="flex flex-wrap items-center justify-between gap-mdt-2 border-b border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
                   <Text size="caption" tone="muted" className="font-mono">
