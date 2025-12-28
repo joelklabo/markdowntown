@@ -4,7 +4,7 @@ import { Text } from "./ui/Text";
 
 export function Footer() {
   return (
-    <footer className="mt-mdt-16 border-t border-mdt-border/70 bg-[color:var(--mdt-color-surface-subtle)]/95 py-mdt-12 text-body-sm text-mdt-muted">
+    <footer className="mt-mdt-16 border-t border-mdt-border-strong bg-mdt-surface py-mdt-12 text-body-sm text-mdt-muted">
       <Container as="div" padding="lg" className="grid gap-mdt-10 md:grid-cols-[minmax(0,1.1fr),minmax(0,2fr)]">
         <div className="space-y-mdt-3">
           <Text as="p" weight="semibold" tone="default">
@@ -61,7 +61,7 @@ export function Footer() {
             </div>
           </div>
         </nav>
-        <div className="md:col-span-2 border-t border-mdt-border/60 pt-mdt-4 text-caption text-mdt-muted">
+        <div className="md:col-span-2 border-t border-mdt-border pt-mdt-4 text-caption text-mdt-muted">
           © 2025 mark downtown. All rights reserved.
         </div>
       </Container>

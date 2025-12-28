@@ -333,11 +333,11 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
       <header
         ref={headerRef}
         className={cn(
-          "z-30 border-b border-mdt-border/70 bg-[color:var(--mdt-color-surface-raised)]/92 backdrop-blur-lg shadow-mdt-md",
+          "z-30 border-b border-mdt-border-strong bg-mdt-surface-raised backdrop-blur-lg shadow-mdt-md",
           sticky && "sticky top-0"
         )}
       >
-        <div className="border-b border-mdt-border/60">
+        <div className="border-b border-mdt-border">
           <div className="w-full overflow-hidden">
             <div className="mdt-site-header-banner">
               {featureFlags.wordmarkBannerV1 ? (
@@ -389,8 +389,8 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                     interactiveBase,
                     focusRing,
                     active
-                      ? "bg-mdt-surface text-mdt-text shadow-mdt-sm"
-                      : "hover:bg-mdt-surface-subtle/80 hover:text-mdt-text"
+                      ? "bg-mdt-surface-strong text-mdt-text shadow-mdt-sm"
+                      : "hover:bg-mdt-surface-subtle hover:text-mdt-text"
                   )}
                   data-nav-active={active ? "true" : undefined}
                   onClick={() => track("nav_click", { href: link.href, placement: "desktop" })}
@@ -406,7 +406,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden min-w-[220px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:max-w-[420px]"
+              className="hidden min-w-[220px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border-strong bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:max-w-[420px]"
             >
               <input
                 name="q"
@@ -440,7 +440,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                 <ThemeToggle />
               </div>
               {user ? (
-                <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border/70 bg-mdt-surface px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
+                <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
                   {user.image && (
                     <Image
                       src={user.image}
@@ -493,7 +493,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
               <button
                 type="button"
                 className={cn(
-                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
+                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border-strong bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -509,7 +509,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
               <button
                 type="button"
                 className={cn(
-                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
+                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border-strong bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -525,7 +525,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
 
       {/* Mobile bottom nav */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border bg-mdt-surface/95 px-3 py-3 text-caption font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border-strong bg-mdt-surface px-3 py-3 text-caption font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
         role="navigation"
         aria-label="Primary"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 10px)" }}
@@ -539,7 +539,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                 <Link
                   href={item.href!}
                   className={`group flex h-14 min-h-[56px] flex-col items-center justify-center gap-1 rounded-mdt-md px-mdt-2 transition duration-mdt-fast ease-mdt-standard ${
-                    active ? "bg-mdt-surface-subtle text-mdt-text" : "hover:bg-mdt-surface-subtle/80 hover:text-mdt-text"
+                    active ? "bg-mdt-surface-strong text-mdt-text" : "hover:bg-mdt-surface-subtle hover:text-mdt-text"
                   } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]`}
                   onClick={() => track("nav_click", { href: item.href, placement: "bottom" })}
                   aria-current={active ? "page" : undefined}
@@ -556,7 +556,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                   onClick={() => {
                     openMobileSearch("bottom_nav");
                   }}
-                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-mdt-md px-mdt-2 text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-subtle/80 hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
+                  className="flex h-14 min-h-[56px] w-full flex-col items-center justify-center gap-1 rounded-mdt-md px-mdt-2 text-mdt-text transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-subtle hover:text-mdt-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mdt-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--mdt-color-surface)]"
                   aria-label="Open search"
                   aria-keyshortcuts="/"
                 >
@@ -600,7 +600,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
           <form
             role="search"
             onSubmit={onSearch}
-            className="flex flex-col gap-mdt-3 rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3 text-body-sm shadow-mdt-sm"
+            className="flex flex-col gap-mdt-3 rounded-mdt-lg border border-mdt-border-strong bg-mdt-surface px-mdt-4 py-mdt-3 text-body-sm shadow-mdt-sm"
           >
             <input
               ref={inputRef}
@@ -729,7 +729,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                 href={link.href}
                 target={link.external ? "_blank" : undefined}
                 rel={link.external ? "noreferrer" : undefined}
-                className="rounded-mdt-lg border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm font-semibold text-mdt-text shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-subtle hover:shadow-mdt-md"
+                className="rounded-mdt-lg border border-mdt-border-strong bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm font-semibold text-mdt-text shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard hover:bg-mdt-surface-subtle hover:shadow-mdt-md"
                 onClick={() => {
                   setShowOverflowSheet(false);
                   track("nav_click", { href: link.href, placement: "overflow" });
