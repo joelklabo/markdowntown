@@ -1,9 +1,12 @@
+import path from "node:path";
+import fs from "node:fs/promises";
 import { chromium, type Browser } from "playwright";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
+const screenshotPath = process.env.E2E_SCREENSHOT_PATH;
 
 describe("Scan to workbench export flow", () => {
   let browser: Browser;
@@ -98,6 +101,11 @@ describe("Scan to workbench export flow", () => {
         await page.getByRole("button", { name: /^compile$/i }).click();
         await page.getByText("Manifest").waitFor({ state: "visible" });
         await page.getByRole("button", { name: "src-ts.instructions.md" }).waitFor({ state: "visible" });
+
+        if (screenshotPath) {
+          await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
+          await page.screenshot({ path: screenshotPath, fullPage: true });
+        }
       },
       "scan-to-export"
     );
