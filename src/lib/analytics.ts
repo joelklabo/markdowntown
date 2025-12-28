@@ -182,6 +182,15 @@ export function trackTranslateComplete(properties: {
   trackUiEvent("translate_complete", properties);
 }
 
+export function trackTranslateDownload(properties: {
+  targetIds: string[];
+  targetCount: number;
+  fileCount: number;
+  byteSize: number;
+}) {
+  trackUiEvent("translate_download", properties);
+}
+
 export function trackTranslateError(
   error: Error,
   properties: {

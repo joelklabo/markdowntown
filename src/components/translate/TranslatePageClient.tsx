@@ -11,7 +11,7 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 import { createZip } from '@/lib/compile/zip';
 import { createUamTargetV1, wrapMarkdownAsGlobal, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
-import { trackTranslateComplete, trackTranslateError, trackTranslateStart } from '@/lib/analytics';
+import { trackTranslateComplete, trackTranslateDownload, trackTranslateError, trackTranslateStart } from '@/lib/analytics';
 
 type TranslatePageClientProps = {
   initialInput: string;
@@ -141,6 +141,12 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
             ? `translate-${targets.map((target) => target.targetId).join('-')}.zip`
             : 'translate-output.zip';
       const blob = await createZip(result.files);
+      trackTranslateDownload({
+        targetIds: targets.map((target) => target.targetId),
+        targetCount: targets.length,
+        fileCount: Array.isArray(result?.files) ? result.files.length : 0,
+        byteSize: blob.size,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

@@ -130,6 +130,24 @@ describe("redactAnalyticsPayload", () => {
     });
   });
 
+  it("redacts translate download payloads without leaking content", () => {
+    const input = {
+      targetIds: ["claude-code", "codex"],
+      targetCount: 2,
+      fileCount: 4,
+      byteSize: 2048,
+      files: ["AGENTS.md"],
+      content: "secret",
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual({
+      targetIds: ["claude-code", "codex"],
+      targetCount: 2,
+      fileCount: 4,
+      byteSize: 2048,
+    });
+  });
+
   it("redacts library action payloads without leaking content", () => {
     const input = {
       action: "open_workbench",

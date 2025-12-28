@@ -22,6 +22,7 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 - `ui_scan_next_step_click`: Next steps CTA clicks (`actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source`=`next_steps`).
 - `translate_start`: translate funnel entry (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`).
 - `translate_complete`: translate completion (`targetIds`, `targetCount`, `inputChars`, `fileCount`).
+- `translate_download`: translate downloads (`targetIds`, `targetCount`, `fileCount`, `byteSize`).
 - `translate_error`: translate failures (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`, `reason`).
 - `library_action`: library CTA clicks (`action`, `id`, `source`, `targetIds`).
 
@@ -31,6 +32,7 @@ These are emitted by specific surfaces and should be reviewed by feature area:
 - Atlas Simulator: `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_next_step_action`.
 - Workbench: `workbench_export_download`, `workbench_export_copy`, `workbench_save_artifact`.
 - Library: `library_action`.
+- Translate: `translate_download`.
 - Builder/Browse/Templates/Snippets: `builder_copy`, `browse_card_use_template`, `template_use_builder`, etc.
 
 ## Error monitoring
@@ -62,7 +64,7 @@ Events emitted by `PerfVitals`:
 ## Translate funnel targets
 - Translate completion rate (`translate_complete / translate_start`): target 60%+.
 - Translate error rate (`translate_error / translate_start`): target < 5%.
-- Translate download rate (`translate_download / translate_complete`): target 80%+ (use `translate_complete` as a proxy until download clicks are tracked).
+- Translate download rate (`translate_download / translate_complete`): target 80%+.
 
 ## Library funnel targets
 - Library CTR (`library_action` with `action=open_workbench` / `ui_route_view` for `/library`): target 15%+.

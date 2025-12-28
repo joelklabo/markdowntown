@@ -28,6 +28,8 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`
 - `translate_complete`
   - Properties: `targetIds`, `targetCount`, `inputChars`, `fileCount`, `warningCount`, `infoCount`
+- `translate_download`
+  - Properties: `targetIds`, `targetCount`, `fileCount`, `byteSize`
 - `translate_error`
   - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`, optional `reason`, plus error `message`
 - `library_action`
