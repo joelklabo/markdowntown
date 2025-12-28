@@ -185,7 +185,7 @@
   --mdt-color-text: var(--mdt-neutral-900);
   --mdt-color-text-muted: var(--mdt-neutral-600);
   --mdt-color-text-subtle: var(--mdt-neutral-500);
-  --mdt-color-text-on-strong: hsl(0 0% 100%);
+  --mdt-color-text-on-strong: var(--mdt-neutral-900);
 
   /* Data viz palette */
   --mdt-data-1: var(--mdt-brand-500);
