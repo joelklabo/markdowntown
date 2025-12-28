@@ -128,7 +128,7 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
             </Text>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" asChild>
+            <Button size="sm" variant="primary" asChild>
               <Link
                 href={`/workbench?id=${artifactId}`}
                 onClick={() =>

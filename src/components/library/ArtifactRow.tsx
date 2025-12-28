@@ -106,7 +106,7 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-start gap-mdt-2 sm:flex-col sm:items-end sm:justify-start">
-        <Button size="sm" asChild>
+        <Button size="sm" variant="primary" asChild>
           <Link
             href={`/workbench?id=${item.id}`}
             onClick={() =>

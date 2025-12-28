@@ -82,7 +82,7 @@ describe('StructurePanel', () => {
     expect(screen.queryByText('scoped-body')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('src/**/*.ts'));
-    expect(screen.getByText('scoped-body')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('scoped-body')).toBeInTheDocument());
     expect(screen.queryByText('global-body')).not.toBeInTheDocument();
   });
 });

@@ -24,6 +24,10 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [preview, setPreview] = useState<SampleItem | null>(null);
+  const hasFilters =
+    Boolean(query && query.trim().length > 0) ||
+    activeTags.length > 0 ||
+    (typeParam !== undefined && typeParam !== null && typeParam !== "all");
 
   const paramsForFetch = useMemo(() => {
     const p = new URLSearchParams();
@@ -132,14 +136,26 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
   if (!items.length) {
     return (
       <Card className="space-y-mdt-3 text-center" padding="lg" tone="raised">
-        <p className="text-h3">No results yet.</p>
+        <p className="text-h3">{hasFilters ? "No results yet." : "Library is empty."}</p>
         <Text tone="muted">
-          Try clearing filters, using fewer tags, or checking “All” types.
+          {hasFilters
+            ? "Try clearing filters or scan a folder to build your own Workbench instructions."
+            : "Scan a folder or open Workbench to start building your own instructions."}
         </Text>
-        <div className="flex justify-center">
-          <Button variant="secondary" size="sm" onClick={() => (window.location.href = "/browse")}>
-            Clear filters
+        <div className="flex flex-wrap justify-center gap-mdt-2">
+          {hasFilters ? (
+            <Button variant="secondary" size="sm" onClick={() => (window.location.href = "/browse")}>
+              Clear filters
+            </Button>
+          ) : null}
+          <Button size="sm" onClick={() => (window.location.href = "/atlas/simulator")}>
+            Scan a folder
           </Button>
+          {!hasFilters ? (
+            <Button variant="secondary" size="sm" onClick={() => (window.location.href = "/workbench")}>
+              Open Workbench
+            </Button>
+          ) : null}
         </div>
       </Card>
     );
@@ -207,16 +223,13 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
               <Skeleton className="h-4 w-2/3" />
             </div>
             <div className="mt-mdt-4 flex flex-wrap gap-mdt-2">
-              <Button size="sm" onClick={() => setPreview(null)}>
-                Close
-              </Button>
               {preview.type !== "file" && (
-                <Button variant="secondary" size="sm" onClick={() => handleWorkbench(preview)}>
-                  Add to Workbench
+                <Button size="sm" onClick={() => handleWorkbench(preview)}>
+                  Open in Workbench
                 </Button>
               )}
               {preview.type === "template" && (
-                <Button size="sm" onClick={() => handleUseTemplate(preview)}>
+                <Button variant="secondary" size="sm" onClick={() => handleUseTemplate(preview)}>
                   Use template
                 </Button>
               )}
@@ -225,6 +238,9 @@ export function BrowseResults({ initialItems, query, sortParam, typeParam, activ
                   Download
                 </Button>
               )}
+              <Button variant="ghost" size="sm" onClick={() => setPreview(null)}>
+                Close
+              </Button>
             </div>
           </div>
         </div>

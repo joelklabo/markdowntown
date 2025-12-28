@@ -83,20 +83,30 @@ export function LibraryCard({
   const renderPrimary = () => {
     if (item.type === "file" && onDownloadFile) {
       return (
-        <Button size={actionSize} onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
+        <Button
+          size={actionSize}
+          variant="primary"
+          onClick={() => onDownloadFile(item)}
+          aria-label={`Download ${item.title}`}
+        >
           {primaryAction.label}
         </Button>
       );
     }
     if (item.type !== "file" && onAddToBuilder) {
       return (
-        <Button size={actionSize} onClick={() => onAddToBuilder(item)} aria-label={`Open ${item.title} in Workbench`}>
+        <Button
+          size={actionSize}
+          variant="primary"
+          onClick={() => onAddToBuilder(item)}
+          aria-label={`Open ${item.title} in Workbench`}
+        >
           {primaryAction.label}
         </Button>
       );
     }
     return (
-      <Button size={actionSize} asChild>
+      <Button size={actionSize} variant="primary" asChild>
         <Link href={primaryAction.href}>{primaryAction.label}</Link>
       </Button>
     );
