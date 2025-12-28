@@ -35,6 +35,10 @@ Breakpoints: Desktop (>= 1024px), Tablet (>= 768px < 1024px), Mobile (< 768px)
    - Target: `src/components/ui/Card.tsx`, `src/app/globals.css`
    - Proposed fix: tune border/shadow tokens to align with header depth.
 
+3) Home sections feel repetitive (multiple library grids + tags cloud). (P2, Visual hierarchy)
+   - Target: `src/app/page.tsx`
+   - Proposed fix: consolidate into a scan-first narrative (hero, steps, proof, minimal library preview, final CTA).
+
 ## Library / Browse
 1) Filter sidebar padding is inconsistent: header spacing and input spacing are tight. (P2, Spacing)
    - Target: `src/app/library/page.tsx`, `src/components/library/FiltersPanel.tsx` (or equivalent)
