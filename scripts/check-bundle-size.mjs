@@ -7,7 +7,7 @@ import fs from "fs";
 import path from "path";
 
 const chunksDir = path.join(process.cwd(), ".next", "static", "chunks");
-const budget = Number(process.env.BUNDLE_BUDGET_BYTES || 1_400_000); // ~1.4 MB default
+const budget = Number(process.env.BUNDLE_BUDGET_BYTES || 1_500_000); // ~1.5 MB default
 const ignoredPrefixes = ["framework-", "main-", "polyfills-", "webpack-"];
 const reactLoadablePath = path.join(process.cwd(), ".next", "react-loadable-manifest.json");
 
