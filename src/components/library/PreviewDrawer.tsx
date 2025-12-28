@@ -123,6 +123,9 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
           <div className="min-w-0">
             <DrawerTitle className="text-h3">Preview</DrawerTitle>
             <div className="mt-1 text-body-sm text-mdt-muted truncate">{title}</div>
+            <Text size="bodySm" tone="muted" className="mt-2">
+              This preview shows what will load in Workbench. Open in Workbench to export agents.md.
+            </Text>
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" asChild>
