@@ -30,3 +30,11 @@
 1. Confirm the dev server responds: `curl -I http://localhost:3000`.
 2. Close any stale DevTools MCP pages and open a fresh page.
 3. If timeouts persist, restart the MCP bridge/agent and retry the page load.
+
+### Repro (Codex MCP)
+1. Start dev server: `WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`.
+2. Attempt a new page via MCP (e.g., `chrome-devtools/new_page` to `http://localhost:3000/`).
+3. Observe tool timeout: `timed out awaiting tools/call after 60s` (no page opened).
+
+### Notes
+- Timeouts may occur even when the dev server is healthy; capture the MCP error text in QA notes.
