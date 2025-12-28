@@ -11,6 +11,7 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 import { createZip } from '@/lib/compile/zip';
 import { createUamTargetV1, wrapMarkdownAsGlobal, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
+import { trackTranslateComplete, trackTranslateError, trackTranslateStart } from '@/lib/analytics';
 
 type TranslatePageClientProps = {
   initialInput: string;
@@ -67,10 +68,21 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
   };
 
   const handleCompile = async () => {
+    const analyticsContext = {
+      targetIds: targets.map((target) => target.targetId),
+      targetCount: targets.length,
+      inputChars: input.length,
+      detectedLabel: detected.label,
+    };
     setLoading(true);
     setError(null);
+    trackTranslateStart(analyticsContext);
     try {
       if (isTooLarge) {
+        trackTranslateError(new Error('Input too large'), {
+          ...analyticsContext,
+          reason: 'input_too_large',
+        });
         setError('Input is too large to compile.');
         emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
         return;
@@ -103,8 +115,16 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
 
       const data = await res.json();
       setResult(data);
+      trackTranslateComplete({
+        ...analyticsContext,
+        fileCount: Array.isArray(data?.files) ? data.files.length : 0,
+        warningCount: Array.isArray(data?.warnings) ? data.warnings.length : 0,
+        infoCount: Array.isArray(data?.info) ? data.info.length : 0,
+      });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error compiling');
+      const error = err instanceof Error ? err : new Error('Error compiling');
+      trackTranslateError(error, { ...analyticsContext, reason: 'compile_failed' });
+      setError(error.message);
       emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     } finally {
       setLoading(false);

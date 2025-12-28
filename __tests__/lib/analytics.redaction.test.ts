@@ -112,6 +112,24 @@ describe("redactAnalyticsPayload", () => {
     expect(redactAnalyticsPayload(input)).toEqual(input);
   });
 
+  it("redacts translate payloads without leaking content", () => {
+    const input = {
+      targetIds: ["claude-code", "codex"],
+      targetCount: 2,
+      inputChars: 420,
+      detectedLabel: "Markdown",
+      content: "secret",
+      files: ["AGENTS.md"],
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual({
+      targetIds: ["claude-code", "codex"],
+      targetCount: 2,
+      inputChars: 420,
+      detectedLabel: "Markdown",
+    });
+  });
+
   it("returns undefined when given undefined", () => {
     expect(redactAnalyticsPayload(undefined)).toBeUndefined();
   });

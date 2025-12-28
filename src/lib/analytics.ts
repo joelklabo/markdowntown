@@ -161,3 +161,36 @@ export function trackSkillWorkbenchEdit(properties: {
 }) {
   trackUiEvent("skills_workbench_edit", properties);
 }
+
+export function trackTranslateStart(properties: {
+  targetIds: string[];
+  targetCount: number;
+  inputChars: number;
+  detectedLabel?: string;
+}) {
+  trackUiEvent("translate_start", properties);
+}
+
+export function trackTranslateComplete(properties: {
+  targetIds: string[];
+  targetCount: number;
+  inputChars: number;
+  fileCount: number;
+  warningCount?: number;
+  infoCount?: number;
+}) {
+  trackUiEvent("translate_complete", properties);
+}
+
+export function trackTranslateError(
+  error: Error,
+  properties: {
+    targetIds: string[];
+    targetCount: number;
+    inputChars: number;
+    detectedLabel?: string;
+    reason?: string;
+  }
+) {
+  trackError("translate_error", error, properties);
+}

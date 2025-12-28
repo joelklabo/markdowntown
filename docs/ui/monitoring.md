@@ -20,6 +20,9 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 - `ui_scan_complete`: scan funnel completion (`method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`).
 - `ui_scan_results_cta`: results CTA clicks (`source`, `tool`, `repoSource`, `loaded`, `missing`). Sources include `next_steps` (primary Open Workbench CTA), `actions`, and `post_scan`.
 - `ui_scan_next_step_click`: Next steps CTA clicks (`actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source`=`next_steps`).
+- `translate_start`: translate funnel entry (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`).
+- `translate_complete`: translate completion (`targetIds`, `targetCount`, `inputChars`, `fileCount`).
+- `translate_error`: translate failures (`targetIds`, `targetCount`, `inputChars`, `detectedLabel`, `reason`).
 
 ## Critical action events (track)
 These are emitted by specific surfaces and should be reviewed by feature area:
@@ -30,6 +33,7 @@ These are emitted by specific surfaces and should be reviewed by feature area:
 
 ## Error monitoring
 - `atlas_simulator_scan_error`, `atlas_simulator_download_error`, `atlas_simulator_view_report_error`.
+- `translate_error`.
 - `wordmark_banner_error`.
 - Any `*_failed` events (e.g., `builder_save_failed`, `workbench_save_artifact_failed`).
 

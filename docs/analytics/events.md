@@ -24,6 +24,12 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `source` (`next_steps` | `actions` | `post_scan`), `tool`, `repoSource`, `loaded`, `missing`
 - `ui_scan_next_step_click`
   - Properties: `actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source` (`next_steps`)
+- `translate_start`
+  - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`
+- `translate_complete`
+  - Properties: `targetIds`, `targetCount`, `inputChars`, `fileCount`, `warningCount`, `infoCount`
+- `translate_error`
+  - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`, optional `reason`, plus error `message`
 
 ## Onboarding funnel events
 
