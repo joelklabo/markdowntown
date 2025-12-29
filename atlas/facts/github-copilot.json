@@ -2,8 +2,9 @@
   "schemaVersion": 1,
   "platformId": "github-copilot",
   "name": "GitHub Copilot",
+  "docHome": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions",
   "retrievedAt": "2025-12-17T00:00:00Z",
-  "lastVerified": "2025-12-19T08:36:55.372Z",
+  "lastVerified": "2025-12-29T12:09:44.036Z",
   "artifacts": [],
   "claims": [
     {
@@ -56,6 +57,5 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  },
-  "docHome": "https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions"
+  }
 }

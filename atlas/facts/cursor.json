@@ -2,8 +2,9 @@
   "schemaVersion": 1,
   "platformId": "cursor",
   "name": "Cursor",
+  "docHome": "https://cursor.com/docs/context/rules",
   "retrievedAt": "2025-12-17T00:00:00Z",
-  "lastVerified": "2025-12-19T08:36:55.372Z",
+  "lastVerified": "2025-12-29T12:09:44.036Z",
   "artifacts": [],
   "claims": [
     {
@@ -71,6 +72,5 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  },
-  "docHome": "https://cursor.com/docs/context/rules"
+  }
 }
