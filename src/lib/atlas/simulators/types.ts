@@ -69,9 +69,15 @@ export type SimulationWarning = {
   message: string;
 };
 
+export type ShadowedFile = {
+  path: string;
+  reason: string;
+};
+
 export type SimulationResult = {
   loaded: LoadedFile[];
   warnings: SimulationWarning[];
+  shadowed: ShadowedFile[];
 };
 
 export type SimulatorInsightPattern = {

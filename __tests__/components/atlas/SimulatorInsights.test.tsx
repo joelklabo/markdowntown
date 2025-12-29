@@ -30,12 +30,17 @@ describe("SimulatorInsights summary", () => {
       precedenceNotes: [],
     };
 
-    render(<SimulatorInsights insights={insights} extraFiles={["AGENTS.md"]} />);
+    render(
+      <SimulatorInsights
+        insights={insights}
+        shadowedFiles={[{ path: "AGENTS.md", reason: "Used by Codex CLI." }]}
+      />,
+    );
 
     expect(screen.getByText(/Detected tool: GitHub Copilot/i)).toBeInTheDocument();
     expect(screen.getByText(/Found 1 instruction file/i)).toBeInTheDocument();
     expect(screen.getByText(/1 expected file missing/i)).toBeInTheDocument();
-    expect(screen.getByText(/1 extra instruction file won't load for this tool/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 shadowed instruction file won't load for this tool/i)).toBeInTheDocument();
     expect(screen.getByText(/Next step: add the missing instruction file/i)).toBeInTheDocument();
   });
 
@@ -60,7 +65,7 @@ describe("SimulatorInsights summary", () => {
       precedenceNotes: [],
     };
 
-    render(<SimulatorInsights insights={insights} extraFiles={[]} />);
+    render(<SimulatorInsights insights={insights} shadowedFiles={[]} />);
 
     expect(screen.getByText(/Detected tool: Codex CLI/i)).toBeInTheDocument();
     expect(screen.getByText(/No instruction files found/i)).toBeInTheDocument();
@@ -81,7 +86,7 @@ describe("SimulatorInsights summary", () => {
       precedenceNotes: ["Overrides win in the same folder.", "Deeper paths take precedence."],
     };
 
-    render(<SimulatorInsights insights={insights} extraFiles={[]} />);
+    render(<SimulatorInsights insights={insights} shadowedFiles={[]} />);
 
     const expectedList = screen.getByRole("list", { name: "Expected patterns" });
     expect(expectedList.querySelectorAll("li")).toHaveLength(2);

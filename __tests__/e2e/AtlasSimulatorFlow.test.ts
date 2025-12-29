@@ -9,6 +9,7 @@ import { withE2EPage } from "./playwrightArtifacts";
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
 const rulesMetaScreenshotPath = process.env.E2E_SCAN_RULES_META_SCREENSHOT_PATH;
+const shadowedScreenshotPath = process.env.E2E_SCAN_SHADOWED_SCREENSHOT_PATH;
 
 async function maybeCaptureRulesMeta(page: Page) {
   if (!rulesMetaScreenshotPath) return;
@@ -16,6 +17,17 @@ async function maybeCaptureRulesMeta(page: Page) {
   await scanMeta.getByText(/rules verified/i).waitFor({ state: "visible" });
   fs.mkdirSync(path.dirname(rulesMetaScreenshotPath), { recursive: true });
   await scanMeta.screenshot({ path: rulesMetaScreenshotPath });
+}
+
+async function maybeCaptureShadowedPanel(page: Page) {
+  if (!shadowedScreenshotPath) return;
+  const shadowedHeading = page.getByText(/shadowed or overridden files/i);
+  await shadowedHeading.waitFor({ state: "visible" });
+  const shadowedPanel = shadowedHeading.locator("..");
+  await shadowedPanel.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+  await shadowedPanel.getByText(/used by/i).waitFor({ state: "visible" });
+  fs.mkdirSync(path.dirname(shadowedScreenshotPath), { recursive: true });
+  await shadowedPanel.screenshot({ path: shadowedScreenshotPath });
 }
 
 async function buildZipFixture(): Promise<string> {
@@ -76,6 +88,7 @@ describe("Atlas simulator flow", () => {
       const copilotText = (await loadedList.allTextContents()).join("\n");
       expect(copilotText.trim().length).toBeGreaterThan(0);
       await maybeCaptureRulesMeta(page);
+      await maybeCaptureShadowedPanel(page);
 
       // Switch to Codex CLI and refresh results.
       await page.getByText(/show advanced settings/i).click();

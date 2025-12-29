@@ -303,11 +303,11 @@ type SummaryInput = {
   repoSource: "manual" | "folder";
   result: SimulationResult;
   insights: SimulatorInsightsData;
-  extraFiles: string[];
+  shadowed: SimulationResult["shadowed"];
   isStale: boolean;
 };
 
-function formatSummary({ tool, cwd, repoSource, result, insights, extraFiles, isStale }: SummaryInput): string {
+function formatSummary({ tool, cwd, repoSource, result, insights, shadowed, isStale }: SummaryInput): string {
   const lines: string[] = [];
   lines.push(`Tool: ${toolLabel(tool)} (${tool})`);
   lines.push(`CWD: ${normalizePath(cwd) || "(repo root)"}`);
@@ -338,12 +338,12 @@ function formatSummary({ tool, cwd, repoSource, result, insights, extraFiles, is
   }
 
   lines.push("");
-  lines.push("Extra instruction files:");
-  if (extraFiles.length === 0) {
+  lines.push("Shadowed/overridden files:");
+  if (shadowed.length === 0) {
     lines.push("- (none)");
   } else {
-    for (const path of extraFiles) {
-      lines.push(`- ${path}`);
+    for (const file of shadowed) {
+      lines.push(`- ${file.path} — ${file.reason}`);
     }
   }
 
@@ -624,10 +624,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     return "If you expected files, double-check the repo tree and current directory.";
   }, [cwd, manualPaths.length, repoSignals, repoSource, scannedTree, tool]);
 
-  const extraInstructionFiles = useMemo(() => {
-    const found = new Set(insights.foundFiles.map((path) => normalizePath(path)));
-    return lastSimulatedPaths.filter((path) => isInstructionPath(path) && !found.has(path));
-  }, [insights, lastSimulatedPaths]);
+  const shadowedFiles = result.shadowed;
   const detectionSummary = useMemo(() => {
     if (!toolDetection) return null;
     if (toolDetection.tool) {
@@ -723,12 +720,12 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
         diagnostics: instructionDiagnostics,
         warnings: result.warnings,
         insights,
-        extraFiles: extraInstructionFiles,
+        extraFiles: shadowedFiles.map((file) => file.path),
         scanError: scanError?.kind ?? null,
         truncated: scanMeta?.truncated ?? false,
       }),
     [
-      extraInstructionFiles,
+      shadowedFiles,
       instructionDiagnostics,
       insights,
       isStale,
@@ -1230,7 +1227,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
       repoSource,
       result,
       insights,
-      extraFiles: extraInstructionFiles,
+      shadowed: shadowedFiles,
       isStale,
     });
     const copyError = await copyToClipboard(
@@ -1256,7 +1253,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
       repoSource,
       result,
       insights,
-      extraFiles: extraInstructionFiles,
+      shadowed: shadowedFiles,
       isStale,
     });
     try {
@@ -2114,8 +2111,8 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                 <Badge tone={insights.missingFiles.length > 0 ? "warning" : "success"}>
                   Missing files {insights.missingFiles.length}
                 </Badge>
-                <Badge tone={extraInstructionFiles.length > 0 ? "info" : "success"}>
-                  Extra files {extraInstructionFiles.length}
+                <Badge tone={shadowedFiles.length > 0 ? "info" : "success"}>
+                  Shadowed {shadowedFiles.length}
                 </Badge>
                 <Badge tone={result.warnings.length > 0 ? "warning" : "success"}>
                   Warnings {result.warnings.length}
@@ -2219,7 +2216,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
             </div>
 
             <div id="sim-insights">
-              <SimulatorInsights insights={insights} extraFiles={extraInstructionFiles} />
+              <SimulatorInsights insights={insights} shadowedFiles={shadowedFiles} />
             </div>
           </div>
         </Stack>
