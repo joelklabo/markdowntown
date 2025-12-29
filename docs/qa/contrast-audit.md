@@ -51,19 +51,20 @@ Owner: @honk
 
 | Indicator | Ratio | Result |
 | --- | --- | --- |
-| Ring on light surface (`ring` @ 45% alpha) | 1.44 | Fail (below 3:1) |
-| Ring on dark surface (`ring` @ 45% alpha) | 2.58 | Fail (below 3:1) |
+| Ring on light surface (`ring` updated) | 3.36 | Pass |
+| Ring on light surface-subtle (`ring` updated) | 3.12 | Pass |
+| Ring on dark surface (`ring` updated) | 10.40 | Pass |
+| Ring on dark surface-subtle (`ring` updated) | 9.35 | Pass |
 
 ## Findings
 - Light theme `text-subtle` on `surface-subtle` is below 4.5:1 (4.33).
-- Focus ring contrast is below 3:1 on both light and dark surfaces at current alpha.
+- Focus ring contrast now meets >=3:1 on light/dark surfaces after token updates.
 - Status soft variants now meet >=4.5:1 in light theme, and danger-soft meets >=4.5:1 in dark theme after token updates.
 
 ## Recommendations
-- Increase focus ring opacity or add a dual-ring/outline to hit 3:1 on default surfaces.
 - Reserve `text-subtle` for large or non-critical text on light `surface-subtle`; otherwise use `text-muted`.
 
 ## Follow-up tasks
-- markdowntown-da2s — Improve focus ring contrast to >= 3:1.
 - markdowntown-e1tq — Improve subtle text contrast on surface-subtle.
 - Resolved: markdowntown-45rr — Fix status soft contrast (light theme + dark danger).
+- Resolved: markdowntown-da2s — Improve focus ring contrast to >= 3:1.

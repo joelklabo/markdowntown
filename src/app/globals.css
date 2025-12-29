@@ -184,7 +184,7 @@
   /* Lines + rings */
   --mdt-color-border: var(--mdt-neutral-200);
   --mdt-color-border-strong: var(--mdt-neutral-300);
-  --mdt-color-ring: hsl(196 88% 54% / 0.45);
+  --mdt-color-ring: hsl(196 90% 41%);
 
   /* Text */
   --mdt-color-text: var(--mdt-neutral-900);
@@ -420,7 +420,7 @@
 
   --mdt-color-border: var(--mdt-neutral-400);
   --mdt-color-border-strong: var(--mdt-neutral-500);
-  --mdt-color-ring: hsl(196 90% 66% / 0.4);
+  --mdt-color-ring: hsl(196 90% 70%);
 
   --mdt-color-text: var(--mdt-neutral-900);
   --mdt-color-text-muted: var(--mdt-neutral-700);
