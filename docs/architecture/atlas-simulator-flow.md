@@ -69,7 +69,8 @@ Document the end-to-end flow for scanning a local repo folder (instructions file
   - Folder scanning UI shows metadata and empty/error states.
   - Insights panel renders missing/expected patterns.
 - **E2E**
-  - Playwright stubs `showDirectoryPicker` and runs the full scan + simulate loop.
+  - Vitest E2E (Playwright API under the hood) stubs `showDirectoryPicker` and runs the full scan + simulate loop.
+  - Run with `E2E_BASE_URL=http://localhost:3000 npm run test:e2e -- AtlasSimulatorFlow` (skip when no dev server is running).
   - Switching tools updates loaded files and insights.
 
 ## Risks
