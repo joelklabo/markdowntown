@@ -9,9 +9,9 @@ export function Pill({ tone = "primary", className, ...props }: PillProps) {
   const toneMap: Record<NonNullable<PillProps["tone"]>, string> = {
     primary: "bg-mdt-primary-soft text-mdt-text",
     yellow: "bg-mdt-accent-soft text-mdt-text",
-    blue: "bg-[color:var(--mdt-color-info-soft)] text-[color:var(--mdt-color-info)]",
-    red: "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-color-danger)]",
-    green: "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-color-success)]",
+    blue: "bg-[color:var(--mdt-color-info-soft)] text-[color:var(--mdt-info-700)]",
+    red: "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-danger-700)]",
+    green: "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-success-700)]",
     gray: "bg-mdt-surface-subtle text-mdt-text",
   };
   const toneClass = toneMap[tone] ?? toneMap.primary;

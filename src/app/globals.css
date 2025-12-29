@@ -146,12 +146,16 @@
   /* Status hues */
   --mdt-success-500: hsl(156 60% 44%);
   --mdt-success-600: hsl(156 62% 38%);
+  --mdt-success-700: hsl(156 60% 29%);
   --mdt-warning-500: hsl(32 94% 52%);
   --mdt-warning-600: hsl(32 94% 46%);
+  --mdt-warning-700: hsl(32 94% 33%);
   --mdt-danger-500: hsl(350 74% 52%);
   --mdt-danger-600: hsl(350 76% 46%);
+  --mdt-danger-700: hsl(350 74% 44%);
   --mdt-info-500: hsl(204 92% 52%);
   --mdt-info-600: hsl(204 94% 46%);
+  --mdt-info-700: hsl(204 92% 36%);
 
   /* ==== Semantic color roles (light) ==== */
   /* Palette refresh: cool cyan primary + warm amber accent */
@@ -380,12 +384,16 @@
 
   --mdt-success-500: hsl(156 60% 58%);
   --mdt-success-600: hsl(156 62% 64%);
+  --mdt-success-700: hsl(156 62% 64%);
   --mdt-warning-500: hsl(32 96% 64%);
   --mdt-warning-600: hsl(32 98% 70%);
+  --mdt-warning-700: hsl(32 98% 70%);
   --mdt-danger-500: hsl(350 76% 62%);
   --mdt-danger-600: hsl(350 78% 68%);
+  --mdt-danger-700: hsl(350 78% 68%);
   --mdt-info-500: hsl(204 94% 68%);
   --mdt-info-600: hsl(204 96% 74%);
+  --mdt-info-700: hsl(204 96% 74%);
 
   /* ==== Semantic color roles (dark) ==== */
   /* Palette refresh: cool cyan primary + warm amber accent */
