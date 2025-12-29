@@ -73,4 +73,18 @@ describe('atlas/simulators/diagnostics', () => {
     expect(warning?.severity).toBe('warning');
     expect(warning?.suggestion).toContain('.cursor/rules');
   });
+
+  it('surfaces missing and circular Claude imports', () => {
+    const tree: RepoTree = {
+      files: [
+        { path: 'CLAUDE.md', content: '@docs/missing.md\n@docs/a.md' },
+        { path: 'docs/a.md', content: '@../CLAUDE.md' },
+      ],
+    };
+
+    const result = computeInstructionDiagnostics({ tool: 'claude-code', tree });
+    const codes = result.diagnostics.map((item) => item.code);
+
+    expect(codes).toEqual(expect.arrayContaining(['claude-import.missing', 'claude-import.circular']));
+  });
 });

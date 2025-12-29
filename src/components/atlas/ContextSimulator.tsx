@@ -74,6 +74,8 @@ const SCAN_EXAMPLE_TREE = [
   ".cursorrules",
 ].join("\n");
 
+const CLAUDE_ONLY_ALLOWLIST: RegExp[] = [/^CLAUDE\.md$/, /\/CLAUDE\.md$/];
+
 const TREE_COMMANDS = [
   {
     id: "mac",
@@ -601,6 +603,13 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const isStale = currentSignature !== lastSimulatedSignature;
   const advancedOpen = showAdvanced || repoSource === "manual";
   const maxContentKb = Math.round(DEFAULT_MAX_CONTENT_BYTES / 1024);
+  const includeClaudeContent = tool === "claude-code";
+  const includeScanContent = contentLintOptIn || includeClaudeContent;
+  const scanContentAllowlist = contentLintOptIn
+    ? undefined
+    : includeClaudeContent
+      ? CLAUDE_ONLY_ALLOWLIST
+      : undefined;
   const scanButtonLabel = isScanning ? "Scanning…" : isPickingDirectory ? "Picking folder…" : "Scan a folder";
 
   const scannedPreview = useMemo(() => {
@@ -1060,7 +1069,8 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
         "directory_picker",
         (signal, onProgress) =>
           scanRepoTree(handle as FileSystemDirectoryHandleLike, {
-            includeContent: contentLintOptIn,
+            includeContent: includeScanContent,
+            contentAllowlist: scanContentAllowlist,
             signal,
             onProgress,
           }),
@@ -1106,7 +1116,8 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
       "file_input",
       (signal, onProgress) =>
         scanFileList(files, {
-          includeContent: contentLintOptIn,
+          includeContent: includeScanContent,
+          contentAllowlist: scanContentAllowlist,
           signal,
           onProgress,
         }),

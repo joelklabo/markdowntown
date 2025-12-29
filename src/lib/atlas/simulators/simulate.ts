@@ -9,6 +9,7 @@ import { simulateGitHubCopilot } from './tools/githubCopilot.ts';
 type TreeIndex = {
   has: (filePath: string) => boolean;
   listPaths: () => string[];
+  getContent: (filePath: string) => string | null;
 };
 
 function normalizePath(value: string): string {
@@ -19,14 +20,21 @@ function normalizePath(value: string): string {
 
 function buildIndex(tree: RepoTree): TreeIndex {
   const paths = new Set<string>();
+  const content = new Map<string, string>();
 
   for (const file of tree.files) {
-    paths.add(normalizePath(file.path));
+    const normalized = normalizePath(file.path);
+    if (!normalized) continue;
+    paths.add(normalized);
+    if (file.content) {
+      content.set(normalized, file.content);
+    }
   }
 
   return {
     has: (filePath: string) => paths.has(normalizePath(filePath)),
     listPaths: () => Array.from(paths).sort(),
+    getContent: (filePath: string) => content.get(normalizePath(filePath)) ?? null,
   };
 }
 
