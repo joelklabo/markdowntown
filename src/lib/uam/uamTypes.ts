@@ -43,6 +43,26 @@ export interface UamBlockV1 {
   body: string;
 }
 
+export type StructuredBlockDefaults = {
+  title?: string;
+  body: string;
+};
+
+export function getStructuredBlockDefaults(kind: UamBlockKindV1): StructuredBlockDefaults {
+  switch (kind) {
+    case 'checklist':
+      return { body: '- [ ] Add item\n- [ ] Add item\n' };
+    case 'commands':
+      return { body: '```bash\n# Add command\n```\n' };
+    case 'dos-donts':
+      return { body: "## Do\n- \n\n## Don't\n- \n" };
+    case 'files':
+      return { body: '- `src/...`\n- `__tests__/...`\n' };
+    default:
+      return { body: '' };
+  }
+}
+
 export interface UamCapabilityV1 {
   id: string;
   title?: string;
@@ -112,4 +132,3 @@ export function wrapMarkdownAsGlobal(markdown: string, meta?: Partial<UamMetaV1>
     ],
   };
 }
-

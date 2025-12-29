@@ -6,6 +6,7 @@ import { useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Text } from '@/components/ui/Text';
+import { StructuredAssistPanel } from '@/components/workbench/StructuredAssistPanel';
 import { cn } from '@/lib/cn';
 import type { UamBlockKindV1 } from '@/lib/uam/uamTypes';
 
@@ -35,6 +36,7 @@ export function BlocksPanel() {
   const selectBlock = useWorkbenchStore(s => s.selectBlock);
 
   const [kind, setKind] = React.useState<UamBlockKindV1>('markdown');
+  const [showStructuredAssist, setShowStructuredAssist] = React.useState(false);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -51,6 +53,14 @@ export function BlocksPanel() {
       <div className="mb-mdt-2 flex items-center justify-between">
         <span className="text-caption font-semibold uppercase tracking-wider text-mdt-muted">Blocks</span>
         <div className="flex items-center gap-mdt-2">
+          <Button
+            size="xs"
+            variant="secondary"
+            onClick={() => setShowStructuredAssist((open) => !open)}
+            aria-expanded={showStructuredAssist}
+          >
+            Structured assist
+          </Button>
           <label className="sr-only" htmlFor="block-kind">
             Block kind
           </label>
@@ -76,6 +86,11 @@ export function BlocksPanel() {
       <Text size="bodySm" tone="muted" className="mb-mdt-3">
         Add instruction blocks for the selected scope.
       </Text>
+      {showStructuredAssist && (
+        <div className="mb-mdt-3">
+          <StructuredAssistPanel onClose={() => setShowStructuredAssist(false)} />
+        </div>
+      )}
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId={`blocks:${selectedScopeId}`}>

@@ -8,6 +8,7 @@ import {
   createEmptyUamV1,
   createUamTargetV1,
   GLOBAL_SCOPE_ID,
+  getStructuredBlockDefaults,
   normalizeUamTargetsV1,
   type UamBlockKindV1,
   type UamBlockV1,
@@ -53,6 +54,16 @@ type BlockUpsertInput = Partial<UAMBlock> & {
   kind?: UamBlockKindV1;
   title?: string;
   body?: string;
+};
+
+type StructuredAssistScopeKind = 'current' | 'global' | 'dir' | 'glob';
+
+type StructuredAssistInput = {
+  scopeKind: StructuredAssistScopeKind;
+  scopeValue?: string;
+  scopeName?: string;
+  blockKind: UamBlockKindV1;
+  blockTitle?: string;
 };
 
 type WorkbenchScopeInput =
@@ -390,6 +401,7 @@ interface WorkbenchState {
   selectScope: (scopeId: string | null) => void;
 
   addBlock: (block: BlockUpsertInput) => string;
+  insertStructuredBlock: (input: StructuredAssistInput) => string | null;
   updateBlock: (id: string, updates: BlockUpsertInput) => void;
   updateBlockBody: (id: string, body: string) => void;
   updateBlockTitle: (id: string, title?: string) => void;
@@ -624,6 +636,84 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           markDirty();
           onPersisted();
           return id;
+        },
+
+        insertStructuredBlock: (input) => {
+          const trimmedTitle = input.blockTitle?.trim() || undefined;
+          const trimmedScopeName = input.scopeName?.trim() || undefined;
+          const defaults = getStructuredBlockDefaults(input.blockKind);
+
+          let targetScopeId = get().selectedScopeId;
+          let uam = normalizeWorkbenchUam(get().uam);
+          let scopes = [...uam.scopes];
+
+          if (input.scopeKind === 'global') {
+            uam = ensureGlobalScope(uam);
+            scopes = [...uam.scopes];
+            targetScopeId = GLOBAL_SCOPE_ID;
+          }
+
+          if (input.scopeKind === 'dir') {
+            const normalizedDir = normalizeDirScope(input.scopeValue ?? '');
+            if (!normalizedDir) return null;
+            const existing = scopes.find(
+              (scope) => scope.kind === 'dir' && normalizeDirScope(scope.dir) === normalizedDir
+            );
+            if (existing) {
+              targetScopeId = existing.id;
+            } else {
+              const scopeId = randomId();
+              scopes = [...scopes, { id: scopeId, kind: 'dir', dir: normalizedDir, name: trimmedScopeName }];
+              targetScopeId = scopeId;
+            }
+          }
+
+          if (input.scopeKind === 'glob') {
+            const pattern = (input.scopeValue ?? '').trim();
+            if (!pattern) return null;
+            const existing = scopes.find(
+              (scope) => scope.kind === 'glob' && scope.patterns.some((entry) => entry === pattern)
+            );
+            if (existing) {
+              targetScopeId = existing.id;
+            } else {
+              const scopeId = randomId();
+              scopes = [...scopes, { id: scopeId, kind: 'glob', patterns: [pattern], name: trimmedScopeName }];
+              targetScopeId = scopeId;
+            }
+          }
+
+          if (input.scopeKind === 'current') {
+            targetScopeId = ensureSelectedScopeId(uam, targetScopeId);
+          }
+
+          const nextUam = { ...uam, scopes };
+          const scopedId = ensureSelectedScopeId(nextUam, targetScopeId);
+          const blockId = randomId();
+          const nextBlock: UamBlockV1 = {
+            id: blockId,
+            scopeId: scopedId,
+            kind: input.blockKind,
+            title: trimmedTitle ?? defaults.title,
+            body: defaults.body,
+          };
+          const nextBlocks = [...nextUam.blocks, nextBlock];
+          const normalized = normalizeWorkbenchUam({ ...nextUam, blocks: nextBlocks });
+          const selectedScopeId = ensureSelectedScopeId(normalized, scopedId);
+          const selectedScope =
+            legacyScopeLabel(normalized.scopes.find((scope) => scope.id === selectedScopeId) ?? normalized.scopes[0]!);
+
+          set({
+            uam: normalized,
+            blocks: syncLegacyBlocksFromUam(normalized.blocks),
+            scopes: normalized.scopes.map(legacyScopeLabel),
+            selectedScopeId,
+            selectedScope,
+            selectedBlockId: blockId,
+          });
+          markDirty();
+          onPersisted();
+          return blockId;
         },
 
         updateBlock: (id, updates) => {
