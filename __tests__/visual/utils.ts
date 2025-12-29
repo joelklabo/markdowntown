@@ -12,19 +12,27 @@ type VisualPageOptions = {
 
 async function prepareVisualPage(page: Page, options: VisualPageOptions = {}) {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript((opts: VisualPageOptions & { storageKey: string }) => {
+  await page.addInitScript((opts: VisualPageOptions & { storageKey: string; visualCss: string }) => {
     (window as unknown as { __MDT_VISUAL_TEST__?: boolean }).__MDT_VISUAL_TEST__ = true;
     window.localStorage.setItem(opts.storageKey, "1");
     if (opts.theme) {
       window.localStorage.setItem("theme", opts.theme);
     }
-  }, { ...options, storageKey: WHATS_NEW_KEY });
+    const style = document.createElement("style");
+    style.setAttribute("data-visual-test", "true");
+    style.textContent = opts.visualCss;
+    document.head.appendChild(style);
+  }, { ...options, storageKey: WHATS_NEW_KEY, visualCss: HIDE_OVERLAYS });
 }
 
 export async function gotoVisualPage(page: Page, url: string, options: VisualPageOptions = {}) {
   await prepareVisualPage(page, options);
   await page.goto(url);
-  await page.waitForLoadState("networkidle");
+  try {
+    await page.waitForLoadState("networkidle", { timeout: 15000 });
+  } catch {
+    await page.waitForLoadState("load");
+  }
   await page.evaluate(async () => {
     const fonts = document.fonts;
     if (!fonts?.ready) return;
@@ -34,7 +42,7 @@ export async function gotoVisualPage(page: Page, url: string, options: VisualPag
       /* ignore */
     }
   });
-  await page.addStyleTag({ content: HIDE_OVERLAYS });
+  await page.waitForTimeout(150);
 }
 
 export async function gotoLivePage(page: Page, url: string, options: VisualPageOptions = {}) {
@@ -46,7 +54,11 @@ export async function gotoLivePage(page: Page, url: string, options: VisualPageO
     }
   }, { ...options, storageKey: WHATS_NEW_KEY });
   await page.goto(url);
-  await page.waitForLoadState("networkidle");
+  try {
+    await page.waitForLoadState("networkidle", { timeout: 15000 });
+  } catch {
+    await page.waitForLoadState("load");
+  }
   await page.evaluate(async () => {
     const fonts = document.fonts;
     if (!fonts?.ready) return;

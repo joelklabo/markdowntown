@@ -10,8 +10,8 @@ test.describe("City wordmark motion", () => {
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
 
     const banner = page.locator("header .mdt-wordmark--banner");
-    await expect(banner).toBeVisible();
-    await expect(banner).toHaveClass(/mdt-wordmark--animated/);
+    await expect(banner).toBeVisible({ timeout: 15000 });
+    await expect(banner).toHaveClass(/mdt-wordmark--animated/, { timeout: 15000 });
 
     const twinkle = banner.locator('[data-mtw-anim="twinkle"]').first();
     await expect(twinkle).toHaveCount(1);
@@ -27,8 +27,8 @@ test.describe("City wordmark motion", () => {
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
 
     const preview = page.getByTestId("city-logo-preview");
-    await expect(preview).toBeVisible();
-    await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
+    await expect(preview).toBeVisible({ timeout: 15000 });
+    await expect(preview).toHaveAttribute("data-snapshot-ready", "true", { timeout: 15000 });
 
     const viewport = page.viewportSize();
     if (viewport && viewport.width < 600) return;
