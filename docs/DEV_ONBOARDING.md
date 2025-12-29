@@ -40,7 +40,7 @@ The site runs at http://localhost:3000.
 By default `pnpm dev` runs `next dev --webpack` to avoid Turbopack 404s.
 Use `pnpm dev:turbo` only when validating Turbopack-specific behavior, or `pnpm dev:webpack`
 to explicitly rerun Webpack with the same flag.
-If you hit `EMFILE` (file descriptor limit) or HMR WebSocket errors, rerun with Watchpack polling:
+If you hit `EMFILE` (file descriptor limit), HMR WebSocket errors, or hydration stops updating during E2E runs, rerun with Watchpack polling:
 ```bash
 WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev
 ```

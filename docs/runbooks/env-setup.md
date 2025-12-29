@@ -7,6 +7,7 @@
    - `NEXTAUTH_SECRET` (any random string for dev)
    - `GITHUB_CLIENT_ID/SECRET` (optional for local auth)
    - `NEXT_PUBLIC_POSTHOG_KEY` (optional)
+   - `WATCHPACK_POLLING=true` and `WATCHPACK_POLLING_INTERVAL=1000` if you see `EMFILE` or HMR/hydration stalls in local dev
 3) `pnpm prisma migrate dev --name init`
 4) `pnpm dev`
 
