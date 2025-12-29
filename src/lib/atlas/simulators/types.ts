@@ -1,5 +1,12 @@
 export type SimulatorToolId = 'github-copilot' | 'copilot-cli' | 'claude-code' | 'gemini-cli' | 'codex-cli';
 
+export type ToolRulesMetadata = {
+  docUrl?: string;
+  lastVerified?: string;
+};
+
+export type ToolRulesMetadataMap = Record<SimulatorToolId, ToolRulesMetadata>;
+
 export type ToolDetectionConfidence = 'high' | 'medium' | 'low' | 'none';
 
 export type ToolDetectionCandidate = {

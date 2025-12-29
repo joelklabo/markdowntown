@@ -71,5 +71,6 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  }
+  },
+  "docHome": "https://cursor.com/docs/context/rules"
 }

@@ -3,8 +3,33 @@ import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
+import { loadAtlasFacts } from "@/lib/atlas/load";
+import type { AtlasPlatformId } from "@/lib/atlas/types";
+import type { SimulatorToolId, ToolRulesMetadataMap } from "@/lib/atlas/simulators/types";
+
+const TOOL_FACTS: Record<SimulatorToolId, AtlasPlatformId> = {
+  "github-copilot": "github-copilot",
+  "copilot-cli": "copilot-cli",
+  "claude-code": "claude-code",
+  "gemini-cli": "gemini-cli",
+  "codex-cli": "codex-cli",
+};
+
+function buildToolRulesMeta(): ToolRulesMetadataMap {
+  const out = {} as ToolRulesMetadataMap;
+  (Object.keys(TOOL_FACTS) as SimulatorToolId[]).forEach((tool) => {
+    const facts = loadAtlasFacts(TOOL_FACTS[tool]);
+    out[tool] = {
+      docUrl: facts.docHome,
+      lastVerified: facts.lastVerified,
+    };
+  });
+  return out;
+}
 
 export default function AtlasSimulatorPage() {
+  const toolRulesMeta = buildToolRulesMeta();
+
   return (
     <main className="py-mdt-6 md:py-mdt-8">
       <Container>
@@ -16,7 +41,7 @@ export default function AtlasSimulatorPage() {
               browser—nothing is uploaded.
             </Text>
           </Stack>
-          <ContextSimulator />
+          <ContextSimulator toolRulesMeta={toolRulesMeta} />
         </Stack>
       </Container>
     </main>

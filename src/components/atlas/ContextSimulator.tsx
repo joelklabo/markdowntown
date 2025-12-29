@@ -28,6 +28,7 @@ import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsSca
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
 import { INSTRUCTION_TEMPLATES } from "@/lib/atlas/simulators/templates";
+import type { ToolRulesMetadataMap } from "@/lib/atlas/simulators/types";
 import type {
   InstructionDiagnostics,
   NextStepAction,
@@ -342,7 +343,11 @@ function formatFixSummary({ tool, cwd, diagnostics, isStale }: FixSummaryInput):
   return lines.join("\n");
 }
 
-export function ContextSimulator() {
+type ContextSimulatorProps = {
+  toolRulesMeta?: ToolRulesMetadataMap;
+};
+
+export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const [tool, setTool] = useState<SimulatorToolId>("github-copilot");
   const [cwd, setCwd] = useState("");
   const [repoSource, setRepoSource] = useState<"manual" | "folder">("folder");
@@ -1262,7 +1267,7 @@ export function ContextSimulator() {
                       {detectionSummary?.title ?? `Detected: ${toolLabel(tool)}`}
                     </Text>
                     {scanMeta ? (
-                      <SimulatorScanMeta {...scanMeta} />
+                      <SimulatorScanMeta {...scanMeta} tool={tool} toolRulesMeta={toolRulesMeta} />
                     ) : (
                       <Text tone="muted" size="bodySm">
                         {scanCounts}
@@ -1339,7 +1344,9 @@ export function ContextSimulator() {
                     >
                       Scan preview
                     </Text>
-                    {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+                    {scanMeta ? (
+                      <SimulatorScanMeta {...scanMeta} tool={tool} toolRulesMeta={toolRulesMeta} />
+                    ) : null}
                     <TextArea
                       id="sim-tree-preview"
                       name="sim-tree-preview"
@@ -1479,7 +1486,7 @@ export function ContextSimulator() {
                   </div>
                 ) : null}
 
-                {scanMeta ? <SimulatorScanMeta {...scanMeta} /> : null}
+                {scanMeta ? <SimulatorScanMeta {...scanMeta} tool={tool} toolRulesMeta={toolRulesMeta} /> : null}
               </div>
 
               <details

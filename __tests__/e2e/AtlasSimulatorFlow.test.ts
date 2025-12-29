@@ -1,9 +1,20 @@
-import { chromium, type Browser } from "playwright";
+import fs from "node:fs";
+import path from "node:path";
+import { chromium, type Browser, type Page } from "playwright";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
+const rulesMetaScreenshotPath = process.env.E2E_SCAN_RULES_META_SCREENSHOT_PATH;
+
+async function maybeCaptureRulesMeta(page: Page) {
+  if (!rulesMetaScreenshotPath) return;
+  const scanMeta = page.getByTestId("scan-meta");
+  await scanMeta.getByText(/rules verified/i).waitFor({ state: "visible" });
+  fs.mkdirSync(path.dirname(rulesMetaScreenshotPath), { recursive: true });
+  await scanMeta.screenshot({ path: rulesMetaScreenshotPath });
+}
 
 describe("Atlas simulator flow", () => {
   let browser: Browser;
@@ -51,6 +62,7 @@ describe("Atlas simulator flow", () => {
       await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
       const copilotText = (await loadedList.allTextContents()).join("\n");
       expect(copilotText.trim().length).toBeGreaterThan(0);
+      await maybeCaptureRulesMeta(page);
 
       // Switch to Codex CLI and refresh results.
       await page.getByText(/show advanced settings/i).click();
