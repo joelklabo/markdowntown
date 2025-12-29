@@ -123,7 +123,7 @@
   --mdt-neutral-900: hsl(222 50% 9%);
   --mdt-neutral-950: hsl(222 58% 5%);
 
-  /* Brand (cyan) */
+  /* Brand (cool cyan primary) */
   --mdt-brand-50: hsl(196 100% 96%);
   --mdt-brand-100: hsl(196 96% 90%);
   --mdt-brand-200: hsl(196 94% 82%);
@@ -133,7 +133,7 @@
   --mdt-brand-600: hsl(196 90% 46%);
   --mdt-brand-700: hsl(196 92% 38%);
 
-  /* Accent (amber) */
+  /* Accent (warm amber) */
   --mdt-amber-50: hsl(40 100% 96%);
   --mdt-amber-100: hsl(40 98% 90%);
   --mdt-amber-200: hsl(40 96% 82%);
@@ -154,11 +154,12 @@
   --mdt-info-600: hsl(204 94% 46%);
 
   /* ==== Semantic color roles (light) ==== */
+  /* Palette refresh: cool cyan primary + warm amber accent */
   --mdt-color-primary: var(--mdt-brand-500);
   --mdt-color-primary-strong: var(--mdt-brand-600);
-  --mdt-color-primary-soft: var(--mdt-brand-100);
+  --mdt-color-primary-soft: hsl(196 92% 94%);
   --mdt-color-accent: var(--mdt-amber-500);
-  --mdt-color-accent-soft: var(--mdt-amber-100);
+  --mdt-color-accent-soft: hsl(40 94% 92%);
   --mdt-color-success: var(--mdt-success-500);
   --mdt-color-success-soft: hsl(156 60% 44% / 0.15);
   --mdt-color-warning: var(--mdt-warning-500);
@@ -179,7 +180,7 @@
   /* Lines + rings */
   --mdt-color-border: var(--mdt-neutral-200);
   --mdt-color-border-strong: var(--mdt-neutral-300);
-  --mdt-color-ring: hsl(196 88% 54% / 0.55);
+  --mdt-color-ring: hsl(196 88% 54% / 0.45);
 
   /* Text */
   --mdt-color-text: var(--mdt-neutral-900);
@@ -194,8 +195,8 @@
   --mdt-data-4: var(--mdt-warning-500);
   --mdt-data-5: var(--mdt-danger-500);
   --mdt-data-6: var(--mdt-info-500);
-  --mdt-data-7: hsl(210 60% 56%);
-  --mdt-data-8: hsl(120 55% 44%);
+  --mdt-data-7: var(--mdt-brand-300);
+  --mdt-data-8: var(--mdt-amber-300);
 
   /* Wordmark (theme-inverted): light theme renders “night city” */
   --mdt-wordmark-building: hsl(222 36% 18%);
@@ -387,11 +388,12 @@
   --mdt-info-600: hsl(204 96% 74%);
 
   /* ==== Semantic color roles (dark) ==== */
+  /* Palette refresh: cool cyan primary + warm amber accent */
   --mdt-color-primary: var(--mdt-brand-500);
   --mdt-color-primary-strong: var(--mdt-brand-600);
-  --mdt-color-primary-soft: var(--mdt-brand-50);
+  --mdt-color-primary-soft: hsl(196 80% 20% / 0.6);
   --mdt-color-accent: var(--mdt-amber-500);
-  --mdt-color-accent-soft: var(--mdt-amber-50);
+  --mdt-color-accent-soft: hsl(40 90% 26% / 0.6);
   --mdt-color-success: var(--mdt-success-500);
   --mdt-color-success-soft: hsl(156 60% 58% / 0.15);
   --mdt-color-warning: var(--mdt-warning-500);
@@ -410,7 +412,7 @@
 
   --mdt-color-border: var(--mdt-neutral-400);
   --mdt-color-border-strong: var(--mdt-neutral-500);
-  --mdt-color-ring: hsl(196 90% 66% / 0.45);
+  --mdt-color-ring: hsl(196 90% 66% / 0.4);
 
   --mdt-color-text: var(--mdt-neutral-900);
   --mdt-color-text-muted: var(--mdt-neutral-700);
@@ -423,8 +425,8 @@
   --mdt-data-4: var(--mdt-warning-500);
   --mdt-data-5: var(--mdt-danger-500);
   --mdt-data-6: var(--mdt-info-500);
-  --mdt-data-7: hsl(210 70% 65%);
-  --mdt-data-8: hsl(120 60% 54%);
+  --mdt-data-7: var(--mdt-brand-300);
+  --mdt-data-8: var(--mdt-amber-300);
 
   /* Wordmark (theme-inverted): dark theme renders “lit city” */
   --mdt-wordmark-building: hsl(220 24% 88%);
