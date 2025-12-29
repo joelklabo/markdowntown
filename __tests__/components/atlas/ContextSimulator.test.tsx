@@ -89,6 +89,37 @@ describe("ContextSimulator", () => {
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
   }, 15000);
 
+  it("accepts tree output in manual paths", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getByText(/show advanced settings/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
+    await userEvent.type(
+      manualPathsInput,
+      ".\n|-- AGENTS.md\n\\-- .github\n    \\-- copilot-instructions.md\n"
+    );
+
+    await screen.findByText(/2 file\(s\) in the current source\./i);
+    await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
+
+    const loadedList = await screen.findByRole("list", { name: "Loaded files" });
+    expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
+  }, 15000);
+
+  it("shows line-level errors for malformed tree input", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getByText(/show advanced settings/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
+    await userEvent.type(manualPathsInput, ".\n|-- AGENTS.md\nNOT_A_TREE_LINE\n");
+
+    expect(await screen.findByText(/fix these lines/i)).toBeInTheDocument();
+    const errorList = screen.getByRole("list", { name: "Repo path parse errors" });
+    expect(within(errorList).getByText(/line 3/i)).toBeInTheDocument();
+  }, 15000);
+
   it("simulates loaded files for Copilot CLI", async () => {
     render(<ContextSimulator />);
 

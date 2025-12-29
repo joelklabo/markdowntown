@@ -17,6 +17,7 @@ import { InstructionHealthPanel } from "@/components/atlas/InstructionHealthPane
 import { NextStepsPanel } from "@/components/atlas/NextStepsPanel";
 import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
 import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
+import { CopyButton } from "@/components/atlas/CopyButton";
 import { lintInstructionContent } from "@/lib/atlas/simulators/contentLint";
 import { DEFAULT_MAX_CONTENT_BYTES } from "@/lib/atlas/simulators/contentScan";
 import { detectTool } from "@/lib/atlas/simulators/detectTool";
@@ -73,6 +74,27 @@ const SCAN_EXAMPLE_TREE = [
   ".cursorrules",
 ].join("\n");
 
+const TREE_COMMANDS = [
+  {
+    id: "mac",
+    label: "macOS / Linux",
+    description: "Tree output (recommended)",
+    command: 'tree -a -I ".git|node_modules" -F --noreport',
+  },
+  {
+    id: "windows",
+    label: "Windows (CMD)",
+    description: "Tree output (ASCII)",
+    command: "tree /f /a",
+  },
+  {
+    id: "lsr",
+    label: "Any POSIX shell",
+    description: "Fallback (ls -R)",
+    command: "ls -R",
+  },
+] as const;
+
 type RepoSignals = {
   hasGitHubCopilotRoot: boolean;
   hasGitHubCopilotScoped: boolean;
@@ -86,12 +108,161 @@ type RepoSignals = {
   hasCursorLegacy: boolean;
 };
 
-function parseRepoPaths(text: string): string[] {
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter((line) => !line.startsWith("#") && !line.startsWith("//"));
+type RepoPathParseIssue = {
+  line: number;
+  message: string;
+  text: string;
+};
+
+type RepoPathParseResult = {
+  paths: string[];
+  issues: RepoPathParseIssue[];
+};
+
+type TreeNode = {
+  depth: number;
+  name: string;
+  line: number;
+  isDirHint: boolean;
+};
+
+const TREE_MARKER_RE = /(?:├|└)[─-]{2,}|\+--|\\--|\|--/;
+const TREE_LINE_RE = /^(.*?)(?:├|└)[─-]{2,}\s+(.+)$/;
+const ASCII_TREE_LINE_RE = /^(.*?)(?:\+--|\\--|\|--)\s+(.+)$/;
+const LS_HEADER_RE = /^(.+):$/;
+const TREE_IGNORED_RE = /^(?:\d+\s+directories?,\s+\d+\s+files?|\d+\s+files?)$/i;
+const WINDOWS_TREE_IGNORED_RE = /^(?:Folder PATH listing|Volume serial number is)/i;
+const LS_ERROR_RE = /^ls:\s+/i;
+
+function countTreeDepth(prefix: string): number {
+  const normalized = prefix.replace(/\t/g, "    ");
+  const matches = normalized.match(/(?:\|   |│   |    )/g);
+  return matches ? matches.length : 0;
+}
+
+function parseTreeLine(raw: string): TreeNode | null {
+  if (!TREE_MARKER_RE.test(raw)) return null;
+  const match = raw.match(TREE_LINE_RE) ?? raw.match(ASCII_TREE_LINE_RE);
+  if (!match) return null;
+  const prefix = match[1] ?? "";
+  const nameRaw = match[2] ?? "";
+  const depth = countTreeDepth(prefix);
+  const cleaned = nameRaw.trim();
+  const isDirHint = /[\\/]+$/.test(cleaned);
+  const name = cleaned.replace(/[\\/]+$/, "");
+  if (!name || name === ".") return null;
+  return { depth, name, line: 0, isDirHint };
+}
+
+function normalizeRepoRoot(value: string): string {
+  const normalized = normalizePath(value);
+  if (!normalized) return "";
+  if (normalized === ".") return "";
+  if (/^[A-Za-z]:\.$/.test(normalized)) return "";
+  return normalized;
+}
+
+function buildTreePaths(nodes: TreeNode[], issues: RepoPathParseIssue[]): string[] {
+  const stack: string[] = [];
+  const paths: string[] = [];
+
+  nodes.forEach((node, index) => {
+    const next = nodes[index + 1];
+    const isDir = node.isDirHint || (next ? next.depth > node.depth : false);
+    if (node.depth > stack.length) {
+      issues.push({
+        line: node.line,
+        message: "Unexpected tree indentation. Paste the full tree output.",
+        text: node.name,
+      });
+    }
+    stack.length = Math.min(node.depth, stack.length);
+    stack[node.depth] = normalizePath(node.name);
+    if (!isDir) {
+      const path = normalizePath(stack.slice(0, node.depth + 1).join("/"));
+      if (path) paths.push(path);
+    }
+  });
+
+  return paths;
+}
+
+function parseRepoInput(text: string): RepoPathParseResult {
+  const issues: RepoPathParseIssue[] = [];
+  const paths: string[] = [];
+  const treeNodes: TreeNode[] = [];
+  const lsEntries: string[] = [];
+  const lsHeaders = new Set<string>();
+  const lines = text.split("\n");
+  const hasTreeMarkers = lines.some((line) => TREE_MARKER_RE.test(line));
+  const firstContentIndex = lines.findIndex((line) => line.trim().length > 0);
+  let currentLsDir: string | null = null;
+
+  lines.forEach((line, idx) => {
+    const lineNumber = idx + 1;
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    if (trimmed.startsWith("#") || trimmed.startsWith("//")) return;
+    if (TREE_IGNORED_RE.test(trimmed) || WINDOWS_TREE_IGNORED_RE.test(trimmed)) return;
+    if (LS_ERROR_RE.test(trimmed)) {
+      issues.push({ line: lineNumber, message: "Command error from ls -R.", text: trimmed });
+      return;
+    }
+
+    const headerMatch = trimmed.match(LS_HEADER_RE);
+    if (headerMatch) {
+      const headerRaw = headerMatch[1]?.trim() ?? "";
+      const normalizedHeader = normalizeRepoRoot(headerRaw);
+      currentLsDir = normalizedHeader;
+      if (normalizedHeader) {
+        lsHeaders.add(normalizedHeader);
+      }
+      return;
+    }
+
+    const treeNode = parseTreeLine(line);
+    if (treeNode) {
+      treeNodes.push({ ...treeNode, line: lineNumber });
+      return;
+    }
+
+    if (currentLsDir !== null) {
+      if (trimmed === "." || trimmed === "..") return;
+      const entry = normalizePath(trimmed);
+      if (!entry) return;
+      const combined = normalizePath(currentLsDir ? `${currentLsDir}/${entry}` : entry);
+      if (combined) lsEntries.push(combined);
+      return;
+    }
+
+    if (hasTreeMarkers && lineNumber === firstContentIndex + 1 && !TREE_MARKER_RE.test(line)) {
+      return;
+    }
+
+    if (hasTreeMarkers) {
+      issues.push({
+        line: lineNumber,
+        message: "Unrecognized tree line. Paste the full output from `tree` or `ls -R`.",
+        text: trimmed,
+      });
+      return;
+    }
+
+    const normalized = normalizePath(trimmed);
+    if (normalized) paths.push(normalized);
+  });
+
+  if (treeNodes.length > 0) {
+    const treePaths = buildTreePaths(treeNodes, issues);
+    paths.push(...treePaths);
+  }
+
+  if (lsEntries.length > 0) {
+    paths.push(...lsEntries.filter((entry) => !lsHeaders.has(entry)));
+  }
+
+  const unique = Array.from(new Set(paths)).filter(Boolean);
+  return { paths: unique, issues };
 }
 
 function toRepoTree(paths: string[]): RepoTree {
@@ -414,7 +585,9 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     setDirectorySupport(supported ? "supported" : "unsupported");
   }, []);
 
-  const manualPaths = useMemo(() => parseRepoPaths(repoText), [repoText]);
+  const manualParse = useMemo(() => parseRepoInput(repoText), [repoText]);
+  const manualPaths = manualParse.paths;
+  const manualIssues = manualParse.issues;
   const repoFileCount = repoSource === "folder" ? scannedTree?.files.length ?? 0 : manualPaths.length;
   const repoPaths = useMemo(
     () => (repoSource === "folder" ? (scannedTree?.files ?? []).map((file) => file.path) : manualPaths),
@@ -1417,6 +1590,41 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                     <Text tone="muted" size="bodySm">
                       Use this when you can’t scan a folder. One path per line.
                     </Text>
+                    <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+                      <Text as="h5" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                        Copy a tree command
+                      </Text>
+                      <Text tone="muted" size="bodySm">
+                        Run the command in your repo root, then paste the output below.
+                      </Text>
+                      <div className="space-y-mdt-2">
+                        {TREE_COMMANDS.map((command) => (
+                          <div
+                            key={command.id}
+                            className="flex flex-wrap items-center justify-between gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-2 py-mdt-2"
+                          >
+                            <div className="space-y-1">
+                              <Text size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                                {command.label}
+                              </Text>
+                              <Text tone="muted" size="bodySm">
+                                {command.description}
+                              </Text>
+                              <pre className="whitespace-pre-wrap rounded-mdt-sm border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-mdt-1 text-body-xs text-mdt-text">
+                                {command.command}
+                              </pre>
+                            </div>
+                            <CopyButton
+                              text={command.command}
+                              label="Copy command"
+                              copiedLabel="Copied"
+                              size="xs"
+                              variant="secondary"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                     <TextArea
                       id="sim-tree-manual"
                       name="sim-tree-manual"
@@ -1430,10 +1638,31 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                       placeholder="One path per line (e.g. .github/copilot-instructions.md)"
                       aria-labelledby="sim-tree-manual-label"
                     />
+                    {manualIssues.length > 0 ? (
+                      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                        <Text size="bodySm" weight="semibold" className="text-[color:var(--mdt-color-danger)]">
+                          Fix these lines before you run the scan
+                        </Text>
+                        <ul
+                          aria-label="Repo path parse errors"
+                          className="mt-mdt-2 space-y-mdt-1 text-caption text-[color:var(--mdt-color-danger)]"
+                        >
+                          {manualIssues.map((issue) => (
+                            <li key={`${issue.line}-${issue.text}`}>
+                              Line {issue.line}: {issue.message}{" "}
+                              <code className="rounded-mdt-xs bg-mdt-surface-subtle px-1 font-mono">
+                                {issue.text}
+                              </code>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                   </div>
 
                   <Text tone="muted" size="bodySm">
                     {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
+                    {manualIssues.length > 0 ? ` ${manualIssues.length} line(s) need attention.` : ""}
                   </Text>
                 </div>
               </details>
@@ -1599,6 +1828,41 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                     <Text tone="muted" size="bodySm">
                       Use this when you can’t scan a folder. One path per line.
                     </Text>
+                    <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+                      <Text as="h5" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                        Copy a tree command
+                      </Text>
+                      <Text tone="muted" size="bodySm">
+                        Run the command in your repo root, then paste the output below.
+                      </Text>
+                      <div className="space-y-mdt-2">
+                        {TREE_COMMANDS.map((command) => (
+                          <div
+                            key={command.id}
+                            className="flex flex-wrap items-center justify-between gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-2 py-mdt-2"
+                          >
+                            <div className="space-y-1">
+                              <Text size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+                                {command.label}
+                              </Text>
+                              <Text tone="muted" size="bodySm">
+                                {command.description}
+                              </Text>
+                              <pre className="whitespace-pre-wrap rounded-mdt-sm border border-mdt-border bg-mdt-surface-subtle px-mdt-2 py-mdt-1 text-body-xs text-mdt-text">
+                                {command.command}
+                              </pre>
+                            </div>
+                            <CopyButton
+                              text={command.command}
+                              label="Copy command"
+                              copiedLabel="Copied"
+                              size="xs"
+                              variant="secondary"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                     <TextArea
                       id="sim-tree-manual"
                       name="sim-tree-manual"
@@ -1611,10 +1875,31 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                       }}
                       placeholder="One path per line (e.g. .github/copilot-instructions.md)"
                     />
+                    {manualIssues.length > 0 ? (
+                      <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
+                        <Text size="bodySm" weight="semibold" className="text-[color:var(--mdt-color-danger)]">
+                          Fix these lines before you run the scan
+                        </Text>
+                        <ul
+                          aria-label="Repo path parse errors"
+                          className="mt-mdt-2 space-y-mdt-1 text-caption text-[color:var(--mdt-color-danger)]"
+                        >
+                          {manualIssues.map((issue) => (
+                            <li key={`${issue.line}-${issue.text}`}>
+                              Line {issue.line}: {issue.message}{" "}
+                              <code className="rounded-mdt-xs bg-mdt-surface-subtle px-1 font-mono">
+                                {issue.text}
+                              </code>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                   </div>
 
                   <Text tone="muted" size="bodySm">
                     {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
+                    {manualIssues.length > 0 ? ` ${manualIssues.length} line(s) need attention.` : ""}
                   </Text>
                 </div>
               </details>
