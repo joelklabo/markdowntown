@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
-import { test, expect } from "@playwright/test";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import JSZip from "jszip";
 import { withE2EPage } from "./playwrightArtifacts";
 
+// Run with: npm run test:e2e -- AtlasSimulatorFlow (Vitest runner, not Playwright test CLI).
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
 const rulesMetaScreenshotPath = process.env.E2E_SCAN_RULES_META_SCREENSHOT_PATH;
@@ -51,22 +52,20 @@ async function buildZipFixture(): Promise<string> {
   return zipPath;
 }
 
-test.describe("Atlas simulator flow", () => {
-  test.describe.configure({ mode: "serial" });
+describe("Atlas simulator flow", () => {
   let browser: Browser;
 
-  test.beforeAll(async () => {
+  beforeAll(async () => {
     browser = await chromium.launch({ headless });
   });
 
-  test.afterAll(async () => {
+  afterAll(async () => {
     await browser?.close();
   });
 
-  const maybe = baseURL ? test : test.skip;
+  const maybe = baseURL ? it : it.skip;
 
-  maybe("switches tools and updates loaded files", async () => {
-    test.setTimeout(45000);
+  maybe("switches tools and updates loaded files", { timeout: 45000 }, async () => {
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.addInitScript(() => {
         const makeFile = (name: string) => ({ kind: "file", name });
@@ -118,8 +117,7 @@ test.describe("Atlas simulator flow", () => {
     }, "atlas-simulator");
   });
 
-  maybe("scans a folder and updates insights when switching tools", async () => {
-    test.setTimeout(45000);
+  maybe("scans a folder and updates insights when switching tools", { timeout: 45000 }, async () => {
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.addInitScript(() => {
         const makeFile = (name: string) => ({ kind: "file", name });
@@ -167,8 +165,7 @@ test.describe("Atlas simulator flow", () => {
     }, "atlas-simulator-folder-scan");
   });
 
-  maybe("uploads a ZIP and scans its contents", async () => {
-    test.setTimeout(45000);
+  maybe("uploads a ZIP and scans its contents", { timeout: 45000 }, async () => {
     const zipPath = await buildZipFixture();
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });

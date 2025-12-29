@@ -1,7 +1,6 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import type { Browser, BrowserContext, Page } from "playwright";
-import { expect } from "vitest";
 
 function slugify(input: string): string {
   const cleaned = input
@@ -12,8 +11,13 @@ function slugify(input: string): string {
   return cleaned.length > 0 ? cleaned.slice(0, 80) : "unknown";
 }
 
+function currentTestName(): string | null {
+  const globalExpect = (globalThis as { expect?: { getState?: () => { currentTestName?: string } } }).expect;
+  return globalExpect?.getState?.().currentTestName ?? null;
+}
+
 function artifactsDir(label?: string): string {
-  const testName = expect.getState().currentTestName ?? "unknown";
+  const testName = currentTestName() ?? "unknown";
   const testSlug = slugify(testName);
   const labelSlug = label ? slugify(label) : undefined;
   return path.join(process.cwd(), "test-results", "e2e", labelSlug ? `${testSlug}__${labelSlug}` : testSlug);
