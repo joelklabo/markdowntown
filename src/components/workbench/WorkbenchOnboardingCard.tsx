@@ -86,7 +86,13 @@ export function WorkbenchOnboardingCard({ entrySource, scanSummary }: WorkbenchO
     <Card className="p-mdt-4 md:p-mdt-5">
       <Stack gap={3}>
         <div className="space-y-mdt-1">
-          <Text size="caption" tone="muted">{label}</Text>
+          <Text
+            size="caption"
+            tone="muted"
+            data-testid={entrySource === 'scan' ? 'workbench-scan-defaults-status' : undefined}
+          >
+            {label}
+          </Text>
           <Heading level="h3" as="h2">{heading}</Heading>
           <Text tone="muted">{intro}</Text>
           {scanMeta ? (
