@@ -73,7 +73,11 @@ describe('POST /api/artifacts/save', () => {
 
   it('updates existing artifact', async () => {
     (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
-    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', userId: 'u1' });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'a1',
+      userId: 'u1',
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
     (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '1' }]);
     (prisma.artifact.update as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1' });
 
@@ -82,6 +86,7 @@ describe('POST /api/artifacts/save', () => {
       body: JSON.stringify({
         id: 'a1',
         title: 'Updated Agent',
+        expectedVersion: '1',
         uam: {
           schemaVersion: 1,
           meta: { title: 'Updated Agent' },
@@ -127,6 +132,66 @@ describe('POST /api/artifacts/save', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(403);
+  });
+
+  it('returns conflict on stale version', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'a1',
+      userId: 'u1',
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
+    (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '2' }]);
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: 'a1',
+        title: 'Stale Agent',
+        expectedVersion: '1',
+        uam: { schemaVersion: 1, meta: { title: 'Stale Agent' }, scopes: [], blocks: [] },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.details).toEqual(
+      expect.objectContaining({
+        currentVersion: '2',
+        expectedVersion: '1',
+      }),
+    );
+  });
+
+  it('returns conflict on stale updatedAt', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'a1',
+      userId: 'u1',
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
+    (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '3' }]);
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: 'a1',
+        title: 'Stale Timestamp',
+        expectedUpdatedAt: '2023-12-31T00:00:00.000Z',
+        uam: { schemaVersion: 1, meta: { title: 'Stale Timestamp' }, scopes: [], blocks: [] },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.details).toEqual(
+      expect.objectContaining({
+        currentVersion: '3',
+        expectedUpdatedAt: '2023-12-31T00:00:00.000Z',
+      }),
+    );
   });
 
   it('rejects invalid UAM payloads', async () => {
