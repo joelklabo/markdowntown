@@ -13,8 +13,15 @@ import { createZip } from '@/lib/compile/zip';
 import { getTimeSinceSessionStartMs, track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/analytics';
 import { applySkillExportSelection, getSkillExportSelection, type SkillExportSelection } from '@/lib/skills/skillExport';
 import { CompatibilityMatrix } from '@/components/workbench/CompatibilityMatrix';
+import { DiffPreview } from '@/components/workbench/DiffPreview';
 import { buildCompatibilityMatrix } from '@/lib/uam/compatibility';
-import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
+import {
+  DEFAULT_ADAPTER_VERSION,
+  createUamTargetV1,
+  type UamScopeV1,
+  type UamTargetV1,
+  type UamV1,
+} from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 import type { WorkbenchEntrySource } from '@/components/workbench/workbenchEntry';
 
@@ -37,6 +44,42 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function scopeLabel(scope: UamScopeV1): string {
+  if (scope.name && scope.name.trim().length > 0) return scope.name;
+  if (scope.kind === 'global') return 'Global';
+  if (scope.kind === 'dir') return scope.dir;
+  return scope.patterns.join(', ');
+}
+
+function blockLabel(block: { kind: string; title?: string }) {
+  const title = block.title?.trim();
+  if (title && title.length > 0) return title;
+  return block.kind.toUpperCase();
+}
+
+function renderScopeMarkdown(scope: UamScopeV1, blocks: Array<{ kind: string; title?: string; body: string }>): string {
+  const header = scope.kind === 'global' ? '## Global' : `## ${scopeLabel(scope)}`;
+
+  if (blocks.length === 0) return `${header}\n\n_(no blocks)_`;
+
+  const renderedBlocks = blocks.map((b) => {
+    const title = blockLabel(b);
+    const body = b.body.trimEnd();
+    return `### ${title}\n\n${body.length > 0 ? body : '_(empty)_'}`;
+  });
+
+  return `${header}\n\n${renderedBlocks.join('\n\n---\n\n')}`;
+}
+
+function buildRawPreview(uam: UamV1): string {
+  const header = `# ${uam.meta.title}${uam.meta.description ? `\n\n${uam.meta.description}` : ''}`;
+  const sections = uam.scopes.map((scope) => {
+    const scoped = uam.blocks.filter((block) => block.scopeId === scope.id);
+    return renderScopeMarkdown(scope, scoped);
+  });
+  return `${header}\n\n${sections.join('\n\n---\n\n')}`.trimEnd();
+}
+
 type ExportPanelProps = {
   entrySource?: WorkbenchEntrySource;
 };
@@ -53,6 +96,7 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
   const [exportedAt, setExportedAt] = useState<Date | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'raw' | 'diff'>('raw');
   const [optionsErrors, setOptionsErrors] = useState<Record<string, string>>({});
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -104,6 +148,7 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
     if (exportReady) return 'Export your files when ready.';
     return 'Compile to preview outputs.';
   }, [exportReady, loading, targetIds.length]);
+  const rawPreview = useMemo(() => buildRawPreview(uam), [uam]);
   const compatibility = useMemo(() => buildCompatibilityMatrix(uam, uam.targets), [uam]);
 
   useEffect(() => {
@@ -509,6 +554,28 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
             </div>
           </div>
 
+          <div className="flex flex-wrap items-center justify-between gap-mdt-2">
+            <div className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+              File preview
+            </div>
+            <div className="flex items-center gap-mdt-2">
+              <Button
+                size="xs"
+                variant={previewMode === 'raw' ? 'primary' : 'secondary'}
+                onClick={() => setPreviewMode('raw')}
+              >
+                Raw
+              </Button>
+              <Button
+                size="xs"
+                variant={previewMode === 'diff' ? 'primary' : 'secondary'}
+                onClick={() => setPreviewMode('diff')}
+              >
+                Diff
+              </Button>
+            </div>
+          </div>
+
           {result.files.map((f) => (
             <div key={f.path} className="rounded-mdt-md border border-mdt-border bg-mdt-surface">
               <div className="flex items-center justify-between gap-mdt-2 border-b border-mdt-border px-mdt-3 py-mdt-2">
@@ -544,7 +611,18 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                   </Button>
                 </div>
               </div>
-              <pre className="p-mdt-3 font-mono text-caption whitespace-pre-wrap overflow-auto">{f.content}</pre>
+              {previewMode === 'diff' ? (
+                <div className="p-mdt-3">
+                  <DiffPreview
+                    before={rawPreview}
+                    after={f.content}
+                    fileName={f.path}
+                    emptyLabel="No changes between raw preview and export."
+                  />
+                </div>
+              ) : (
+                <pre className="p-mdt-3 font-mono text-caption whitespace-pre-wrap overflow-auto">{f.content}</pre>
+              )}
             </div>
           ))}
         </div>

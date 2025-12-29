@@ -7,6 +7,7 @@ import { withE2EPage } from "./playwrightArtifacts";
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
 const workbenchScreenshotPath = process.env.E2E_WORKBENCH_SCREENSHOT_PATH;
+const exportDiffScreenshotPath = process.env.E2E_EXPORT_SCREENSHOT_PATH;
 
 describe("Workbench export flow", () => {
   let browser: Browser;
@@ -77,6 +78,16 @@ describe("Workbench export flow", () => {
       await page.getByRole("button", { name: "copilot-instructions.md" }).waitFor({ state: "visible" });
 
       await page.getByText(/\.claude\/skills\/.*SKILL\.md/).waitFor({ state: "visible" });
+
+      const exportPanel = page.locator("#workbench-export-panel");
+      const diffToggle = exportPanel.getByRole("button", { name: "Diff" });
+      await diffToggle.click();
+      await exportPanel.getByTestId("diff-viewer").first().waitFor({ state: "visible" });
+
+      if (exportDiffScreenshotPath) {
+        await fs.mkdir(path.dirname(exportDiffScreenshotPath), { recursive: true });
+        await page.screenshot({ path: exportDiffScreenshotPath, fullPage: true });
+      }
     });
   }, 60000);
 });

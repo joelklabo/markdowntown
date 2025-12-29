@@ -57,6 +57,14 @@ describe('ExportPanel', () => {
       expect(screen.getByText('# Hello')).toBeInTheDocument();
     });
 
+    expect(screen.getByRole('button', { name: 'Raw' })).toBeInTheDocument();
+    const diffButton = screen.getByRole('button', { name: 'Diff' });
+    fireEvent.click(diffButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diff-viewer')).toBeInTheDocument();
+    });
+
     const download = screen.getByRole('button', { name: /Export AGENTS.md/i });
     expect(download).toBeEnabled();
 
