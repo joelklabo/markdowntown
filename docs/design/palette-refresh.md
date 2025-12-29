@@ -24,6 +24,10 @@ Goal: Refresh the semantic color system to feel premium, calm, and confident whi
 - **Base neutrals**: cool blue-gray hue (220–222), low saturation.
 - **Primary (cyan)**: hue 195–200, sat 75–90, lightness 50–62.
 - **Accent (amber)**: hue 38–42, sat 90–96, lightness 50–62.
+- **Success**: hue 150–160, sat 60–75, lightness 45–55.
+- **Warning**: hue 32–40, sat 85–95, lightness 50–60.
+- **Danger**: hue 345–355, sat 70–85, lightness 50–58.
+- **Info**: hue 200–210, sat 80–92, lightness 50–60.
 - **Text**: near-black blue-gray (hsl 222 50% 9%).
 - **Borders**: low-contrast blue-gray (hsl 220 16% 84%).
 
@@ -31,6 +35,10 @@ Goal: Refresh the semantic color system to feel premium, calm, and confident whi
 - **Base neutrals**: cool charcoal (220–222), low saturation.
 - **Primary (cyan)**: hue 195–200, sat 80–90, lightness 60–72.
 - **Accent (amber)**: hue 38–42, sat 95–98, lightness 60–70.
+- **Success**: hue 150–160, sat 60–75, lightness 55–65.
+- **Warning**: hue 32–40, sat 85–95, lightness 58–68.
+- **Danger**: hue 345–355, sat 70–85, lightness 58–68.
+- **Info**: hue 200–210, sat 80–92, lightness 58–68.
 - **Text**: near-white blue-gray (hsl 220 33% 92%).
 - **Borders**: low-contrast charcoal (hsl 220 18% 30%).
 
@@ -39,6 +47,31 @@ Goal: Refresh the semantic color system to feel premium, calm, and confident whi
 - **Muted text on surface**: >= 3.0:1.
 - **Primary CTA text on primary**: >= 4.5:1.
 - **Focus ring vs surface**: >= 3.0:1.
+
+## Neutral scale targets (HSL)
+Light targets align with `globals.css` defaults:
+- `bg`: hsl(220 28% 98%)
+- `surface`: hsl(220 30% 99%)
+- `surface-subtle`: hsl(220 24% 96%)
+- `surface-strong`: hsl(220 20% 92%)
+- `surface-raised`: hsl(220 30% 99%)
+- `border`: hsl(220 16% 84%)
+- `border-strong`: hsl(220 14% 76%)
+- `ring`: hsl(196 88% 54% / 0.45)
+- `primary-soft`: hsl(196 92% 94%)
+- `accent-soft`: hsl(40 94% 92%)
+
+Dark targets align with `globals.css` defaults:
+- `bg`: hsl(220 20% 7%)
+- `surface`: hsl(220 18% 9%)
+- `surface-subtle`: hsl(220 16% 12%)
+- `surface-strong`: hsl(220 16% 16%)
+- `surface-raised`: hsl(220 18% 14%)
+- `border`: hsl(220 18% 30%)
+- `border-strong`: hsl(220 18% 38%)
+- `ring`: hsl(196 90% 66% / 0.4)
+- `primary-soft`: hsl(196 80% 20% / 0.6)
+- `accent-soft`: hsl(40 90% 26% / 0.6)
 
 ## Wordmark + header alignment
 - Wordmark skyline should remain readable in both themes with **>= 3:1** contrast.
@@ -51,4 +84,3 @@ Goal: Refresh the semantic color system to feel premium, calm, and confident whi
 - Update `--mdt-color-success|warning|danger|info` and soft counterparts.
 - Update `--mdt-color-bg`, `--mdt-color-surface*`, `--mdt-color-border*`, `--mdt-color-text*`, `--mdt-color-ring`.
 - Update data-viz palette tokens to match primary/accent hues.
-
