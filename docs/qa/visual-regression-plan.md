@@ -17,6 +17,7 @@
 - Store baseline images in `__tests__/__screenshots__` (or Playwright default).
 - Update snapshots only via intentional run; review diffs in PRs.
 - Ensure the Living City header band is visible in `/`, `/browse`, `/builder`, `/atlas`, and `/docs` baselines.
+- Interaction E2E specs run via Vitest (`npm run test:e2e -- <SpecName>`), not the Playwright test CLI.
 
 ## Smoke interactions
 - Nav: open/close search sheet; theme toggle; command palette open+close.

@@ -10,5 +10,6 @@ export default defineConfig({
     exclude: ["__tests__/visual/**", "**/node_modules/**", "**/.pnpm/**"],
     fileParallelism: false,
     maxWorkers: 1,
+    // Run a single spec via: npm run test:e2e -- <SpecName>
   },
 });

@@ -5,6 +5,7 @@ import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import JSZip from "jszip";
 import { withE2EPage } from "./playwrightArtifacts";
 
+// Run with: npm run test:e2e -- AtlasSimulatorFlow (Vitest runner, not Playwright test CLI).
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
 const rulesMetaScreenshotPath = process.env.E2E_SCAN_RULES_META_SCREENSHOT_PATH;

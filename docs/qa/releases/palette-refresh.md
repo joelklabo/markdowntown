@@ -13,8 +13,8 @@ Shipped the palette refresh across the landing experience and core UI primitives
 - Added palette usage guidance and updated user guide CTA references.
 
 ## QA evidence
-- Playwright: `E2E_HERO_SCREENSHOT_PATH=docs/screenshots/palette-refresh/home-hero.png E2E_FOOTER_SCREENSHOT_PATH=docs/screenshots/palette-refresh/home-footer.png npm run test:e2e -- SiteResponsiveSmoke`
-- Playwright: `E2E_COMPONENTS_SCREENSHOT_PATH=docs/screenshots/palette-refresh/components-grid.png npm run test:e2e -- SectionFlow`
+- E2E (Vitest runner): `E2E_HERO_SCREENSHOT_PATH=docs/screenshots/palette-refresh/home-hero.png E2E_FOOTER_SCREENSHOT_PATH=docs/screenshots/palette-refresh/home-footer.png npm run test:e2e -- SiteResponsiveSmoke`
+- E2E (Vitest runner): `E2E_COMPONENTS_SCREENSHOT_PATH=docs/screenshots/palette-refresh/components-grid.png npm run test:e2e -- SectionFlow`
 - Screenshots:
   - `docs/screenshots/palette-refresh/home-hero.png`
   - `docs/screenshots/palette-refresh/home-footer.png`
