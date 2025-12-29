@@ -10,6 +10,10 @@ const getArg = (name) => {
 const url = getArg("--url") ?? process.env.DEVTOOLS_SMOKE_URL ?? "http://localhost:3000";
 const timeoutMs = Number(getArg("--timeout") ?? process.env.DEVTOOLS_SMOKE_TIMEOUT ?? "15000");
 const waitMs = Number(getArg("--wait") ?? process.env.DEVTOOLS_SMOKE_WAIT ?? "1000");
+const retryCount = Number(getArg("--retries") ?? process.env.DEVTOOLS_SMOKE_RETRIES ?? "1");
+const retryDelayMs = Number(getArg("--retry-delay") ?? process.env.DEVTOOLS_SMOKE_RETRY_DELAY ?? "500");
+const healthEnabled = getArg("--health") === "1" || process.env.DEVTOOLS_SMOKE_HEALTH === "1";
+const healthTimeoutMs = Number(getArg("--health-timeout") ?? process.env.DEVTOOLS_SMOKE_HEALTH_TIMEOUT ?? "2000");
 
 const warnings = [];
 const consoleErrors = [];
@@ -36,7 +40,56 @@ const logSection = (title) => {
   process.stdout.write(`\n${title}\n`);
 };
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const probeHealth = async () => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), healthTimeoutMs);
+  try {
+    const response = await fetch(url, { method: "HEAD", signal: controller.signal });
+    clearTimeout(timeoutId);
+    return { ok: response.ok, status: response.status };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    return { ok: false, error };
+  }
+};
+
+const gotoWithRetries = async (page) => {
+  const attempts = Math.max(1, retryCount + 1);
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await page.goto(url, { waitUntil: "networkidle", timeout: timeoutMs });
+      if (response && response.ok()) {
+        return response;
+      }
+      lastError = new Error(`Navigation failed with status ${response?.status() ?? 0}`);
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (attempt < attempts) {
+      process.stdout.write(`Retrying navigation (${attempt}/${attempts})...\n`);
+      await wait(retryDelayMs);
+    }
+  }
+
+  throw lastError ?? new Error("Navigation failed");
+};
+
 const main = async () => {
+  if (healthEnabled) {
+    const health = await probeHealth();
+    if (health.ok) {
+      process.stdout.write(`Health check OK: ${health.status}\n`);
+    } else {
+      const reason = health.error?.name ? `${health.error.name}: ${health.error.message}` : "unreachable";
+      process.stdout.write(`Health check failed (${reason}). Continuing with browser retry.\n`);
+    }
+  }
+
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
@@ -77,7 +130,7 @@ const main = async () => {
     }
   });
 
-  const response = await page.goto(url, { waitUntil: "networkidle", timeout: timeoutMs });
+  const response = await gotoWithRetries(page);
   if (!response || !response.ok()) {
     badResponses.push({
       url,
