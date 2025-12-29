@@ -12,6 +12,8 @@ import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
 import { getTimeSinceSessionStartMs, track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/analytics';
 import { applySkillExportSelection, getSkillExportSelection, type SkillExportSelection } from '@/lib/skills/skillExport';
+import { CompatibilityMatrix } from '@/components/workbench/CompatibilityMatrix';
+import { buildCompatibilityMatrix } from '@/lib/uam/compatibility';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
 import type { WorkbenchEntrySource } from '@/components/workbench/workbenchEntry';
@@ -102,6 +104,7 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
     if (exportReady) return 'Export your files when ready.';
     return 'Compile to preview outputs.';
   }, [exportReady, loading, targetIds.length]);
+  const compatibility = useMemo(() => buildCompatibilityMatrix(uam, uam.targets), [uam]);
 
   useEffect(() => {
     return () => {
@@ -419,6 +422,32 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
           </div>
         ) : null}
       </div>
+
+      {compatibility.targets.length > 0 && (
+        <div className="space-y-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
+          <div className="space-y-mdt-1">
+            <Text size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
+              Compatibility
+            </Text>
+            <Text size="bodySm" tone="muted">
+              Review which targets support your current scopes and skills.
+            </Text>
+          </div>
+          <CompatibilityMatrix features={compatibility.features} targets={compatibility.targets} />
+          {compatibility.warnings.length > 0 ? (
+            <div className="rounded-mdt-md border border-[color:var(--mdt-color-warning)]/30 bg-[color:var(--mdt-color-warning)]/10 p-mdt-3">
+              <div className="mb-mdt-2 text-caption font-semibold text-[color:var(--mdt-color-warning)]">
+                Compatibility warnings
+              </div>
+              <ul className="list-disc space-y-mdt-1 pl-mdt-5 text-caption text-[color:var(--mdt-color-warning)]">
+                {compatibility.warnings.map((warning) => (
+                  <li key={`${warning.targetId}-${warning.featureId}`}>{warning.message}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-mdt-3 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
         <div className="flex flex-wrap items-center gap-mdt-2">

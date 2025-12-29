@@ -1,9 +1,12 @@
+import path from "node:path";
+import fs from "node:fs/promises";
 import { chromium, Browser } from "playwright";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
+const workbenchScreenshotPath = process.env.E2E_WORKBENCH_SCREENSHOT_PATH;
 
 describe("Workbench export flow", () => {
   let browser: Browser;
@@ -43,6 +46,15 @@ describe("Workbench export flow", () => {
       await page.getByLabel("GitHub Copilot").click();
       await page.getByLabel("Claude Code").click();
       await page.getByLabel("AGENTS.md").click();
+
+      const compatibility = page.getByTestId("compatibility-matrix");
+      await compatibility.waitFor({ state: "visible" });
+      await compatibility.getByText("Skills export").waitFor({ state: "visible" });
+
+      if (workbenchScreenshotPath) {
+        await fs.mkdir(path.dirname(workbenchScreenshotPath), { recursive: true });
+        await page.screenshot({ path: workbenchScreenshotPath, fullPage: true });
+      }
 
       await page.getByRole("button", { name: /advanced/i }).click();
 

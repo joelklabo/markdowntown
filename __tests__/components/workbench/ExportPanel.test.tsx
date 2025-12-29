@@ -101,4 +101,37 @@ describe('ExportPanel', () => {
       expect(screen.getByText('Invalid payload')).toBeInTheDocument();
     });
   });
+
+  it('shows compatibility warnings for unsupported scopes and skills', () => {
+    act(() => {
+      const store = useWorkbenchStore.getState();
+      store.setUam({
+        ...store.uam,
+        scopes: [
+          { id: 'global', kind: 'global', name: 'Global' },
+          { id: 'dir-scope', kind: 'dir', dir: 'src' },
+          { id: 'glob-scope', kind: 'glob', patterns: ['**/*.md'] },
+        ],
+        blocks: [
+          { id: 'block-global', scopeId: 'global', kind: 'markdown', body: 'Root rules' },
+          { id: 'block-dir', scopeId: 'dir-scope', kind: 'markdown', body: 'Dir rules' },
+          { id: 'block-glob', scopeId: 'glob-scope', kind: 'markdown', body: 'Glob rules' },
+        ],
+        capabilities: [{ id: 'cap-1', title: 'Skill', description: 'Demo', params: {} }],
+        targets: [
+          createUamTargetV1('agents-md'),
+          createUamTargetV1('github-copilot'),
+          createUamTargetV1('gemini-cli'),
+        ],
+      });
+    });
+
+    render(<ExportPanel />);
+
+    expect(screen.getByText('Compatibility')).toBeInTheDocument();
+    expect(screen.getByTestId('compatibility-matrix')).toBeInTheDocument();
+    expect(screen.getByText(/does not support glob scopes/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not support directory scopes/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not export skills/i)).toBeInTheDocument();
+  });
 });
