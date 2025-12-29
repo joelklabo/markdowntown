@@ -53,6 +53,7 @@ import type {
 import { initSessionStart, track, trackError } from "@/lib/analytics";
 import { emitUiTelemetryEvent } from "@/lib/telemetry";
 import { featureFlags } from "@/lib/flags";
+import { persistScanContextForHandoff } from "@/hooks/useWorkbenchStore";
 
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
   { id: "github-copilot", label: "GitHub Copilot" },
@@ -282,21 +283,97 @@ function suggestCwdFromDetection(detection: ToolDetectionResult): string {
 }
 
 const MAX_SCAN_PATHS = 200;
+const MAX_SCAN_QUERY_BYTES = 1800;
+const FALLBACK_QUERY_PATH_LIMITS = [50, 20, 0];
 
-function buildWorkbenchHref(tool: SimulatorToolId, cwd: string, paths: string[]): string {
+type WorkbenchHandoff = {
+  href: string;
+  notice?: string;
+  mode: "url" | "storage" | "url-truncated" | "url-minimal";
+};
+
+function getByteLength(value: string): number {
+  if (typeof TextEncoder !== "undefined") {
+    return new TextEncoder().encode(value).length;
+  }
+  return value.length;
+}
+
+function buildScanQuery(tool: SimulatorToolId, cwd: string, paths: string[]) {
   const params = new URLSearchParams();
   params.set("scanTool", tool);
+  if (cwd) params.set("scanCwd", cwd);
+  if (paths.length > 0) params.set("scanPaths", JSON.stringify(paths));
+  const query = params.toString();
+  return {
+    href: query ? `/workbench?${query}` : "/workbench",
+    query,
+    byteLength: getByteLength(query),
+  };
+}
+
+function buildFallbackWorkbenchHandoff(
+  tool: SimulatorToolId,
+  normalizedCwd: string,
+  normalizedPaths: string[],
+): WorkbenchHandoff {
+  for (const limit of FALLBACK_QUERY_PATH_LIMITS) {
+    const limitedPaths = normalizedPaths.slice(0, limit);
+    const limitedQuery = buildScanQuery(tool, normalizedCwd, limitedPaths);
+    if (limitedQuery.byteLength <= MAX_SCAN_QUERY_BYTES) {
+      const notice =
+        limit === 0
+          ? "Scan context was too large to pass fully. Workbench will open with tool defaults only."
+          : "Scan context was too large, so Workbench will load a shortened file preview.";
+      return { href: limitedQuery.href, notice, mode: "url-truncated" };
+    }
+  }
+
+  const minimalQuery = buildScanQuery(tool, "", []);
+  if (minimalQuery.byteLength <= MAX_SCAN_QUERY_BYTES) {
+    return {
+      href: minimalQuery.href,
+      notice: "Scan context was too large to pass. Workbench will open without scan defaults.",
+      mode: "url-minimal",
+    };
+  }
+
+  return {
+    href: "/workbench",
+    notice: "Scan context was too large to pass. Workbench will open without scan defaults.",
+    mode: "url-minimal",
+  };
+}
+
+function buildWorkbenchHandoff(tool: SimulatorToolId, cwd: string, paths: string[]): WorkbenchHandoff {
   const normalizedCwd = normalizePath(cwd);
-  if (normalizedCwd) params.set("scanCwd", normalizedCwd);
   const normalizedPaths = Array.from(new Set(paths.map((path) => normalizePath(path)).filter(Boolean))).slice(
     0,
     MAX_SCAN_PATHS,
   );
-  if (normalizedPaths.length > 0) {
-    params.set("scanPaths", JSON.stringify(normalizedPaths));
+
+  const baseQuery = buildScanQuery(tool, normalizedCwd, normalizedPaths);
+  if (baseQuery.byteLength <= MAX_SCAN_QUERY_BYTES) {
+    return { href: baseQuery.href, mode: "url" };
   }
-  const query = params.toString();
-  return query ? `/workbench?${query}` : "/workbench";
+
+  const storagePlan = persistScanContextForHandoff(
+    { tool, cwd: normalizedCwd, paths: normalizedPaths },
+    { dryRun: true },
+  );
+  if (storagePlan.status !== "failed") {
+    const notice =
+      storagePlan.status === "truncated"
+        ? "This scan is large, so Workbench will load a shortened file preview. Scan a smaller folder for the full list."
+        : "Large scan context saved for this session. If Workbench doesn’t load defaults, return and rescan.";
+    return {
+      href: "/workbench?scanStored=1",
+      notice,
+      mode: "storage",
+    };
+  }
+
+  return buildFallbackWorkbenchHandoff(tool, normalizedCwd, normalizedPaths);
 }
 
 type SummaryInput = {
@@ -515,6 +592,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   );
   const [lastSimulatedPaths, setLastSimulatedPaths] = useState<string[]>(() => []);
   const [actionStatus, setActionStatus] = useState<string | null>(null);
+  const [storageFallback, setStorageFallback] = useState<WorkbenchHandoff | null>(null);
   const statusTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const zipInputRef = useRef<HTMLInputElement | null>(null);
@@ -766,10 +844,27 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     () => lastSimulatedPaths.filter((path) => isInstructionPath(path)),
     [lastSimulatedPaths],
   );
-  const workbenchHref = useMemo(
-    () => buildWorkbenchHref(tool, cwd, detectedInstructionPaths),
+  const workbenchHandoff = useMemo(
+    () => buildWorkbenchHandoff(tool, cwd, detectedInstructionPaths),
     [cwd, detectedInstructionPaths, tool],
   );
+  useEffect(() => {
+    setStorageFallback(null);
+  }, [workbenchHandoff.href, workbenchHandoff.mode, workbenchHandoff.notice]);
+
+  useEffect(() => {
+    if (workbenchHandoff.mode !== "storage") return;
+    const result = persistScanContextForHandoff({ tool, cwd, paths: detectedInstructionPaths });
+    if (result.status === "failed") {
+      setStorageFallback(
+        buildFallbackWorkbenchHandoff(tool, normalizePath(cwd), normalizePaths(detectedInstructionPaths)),
+      );
+    }
+  }, [workbenchHandoff.mode, tool, cwd, detectedInstructionPaths]);
+
+  const resolvedWorkbenchHandoff = storageFallback ?? workbenchHandoff;
+  const workbenchHref = resolvedWorkbenchHandoff.href;
+  const handoffNotice = resolvedWorkbenchHandoff.notice;
   const fixSummaryText = useMemo(
     () => formatFixSummary({ tool, cwd, diagnostics: instructionDiagnostics, isStale }),
     [cwd, instructionDiagnostics, isStale, tool],
@@ -1689,6 +1784,11 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                 {scanNotice ? (
                   <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
                     {scanNotice}
+                  </div>
+                ) : null}
+                {handoffNotice ? (
+                  <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-caption text-mdt-muted">
+                    {handoffNotice}
                   </div>
                 ) : null}
 

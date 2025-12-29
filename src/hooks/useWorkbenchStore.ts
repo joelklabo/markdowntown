@@ -126,6 +126,8 @@ const WORKBENCH_STORAGE_VERSION = 3;
 
 const SCAN_CONTEXT_STORAGE_KEY = 'workbench-scan-context-v1';
 const SCAN_CONTEXT_STORAGE_VERSION = 1;
+const SCAN_CONTEXT_STORAGE_MAX_BYTES = 250_000;
+const SCAN_CONTEXT_TRUNCATED_PATHS = 50;
 
 type StoredScanContext = {
   version: number;
@@ -168,19 +170,74 @@ export function readStoredScanContext(): ScanContext | null {
   }
 }
 
-function writeStoredScanContext(context: ScanContext) {
+type PersistScanContextResult = {
+  status: 'stored' | 'truncated' | 'failed';
+  context: ScanContext;
+  byteLength: number;
+  originalPathCount: number;
+};
+
+function buildStoredScanContextPayload(context: ScanContext) {
+  const payload: StoredScanContext = {
+    version: SCAN_CONTEXT_STORAGE_VERSION,
+    storedAt: Date.now(),
+    context,
+  };
+  const json = JSON.stringify(payload);
+  return { json, byteLength: getByteLength(json) };
+}
+
+export function persistScanContextForHandoff(
+  rawContext: ScanContext,
+  options?: { dryRun?: boolean },
+): PersistScanContextResult {
   const storage = safeSessionStorage();
-  if (!storage) return;
-  try {
-    const payload: StoredScanContext = {
-      version: SCAN_CONTEXT_STORAGE_VERSION,
-      storedAt: Date.now(),
-      context,
+  if (!storage) {
+    return {
+      status: 'failed',
+      context: rawContext,
+      byteLength: 0,
+      originalPathCount: rawContext.paths?.length ?? 0,
     };
-    storage.setItem(SCAN_CONTEXT_STORAGE_KEY, JSON.stringify(payload));
-  } catch {
-    // ignore storage failures (quota, serialization, etc.)
   }
+
+  const normalized: ScanContext = {
+    tool: rawContext.tool,
+    cwd: normalizeDirScope(rawContext.cwd ?? ''),
+    paths: normalizeScanPaths(rawContext.paths ?? []),
+  };
+  const originalPathCount = normalized.paths.length;
+  let candidate = normalized;
+  let status: PersistScanContextResult['status'] = 'stored';
+  let { json, byteLength } = buildStoredScanContextPayload(candidate);
+
+  if (byteLength > SCAN_CONTEXT_STORAGE_MAX_BYTES) {
+    const truncatedPaths = normalized.paths.slice(0, Math.min(SCAN_CONTEXT_TRUNCATED_PATHS, normalized.paths.length));
+    candidate = { ...normalized, paths: truncatedPaths };
+    status = 'truncated';
+    ({ json, byteLength } = buildStoredScanContextPayload(candidate));
+  }
+
+  if (byteLength > SCAN_CONTEXT_STORAGE_MAX_BYTES) {
+    candidate = { ...candidate, paths: [] };
+    status = 'truncated';
+    ({ json, byteLength } = buildStoredScanContextPayload(candidate));
+  }
+
+  if (options?.dryRun) {
+    return { status, context: candidate, byteLength, originalPathCount };
+  }
+
+  try {
+    storage.setItem(SCAN_CONTEXT_STORAGE_KEY, json);
+    return { status, context: candidate, byteLength, originalPathCount };
+  } catch {
+    return { status: 'failed', context: candidate, byteLength, originalPathCount };
+  }
+}
+
+function writeStoredScanContext(context: ScanContext) {
+  persistScanContextForHandoff(context);
 }
 
 function clearStoredScanContext() {
@@ -256,6 +313,13 @@ function debounce<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delayMs
 function randomId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
   return `id_${Math.random().toString(16).slice(2)}`;
+}
+
+function getByteLength(value: string): number {
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder().encode(value).length;
+  }
+  return value.length;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

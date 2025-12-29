@@ -9,9 +9,9 @@ Define the client-only contract for handing off context from Scan, Library, and 
 - Export target: agents.md.
 
 ## Handoff Principles
-- **Minimal URL payloads:** URLs should carry only lightweight identifiers or flags.
+- **Minimal URL payloads:** URLs may include scan defaults (tool, cwd, small path list) but must stay under a small size budget.
 - **Local persistence:** Use sessionStorage for short-lived drafts.
-- **No sensitive data in URLs:** Avoid file paths, cwd, or repo names in query params.
+- **Privacy-first:** Do not include file contents in URLs; analytics must redact paths/cwd.
 - **Graceful failure:** If handoff data is missing/invalid, present a clear recovery CTA.
 
 ## Data Contract (Draft)
@@ -25,7 +25,7 @@ Define the client-only contract for handing off context from Scan, Library, and 
 ### Scan context payload
 - `toolId` (string)
 - `cwd` (string, redacted in analytics)
-- `paths` (string[]; file paths; not in URL)
+- `paths` (string[]; file paths; included in URL only when small)
 - `loadedCount` (number)
 - `missingCount` (number)
 - `warnings` (string[])
@@ -45,17 +45,21 @@ Define the client-only contract for handing off context from Scan, Library, and 
 ## Persistence Strategy
 
 ### URL params
-- Use for `handoffId`, `source`, and shallow flags only.
-- Do not include file paths or large arrays.
-- Guard against URL length limits (2–8KB typical).
+- `scanTool`, `scanCwd`, `scanPaths` (JSON array) used for small scan payloads.
+- Query string budget target: ~1.8KB. If exceeded, fall back to sessionStorage.
+- Paths are de-duped and capped to 200 entries before any URL usage.
+- No file contents in URLs.
 
 ### sessionStorage
-- Key: `workbench_handoff_${handoffId}`.
-- Store full payloads for scan/library/translate.
+- Scan key: `workbench-scan-context-v1`.
+- Workbench reads sessionStorage on entry; scan handoff links set `scanStored=1` as a hint.
+- Stored scan payload includes tool, cwd, and paths; payloads are truncated if too large.
+- Other handoffs should use their own versioned keys with the same size safeguards.
 - Expiration: clear on export success or after 24 hours.
 
 ### Large payloads
-- If payload exceeds a safe size (~250KB), store a compact summary in sessionStorage and show a warning toast in Workbench with a CTA to rescan or reopen the artifact.
+- If the serialized scan payload exceeds ~250KB, truncate paths to 50 entries; if still too large, store tool + cwd with empty paths.
+- Scan UI shows a warning when truncation occurs so users know to rescan a smaller folder.
 
 ## Back/Forward Behavior
 - Back from Workbench should return to the originating surface when possible.
