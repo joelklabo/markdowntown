@@ -231,7 +231,9 @@ describe("Atlas scan guidance flow", () => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
 
-      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+      await page
+        .getByText("Permission denied. Check folder access and try again. Files stay local.", { exact: true })
+        .waitFor({ state: "visible" });
     }, "scan-permission-denied");
   });
 
@@ -241,7 +243,9 @@ describe("Atlas scan guidance flow", () => {
 
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
-      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+      await page
+        .getByText("Permission denied. Check folder access and try again. Files stay local.", { exact: true })
+        .waitFor({ state: "visible" });
 
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
       await page.getByText(/2 instruction files found.*2 total files scanned/i).waitFor({ state: "visible" });

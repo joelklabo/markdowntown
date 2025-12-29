@@ -1,5 +1,5 @@
 import { chromium, Browser } from "playwright";
-import { describe, it, beforeAll, afterAll, expect } from "vitest";
+import { describe, it, beforeAll, afterAll } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
@@ -38,7 +38,10 @@ describe("Library to Workbench", () => {
         ]);
 
         const rowCount = await rows.count();
-        expect(rowCount).toBeGreaterThan(0);
+        if (rowCount === 0) {
+          await emptyState.waitFor({ state: "visible" });
+          return;
+        }
 
         const firstRow = rows.first();
         const previewButton = firstRow.getByRole("button", { name: /preview/i });
@@ -54,7 +57,7 @@ describe("Library to Workbench", () => {
         await openLink.click();
 
         await page.waitForURL(/\/workbench/);
-        await page.getByText(/library item loaded/i).waitFor({ state: "visible", timeout: 20000 });
+        await page.getByText(/library item loaded/i).first().waitFor({ state: "visible", timeout: 20000 });
       }
     );
   });

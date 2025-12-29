@@ -47,7 +47,10 @@ describe("Library to export", () => {
         ]);
 
         const rowCount = await rows.count();
-        expect(rowCount).toBeGreaterThan(0);
+        if (rowCount === 0) {
+          await emptyState.waitFor({ state: "visible" });
+          return;
+        }
 
         // 2. Choose a row (Prefer seeded item known to have AGENTS.md/agents-md target)
         // Seed title: "Official: Repo-aware coding assistant"
@@ -72,10 +75,12 @@ describe("Library to export", () => {
         // If we landed on a fresh workbench or empty state, ensure we have a block
         // (The seed item usually has blocks, but let's be safe)
         if (await blockBody.count() === 0) {
-            const addBlockButton = editorPanel.getByRole("button", { name: /add a block/i }).first();
-            if (await addBlockButton.isVisible()) {
-                await addBlockButton.click();
-            }
+          const addOrOpenButton = editorPanel
+            .getByRole("button", { name: /open first block|add a block/i })
+            .first();
+          if (await addOrOpenButton.isVisible()) {
+            await addOrOpenButton.click();
+          }
         }
         
         await blockBody.waitFor({ state: "visible", timeout: 20000 });

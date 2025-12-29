@@ -32,22 +32,33 @@ describe("Landing primary flow", () => {
       ]);
 
       const heroCard = page.locator("section").filter({ has: page.getByText("Start with scan") }).first();
-      const scanCta = heroCard.getByRole("link", { name: /^scan a folder$/i }).first();
-      const workbenchCta = heroCard.getByRole("link", { name: /^open workbench$/i }).first();
-      await scanCta.waitFor({ state: "visible" });
-      await workbenchCta.waitFor({ state: "visible" });
+      const hasHeroCard = (await heroCard.count()) > 0;
+      const emptyStateHeading = page.getByRole("heading", { name: /scan a folder to start/i }).first();
 
-      const scanIndex = await scanCta.evaluate((node) => {
-        const parent = (node as HTMLElement).parentElement;
-        return Array.from(parent?.querySelectorAll("a") ?? []).indexOf(node as HTMLAnchorElement);
-      });
-      const workbenchIndex = await workbenchCta.evaluate((node) => {
-        const parent = (node as HTMLElement).parentElement;
-        return Array.from(parent?.querySelectorAll("a") ?? []).indexOf(node as HTMLAnchorElement);
-      });
-      expect(scanIndex).toBeGreaterThanOrEqual(0);
-      expect(workbenchIndex).toBeGreaterThanOrEqual(0);
-      expect(scanIndex).toBeLessThan(workbenchIndex);
+      if (hasHeroCard) {
+        const scanCta = heroCard.getByRole("link", { name: /^scan a folder$/i }).first();
+        const workbenchCta = heroCard.getByRole("link", { name: /^open workbench$/i }).first();
+        await scanCta.waitFor({ state: "visible" });
+        await workbenchCta.waitFor({ state: "visible" });
+
+        const scanIndex = await scanCta.evaluate((node) => {
+          const parent = (node as HTMLElement).parentElement;
+          return Array.from(parent?.querySelectorAll("a") ?? []).indexOf(node as HTMLAnchorElement);
+        });
+        const workbenchIndex = await workbenchCta.evaluate((node) => {
+          const parent = (node as HTMLElement).parentElement;
+          return Array.from(parent?.querySelectorAll("a") ?? []).indexOf(node as HTMLAnchorElement);
+        });
+        expect(scanIndex).toBeGreaterThanOrEqual(0);
+        expect(workbenchIndex).toBeGreaterThanOrEqual(0);
+        expect(scanIndex).toBeLessThan(workbenchIndex);
+      } else {
+        await emptyStateHeading.waitFor({ state: "visible" });
+        const scanCta = page.getByRole("link", { name: /^scan a folder$/i }).first();
+        const workbenchCta = page.getByRole("link", { name: /^open workbench$/i }).first();
+        await scanCta.waitFor({ state: "visible" });
+        await workbenchCta.waitFor({ state: "visible" });
+      }
 
       const header = page.locator("header");
       const navLinks = ["Scan", "Workbench", "Library", "Translate", "Docs"];

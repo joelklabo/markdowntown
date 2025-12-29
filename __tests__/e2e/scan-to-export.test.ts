@@ -82,7 +82,9 @@ describe("Scan to workbench export flow", () => {
         await scanButton.scrollIntoViewIfNeeded();
         await scanButton.click();
         if (recoveryEnabled) {
-          await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+          await page
+            .getByText("Permission denied. Check folder access and try again. Files stay local.", { exact: true })
+            .waitFor({ state: "visible" });
           await scanButton.click();
         }
 
@@ -263,7 +265,9 @@ video("records scan → workbench export for video capture", { timeout: 120000 }
     await scanButton.scrollIntoViewIfNeeded();
     await scanButton.click({ timeout: 60000, force: true });
     if (recoveryEnabled) {
-      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+      await page
+        .getByText("Permission denied. Check folder access and try again. Files stay local.", { exact: true })
+        .waitFor({ state: "visible" });
       await scanButton.click({ timeout: 60000, force: true });
     }
   } else {
