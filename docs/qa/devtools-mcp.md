@@ -30,6 +30,7 @@ The health probe issues a lightweight `HEAD` request before launching Playwright
   3) Re-open a fresh DevTools page and retry the console/network capture.
   4) If it still fails, run the fallback smoke check: `node scripts/qa/devtools-smoke.mjs --url http://127.0.0.1:3000 --health 1 --retries 2`.
 - MCP timeouts: restart the MCP bridge/agent and rerun `npm run mcp:health`.
+- `Network.enable` timeouts: follow `docs/qa/devtools-troubleshooting.md` to reset MCP targets and restart the dev server if needed.
 - Slow dev server startup: increase `DEVTOOLS_SMOKE_RETRIES` and `DEVTOOLS_SMOKE_TIMEOUT`.
 - EMFILE watch errors: set `WATCHPACK_POLLING=true` and `WATCHPACK_POLLING_INTERVAL=1000` before `npm run dev`.
 - If MCP is unavailable: rely on `node scripts/qa/devtools-smoke.mjs` and attach screenshots/logs to QA notes.

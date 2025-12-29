@@ -57,6 +57,7 @@ for (let attempt = 1; attempt <= totalAttempts; attempt += 1) {
       `- Retry with: MCP_HEALTH_URL=${url} MCP_HEALTH_TIMEOUT=${timeoutMs} MCP_HEALTH_RETRIES=${retryCount} node scripts/mcp-devtools-health.mjs`,
     );
     log("- If MCP timeouts persist, restart the MCP bridge/agent.");
+    log("- See docs/qa/devtools-troubleshooting.md for MCP timeout steps.");
     lastFailure = null;
     break;
   }

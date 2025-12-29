@@ -9,6 +9,7 @@
 
 ## Troubleshooting
 - DevTools MCP: `docs/qa/devtools-mcp.md`
+- DevTools MCP timeout checklist: `docs/qa/devtools-troubleshooting.md`
 - Contrast audit: `docs/qa/contrast-audit.md`
 - Security UI review: `docs/qa/security-ui-review.md`
 
