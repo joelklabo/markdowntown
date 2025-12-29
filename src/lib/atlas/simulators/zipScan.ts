@@ -20,8 +20,13 @@ export type ZipScanOptions = {
   contentAllowlist?: RegExp[];
   maxContentBytes?: number;
   signal?: AbortSignal;
-  onProgress?: (progress: { totalFiles: number; matchedFiles: number }) => void;
+  onProgress?: (progress: ZipScanProgress) => void;
   progressInterval?: number;
+};
+
+export type ZipScanProgress = {
+  totalFiles: number;
+  matchedFiles: number;
 };
 
 export type ZipScanErrorKind = 'oversize' | 'corrupt';

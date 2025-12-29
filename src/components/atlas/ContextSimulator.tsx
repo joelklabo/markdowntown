@@ -29,12 +29,19 @@ import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsSca
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
 import { scanZipFile, ZipScanError } from "@/lib/atlas/simulators/zipScan";
+import { parseRepoInput, type RepoPathParseResult } from "@/lib/atlas/simulators/treeParse";
+import type {
+  ScanWorkerRequest,
+  ScanWorkerResponse,
+  SerializedError as ScanWorkerSerializedError,
+} from "@/lib/atlas/simulators/workers/scanWorker";
 import { INSTRUCTION_TEMPLATES } from "@/lib/atlas/simulators/templates";
 import type { ToolRulesMetadataMap } from "@/lib/atlas/simulators/types";
 import type {
   InstructionDiagnostics,
   NextStepAction,
   RepoScanMeta,
+  RepoScanResult,
   RepoTree,
   SimulationResult,
   SimulatorInsights as SimulatorInsightsData,
@@ -98,6 +105,33 @@ const TREE_COMMANDS = [
   },
 ] as const;
 
+class ScanWorkerUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ScanWorkerUnavailableError";
+  }
+}
+
+class ScanWorkerFailedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ScanWorkerFailedError";
+  }
+}
+
+type ScanWorkerPayload =
+  | Omit<Extract<ScanWorkerRequest, { type: "scan_zip" }>, "id">
+  | Omit<Extract<ScanWorkerRequest, { type: "scan_file_list" }>, "id">;
+
+const createScanWorker = () => {
+  if (typeof Worker === "undefined") {
+    throw new ScanWorkerUnavailableError("Scan worker is not available in this browser.");
+  }
+  return new Worker(new URL("../../lib/atlas/simulators/workers/scanWorker.ts", import.meta.url), {
+    type: "module",
+  });
+};
+
 type RepoSignals = {
   hasGitHubCopilotRoot: boolean;
   hasGitHubCopilotScoped: boolean;
@@ -110,163 +144,6 @@ type RepoSignals = {
   hasCursorRules: boolean;
   hasCursorLegacy: boolean;
 };
-
-type RepoPathParseIssue = {
-  line: number;
-  message: string;
-  text: string;
-};
-
-type RepoPathParseResult = {
-  paths: string[];
-  issues: RepoPathParseIssue[];
-};
-
-type TreeNode = {
-  depth: number;
-  name: string;
-  line: number;
-  isDirHint: boolean;
-};
-
-const TREE_MARKER_RE = /(?:├|└)[─-]{2,}|\+--|\\--|\|--/;
-const TREE_LINE_RE = /^(.*?)(?:├|└)[─-]{2,}\s+(.+)$/;
-const ASCII_TREE_LINE_RE = /^(.*?)(?:\+--|\\--|\|--)\s+(.+)$/;
-const LS_HEADER_RE = /^(.+):$/;
-const TREE_IGNORED_RE = /^(?:\d+\s+directories?,\s+\d+\s+files?|\d+\s+files?)$/i;
-const WINDOWS_TREE_IGNORED_RE = /^(?:Folder PATH listing|Volume serial number is)/i;
-const LS_ERROR_RE = /^ls:\s+/i;
-
-function countTreeDepth(prefix: string): number {
-  const normalized = prefix.replace(/\t/g, "    ");
-  const matches = normalized.match(/(?:\|   |│   |    )/g);
-  return matches ? matches.length : 0;
-}
-
-function parseTreeLine(raw: string): TreeNode | null {
-  if (!TREE_MARKER_RE.test(raw)) return null;
-  const match = raw.match(TREE_LINE_RE) ?? raw.match(ASCII_TREE_LINE_RE);
-  if (!match) return null;
-  const prefix = match[1] ?? "";
-  const nameRaw = match[2] ?? "";
-  const depth = countTreeDepth(prefix);
-  const cleaned = nameRaw.trim();
-  const isDirHint = /[\\/]+$/.test(cleaned);
-  const name = cleaned.replace(/[\\/]+$/, "");
-  if (!name || name === ".") return null;
-  return { depth, name, line: 0, isDirHint };
-}
-
-function normalizeRepoRoot(value: string): string {
-  const normalized = normalizePath(value);
-  if (!normalized) return "";
-  if (normalized === ".") return "";
-  if (/^[A-Za-z]:\.$/.test(normalized)) return "";
-  return normalized;
-}
-
-function buildTreePaths(nodes: TreeNode[], issues: RepoPathParseIssue[]): string[] {
-  const stack: string[] = [];
-  const paths: string[] = [];
-
-  nodes.forEach((node, index) => {
-    const next = nodes[index + 1];
-    const isDir = node.isDirHint || (next ? next.depth > node.depth : false);
-    if (node.depth > stack.length) {
-      issues.push({
-        line: node.line,
-        message: "Unexpected tree indentation. Paste the full tree output.",
-        text: node.name,
-      });
-    }
-    stack.length = Math.min(node.depth, stack.length);
-    stack[node.depth] = normalizePath(node.name);
-    if (!isDir) {
-      const path = normalizePath(stack.slice(0, node.depth + 1).join("/"));
-      if (path) paths.push(path);
-    }
-  });
-
-  return paths;
-}
-
-function parseRepoInput(text: string): RepoPathParseResult {
-  const issues: RepoPathParseIssue[] = [];
-  const paths: string[] = [];
-  const treeNodes: TreeNode[] = [];
-  const lsEntries: string[] = [];
-  const lsHeaders = new Set<string>();
-  const lines = text.split("\n");
-  const hasTreeMarkers = lines.some((line) => TREE_MARKER_RE.test(line));
-  const firstContentIndex = lines.findIndex((line) => line.trim().length > 0);
-  let currentLsDir: string | null = null;
-
-  lines.forEach((line, idx) => {
-    const lineNumber = idx + 1;
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    if (trimmed.startsWith("#") || trimmed.startsWith("//")) return;
-    if (TREE_IGNORED_RE.test(trimmed) || WINDOWS_TREE_IGNORED_RE.test(trimmed)) return;
-    if (LS_ERROR_RE.test(trimmed)) {
-      issues.push({ line: lineNumber, message: "Command error from ls -R.", text: trimmed });
-      return;
-    }
-
-    const headerMatch = trimmed.match(LS_HEADER_RE);
-    if (headerMatch) {
-      const headerRaw = headerMatch[1]?.trim() ?? "";
-      const normalizedHeader = normalizeRepoRoot(headerRaw);
-      currentLsDir = normalizedHeader;
-      if (normalizedHeader) {
-        lsHeaders.add(normalizedHeader);
-      }
-      return;
-    }
-
-    const treeNode = parseTreeLine(line);
-    if (treeNode) {
-      treeNodes.push({ ...treeNode, line: lineNumber });
-      return;
-    }
-
-    if (currentLsDir !== null) {
-      if (trimmed === "." || trimmed === "..") return;
-      const entry = normalizePath(trimmed);
-      if (!entry) return;
-      const combined = normalizePath(currentLsDir ? `${currentLsDir}/${entry}` : entry);
-      if (combined) lsEntries.push(combined);
-      return;
-    }
-
-    if (hasTreeMarkers && lineNumber === firstContentIndex + 1 && !TREE_MARKER_RE.test(line)) {
-      return;
-    }
-
-    if (hasTreeMarkers) {
-      issues.push({
-        line: lineNumber,
-        message: "Unrecognized tree line. Paste the full output from `tree` or `ls -R`.",
-        text: trimmed,
-      });
-      return;
-    }
-
-    const normalized = normalizePath(trimmed);
-    if (normalized) paths.push(normalized);
-  });
-
-  if (treeNodes.length > 0) {
-    const treePaths = buildTreePaths(treeNodes, issues);
-    paths.push(...treePaths);
-  }
-
-  if (lsEntries.length > 0) {
-    paths.push(...lsEntries.filter((entry) => !lsHeaders.has(entry)));
-  }
-
-  const unique = Array.from(new Set(paths)).filter(Boolean);
-  return { paths: unique, issues };
-}
 
 function toRepoTree(paths: string[]): RepoTree {
   return {
@@ -545,6 +422,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [contentLintOptIn, setContentLintOptIn] = useState(false);
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
+  const [manualParse, setManualParse] = useState<RepoPathParseResult>(() => parseRepoInput(repoText));
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
   const [toolDetection, setToolDetection] = useState<ToolDetectionResult | null>(null);
   const [scanMeta, setScanMeta] = useState<RepoScanMeta | null>(null);
@@ -570,6 +448,8 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const statusTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const zipInputRef = useRef<HTMLInputElement | null>(null);
+  const parseWorkerRef = useRef<Worker | null>(null);
+  const parseRequestIdRef = useRef(0);
   const [directorySupport, setDirectorySupport] = useState<"unknown" | "supported" | "unsupported">("unknown");
   const scanAbortRef = useRef<AbortController | null>(null);
   const scanIdRef = useRef(0);
@@ -598,7 +478,54 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     };
   }, []);
 
-  const manualParse = useMemo(() => parseRepoInput(repoText), [repoText]);
+  useEffect(() => {
+    return () => {
+      parseWorkerRef.current?.terminate();
+      parseWorkerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const requestId = ++parseRequestIdRef.current;
+    const fallback = () => {
+      if (requestId !== parseRequestIdRef.current) return;
+      setManualParse(parseRepoInput(repoText));
+    };
+
+    let worker: Worker | null = null;
+    try {
+      if (!parseWorkerRef.current) {
+        parseWorkerRef.current = createScanWorker();
+      }
+      worker = parseWorkerRef.current;
+    } catch {
+      fallback();
+      return;
+    }
+
+    const handleMessage = (event: MessageEvent<ScanWorkerResponse>) => {
+      const message = event.data;
+      if (message.id !== requestId) return;
+      if (message.type === "parse_tree_result") {
+        setManualParse(message.result);
+      } else if (message.type === "scan_error") {
+        fallback();
+      }
+    };
+
+    const handleError = () => fallback();
+
+    worker.addEventListener("message", handleMessage);
+    worker.addEventListener("error", handleError);
+    const request: ScanWorkerRequest = { id: requestId, type: "parse_tree", text: repoText };
+    worker.postMessage(request);
+
+    return () => {
+      worker?.removeEventListener("message", handleMessage);
+      worker?.removeEventListener("error", handleError);
+    };
+  }, [repoText]);
+
   const manualPaths = manualParse.paths;
   const manualIssues = manualParse.issues;
   const repoFileCount = repoSource === "folder" ? scannedTree?.files.length ?? 0 : manualPaths.length;
@@ -978,6 +905,93 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     };
   };
 
+  const deserializeWorkerError = (error: ScanWorkerSerializedError) => {
+    if (error.kind) {
+      return new ZipScanError(error.kind as ZipScanError["kind"], error.message);
+    }
+    if (error.name) {
+      return new DOMException(error.message, error.name);
+    }
+    return new Error(error.message);
+  };
+
+  const runScanWorker = async (
+    payload: ScanWorkerPayload,
+    signal: AbortSignal | undefined,
+    onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void,
+  ) => {
+    const worker = createScanWorker();
+    const requestId = 1;
+
+    return new Promise<RepoScanResult>((resolve, reject) => {
+      let settled = false;
+      const cleanup = () => {
+        if (settled) return;
+        settled = true;
+        worker.terminate();
+        signal?.removeEventListener("abort", handleAbort);
+      };
+
+      const handleAbort = () => {
+        cleanup();
+        reject(new DOMException("Scan aborted", "AbortError"));
+      };
+
+      if (signal?.aborted) {
+        handleAbort();
+        return;
+      }
+
+      signal?.addEventListener("abort", handleAbort, { once: true });
+
+      worker.onmessage = (event) => {
+        const message = event.data as ScanWorkerResponse;
+        if (message.id !== requestId) return;
+        if (message.type === "scan_progress") {
+          onProgress(message.progress);
+          return;
+        }
+        if (message.type === "scan_error") {
+          cleanup();
+          reject(deserializeWorkerError(message.error));
+          return;
+        }
+        if (message.type === "scan_result") {
+          cleanup();
+          resolve(message.result);
+        }
+      };
+
+      worker.onerror = () => {
+        cleanup();
+        reject(new ScanWorkerFailedError("Scan worker failed to respond."));
+      };
+
+      const request: ScanWorkerRequest =
+        payload.type === "scan_zip"
+          ? { id: requestId, type: "scan_zip", file: payload.file, options: payload.options }
+          : { id: requestId, type: "scan_file_list", files: payload.files, options: payload.options };
+      worker.postMessage(request);
+    });
+  };
+
+  const scanWithWorkerFallback = async (
+    payload: ScanWorkerPayload,
+    fallback: () => Promise<RepoScanResult>,
+    signal: AbortSignal | undefined,
+    onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void,
+  ) => {
+    try {
+      return await runScanWorker(payload, signal, onProgress);
+    } catch (error) {
+      if (error instanceof ScanWorkerUnavailableError || error instanceof ScanWorkerFailedError) {
+        setScanNotice("Scan worker unavailable. Scanning on the main thread.");
+        return fallback();
+      }
+      throw error;
+    }
+  };
+
   const runFolderScan = async (
     method: "directory_picker" | "file_input" | "zip_upload",
     scan: (signal: AbortSignal, onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void) => Promise<{
@@ -1063,6 +1077,47 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     }
   };
 
+  const scanFileListWithWorker = async (
+    files: FileList,
+    signal: AbortSignal,
+    onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void,
+  ) => {
+    const options = {
+      includeContent: includeScanContent,
+      contentAllowlist: scanContentAllowlist,
+    };
+    const fallback = () =>
+      scanFileList(files, {
+        ...options,
+        signal,
+        onProgress,
+      });
+    return scanWithWorkerFallback(
+      { type: "scan_file_list", files: Array.from(files), options },
+      fallback,
+      signal,
+      onProgress,
+    );
+  };
+
+  const scanZipWithWorker = async (
+    zipFile: File,
+    signal: AbortSignal,
+    onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void,
+  ) => {
+    const options = {
+      includeContent: includeScanContent,
+      contentAllowlist: scanContentAllowlist,
+    };
+    const fallback = () =>
+      scanZipFile(zipFile, {
+        ...options,
+        signal,
+        onProgress,
+      });
+    return scanWithWorkerFallback({ type: "scan_zip", file: zipFile, options }, fallback, signal, onProgress);
+  };
+
   const handleDirectoryPickerScan = async () => {
     if (directoryPickerActiveRef.current || isPickingDirectory) {
       setScanNotice("Folder picker is already open. Finish or cancel to continue.");
@@ -1132,13 +1187,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     const rootName = files[0]?.webkitRelativePath?.split("/")[0];
     await runFolderScan(
       "file_input",
-      (signal, onProgress) =>
-        scanFileList(files, {
-          includeContent: includeScanContent,
-          contentAllowlist: scanContentAllowlist,
-          signal,
-          onProgress,
-        }),
+      (signal, onProgress) => scanFileListWithWorker(files, signal, onProgress),
       rootName,
     );
   };
@@ -1160,13 +1209,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
     const rootName = zipFile.name.replace(/\.zip$/i, "") || zipFile.name;
     await runFolderScan(
       "zip_upload",
-      (signal, onProgress) =>
-        scanZipFile(zipFile, {
-          includeContent: includeScanContent,
-          contentAllowlist: scanContentAllowlist,
-          signal,
-          onProgress,
-        }),
+      (signal, onProgress) => scanZipWithWorker(zipFile, signal, onProgress),
       rootName,
     );
   };

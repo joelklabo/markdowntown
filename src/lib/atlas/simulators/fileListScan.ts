@@ -26,8 +26,13 @@ export type FileListScanOptions = {
   contentAllowlist?: RegExp[];
   maxContentBytes?: number;
   signal?: AbortSignal;
-  onProgress?: (progress: { totalFiles: number; matchedFiles: number }) => void;
+  onProgress?: (progress: FileListScanProgress) => void;
   progressInterval?: number;
+};
+
+export type FileListScanProgress = {
+  totalFiles: number;
+  matchedFiles: number;
 };
 
 function normalizePath(value: string): string {
