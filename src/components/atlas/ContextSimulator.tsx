@@ -370,6 +370,73 @@ function formatSummary({ tool, cwd, repoSource, result, insights, shadowed, isSt
   return lines.join("\n");
 }
 
+type ReportInaccuracyInput = {
+  tool: SimulatorToolId;
+  repoSource: "manual" | "folder";
+  result: SimulationResult;
+  insights: SimulatorInsightsData;
+  shadowed: SimulationResult["shadowed"];
+  scanMeta?: RepoScanMeta | null;
+  isStale: boolean;
+};
+
+function formatReportInaccuracy({
+  tool,
+  repoSource,
+  result,
+  insights,
+  shadowed,
+  scanMeta,
+  isStale,
+}: ReportInaccuracyInput): string {
+  const lines: string[] = [];
+  lines.push("Describe the mismatch (avoid repo paths or file contents).");
+  lines.push("");
+  lines.push(`Tool: ${toolLabel(tool)} (${tool})`);
+  lines.push(`Repo source: ${repoSource === "folder" ? "folder scan" : "manual paths"}`);
+  lines.push(`Loaded files: ${result.loaded.length}`);
+  lines.push(`Missing patterns: ${insights.missingFiles.length}`);
+  lines.push(`Shadowed files: ${shadowed.length}`);
+  lines.push(`Warnings: ${result.warnings.length}`);
+
+  const warningCodes = result.warnings.map((warning) => warning.code);
+  if (warningCodes.length > 0) {
+    lines.push(`Warning codes: ${warningCodes.join(", ")}`);
+  }
+
+  const missingPatterns = insights.missingFiles.map((item) => item.pattern);
+  if (missingPatterns.length > 0) {
+    const preview = missingPatterns.slice(0, 5).join(", ");
+    const suffix = missingPatterns.length > 5 ? ", ..." : "";
+    lines.push(`Missing patterns (examples): ${preview}${suffix}`);
+  }
+
+  if (scanMeta) {
+    lines.push(`Total files scanned: ${scanMeta.totalFiles}`);
+    lines.push(`Matched instruction files: ${scanMeta.matchedFiles}`);
+    lines.push(`Scan truncated: ${scanMeta.truncated ? "yes" : "no"}`);
+  } else {
+    lines.push("Total files scanned: n/a");
+    lines.push("Matched instruction files: n/a");
+    lines.push("Scan truncated: n/a");
+  }
+
+  if (isStale) {
+    lines.push("Results marked stale: yes");
+  }
+
+  lines.push("");
+  lines.push("Thank you for helping us improve Atlas Simulator.");
+  return lines.join("\n");
+}
+
+function buildReportInaccuracyHref(input: ReportInaccuracyInput): string {
+  const title = `Atlas Simulator inaccuracy (${toolLabel(input.tool)})`;
+  const body = formatReportInaccuracy(input);
+  const params = new URLSearchParams({ title, body });
+  return `https://github.com/joelklabo/markdowntown/issues/new?${params.toString()}`;
+}
+
 type FixSummaryInput = {
   tool: SimulatorToolId;
   cwd: string;
@@ -764,6 +831,19 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   }, [hasNextStepsOpenWorkbench, insights.missingFiles.length, result.loaded.length, result.warnings.length, scanError]);
   const showSummaryWorkbench =
     lastSimulatedPaths.length > 0 && (!featureFlags.scanNextStepsV1 || !hasNextStepsOpenWorkbench);
+  const reportInaccuracyHref = useMemo(
+    () =>
+      buildReportInaccuracyHref({
+        tool,
+        repoSource,
+        result,
+        insights,
+        shadowed: shadowedFiles,
+        scanMeta,
+        isStale,
+      }),
+    [tool, repoSource, result, insights, shadowedFiles, scanMeta, isStale],
+  );
 
   const announceStatus = (message: string) => {
     setActionStatus(message);
@@ -1284,6 +1364,18 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
         trackError("atlas_simulator_download_error", err, { tool, repoSource });
       }
     }
+  };
+
+  const handleReportInaccuracy = () => {
+    track("atlas_simulator_report_inaccuracy", {
+      tool,
+      repoSource,
+      fileCount: lastSimulatedPaths.length,
+      missingCount: insights.missingFiles.length,
+      warningCount: result.warnings.length,
+      shadowedCount: shadowedFiles.length,
+      truncated: scanMeta?.truncated ?? false,
+    });
   };
 
   const handleOpenWorkbenchCta = (source: "post_scan" | "actions" | "next_steps") => {
@@ -2144,6 +2236,21 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                 </Button>
                 <Button type="button" variant="secondary" onClick={handleDownloadReport}>
                   Download report
+                </Button>
+              </div>
+              <div className="flex flex-wrap items-center gap-mdt-2 text-caption text-mdt-muted">
+                <Text as="span" size="caption" tone="muted">
+                  Results look off?
+                </Text>
+                <Button type="button" variant="ghost" size="xs" asChild>
+                  <a
+                    href={reportInaccuracyHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={handleReportInaccuracy}
+                  >
+                    Report inaccuracy
+                  </a>
                 </Button>
               </div>
               {actionStatus ? (

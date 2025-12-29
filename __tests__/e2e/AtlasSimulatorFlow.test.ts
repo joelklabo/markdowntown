@@ -10,6 +10,7 @@ const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
 const rulesMetaScreenshotPath = process.env.E2E_SCAN_RULES_META_SCREENSHOT_PATH;
 const shadowedScreenshotPath = process.env.E2E_SCAN_SHADOWED_SCREENSHOT_PATH;
+const reportInaccuracyScreenshotPath = process.env.E2E_SCAN_REPORT_INACCURACY_SCREENSHOT_PATH;
 
 async function maybeCaptureRulesMeta(page: Page) {
   if (!rulesMetaScreenshotPath) return;
@@ -28,6 +29,16 @@ async function maybeCaptureShadowedPanel(page: Page) {
   await shadowedPanel.getByText(/used by/i).waitFor({ state: "visible" });
   fs.mkdirSync(path.dirname(shadowedScreenshotPath), { recursive: true });
   await shadowedPanel.screenshot({ path: shadowedScreenshotPath });
+}
+
+async function maybeCaptureReportInaccuracy(page: Page) {
+  if (!reportInaccuracyScreenshotPath) return;
+  const summaryHeading = page.getByRole("heading", { name: "Summary" });
+  await summaryHeading.waitFor({ state: "visible" });
+  const summaryCard = summaryHeading.locator("..");
+  await summaryCard.getByRole("link", { name: "Report inaccuracy" }).waitFor({ state: "visible" });
+  fs.mkdirSync(path.dirname(reportInaccuracyScreenshotPath), { recursive: true });
+  await summaryCard.screenshot({ path: reportInaccuracyScreenshotPath });
 }
 
 async function buildZipFixture(): Promise<string> {
@@ -89,6 +100,7 @@ describe("Atlas simulator flow", () => {
       expect(copilotText.trim().length).toBeGreaterThan(0);
       await maybeCaptureRulesMeta(page);
       await maybeCaptureShadowedPanel(page);
+      await maybeCaptureReportInaccuracy(page);
 
       // Switch to Codex CLI and refresh results.
       await page.getByText(/show advanced settings/i).click();

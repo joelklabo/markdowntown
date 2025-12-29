@@ -73,6 +73,8 @@ This file defines canonical event names and properties for the UX and onboarding
     - `download-report`
     - `copy-template`
     - `copy-base-template`
+- `atlas_simulator_report_inaccuracy`
+  - Properties: `tool`, `repoSource`, `fileCount`, `missingCount`, `warningCount`, `shadowedCount`, `truncated`
 - `atlas_simulator_next_step_template_copy`
   - Properties: `tool`, `repoSource`, `templateId`, `templatePath`, `actionId`, `stepId`
 - `atlas_simulator_next_step_template_error`
