@@ -13,6 +13,16 @@ Flow overview: scan a folder → review Next steps → open Workbench with tool 
 - Secondary CTA: **Open Workbench** (jump straight into building).
 - Tertiary CTA: **Browse Library** (secondary discovery only).
 
+Palette refresh references (CTA hierarchy + footer styling):
+
+![Home hero CTA hierarchy](./screenshots/palette-refresh/home-hero.png)
+
+![Home footer palette](./screenshots/palette-refresh/home-footer.png)
+
+Component palette overview:
+
+![Components grid](./screenshots/palette-refresh/components-grid.png)
+
 ## Primary flow (6 steps)
 1. From Home, click **Scan a folder** (or open the Atlas Simulator directly). Quickstart: `docs/atlas/scan-quickstart.md`.
 2. Pick your repo root. If the directory picker is unavailable, use the folder upload input. If you hit a permission error, grant access and retry.
@@ -25,6 +35,7 @@ Flow overview: scan a folder → review Next steps → open Workbench with tool 
 - Use the Instruction health guide for tool-specific checklists: `docs/atlas/instruction-health.md`.
 - Use Library to browse public artifacts and open them in Workbench.
 - Use Translate to convert between instruction formats for different tools (`docs/translate/quickstart.md`).
+- Palette usage guidance: `docs/design/palette-usage.md`.
 - Terminology: AGENTS.md refers to a repo file; agents.md is the exported output from Workbench.
 
 ## Translate quickstart (5 steps)
