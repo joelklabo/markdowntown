@@ -7,8 +7,8 @@ type PillProps = {
 
 export function Pill({ tone = "primary", className, ...props }: PillProps) {
   const toneMap: Record<NonNullable<PillProps["tone"]>, string> = {
-    primary: "bg-mdt-primary-soft text-mdt-primary-strong",
-    yellow: "bg-mdt-accent-soft text-mdt-accent",
+    primary: "bg-mdt-primary-soft text-mdt-text",
+    yellow: "bg-mdt-accent-soft text-mdt-text",
     blue: "bg-[color:var(--mdt-color-info-soft)] text-[color:var(--mdt-color-info)]",
     red: "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-color-danger)]",
     green: "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-color-success)]",

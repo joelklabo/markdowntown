@@ -12,7 +12,7 @@ describe("Badge", () => {
     const { getByText } = render(<Badge tone="primary">Primary</Badge>);
     const el = getByText("Primary");
     expect(el.className).toContain("mdt-color-primary-soft");
-    expect(el.className).toContain("mdt-color-primary-strong");
+    expect(el.className).toContain("text-mdt-text");
   });
 
   it("uses semantic status soft tokens", () => {
@@ -29,4 +29,3 @@ describe("Badge", () => {
     expect(getByText("Info").className).toContain("mdt-color-info-soft");
   });
 });
-
