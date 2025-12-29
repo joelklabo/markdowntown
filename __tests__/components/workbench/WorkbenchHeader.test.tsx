@@ -10,6 +10,7 @@ describe('WorkbenchHeader', () => {
     act(() => {
       useWorkbenchStore.getState().resetDraft();
       useWorkbenchStore.getState().setTitle('Test Agent');
+      useWorkbenchStore.getState().clearSaveConflict();
     });
     vi.clearAllMocks();
     global.fetch = vi.fn();
@@ -63,5 +64,15 @@ describe('WorkbenchHeader', () => {
     await waitFor(() => {
       expect(useWorkbenchStore.getState().id).toBe('new-id');
     });
+  });
+
+  it('shows conflict status when a save conflict is detected', () => {
+    const session = { user: { name: 'User' } } as Session;
+    act(() => {
+      useWorkbenchStore.setState({ saveConflict: { status: 'conflict' } });
+    });
+
+    render(<WorkbenchHeader session={session} />);
+    expect(screen.getByText('Cloud: conflict')).toBeInTheDocument();
   });
 });

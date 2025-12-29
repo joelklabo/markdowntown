@@ -27,6 +27,16 @@ type ScanContext = {
   cwd: string;
   paths: string[];
 };
+type SaveConflictDetails = {
+  currentVersion?: string | null;
+  updatedAt?: string | null;
+  expectedVersion?: string | null;
+  expectedUpdatedAt?: string | null;
+};
+type SaveConflict = {
+  status: 'idle' | 'conflict';
+  details?: SaveConflictDetails;
+};
 
 type BlockUpsertInput = Partial<UAMBlock> & {
   scopeId?: string;
@@ -235,6 +245,8 @@ interface WorkbenchState {
   id?: string;
   uam: UamV1;
   baselineUam: UamV1 | null;
+  baselineVersion: string | null;
+  baselineUpdatedAt: string | null;
 
   // Legacy/compat fields (kept in sync with `uam`)
   title: string;
@@ -258,6 +270,7 @@ interface WorkbenchState {
   lastSavedAt: number | null;
   cloudSaveStatus: AutosaveStatus;
   cloudLastSavedAt: number | null;
+  saveConflict: SaveConflict;
   scanContext: ScanContext | null;
 
   // Actions
@@ -291,6 +304,9 @@ interface WorkbenchState {
   setCompilationResult: (result: CompilationResult | null) => void;
   setAutosaveStatus: (status: AutosaveStatus) => void;
   saveArtifact: () => Promise<string | null>;
+  setSaveConflict: (conflict: SaveConflict) => void;
+  clearSaveConflict: () => void;
+  reloadArtifact: () => Promise<void>;
   resetDraft: () => void;
   initializeFromTemplate: (uam: UamV1) => void;
   loadArtifact: (idOrSlug: string) => Promise<ArtifactLoadResult>;
@@ -350,6 +366,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         id: undefined,
         uam: createEmptyUamV1({ title: 'Untitled Agent' }),
         baselineUam: null,
+        baselineVersion: null,
+        baselineUpdatedAt: null,
 
         title: 'Untitled Agent',
         description: '',
@@ -371,6 +389,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         lastSavedAt: null,
         cloudSaveStatus: 'idle',
         cloudLastSavedAt: null,
+        saveConflict: { status: 'idle' },
         scanContext: null,
 
         setId: (id) => set({ id }),
@@ -668,7 +687,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
 
         saveArtifact: async () => {
           const state = get();
-          set({ cloudSaveStatus: 'saving' });
+          set({ cloudSaveStatus: 'saving', saveConflict: { status: 'idle' } });
 
           try {
             const payload = {
@@ -678,6 +697,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               visibility: state.visibility,
               uam: state.uam,
               message: 'Saved via Workbench',
+              ...(state.baselineVersion ? { expectedVersion: state.baselineVersion } : {}),
+              ...(state.baselineUpdatedAt ? { expectedUpdatedAt: state.baselineUpdatedAt } : {}),
             };
 
             const res = await fetch('/api/artifacts/save', {
@@ -686,18 +707,46 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               body: JSON.stringify(payload),
             });
 
+            if (res.status === 409) {
+              const body = (await res.json().catch(() => null)) as { details?: SaveConflictDetails } | null;
+              set({
+                cloudSaveStatus: 'error',
+                saveConflict: {
+                  status: 'conflict',
+                  details: body?.details,
+                },
+              });
+              return null;
+            }
+
             if (!res.ok) {
               const body = await res.json().catch(() => null);
               const message = body?.error ?? 'Save failed';
               throw new Error(message);
             }
 
-            const data = (await res.json()) as { id?: string };
+            const data = (await res.json()) as { id?: string; updatedAt?: string };
             if (data.id) {
               state.setId(data.id);
             }
 
-            set({ cloudSaveStatus: 'saved', cloudLastSavedAt: Date.now(), baselineUam: state.uam });
+            const nextBaselineVersion = (() => {
+              if (state.baselineVersion) {
+                const parsed = Number.parseInt(state.baselineVersion, 10);
+                return Number.isFinite(parsed) ? String(parsed + 1) : state.baselineVersion;
+              }
+              if (!state.id && data.id) return '1';
+              return state.baselineVersion ?? null;
+            })();
+
+            set({
+              cloudSaveStatus: 'saved',
+              cloudLastSavedAt: Date.now(),
+              baselineUam: state.uam,
+              baselineVersion: nextBaselineVersion,
+              baselineUpdatedAt: data.updatedAt ?? state.baselineUpdatedAt,
+              saveConflict: { status: 'idle' },
+            });
             return data.id ?? null;
           } catch (err) {
             console.error(err);
@@ -706,12 +755,28 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           }
         },
 
+        setSaveConflict: (conflict) => set({ saveConflict: conflict }),
+
+        clearSaveConflict: () => set({ saveConflict: { status: 'idle' } }),
+
+        reloadArtifact: async () => {
+          const artifactId = get().id;
+          if (!artifactId) {
+            set({ saveConflict: { status: 'idle' } });
+            return;
+          }
+          await get().loadArtifact(artifactId);
+          set({ saveConflict: { status: 'idle' } });
+        },
+
         resetDraft: () => {
           const uam = createEmptyUamV1({ title: 'Untitled Agent' });
           set({
             id: undefined,
             uam,
             baselineUam: null,
+            baselineVersion: null,
+            baselineUpdatedAt: null,
             title: uam.meta.title,
             description: uam.meta.description ?? '',
             scopes: ['root'],
@@ -727,6 +792,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
             scanContext: null,
           });
           onPersisted();
@@ -738,6 +804,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             id: undefined,
             ...deriveFromUam(normalized, null),
             baselineUam: normalized,
+            baselineVersion: null,
+            baselineUpdatedAt: null,
             selectedBlockId: null,
             compilationResult: null,
             autosaveStatus: 'idle',
@@ -746,6 +814,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
             scanContext: null,
           });
           markDirty();
@@ -766,11 +835,12 @@ export const useWorkbenchStore = create<WorkbenchState>()(
 
             const data = (await res.json()) as {
               artifact?: { id?: string; visibility?: unknown; tags?: unknown };
-              latestVersion?: { uam?: unknown };
+              latestVersion?: { uam?: unknown; version?: unknown };
             };
             const artifactId = data.artifact?.id ?? idOrSlug;
             const visibility = data.artifact?.visibility;
             const tags = data.artifact?.tags;
+            const updatedAt = (data.artifact as { updatedAt?: unknown } | undefined)?.updatedAt;
             const uam = data.latestVersion?.uam;
             if (!uam) throw new Error('Artifact has no versions');
 
@@ -778,10 +848,15 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             if (!parsed.success) throw new Error('Artifact has invalid UAM');
 
             const normalized = normalizeWorkbenchUam(parsed.data);
+            const baselineVersion =
+              typeof data.latestVersion?.version === 'string' ? data.latestVersion.version : null;
+            const baselineUpdatedAt = typeof updatedAt === 'string' ? updatedAt : null;
             set({
               id: artifactId,
               ...deriveFromUam(normalized, get().selectedScopeId),
               baselineUam: normalized,
+              baselineVersion,
+              baselineUpdatedAt,
               selectedBlockId: null,
               compilationResult: null,
               autosaveStatus: 'idle',
@@ -793,6 +868,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               tags: Array.isArray(tags) ? tags.map(v => String(v).trim()).filter(Boolean) : [],
               cloudSaveStatus: 'idle',
               cloudLastSavedAt: null,
+              saveConflict: { status: 'idle' },
               scanContext: null,
             });
             return { status: 'loaded', title: normalized.meta.title ?? 'Untitled Agent' };

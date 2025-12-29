@@ -23,6 +23,7 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
   const cloudSaveStatus = useWorkbenchStore(s => s.cloudSaveStatus);
   const cloudLastSavedAt = useWorkbenchStore(s => s.cloudLastSavedAt);
   const saveArtifact = useWorkbenchStore(s => s.saveArtifact);
+  const saveConflict = useWorkbenchStore(s => s.saveConflict);
 
   const setTitle = useWorkbenchStore(s => s.setTitle);
   const visibility = useWorkbenchStore(s => s.visibility);
@@ -157,13 +158,15 @@ export function WorkbenchHeader({ session }: WorkbenchHeaderProps) {
               <div>
                 {!session
                   ? 'Cloud: sign in'
-                  : cloudSaveStatus === 'saving'
-                    ? 'Cloud: saving…'
-                    : cloudSaveStatus === 'saved'
-                      ? `Cloud: saved${cloudLastSavedAt ? ` · ${new Date(cloudLastSavedAt).toLocaleTimeString()}` : ''}`
-                      : cloudSaveStatus === 'error'
-                        ? 'Cloud: error'
-                        : 'Cloud: idle'}
+                  : saveConflict.status === 'conflict'
+                    ? 'Cloud: conflict'
+                    : cloudSaveStatus === 'saving'
+                      ? 'Cloud: saving…'
+                      : cloudSaveStatus === 'saved'
+                        ? `Cloud: saved${cloudLastSavedAt ? ` · ${new Date(cloudLastSavedAt).toLocaleTimeString()}` : ''}`
+                        : cloudSaveStatus === 'error'
+                          ? 'Cloud: error'
+                          : 'Cloud: idle'}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-mdt-2">

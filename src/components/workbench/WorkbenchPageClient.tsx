@@ -71,11 +71,24 @@ export function WorkbenchPageClient({
   const clearScanContext = useWorkbenchStore(s => s.clearScanContext);
   const scanContext = useWorkbenchStore(s => s.scanContext);
   const hasBlocks = useWorkbenchStore(s => s.uam.blocks.length > 0);
+  const saveConflict = useWorkbenchStore(s => s.saveConflict);
+  const setSaveConflict = useWorkbenchStore(s => s.setSaveConflict);
+  const clearSaveConflict = useWorkbenchStore(s => s.clearSaveConflict);
+  const reloadArtifact = useWorkbenchStore(s => s.reloadArtifact);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('debugConflict') === '1') {
+      setSaveConflict({ status: 'conflict' });
+    }
+  }, [setSaveConflict]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -203,6 +216,30 @@ export function WorkbenchPageClient({
   return (
     <div className="flex h-[calc(100vh-64px)] min-h-0 flex-col bg-mdt-bg">
       <WorkbenchHeader session={session} />
+
+      {saveConflict.status === 'conflict' ? (
+        <div className="border-b border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3">
+          <div className="flex flex-wrap items-start justify-between gap-mdt-3">
+            <div className="space-y-mdt-1">
+              <Text size="caption" tone="muted">
+                Save conflict detected
+              </Text>
+              <Text weight="semibold">This artifact was updated elsewhere.</Text>
+              <Text size="bodySm" tone="muted">
+                Reload the latest version or keep editing and reconcile manually.
+              </Text>
+            </div>
+            <div className="flex flex-wrap items-center gap-mdt-2">
+              <Button size="sm" variant="secondary" onClick={() => void reloadArtifact()}>
+                Reload latest
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSaveConflict}>
+                Keep editing
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {showArtifactNotice && (artifactNotice.status === 'loaded' || artifactNotice.status === 'error') ? (
         <div className="border-b border-mdt-border bg-mdt-surface px-mdt-4 py-mdt-3">

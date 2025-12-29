@@ -40,6 +40,27 @@ describe("Publish artifact flow", () => {
 
         await page.getByText(/cloud: saved/i).waitFor({ state: "visible" });
 
+        const staleContextPage = await page.context().newPage();
+        await staleContextPage.goto(`/workbench?id=${artifactId}`, { waitUntil: "domcontentloaded" });
+        await staleContextPage.getByText(/library item loaded/i).waitFor({ state: "visible" });
+        await staleContextPage.getByLabel(/agent title/i).fill(`${title} v2`);
+        const secondSave = staleContextPage.waitForResponse(
+          (res) => res.url().includes("/api/artifacts/save") && res.request().method() === "POST" && res.ok()
+        );
+        await staleContextPage.getByRole("button", { name: /^save$/i }).click();
+        await secondSave;
+        await staleContextPage.getByText(/cloud: saved/i).waitFor({ state: "visible" });
+        await staleContextPage.close();
+
+        await page.getByLabel(/agent title/i).fill(`${title} local`);
+        const conflictSave = page.waitForResponse(
+          (res) => res.url().includes("/api/artifacts/save") && res.request().method() === "POST" && res.status() === 409
+        );
+        await page.getByRole("button", { name: /^save$/i }).click();
+        await conflictSave;
+        await page.getByText(/save conflict detected/i).waitFor({ state: "visible" });
+        await page.getByRole("button", { name: /reload latest/i }).click();
+
         // Unauthenticated reads should be forbidden while PRIVATE.
         const privateRes = await fetch(`${baseURL}/api/artifacts/${artifactId}`);
         expect(privateRes.status).toBe(403);
