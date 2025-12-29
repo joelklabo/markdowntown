@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Redesign 2025: dual-theme token system, rebuilt primitives, Storybook playground.
 - Landing overhaul with guided “build in 60s” path and calmer hero.
+- Palette refresh across nav/footer/landing and component primitives, with updated screenshots and docs.
 - Browse faceted filters, quality strip, empty state, and inline metrics.
 - Detail pages: rendered/raw tabs, stats strip, warning banner for non-public, share/copy/download CTAs, feedback prompt; new visual baselines (desktop/mobile).
 - Builder: 3-pane grid, autosave-to-localStorage, toasts, reduced-motion scroll, status strip with perf/save state; copy/download/save polish.
