@@ -87,17 +87,6 @@ export function ArtifactActions({ artifactId, slug, uam, targets }: ArtifactActi
   return (
     <Stack gap={2} align="end">
       <Row gap={2} align="center" wrap>
-        <Button size="sm" variant="secondary" onClick={handleCopy}>
-          {copied ? "Copied" : "Copy"}
-        </Button>
-        <Button size="sm" variant="secondary" onClick={handleExport} disabled={exporting}>
-          {exporting ? "Exporting…" : "Export"}
-        </Button>
-        <ForkButton
-          artifactId={artifactId}
-          size="sm"
-          analytics={{ source: "artifact_detail", slug }}
-        />
         <Button asChild size="sm">
           <Link
             href={`/workbench?id=${artifactId}`}
@@ -114,6 +103,17 @@ export function ArtifactActions({ artifactId, slug, uam, targets }: ArtifactActi
             Open in Workbench
           </Link>
         </Button>
+        <Button size="sm" variant="secondary" onClick={handleCopy}>
+          {copied ? "Copied" : "Copy"}
+        </Button>
+        <Button size="sm" variant="secondary" onClick={handleExport} disabled={exporting}>
+          {exporting ? "Exporting…" : "Export"}
+        </Button>
+        <ForkButton
+          artifactId={artifactId}
+          size="sm"
+          analytics={{ source: "artifact_detail", slug }}
+        />
       </Row>
       {error && <div className="text-xs text-mdt-danger">{error}</div>}
     </Stack>

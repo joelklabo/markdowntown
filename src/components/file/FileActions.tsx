@@ -58,7 +58,12 @@ export function FileActions({ id, slug, title, content, builderHref, variant = "
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button size={actionSize} onClick={copy}>
+      {builderHref && (
+        <Button size={actionSize} asChild>
+          <Link href={builderHref}>Open in Workbench</Link>
+        </Button>
+      )}
+      <Button variant={builderHref ? "secondary" : undefined} size={actionSize} onClick={copy}>
         Copy
       </Button>
       <Button variant="secondary" size={actionSize} onClick={download}>
@@ -67,11 +72,6 @@ export function FileActions({ id, slug, title, content, builderHref, variant = "
       <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share ${title}`}>
         Share
       </Button>
-      {builderHref && (
-        <Button variant="ghost" size={actionSize} asChild>
-          <Link href={builderHref}>Open in Workbench</Link>
-        </Button>
-      )}
     </div>
   );
 }
