@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
 
+const ANIMATION_DISABLED = process.env.NEXT_PUBLIC_WORDMARK_ANIM_V1 === "false";
+
 test.describe("City wordmark motion", () => {
   test("nav banner animates", async ({ page }) => {
+    test.skip(ANIMATION_DISABLED, "Wordmark animation disabled via feature flag.");
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/");
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
@@ -18,6 +21,7 @@ test.describe("City wordmark motion", () => {
   });
 
   test("animates while playing", async ({ page }) => {
+    test.skip(ANIMATION_DISABLED, "Wordmark animation disabled via feature flag.");
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/labs/city-logo?seed=motion-smoke&density=dense&timeScale=2&timeOfDay=0.55");
     await page.addStyleTag({ content: "nextjs-portal{display:none !important;}" });
