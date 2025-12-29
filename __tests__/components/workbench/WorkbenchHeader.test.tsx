@@ -75,4 +75,17 @@ describe('WorkbenchHeader', () => {
     render(<WorkbenchHeader session={session} />);
     expect(screen.getByText('Cloud: conflict')).toBeInTheDocument();
   });
+
+  it('shows secret scan warning when a draft is flagged', () => {
+    const session = { user: { name: 'User' } } as Session;
+    act(() => {
+      useWorkbenchStore.setState({
+        secretScan: { status: 'blocked', matches: [{ label: 'GitHub token', redacted: 'ghp_…0123' }] },
+      });
+    });
+
+    render(<WorkbenchHeader session={session} />);
+    expect(screen.getByText(/secret scan warning/i)).toBeInTheDocument();
+    expect(screen.getByText(/potential secrets detected/i)).toBeInTheDocument();
+  });
 });

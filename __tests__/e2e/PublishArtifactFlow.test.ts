@@ -65,12 +65,26 @@ describe("Publish artifact flow", () => {
         const privateRes = await fetch(`${baseURL}/api/artifacts/${artifactId}`);
         expect(privateRes.status).toBe(403);
 
+        const blockBody = page.getByPlaceholder(/write markdown instructions/i);
+        if ((await blockBody.count()) === 0) {
+          await page.getByRole("button", { name: /^\+ add$/i }).click();
+          await page.getByLabel("Block title").fill("Publish Secret Scan Block");
+        }
+        await page
+          .getByPlaceholder(/write markdown instructions/i)
+          .fill("Contains secret ghp_0123456789abcdef0123456789abcdef0123");
+
         // Publish as PUBLIC (creates a new version).
         await page.getByLabel(/visibility/i).selectOption("PUBLIC");
+        await page.getByRole("button", { name: /^save$/i }).click();
+        await page.getByText(/secret scan warning/i).waitFor({ state: "visible" });
+        await page.getByRole("button", { name: /review/i }).click();
+        await page.getByText(/review potential secrets/i).waitFor({ state: "visible" });
+        await page.getByRole("checkbox", { name: /i understand/i }).check();
         const publishSave = page.waitForResponse(
           (res) => res.url().includes("/api/artifacts/save") && res.request().method() === "POST" && res.ok()
         );
-        await page.getByRole("button", { name: /^save$/i }).click();
+        await page.getByRole("button", { name: /acknowledge/i }).click();
         await publishSave;
         await page.getByText(/cloud: saved/i).waitFor({ state: "visible" });
 

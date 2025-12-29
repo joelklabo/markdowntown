@@ -73,6 +73,7 @@ export function WorkbenchPageClient({
   const hasBlocks = useWorkbenchStore(s => s.uam.blocks.length > 0);
   const saveConflict = useWorkbenchStore(s => s.saveConflict);
   const setSaveConflict = useWorkbenchStore(s => s.setSaveConflict);
+  const setSecretScan = useWorkbenchStore(s => s.setSecretScan);
   const clearSaveConflict = useWorkbenchStore(s => s.clearSaveConflict);
   const reloadArtifact = useWorkbenchStore(s => s.reloadArtifact);
 
@@ -88,7 +89,13 @@ export function WorkbenchPageClient({
     if (params.get('debugConflict') === '1') {
       setSaveConflict({ status: 'conflict' });
     }
-  }, [setSaveConflict]);
+    if (params.get('debugSecretScan') === '1') {
+      setSecretScan({
+        status: 'blocked',
+        matches: [{ label: 'GitHub token', redacted: 'ghp_…0123' }],
+      });
+    }
+  }, [setSaveConflict, setSecretScan]);
 
   useEffect(() => {
     if (!mounted) return;

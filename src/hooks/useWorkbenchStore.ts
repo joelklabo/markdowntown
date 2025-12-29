@@ -3,6 +3,7 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 import type { CompilationResult } from '@/lib/uam/adapters';
 import type { UAMBlock, UAMBlockType } from '@/lib/uam/types';
 import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
+import { scanUamForSecrets } from '@/lib/secretScan';
 import {
   createEmptyUamV1,
   createUamTargetV1,
@@ -36,6 +37,15 @@ type SaveConflictDetails = {
 type SaveConflict = {
   status: 'idle' | 'conflict';
   details?: SaveConflictDetails;
+};
+type SecretScanMatch = {
+  label: string;
+  redacted: string;
+};
+type SecretScanState = {
+  status: 'idle' | 'blocked';
+  matches: SecretScanMatch[];
+  checkedAt?: number;
 };
 
 type BlockUpsertInput = Partial<UAMBlock> & {
@@ -271,6 +281,8 @@ interface WorkbenchState {
   cloudSaveStatus: AutosaveStatus;
   cloudLastSavedAt: number | null;
   saveConflict: SaveConflict;
+  secretScan: SecretScanState;
+  secretScanAck: boolean;
   scanContext: ScanContext | null;
 
   // Actions
@@ -306,6 +318,9 @@ interface WorkbenchState {
   saveArtifact: () => Promise<string | null>;
   setSaveConflict: (conflict: SaveConflict) => void;
   clearSaveConflict: () => void;
+  setSecretScan: (scan: SecretScanState) => void;
+  setSecretScanAck: (acknowledged: boolean) => void;
+  clearSecretScan: () => void;
   reloadArtifact: () => Promise<void>;
   resetDraft: () => void;
   initializeFromTemplate: (uam: UamV1) => void;
@@ -333,7 +348,13 @@ export const useWorkbenchStore = create<WorkbenchState>()(
     (set, get) => {
       const markDirty = () => {
         const status = get().autosaveStatus;
-        if (status !== 'saving') set({ autosaveStatus: 'saving' });
+        const next: Partial<WorkbenchState> = {};
+        if (status !== 'saving') next.autosaveStatus = 'saving';
+        if (get().secretScan.status !== 'idle' || get().secretScanAck) {
+          next.secretScan = { status: 'idle', matches: [] };
+          next.secretScanAck = false;
+        }
+        if (Object.keys(next).length > 0) set(next);
       };
 
       const onPersisted = debounce(() => {
@@ -390,6 +411,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         cloudSaveStatus: 'idle',
         cloudLastSavedAt: null,
         saveConflict: { status: 'idle' },
+        secretScan: { status: 'idle', matches: [] },
+        secretScanAck: false,
         scanContext: null,
 
         setId: (id) => set({ id }),
@@ -690,6 +713,22 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           set({ cloudSaveStatus: 'saving', saveConflict: { status: 'idle' } });
 
           try {
+            const requiresSecretAck = state.visibility === 'PUBLIC' || state.visibility === 'UNLISTED';
+            if (requiresSecretAck) {
+              const scan = scanUamForSecrets(state.uam);
+              if (scan.hasSecrets && !state.secretScanAck) {
+                set({
+                  cloudSaveStatus: 'idle',
+                  secretScan: {
+                    status: 'blocked',
+                    matches: scan.matches.map(match => ({ label: match.label, redacted: match.redacted })),
+                    checkedAt: Date.now(),
+                  },
+                });
+                return null;
+              }
+            }
+
             const payload = {
               id: state.id,
               title: state.title,
@@ -697,6 +736,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               visibility: state.visibility,
               uam: state.uam,
               message: 'Saved via Workbench',
+              ...(requiresSecretAck ? { secretScanAck: true } : {}),
               ...(state.baselineVersion ? { expectedVersion: state.baselineVersion } : {}),
               ...(state.baselineUpdatedAt ? { expectedUpdatedAt: state.baselineUpdatedAt } : {}),
             };
@@ -746,18 +786,30 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               baselineVersion: nextBaselineVersion,
               baselineUpdatedAt: data.updatedAt ?? state.baselineUpdatedAt,
               saveConflict: { status: 'idle' },
+              secretScan: { status: 'idle', matches: [] },
+              secretScanAck: false,
             });
             return data.id ?? null;
           } catch (err) {
             console.error(err);
             set({ cloudSaveStatus: 'error' });
             return null;
+          } finally {
+            if (state.secretScanAck) {
+              set({ secretScanAck: false });
+            }
           }
         },
 
         setSaveConflict: (conflict) => set({ saveConflict: conflict }),
 
         clearSaveConflict: () => set({ saveConflict: { status: 'idle' } }),
+
+        setSecretScan: (scan) => set({ secretScan: scan }),
+
+        setSecretScanAck: (acknowledged) => set({ secretScanAck: acknowledged }),
+
+        clearSecretScan: () => set({ secretScan: { status: 'idle', matches: [] }, secretScanAck: false }),
 
         reloadArtifact: async () => {
           const artifactId = get().id;
@@ -787,13 +839,15 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             selectedBlockId: null,
             compilationResult: null,
             autosaveStatus: 'idle',
-            lastSavedAt: null,
-            visibility: 'PRIVATE',
-            tags: [],
-            cloudSaveStatus: 'idle',
-            cloudLastSavedAt: null,
-            saveConflict: { status: 'idle' },
-            scanContext: null,
+        lastSavedAt: null,
+        visibility: 'PRIVATE',
+        tags: [],
+        cloudSaveStatus: 'idle',
+        cloudLastSavedAt: null,
+        saveConflict: { status: 'idle' },
+        secretScan: { status: 'idle', matches: [] },
+        secretScanAck: false,
+        scanContext: null,
           });
           onPersisted();
         },
@@ -815,6 +869,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
             saveConflict: { status: 'idle' },
+            secretScan: { status: 'idle', matches: [] },
+            secretScanAck: false,
             scanContext: null,
           });
           markDirty();
@@ -869,6 +925,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               cloudSaveStatus: 'idle',
               cloudLastSavedAt: null,
               saveConflict: { status: 'idle' },
+              secretScan: { status: 'idle', matches: [] },
+              secretScanAck: false,
               scanContext: null,
             });
             return { status: 'loaded', title: normalized.meta.title ?? 'Untitled Agent' };
