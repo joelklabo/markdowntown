@@ -1,6 +1,7 @@
 export const UI_TELEMETRY_EVENT = "mdt_ui_telemetry";
 
 export type UiTelemetryEventName =
+  | "session_start"
   | "scan_start"
   | "scan_complete"
   | "scan_cancel"

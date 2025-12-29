@@ -113,6 +113,16 @@ describe("redactAnalyticsPayload", () => {
     });
   });
 
+  it("preserves session timing fields", () => {
+    const input = {
+      entrySource: "scan",
+      time_to_open_workbench_ms: 1200,
+      time_to_export_ms: 5600,
+    };
+
+    expect(redactAnalyticsPayload(input)).toEqual(input);
+  });
+
   it("preserves home CTA payload fields", () => {
     const input = {
       cta: "scan",

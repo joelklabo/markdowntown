@@ -10,7 +10,7 @@ import { Radio } from '@/components/ui/Radio';
 import { Text } from '@/components/ui/Text';
 import { TextArea } from '@/components/ui/TextArea';
 import { createZip } from '@/lib/compile/zip';
-import { track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/analytics';
+import { getTimeSinceSessionStartMs, track, trackSkillExportAction, trackSkillExportConfig } from '@/lib/analytics';
 import { applySkillExportSelection, getSkillExportSelection, type SkillExportSelection } from '@/lib/skills/skillExport';
 import { DEFAULT_ADAPTER_VERSION, createUamTargetV1, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
@@ -202,10 +202,14 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
       emitCityWordmarkEvent({ type: 'publish', kind: 'file' });
       const blob = await createZip(result.files);
       setExportedAt(new Date());
+      const timeToExportMs =
+        typeof getTimeSinceSessionStartMs === 'function' ? getTimeSinceSessionStartMs() : undefined;
+      const timing = timeToExportMs === undefined ? {} : { time_to_export_ms: timeToExportMs };
       track('workbench_export_download', {
         targetIds,
         fileCount: result.files.length,
         entrySource,
+        ...timing,
       });
       trackSkillExportAction({
         action: 'download',

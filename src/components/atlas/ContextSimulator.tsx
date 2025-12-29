@@ -48,7 +48,7 @@ import type {
   SimulatorToolId,
   ToolDetectionResult,
 } from "@/lib/atlas/simulators/types";
-import { track, trackError } from "@/lib/analytics";
+import { initSessionStart, track, trackError } from "@/lib/analytics";
 import { emitUiTelemetryEvent } from "@/lib/telemetry";
 import { featureFlags } from "@/lib/flags";
 
@@ -467,6 +467,12 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   useEffect(() => {
     const supported = typeof window !== "undefined" && "showDirectoryPicker" in window;
     setDirectorySupport(supported ? "supported" : "unsupported");
+  }, []);
+
+  useEffect(() => {
+    const { didStart } = initSessionStart();
+    if (!didStart) return;
+    emitUiTelemetryEvent({ name: "session_start" });
   }, []);
 
   useEffect(() => {

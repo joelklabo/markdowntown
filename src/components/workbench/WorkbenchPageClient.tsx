@@ -12,6 +12,7 @@ import { Text } from '@/components/ui/Text';
 import { usePrefersReducedMotion } from '@/components/motion/usePrefersReducedMotion';
 import type { Session } from 'next-auth';
 import { readStoredScanContext, useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import { getTimeSinceSessionStartMs, track } from '@/lib/analytics';
 import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
 import type { UamV1 } from '@/lib/uam/uamTypes';
 import type { WorkbenchEntrySource } from '@/components/workbench/workbenchEntry';
@@ -64,6 +65,7 @@ export function WorkbenchPageClient({
   const [showArtifactNotice, setShowArtifactNotice] = useState(false);
   const appliedScanRef = useRef(false);
   const focusAppliedRef = useRef(false);
+  const openWorkbenchTrackedRef = useRef(false);
 
   const loadArtifact = useWorkbenchStore(s => s.loadArtifact);
   const initializeFromTemplate = useWorkbenchStore(s => s.initializeFromTemplate);
@@ -157,6 +159,19 @@ export function WorkbenchPageClient({
     if (initialEntryHint === 'translate') return 'translate';
     return 'direct';
   }, [initialArtifactId, initialEntryHint, initialScanContext, initialTemplateUam, scanContext, storedScanContext]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (openWorkbenchTrackedRef.current) return;
+    openWorkbenchTrackedRef.current = true;
+    const timeToOpenMs =
+      typeof getTimeSinceSessionStartMs === 'function' ? getTimeSinceSessionStartMs() : undefined;
+    const timing = timeToOpenMs === undefined ? {} : { time_to_open_workbench_ms: timeToOpenMs };
+    track('open_workbench', {
+      entrySource,
+      ...timing,
+    });
+  }, [entrySource, mounted]);
 
   const preferredMobileTab = useMemo<'structure' | 'editor' | 'output'>(() => {
     if (entrySource === 'scan' || entrySource === 'translate') return 'output';

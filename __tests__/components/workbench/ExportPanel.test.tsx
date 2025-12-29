@@ -14,6 +14,7 @@ vi.mock('@/lib/analytics', () => ({
   track: vi.fn(),
   trackSkillExportAction: vi.fn(),
   trackSkillExportConfig: vi.fn(),
+  getTimeSinceSessionStartMs: vi.fn(() => 1200),
 }));
 
 global.URL.createObjectURL = vi.fn(() => 'blob:url');
@@ -72,6 +73,7 @@ describe('ExportPanel', () => {
       targetIds: ['agents-md'],
       fileCount: 1,
       entrySource: 'direct',
+      time_to_export_ms: 1200,
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));

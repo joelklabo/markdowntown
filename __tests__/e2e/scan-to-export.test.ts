@@ -191,7 +191,8 @@ describe("Scan to workbench export flow", () => {
             },
           });
 
-          const root = makeDir("mock-repo", [["AGENTS.md", makeFile("AGENTS.md")]]);
+          const githubDir = makeDir(".github", [["copilot-instructions.md", makeFile("copilot-instructions.md")]]);
+          const root = makeDir("mock-repo", [[".github", githubDir]]);
 
           (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker = async () => root;
         });
@@ -199,8 +200,8 @@ describe("Scan to workbench export flow", () => {
         await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
         await page.getByRole("button", { name: /scan a folder/i }).first().click();
 
-        const extraList = page.getByRole("list", { name: /extra instruction files/i });
-        await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+        const extraList = page.getByRole("list", { name: /loaded files/i });
+        await extraList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
 
         const refreshButtons = page.getByRole("button", { name: /refresh results/i });
         if ((await refreshButtons.count()) > 0) {
@@ -208,7 +209,7 @@ describe("Scan to workbench export flow", () => {
         }
 
         const text = (await extraList.allTextContents()).join("\n");
-        expect(text).toContain("AGENTS.md");
+        expect(text).toContain("copilot-instructions.md");
       },
       "scan-refresh"
     );
