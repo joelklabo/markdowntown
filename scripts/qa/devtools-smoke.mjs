@@ -22,6 +22,11 @@ const shouldIgnoreResponse = (responseUrl, status) => {
   return responseUrl.endsWith("/favicon.ico") || responseUrl.endsWith("/apple-touch-icon.png");
 };
 
+const shouldIgnoreRequestFailure = (requestUrl, errorText) => {
+  if (errorText === "net::ERR_ABORTED" && requestUrl.includes("_rsc=")) return true;
+  return false;
+};
+
 const logSection = (title) => {
   process.stdout.write(`\n${title}\n`);
 };
@@ -46,6 +51,7 @@ const main = async () => {
 
   page.on("requestfailed", (request) => {
     const failure = request.failure();
+    if (shouldIgnoreRequestFailure(request.url(), failure?.errorText ?? "unknown")) return;
     requestFailures.push({
       url: request.url(),
       method: request.method(),

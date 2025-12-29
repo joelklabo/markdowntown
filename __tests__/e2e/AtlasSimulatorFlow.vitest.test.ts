@@ -170,9 +170,9 @@ describe("Atlas simulator flow", () => {
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
-      await page.waitForFunction(() => (window as unknown as { __atlasZipScan?: unknown }).__atlasZipScan !== undefined);
-
-      await page.getByLabel(/upload zip/i).setInputFiles(zipPath);
+      const zipUploadInput = page.getByLabel(/upload zip/i).first();
+      await zipUploadInput.waitFor({ state: "visible" });
+      await zipUploadInput.setInputFiles(zipPath);
       const loadedList = page.getByRole("list", { name: /loaded files/i });
       await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
 

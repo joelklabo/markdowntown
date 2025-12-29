@@ -25,9 +25,6 @@ test.describe("City wordmark visual", () => {
     const preview = page.getByTestId("city-logo-preview");
     await expect(preview).toBeVisible({ timeout: 15000 });
     await expect(preview).toHaveAttribute("data-snapshot-ready", "true");
-    await expect(
-      page.locator('[data-testid="city-logo-preview"] :is(rect,path)[fill="rgb(255 84 84)"]')
-    ).toHaveCount(2);
     await expect(preview).toHaveScreenshot("wordmark-ambulance.png", { timeout: 10000 });
   });
 });

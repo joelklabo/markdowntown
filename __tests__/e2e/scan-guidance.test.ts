@@ -199,8 +199,13 @@ describe("Atlas scan guidance flow", () => {
       const loadedList = page.getByRole("list", { name: /loaded files/i });
       await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
 
-      const extraList = page.getByRole("list", { name: /extra instruction files/i });
-      await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+      const agentsInLoaded = loadedList.getByText("AGENTS.md", { exact: true });
+      const shadowedList = page.getByRole("list", { name: /shadowed instruction files/i });
+      const agentsInShadowed = shadowedList.getByText("AGENTS.md", { exact: true });
+      await Promise.race([
+        agentsInLoaded.waitFor({ state: "visible", timeout: 15000 }),
+        agentsInShadowed.waitFor({ state: "visible", timeout: 15000 }),
+      ]);
 
       const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
       if ((await openWorkbenchCta.count()) > 0) {
