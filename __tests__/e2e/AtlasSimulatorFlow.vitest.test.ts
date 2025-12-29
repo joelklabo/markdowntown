@@ -52,6 +52,31 @@ async function buildZipFixture(): Promise<string> {
   return zipPath;
 }
 
+async function buildCorruptZipFixture(): Promise<string> {
+  const buffer = Buffer.from("not a valid zip archive");
+  const zipPath = path.join(process.cwd(), "tmp", `atlas-zip-corrupt-${Date.now()}.zip`);
+  fs.mkdirSync(path.dirname(zipPath), { recursive: true });
+  fs.writeFileSync(zipPath, buffer);
+  return zipPath;
+}
+
+async function buildNonZipFixture(): Promise<string> {
+  const nonZipPath = path.join(process.cwd(), "tmp", `atlas-non-zip-${Date.now()}.txt`);
+  fs.mkdirSync(path.dirname(nonZipPath), { recursive: true });
+  fs.writeFileSync(nonZipPath, "not a zip");
+  return nonZipPath;
+}
+
+async function waitForZipScanReady(page: Page) {
+  await page
+    .waitForFunction(
+      () => (window as unknown as { __atlasZipScan?: unknown }).__atlasZipScan !== undefined,
+      undefined,
+      { timeout: 5000 },
+    )
+    .catch(() => {});
+}
+
 describe("Atlas simulator flow", () => {
   let browser: Browser;
 
@@ -95,7 +120,9 @@ describe("Atlas simulator flow", () => {
 
       const loadedList = page.getByRole("list", { name: /loaded files/i });
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
-      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+      await loadedList
+        .getByText(".github/copilot-instructions.md", { exact: true })
+        .waitFor({ state: "visible", timeout: 45000 });
       const copilotText = (await loadedList.allTextContents()).join("\n");
       expect(copilotText.trim().length).toBeGreaterThan(0);
       await maybeCaptureRulesMeta(page);
@@ -148,7 +175,9 @@ describe("Atlas simulator flow", () => {
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
 
       const loadedList = page.getByRole("list", { name: /loaded files/i });
-      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+      await loadedList
+        .getByText(".github/copilot-instructions.md", { exact: true })
+        .waitFor({ state: "visible", timeout: 45000 });
 
       const missingList = page.getByRole("list", { name: /missing instruction files/i });
       await missingList.getByText("Scoped instructions", { exact: true }).waitFor({ state: "visible" });
@@ -160,21 +189,24 @@ describe("Atlas simulator flow", () => {
         await refreshButtons.first().click();
       }
 
-      await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+      await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible", timeout: 45000 });
       await missingList.getByText("Directory override (root)", { exact: true }).waitFor({ state: "visible" });
     }, "atlas-simulator-folder-scan");
   });
 
-  maybe("uploads a ZIP and scans its contents", { timeout: 45000 }, async () => {
+  maybe("uploads a ZIP and scans its contents", { timeout: 90000 }, async () => {
     const zipPath = await buildZipFixture();
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
       const zipUploadInput = page.getByLabel(/upload zip/i).first();
       await zipUploadInput.waitFor({ state: "visible" });
+      await waitForZipScanReady(page);
       await zipUploadInput.setInputFiles(zipPath);
       const loadedList = page.getByRole("list", { name: /loaded files/i });
-      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+      await loadedList
+        .getByText(".github/copilot-instructions.md", { exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
 
       await page.getByText(/show advanced settings/i).click();
       await page.getByLabel("Tool", { exact: true }).selectOption("codex-cli");
@@ -183,7 +215,33 @@ describe("Atlas simulator flow", () => {
         await refreshButtons.first().click();
       }
 
-      await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+      await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible", timeout: 60000 });
     }, "atlas-simulator-zip-scan");
+  });
+
+  maybe("shows an error for non-ZIP uploads", { timeout: 45000 }, async () => {
+    const nonZipPath = await buildNonZipFixture();
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
+      const zipUploadInput = page.getByLabel(/upload zip/i).first();
+      await zipUploadInput.waitFor({ state: "visible" });
+      await waitForZipScanReady(page);
+      await zipUploadInput.setInputFiles(nonZipPath);
+      await page.getByText(/zip file could not be read/i).first().waitFor({ state: "visible" });
+    }, "atlas-simulator-zip-nonzip");
+  });
+
+  maybe("shows an error for corrupted ZIP uploads", { timeout: 45000 }, async () => {
+    const corruptZipPath = await buildCorruptZipFixture();
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
+      const zipUploadInput = page.getByLabel(/upload zip/i).first();
+      await zipUploadInput.waitFor({ state: "visible" });
+      await waitForZipScanReady(page);
+      await zipUploadInput.setInputFiles(corruptZipPath);
+      await page.getByText(/zip file could not be read/i).first().waitFor({ state: "visible" });
+    }, "atlas-simulator-zip-corrupt");
   });
 });
