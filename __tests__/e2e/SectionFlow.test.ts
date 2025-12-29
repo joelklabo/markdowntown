@@ -1,8 +1,11 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { chromium, Browser } from "playwright";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
+const componentsScreenshotPath = process.env.E2E_COMPONENTS_SCREENSHOT_PATH;
 
 let browser: Browser;
 
@@ -17,9 +20,11 @@ describe("Section flow", () => {
 
   const maybe = baseURL ? it : it.skip;
 
+  const testTimeout = componentsScreenshotPath ? 45000 : 20000;
+
   maybe(
     "shows logged-out surfaces and library",
-    { timeout: 20000 },
+    { timeout: testTimeout },
     async () => {
       await withE2EPage(browser, { baseURL }, async (page) => {
         const home = await page.goto("/", { waitUntil: "domcontentloaded", timeout: 15000 });
@@ -30,9 +35,20 @@ describe("Section flow", () => {
         if ((await buildSection.count()) > 0) {
           await buildSection.waitFor({ state: "visible" });
           await page.locator("#library-preview").waitFor({ state: "visible" });
-          await page.getByRole("heading", { name: /browse curated public artifacts/i }).waitFor({ state: "visible" });
+          await page.getByRole("heading", { name: /reuse a public artifact/i }).waitFor({ state: "visible" });
+
+          if (componentsScreenshotPath) {
+            const componentsSection = page.locator("#library-preview");
+            await fs.mkdir(path.dirname(componentsScreenshotPath), { recursive: true });
+            await componentsSection.screenshot({ path: componentsScreenshotPath });
+          }
         } else {
           await page.getByRole("heading", { name: /scan a folder to start/i }).waitFor({ state: "visible" });
+
+          if (componentsScreenshotPath) {
+            await fs.mkdir(path.dirname(componentsScreenshotPath), { recursive: true });
+            await page.screenshot({ path: componentsScreenshotPath, fullPage: true });
+          }
         }
 
         const library = await page.goto("/library", { waitUntil: "domcontentloaded", timeout: 15000 });

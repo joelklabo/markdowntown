@@ -1,9 +1,18 @@
-import { chromium, Browser } from "playwright";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { chromium, Browser, type Locator } from "playwright";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
+const heroScreenshotPath = process.env.E2E_HERO_SCREENSHOT_PATH;
+const footerScreenshotPath = process.env.E2E_FOOTER_SCREENSHOT_PATH;
+
+async function captureLocatorScreenshot(locator: Locator, outputPath: string) {
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await locator.screenshot({ path: outputPath });
+}
 
 describe("Site responsive smoke", () => {
   let browser: Browser;
@@ -43,16 +52,29 @@ describe("Site responsive smoke", () => {
       await scanCta.waitFor({ state: "visible" });
       await workbenchCta.waitFor({ state: "visible" });
 
+      if (heroScreenshotPath) {
+        const heroSection = page.locator("main section").first();
+        await heroSection.scrollIntoViewIfNeeded();
+        await captureLocatorScreenshot(heroSection, heroScreenshotPath);
+      }
+
+      if (footerScreenshotPath) {
+        const footer = page.getByRole("contentinfo");
+        await footer.scrollIntoViewIfNeeded();
+        await captureLocatorScreenshot(footer, footerScreenshotPath);
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
+
       const browseLink = page.getByRole("link", { name: /^browse library$/i }).first();
 
       const headerLibrary = page.locator("header").getByRole("link", { name: /^library$/i });
       if ((await browseLink.count()) > 0) {
-        await browseLink.click();
+        await browseLink.scrollIntoViewIfNeeded();
+        await Promise.all([page.waitForURL(/\/library/), browseLink.click()]);
       } else {
         await headerLibrary.first().waitFor({ state: "visible" });
-        await headerLibrary.first().click();
+        await Promise.all([page.waitForURL(/\/library/), headerLibrary.first().click()]);
       }
-      await page.waitForURL(/\/library/);
 
       const header = page.locator("header");
       const searchInput = header.getByRole("textbox", { name: /^search$/i });
