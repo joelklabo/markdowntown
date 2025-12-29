@@ -47,9 +47,10 @@ pnpm lint          # ESLint
 pnpm type-check    # TypeScript
 pnpm test          # Vitest (jsdom + node environments)
 ```
-If unit tests time out in automation, rerun with a higher timeout:
+If unit tests time out (the CLI harness defaults to a 10s timeout), rerun locally with a higher timeout:
 ```bash
 pnpm test:unit -- --testTimeout=30000
+npm run test:unit -- --testTimeout=30000
 ```
 
 ## Analytics & monitoring (opt-in)
