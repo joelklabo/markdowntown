@@ -1,7 +1,8 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContextSimulator } from "@/components/atlas/ContextSimulator";
+import { SCAN_TREE_VIRTUALIZATION_THRESHOLD } from "@/components/atlas/SimulatorScanMeta";
 import { featureFlags } from "@/lib/flags";
 
 vi.mock("@/lib/flags", () => ({
@@ -105,6 +106,20 @@ describe("ContextSimulator", () => {
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
+  }, 15000);
+
+  it("virtualizes the scan preview for large path lists", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getByText(/show advanced settings/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    const largeList = Array.from(
+      { length: SCAN_TREE_VIRTUALIZATION_THRESHOLD + 1 },
+      (_, index) => `docs/file-${index}.md`,
+    ).join("\n");
+    fireEvent.change(manualPathsInput, { target: { value: largeList } });
+
+    expect(await screen.findByTestId("virtualized-file-tree")).toBeInTheDocument();
   }, 15000);
 
   it("shows line-level errors for malformed tree input", async () => {

@@ -12,11 +12,13 @@ import { Select } from "@/components/ui/Select";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { TextArea } from "@/components/ui/TextArea";
+import { FileTree } from "@/components/ui/FileTree";
 import { InstructionContentLint } from "@/components/atlas/InstructionContentLint";
 import { InstructionHealthPanel } from "@/components/atlas/InstructionHealthPanel";
 import { NextStepsPanel } from "@/components/atlas/NextStepsPanel";
 import { SimulatorInsights } from "@/components/atlas/SimulatorInsights";
-import { SimulatorScanMeta } from "@/components/atlas/SimulatorScanMeta";
+import { SimulatorScanMeta, shouldVirtualizeScanTree } from "@/components/atlas/SimulatorScanMeta";
+import { VirtualizedFileTree } from "@/components/atlas/VirtualizedFileTree";
 import { CopyButton } from "@/components/atlas/CopyButton";
 import { lintInstructionContent } from "@/lib/atlas/simulators/contentLint";
 import { DEFAULT_MAX_CONTENT_BYTES } from "@/lib/atlas/simulators/contentScan";
@@ -491,6 +493,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const [repoText, setRepoText] = useState(DEFAULT_REPO_TREE);
   const [manualParse, setManualParse] = useState<RepoPathParseResult>(() => parseRepoInput(repoText));
   const [scannedTree, setScannedTree] = useState<RepoTree | null>(null);
+  const [selectedPreviewPath, setSelectedPreviewPath] = useState<string | null>(null);
   const [toolDetection, setToolDetection] = useState<ToolDetectionResult | null>(null);
   const [scanMeta, setScanMeta] = useState<RepoScanMeta | null>(null);
   const [scanError, setScanError] = useState<{ message: string; kind: "permission-denied" | "not-found" | "generic" } | null>(null);
@@ -602,11 +605,24 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const manualPaths = manualParse.paths;
   const manualIssues = manualParse.issues;
   const repoFileCount = repoSource === "folder" ? scannedTree?.files.length ?? 0 : manualPaths.length;
+  const previewPaths = useMemo(
+    () =>
+      repoSource === "folder"
+        ? (scannedTree?.files ?? []).map((file) => file.displayPath ?? file.path)
+        : manualPaths,
+    [manualPaths, repoSource, scannedTree],
+  );
   const repoPaths = useMemo(
     () => (repoSource === "folder" ? (scannedTree?.files ?? []).map((file) => file.path) : manualPaths),
     [manualPaths, repoSource, scannedTree],
   );
+  const showTreePreview = previewPaths.length > 0;
+  const useVirtualizedTree = showTreePreview && shouldVirtualizeScanTree(previewPaths.length);
   const repoSignals = useMemo(() => analyzeRepo(repoPaths), [repoPaths]);
+
+  useEffect(() => {
+    setSelectedPreviewPath(null);
+  }, [manualPaths.length, repoSource, scannedTree]);
   const currentSignature = useMemo(
     () => buildInputSignature(tool, cwd, repoSource, repoPaths),
     [cwd, repoPaths, repoSource, tool],
@@ -1762,15 +1778,37 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                     {scanMeta ? (
                       <SimulatorScanMeta {...scanMeta} tool={tool} toolRulesMeta={toolRulesMeta} />
                     ) : null}
-                    <TextArea
-                      id="sim-tree-preview"
-                      name="sim-tree-preview"
-                      rows={8}
-                      value={scannedPreview}
-                      readOnly
-                      placeholder="Scanned paths will appear here."
-                      aria-labelledby="sim-tree-preview-label"
-                    />
+                    {showTreePreview ? (
+                      useVirtualizedTree ? (
+                        <VirtualizedFileTree
+                          paths={previewPaths}
+                          selectedPath={selectedPreviewPath}
+                          onSelect={setSelectedPreviewPath}
+                          height={320}
+                          ariaLabel="Scanned paths preview"
+                        />
+                      ) : (
+                        <div className="max-h-80 overflow-auto rounded-mdt-md border border-mdt-border bg-mdt-surface">
+                          <FileTree
+                            paths={previewPaths}
+                            selectedPath={selectedPreviewPath}
+                            onSelect={setSelectedPreviewPath}
+                            className="px-2 py-2"
+                            emptyLabel="Scanned paths will appear here."
+                          />
+                        </div>
+                      )
+                    ) : (
+                      <TextArea
+                        id="sim-tree-preview"
+                        name="sim-tree-preview"
+                        rows={8}
+                        value={scannedPreview}
+                        readOnly
+                        placeholder="Scanned paths will appear here."
+                        aria-labelledby="sim-tree-preview-label"
+                      />
+                    )}
                   </div>
 
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
@@ -2029,15 +2067,37 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                     <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
                       Scan preview
                     </Text>
-                    <TextArea
-                      id="sim-tree-preview"
-                      name="sim-tree-preview"
-                      rows={8}
-                      value={scannedPreview}
-                      readOnly
-                      placeholder="Scanned paths will appear here."
-                      aria-label="Scanned paths preview"
-                    />
+                    {showTreePreview ? (
+                      useVirtualizedTree ? (
+                        <VirtualizedFileTree
+                          paths={previewPaths}
+                          selectedPath={selectedPreviewPath}
+                          onSelect={setSelectedPreviewPath}
+                          height={320}
+                          ariaLabel="Scanned paths preview"
+                        />
+                      ) : (
+                        <div className="max-h-80 overflow-auto rounded-mdt-md border border-mdt-border bg-mdt-surface">
+                          <FileTree
+                            paths={previewPaths}
+                            selectedPath={selectedPreviewPath}
+                            onSelect={setSelectedPreviewPath}
+                            className="px-2 py-2"
+                            emptyLabel="Scanned paths will appear here."
+                          />
+                        </div>
+                      )
+                    ) : (
+                      <TextArea
+                        id="sim-tree-preview"
+                        name="sim-tree-preview"
+                        rows={8}
+                        value={scannedPreview}
+                        readOnly
+                        placeholder="Scanned paths will appear here."
+                        aria-label="Scanned paths preview"
+                      />
+                    )}
                   </div>
 
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">

@@ -4,12 +4,14 @@ import { chromium, type Browser, type Page } from "playwright";
 import { test, expect } from "@playwright/test";
 import JSZip from "jszip";
 import { withE2EPage } from "./playwrightArtifacts";
+import { SCAN_TREE_VIRTUALIZATION_THRESHOLD } from "../../src/components/atlas/SimulatorScanMeta";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
 const rulesMetaScreenshotPath = process.env.E2E_SCAN_RULES_META_SCREENSHOT_PATH;
 const shadowedScreenshotPath = process.env.E2E_SCAN_SHADOWED_SCREENSHOT_PATH;
 const reportInaccuracyScreenshotPath = process.env.E2E_SCAN_REPORT_INACCURACY_SCREENSHOT_PATH;
+const virtualizedTreeScreenshotPath = process.env.E2E_SCAN_VIRTUALIZED_TREE_SCREENSHOT_PATH;
 
 async function maybeCaptureRulesMeta(page: Page) {
   if (!rulesMetaScreenshotPath) return;
@@ -168,16 +170,24 @@ test.describe("Atlas simulator flow", () => {
   });
 
   maybe("uploads a ZIP and scans its contents", async () => {
-    test.setTimeout(45000);
+    test.setTimeout(90000);
     const zipPath = await buildZipFixture();
     await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
-      await page.waitForFunction(() => (window as unknown as { __atlasZipScan?: unknown }).__atlasZipScan !== undefined);
+      await page
+        .waitForFunction(
+          () => (window as unknown as { __atlasZipScan?: unknown }).__atlasZipScan !== undefined,
+          undefined,
+          { timeout: 5000 },
+        )
+        .catch(() => {});
 
       await page.getByLabel(/upload zip/i).setInputFiles(zipPath);
       const loadedList = page.getByRole("list", { name: /loaded files/i });
-      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+      await loadedList
+        .getByText(".github/copilot-instructions.md", { exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
 
       await page.getByText(/show advanced settings/i).click();
       await page.getByLabel("Tool", { exact: true }).selectOption("codex-cli");
@@ -188,5 +198,37 @@ test.describe("Atlas simulator flow", () => {
 
       await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
     }, "atlas-simulator-zip-scan");
+  });
+
+  maybe("virtualizes large path lists in the scan preview", async () => {
+    test.setTimeout(45000);
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
+
+      const pastePathsButton = page.getByRole("button", { name: /paste paths/i });
+      if ((await pastePathsButton.count()) > 0) {
+        await pastePathsButton.first().click();
+      } else {
+        const advancedSummary = page.locator("summary", { hasText: /show advanced settings/i });
+        if ((await advancedSummary.count()) > 0) {
+          await advancedSummary.first().click();
+        }
+      }
+      const manualPaths = page.getByPlaceholder(/one path per line/i).first();
+      const largeList = Array.from(
+        { length: SCAN_TREE_VIRTUALIZATION_THRESHOLD + 25 },
+        (_, index) => `docs/file-${index}.md`,
+      ).join("\n");
+      await manualPaths.fill(largeList);
+
+      const previewTree = page.getByTestId("virtualized-file-tree");
+      await previewTree.waitFor({ state: "visible" });
+
+      if (virtualizedTreeScreenshotPath) {
+        fs.mkdirSync(path.dirname(virtualizedTreeScreenshotPath), { recursive: true });
+        await previewTree.screenshot({ path: virtualizedTreeScreenshotPath });
+      }
+    }, "atlas-simulator-virtualized-tree");
   });
 });

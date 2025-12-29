@@ -2,6 +2,12 @@ import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/Badge";
 import type { SimulatorToolId, ToolRulesMetadataMap } from "@/lib/atlas/simulators/types";
 
+export const SCAN_TREE_VIRTUALIZATION_THRESHOLD = 1000;
+
+export function shouldVirtualizeScanTree(totalFiles: number): boolean {
+  return totalFiles >= SCAN_TREE_VIRTUALIZATION_THRESHOLD;
+}
+
 type SimulatorScanMetaProps = {
   totalFiles: number;
   matchedFiles: number;
