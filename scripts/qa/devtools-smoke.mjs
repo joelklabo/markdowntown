@@ -22,9 +22,14 @@ const shouldIgnoreResponse = (responseUrl, status) => {
   return responseUrl.endsWith("/favicon.ico") || responseUrl.endsWith("/apple-touch-icon.png");
 };
 
-const shouldIgnoreRequestFailure = (requestUrl, errorText) => {
-  if (errorText === "net::ERR_ABORTED" && requestUrl.includes("_rsc=")) return true;
-  return false;
+const shouldIgnoreRequestFailure = (request, errorText) => {
+  if (errorText !== "net::ERR_ABORTED") return false;
+  if (!request.url().includes("_rsc=")) return false;
+  if (request.method() !== "GET") return false;
+  if (request.resourceType() !== "fetch") return false;
+  if (request.isNavigationRequest()) return false;
+  // Next.js RSC fetches can be canceled during client transitions; ignore only these benign aborts.
+  return true;
 };
 
 const logSection = (title) => {
@@ -51,7 +56,7 @@ const main = async () => {
 
   page.on("requestfailed", (request) => {
     const failure = request.failure();
-    if (shouldIgnoreRequestFailure(request.url(), failure?.errorText ?? "unknown")) return;
+    if (shouldIgnoreRequestFailure(request, failure?.errorText ?? "unknown")) return;
     requestFailures.push({
       url: request.url(),
       method: request.method(),
