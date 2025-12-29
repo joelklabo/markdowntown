@@ -62,4 +62,15 @@ describe('atlas/simulators/diagnostics', () => {
     expect(missing?.severity).toBe('error');
     expect(missing?.suggestion).toContain('.github/copilot-instructions.md');
   });
+
+  it('warns when legacy .cursorrules exists alongside .cursor/rules', () => {
+    const result = computeInstructionDiagnostics({
+      tool: 'cursor',
+      tree: treeFromPaths(['.cursor/rules/general.mdc', '.cursorrules']),
+    });
+
+    const warning = result.diagnostics.find((item) => item.code === 'deprecated.cursorrules');
+    expect(warning?.severity).toBe('warning');
+    expect(warning?.suggestion).toContain('.cursor/rules');
+  });
 });

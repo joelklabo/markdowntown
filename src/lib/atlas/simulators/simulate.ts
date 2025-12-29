@@ -2,6 +2,7 @@ import type { LoadedFile, RepoTree, SimulationInput, SimulationResult, Simulatio
 import { simulateClaudeCode } from './tools/claudeCode.ts';
 import { simulateCopilotCli } from './tools/copilotCli.ts';
 import { simulateCodexCli } from './tools/codexCli.ts';
+import { simulateCursorRules } from './tools/cursorRules.ts';
 import { simulateGeminiCli } from './tools/geminiCli.ts';
 import { simulateGitHubCopilot } from './tools/githubCopilot.ts';
 
@@ -59,6 +60,12 @@ function computeWarnings(tree: TreeIndex): SimulationWarning[] {
       message: `.cursor/rules contains ${cursorRules.length} files.`,
     });
   }
+  if (cursorRules.length > 0 && paths.includes('.cursorrules')) {
+    warnings.push({
+      code: 'deprecated.cursorrules',
+      message: 'Legacy .cursorrules found alongside .cursor/rules.',
+    });
+  }
 
   return warnings;
 }
@@ -73,6 +80,7 @@ export function simulateContextResolution({ tool, tree, cwd }: SimulationInput):
     if (tool === 'claude-code') return simulateClaudeCode(indexed, cwd);
     if (tool === 'gemini-cli') return simulateGeminiCli(indexed, cwd);
     if (tool === 'codex-cli') return simulateCodexCli(indexed, cwd);
+    if (tool === 'cursor') return simulateCursorRules(indexed);
     return [];
   })();
 

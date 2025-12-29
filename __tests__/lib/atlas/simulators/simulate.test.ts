@@ -52,4 +52,23 @@ describe('atlas/simulators/simulate', () => {
     expect(result.warnings.some(w => w.code === 'scan-risk.large-tree')).toBe(true);
     expect(result.warnings.some(w => w.code === 'scan-risk.cursor-rules')).toBe(true);
   });
+
+  it('loads Cursor rules and legacy file with reasons', () => {
+    const tree = {
+      files: [
+        { path: '.cursor/rules/general.mdc', content: '' },
+        { path: '.cursor/rules/typing.mdc', content: '' },
+        { path: '.cursorrules', content: '' },
+      ],
+    };
+
+    const result = simulateContextResolution({ tool: 'cursor', tree, cwd: '' });
+
+    expect(result.loaded).toEqual([
+      { path: '.cursor/rules/general.mdc', reason: 'cursor rule (.cursor/rules/*.mdc)' },
+      { path: '.cursor/rules/typing.mdc', reason: 'cursor rule (.cursor/rules/*.mdc)' },
+      { path: '.cursorrules', reason: 'legacy cursor rules (.cursorrules, deprecated)' },
+    ]);
+    expect(result.warnings.some(w => w.code === 'deprecated.cursorrules')).toBe(true);
+  });
 });

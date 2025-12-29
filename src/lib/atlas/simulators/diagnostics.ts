@@ -76,6 +76,8 @@ export function computeInstructionDiagnostics({ tool, tree, cwd = '' }: Diagnost
   const agentsOverride = paths.filter((path) => path === 'AGENTS.override.md' || path.endsWith('/AGENTS.override.md'));
   const claudeFiles = paths.filter((path) => path === 'CLAUDE.md' || path.endsWith('/CLAUDE.md'));
   const geminiFiles = paths.filter((path) => path === 'GEMINI.md' || path.endsWith('/GEMINI.md'));
+  const cursorRuleFiles = paths.filter((path) => path.startsWith('.cursor/rules/'));
+  const cursorLegacyFiles = paths.filter((path) => path === '.cursorrules');
 
   const copilotCliRoot = index.has('.github/copilot-instructions.md');
   const copilotCliScoped = paths.some(
@@ -289,6 +291,19 @@ export function computeInstructionDiagnostics({ tool, tree, cwd = '' }: Diagnost
           suggestion: 'Confirm cwd and place GEMINI.md in the repo root or a parent directory.',
         });
       }
+    }
+  }
+
+  if (tool === 'cursor') {
+    if (cursorLegacyFiles.length > 0 && cursorRuleFiles.length > 0) {
+      addDiagnostic(diagnostics, {
+        code: 'deprecated.cursorrules',
+        severity: 'warning',
+        message: 'Legacy .cursorrules found alongside .cursor/rules.',
+        suggestion: 'Move legacy rules into .cursor/rules and remove .cursorrules.',
+        path: cursorLegacyFiles[0],
+        expectedPath: '.cursor/rules/',
+      });
     }
   }
 
