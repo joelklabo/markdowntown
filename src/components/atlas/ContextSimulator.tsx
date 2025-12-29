@@ -1830,6 +1830,10 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                   Show advanced settings
                 </summary>
                 <div className="mt-mdt-3 space-y-mdt-3">
+                  <fieldset className="space-y-mdt-3 border-0 p-0">
+                    <legend className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+                      Scan inputs
+                    </legend>
                   <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
                     <label htmlFor="sim-tool" className="text-caption font-semibold uppercase tracking-wide text-mdt-muted">
                       Tool
@@ -2019,6 +2023,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                     {repoFileCount} file(s) in the current source. Lines starting with `#` or `//` are ignored.
                     {manualIssues.length > 0 ? ` ${manualIssues.length} line(s) need attention.` : ""}
                   </Text>
+                  </fieldset>
                 </div>
               </details>
 

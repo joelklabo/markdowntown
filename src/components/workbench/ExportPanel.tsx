@@ -288,30 +288,34 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
         </Text>
       </div>
       <div>
-        <h3 className="mb-mdt-2 text-caption font-semibold uppercase tracking-wide text-mdt-muted">Targets</h3>
-        <div className="space-y-mdt-2">
-          {TARGETS.map((t) => {
-            const selected = uam.targets.find((target) => target.targetId === t.targetId) ?? null;
-            return (
-              <Checkbox
-                key={t.targetId}
-                id={`workbench-target-${t.targetId}`}
-                name={`workbench-target-${t.targetId}`}
-                checked={targetIds.includes(t.targetId)}
-                onChange={() => toggleTarget(t.targetId)}
-              >
-              <span className="inline-flex items-center gap-mdt-2">
-                <span>{t.label}</span>
-                {selected ? (
-                  <span aria-hidden className="font-mono text-[11px] text-mdt-muted">
-                    v{selected.adapterVersion}
+        <fieldset className="space-y-mdt-2 border-0 p-0">
+          <legend className="mb-mdt-2 text-caption font-semibold uppercase tracking-wide text-mdt-muted">
+            Targets
+          </legend>
+          <div className="space-y-mdt-2">
+            {TARGETS.map((t) => {
+              const selected = uam.targets.find((target) => target.targetId === t.targetId) ?? null;
+              return (
+                <Checkbox
+                  key={t.targetId}
+                  id={`workbench-target-${t.targetId}`}
+                  name={`workbench-target-${t.targetId}`}
+                  checked={targetIds.includes(t.targetId)}
+                  onChange={() => toggleTarget(t.targetId)}
+                >
+                  <span className="inline-flex items-center gap-mdt-2">
+                    <span>{t.label}</span>
+                    {selected ? (
+                      <span aria-hidden className="font-mono text-[11px] text-mdt-muted">
+                        v{selected.adapterVersion}
+                      </span>
+                    ) : null}
                   </span>
-                ) : null}
-              </span>
-            </Checkbox>
-            );
-          })}
-        </div>
+                </Checkbox>
+              );
+            })}
+          </div>
+        </fieldset>
 
         <button
           type="button"
@@ -400,8 +404,8 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                 </div>
 
                 {supportsSkillExport ? (
-                  <div className="space-y-mdt-2" data-testid={`skills-export-${target.targetId}`}>
-                    <div className="text-caption text-mdt-muted">Skills export</div>
+                  <fieldset className="space-y-mdt-2 border-0 p-0" data-testid={`skills-export-${target.targetId}`}>
+                    <legend className="text-caption text-mdt-muted">Skills export</legend>
                     <div className="flex flex-wrap gap-mdt-3">
                       <Radio
                         id={skillsOffId}
@@ -459,7 +463,7 @@ export function ExportPanel({ entrySource = 'direct' }: ExportPanelProps) {
                         )}
                       </div>
                     ) : null}
-                  </div>
+                  </fieldset>
                 ) : null}
               </div>
               );
