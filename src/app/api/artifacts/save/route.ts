@@ -20,6 +20,7 @@ const SaveSchema = z.object({
   message: z.string().optional(),
   expectedVersion: z.union([z.string(), z.number()]).optional(),
   expectedUpdatedAt: z.string().datetime().optional(),
+  secretScanAck: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -32,6 +33,16 @@ export async function POST(req: Request) {
     try {
       const json = await req.json();
       const body = SaveSchema.parse(json);
+      const requiresSecretAck = body.visibility === Visibility.PUBLIC || body.visibility === Visibility.UNLISTED;
+      if (requiresSecretAck && body.secretScanAck !== true) {
+        return NextResponse.json(
+          {
+            error: 'Secret scan acknowledgement required',
+            details: { visibility: body.visibility },
+          },
+          { status: 400 },
+        );
+      }
 
       const parsedUam = safeParseUamV1(body.uam);
       if (!parsedUam.success) {

@@ -71,6 +71,54 @@ describe('POST /api/artifacts/save', () => {
     }));
   });
 
+  it('requires secret scan ack for public saves', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Public Agent',
+        visibility: 'PUBLIC',
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'Public Agent' },
+          scopes: [],
+          blocks: [],
+          targets: [{ targetId: 'agents-md', adapterVersion: '1', options: {} }],
+        },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Secret scan acknowledgement required');
+  });
+
+  it('allows public saves with secret scan ack', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1' });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Public Agent',
+        visibility: 'PUBLIC',
+        secretScanAck: true,
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'Public Agent' },
+          scopes: [],
+          blocks: [],
+          targets: [{ targetId: 'agents-md', adapterVersion: '1', options: {} }],
+        },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+  });
+
   it('updates existing artifact', async () => {
     (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
     (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
