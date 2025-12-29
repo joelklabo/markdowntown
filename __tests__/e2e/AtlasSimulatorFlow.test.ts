@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
+import JSZip from "jszip";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
@@ -14,6 +15,17 @@ async function maybeCaptureRulesMeta(page: Page) {
   await scanMeta.getByText(/rules verified/i).waitFor({ state: "visible" });
   fs.mkdirSync(path.dirname(rulesMetaScreenshotPath), { recursive: true });
   await scanMeta.screenshot({ path: rulesMetaScreenshotPath });
+}
+
+async function buildZipFixture(): Promise<string> {
+  const zip = new JSZip();
+  zip.file("AGENTS.md", "# Agents");
+  zip.file(".github/copilot-instructions.md", "# Copilot");
+  const buffer = await zip.generateAsync({ type: "nodebuffer" });
+  const zipPath = path.join(process.cwd(), "tmp", `atlas-zip-upload-${Date.now()}.zip`);
+  fs.mkdirSync(path.dirname(zipPath), { recursive: true });
+  fs.writeFileSync(zipPath, buffer);
+  return zipPath;
 }
 
 describe("Atlas simulator flow", () => {
@@ -125,5 +137,27 @@ describe("Atlas simulator flow", () => {
       await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
       await missingList.getByText("Directory override (root)", { exact: true }).waitFor({ state: "visible" });
     }, "atlas-simulator-folder-scan");
+  });
+
+  maybe("uploads a ZIP and scans its contents", { timeout: 45000 }, async () => {
+    const zipPath = await buildZipFixture();
+    await withE2EPage(browser, { baseURL, viewport: { width: 1280, height: 900 } }, async (page) => {
+      await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).first().waitFor({ state: "visible" });
+      await page.waitForFunction(() => (window as unknown as { __atlasZipScan?: unknown }).__atlasZipScan !== undefined);
+
+      await page.getByLabel(/upload zip/i).setInputFiles(zipPath);
+      const loadedList = page.getByRole("list", { name: /loaded files/i });
+      await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
+
+      await page.getByText(/show advanced settings/i).click();
+      await page.getByLabel("Tool", { exact: true }).selectOption("codex-cli");
+      const refreshButtons = page.getByRole("button", { name: /refresh results/i });
+      if ((await refreshButtons.count()) > 0) {
+        await refreshButtons.first().click();
+      }
+
+      await loadedList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+    }, "atlas-simulator-zip-scan");
   });
 });

@@ -28,6 +28,7 @@ import { simulateContextResolution } from "@/lib/atlas/simulators/simulate";
 import type { FileSystemDirectoryHandleLike } from "@/lib/atlas/simulators/fsScan";
 import { scanRepoTree } from "@/lib/atlas/simulators/fsScan";
 import { scanFileList } from "@/lib/atlas/simulators/fileListScan";
+import { scanZipFile, ZipScanError } from "@/lib/atlas/simulators/zipScan";
 import { INSTRUCTION_TEMPLATES } from "@/lib/atlas/simulators/templates";
 import type { ToolRulesMetadataMap } from "@/lib/atlas/simulators/types";
 import type {
@@ -568,6 +569,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   const [actionStatus, setActionStatus] = useState<string | null>(null);
   const statusTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const zipInputRef = useRef<HTMLInputElement | null>(null);
   const [directorySupport, setDirectorySupport] = useState<"unknown" | "supported" | "unsupported">("unknown");
   const scanAbortRef = useRef<AbortController | null>(null);
   const scanIdRef = useRef(0);
@@ -585,6 +587,15 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   useEffect(() => {
     const supported = typeof window !== "undefined" && "showDirectoryPicker" in window;
     setDirectorySupport(supported ? "supported" : "unsupported");
+  }, []);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    if (typeof window === "undefined") return;
+    (window as unknown as { __atlasZipScan?: typeof scanZipFile }).__atlasZipScan = scanZipFile;
+    return () => {
+      delete (window as unknown as { __atlasZipScan?: typeof scanZipFile }).__atlasZipScan;
+    };
   }, []);
 
   const manualParse = useMemo(() => parseRepoInput(repoText), [repoText]);
@@ -611,6 +622,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
       ? CLAUDE_ONLY_ALLOWLIST
       : undefined;
   const scanButtonLabel = isScanning ? "Scanning…" : isPickingDirectory ? "Picking folder…" : "Scan a folder";
+  const zipButtonLabel = isScanning ? "Scanning…" : "Upload a ZIP";
 
   const scannedPreview = useMemo(() => {
     const paths = (scannedTree?.files ?? []).map((file) => file.displayPath ?? file.path);
@@ -940,6 +952,12 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   };
 
   const formatScanErrorMessage = (error: unknown) => {
+    if (error instanceof ZipScanError) {
+      return {
+        message: error.message,
+        kind: "generic" as const,
+      };
+    }
     if (error instanceof DOMException) {
       if (error.name === "NotAllowedError" || error.name === "SecurityError") {
         return {
@@ -961,7 +979,7 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
   };
 
   const runFolderScan = async (
-    method: "directory_picker" | "file_input",
+    method: "directory_picker" | "file_input" | "zip_upload",
     scan: (signal: AbortSignal, onProgress: (progress: { totalFiles: number; matchedFiles: number }) => void) => Promise<{
       tree: RepoTree;
       totalFiles: number;
@@ -1116,6 +1134,34 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
       "file_input",
       (signal, onProgress) =>
         scanFileList(files, {
+          includeContent: includeScanContent,
+          contentAllowlist: scanContentAllowlist,
+          signal,
+          onProgress,
+        }),
+      rootName,
+    );
+  };
+
+  const handleZipInputScan = async (files: FileList | null) => {
+    setScanError(null);
+    if (!files || files.length === 0) {
+      setScanNotice("ZIP upload canceled. Upload a ZIP to continue.");
+      const scanCwd = normalizePath(cwd) || undefined;
+      track("atlas_simulator_scan_cancel", { method: "zip_upload", tool, cwd: scanCwd });
+      emitUiTelemetryEvent({
+        name: "scan_cancel",
+        properties: { method: "zip_upload", tool, cwd: scanCwd },
+      });
+      return;
+    }
+    const zipFile = files[0];
+    if (!zipFile) return;
+    const rootName = zipFile.name.replace(/\.zip$/i, "") || zipFile.name;
+    await runFolderScan(
+      "zip_upload",
+      (signal, onProgress) =>
+        scanZipFile(zipFile, {
           includeContent: includeScanContent,
           contentAllowlist: scanContentAllowlist,
           signal,
@@ -1425,6 +1471,15 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                     type="button"
                     variant="secondary"
                     className="w-full sm:w-auto"
+                    disabled={isScanning || isPickingDirectory}
+                    onClick={() => zipInputRef.current?.click()}
+                  >
+                    {zipButtonLabel}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full sm:w-auto"
                     onClick={() => {
                       setRepoSource("manual");
                       openAdvancedField("sim-tree-manual");
@@ -1445,6 +1500,19 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                   aria-label="Upload folder"
                   onChange={async (event) => {
                     await handleFileInputScan(event.target.files);
+                  }}
+                />
+                <Input
+                  ref={zipInputRef}
+                  id="sim-zip-upload"
+                  name="sim-zip-upload"
+                  type="file"
+                  accept=".zip,application/zip"
+                  className="sr-only"
+                  aria-label="Upload ZIP"
+                  onChange={async (event) => {
+                    await handleZipInputScan(event.target.files);
+                    event.currentTarget.value = "";
                   }}
                 />
 
@@ -1719,7 +1787,29 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
                       }}
                     />
                   )}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full sm:w-auto"
+                    disabled={isScanning || isPickingDirectory}
+                    onClick={() => zipInputRef.current?.click()}
+                  >
+                    {zipButtonLabel}
+                  </Button>
                 </div>
+                <Input
+                  ref={zipInputRef}
+                  id="sim-zip-upload-alt"
+                  name="sim-zip-upload-alt"
+                  type="file"
+                  accept=".zip,application/zip"
+                  className="sr-only"
+                  aria-label="Upload ZIP"
+                  onChange={async (event) => {
+                    await handleZipInputScan(event.target.files);
+                    event.currentTarget.value = "";
+                  }}
+                />
                 <div className="rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
                   <Text size="bodySm" weight="semibold">
                     Local-only scan
