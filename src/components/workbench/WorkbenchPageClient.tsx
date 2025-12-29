@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { usePrefersReducedMotion } from '@/components/motion/usePrefersReducedMotion';
 import type { Session } from 'next-auth';
-import { readStoredScanContext, useWorkbenchStore } from '@/hooks/useWorkbenchStore';
+import { readStoredScanContext, readStoredWorkbenchDraftMeta, useWorkbenchStore } from '@/hooks/useWorkbenchStore';
 import { getTimeSinceSessionStartMs, track } from '@/lib/analytics';
 import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
 import type { UamV1 } from '@/lib/uam/uamTypes';
@@ -63,9 +63,11 @@ export function WorkbenchPageClient({
     message?: string;
   }>({ status: 'idle' });
   const [showArtifactNotice, setShowArtifactNotice] = useState(false);
+  const [draftPrompt, setDraftPrompt] = useState<{ lastSavedAt: number | null } | null>(null);
   const appliedScanRef = useRef(false);
   const focusAppliedRef = useRef(false);
   const openWorkbenchTrackedRef = useRef(false);
+  const draftPromptedRef = useRef(false);
 
   const loadArtifact = useWorkbenchStore(s => s.loadArtifact);
   const initializeFromTemplate = useWorkbenchStore(s => s.initializeFromTemplate);
@@ -78,6 +80,7 @@ export function WorkbenchPageClient({
   const setSecretScan = useWorkbenchStore(s => s.setSecretScan);
   const clearSaveConflict = useWorkbenchStore(s => s.clearSaveConflict);
   const reloadArtifact = useWorkbenchStore(s => s.reloadArtifact);
+  const discardDraft = useWorkbenchStore(s => s.discardDraft);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -133,6 +136,17 @@ export function WorkbenchPageClient({
     applyScanContext(context);
     appliedScanRef.current = true;
   }, [applyScanContext, initialArtifactId, initialScanContext, initialTemplateUam, mounted, scanContext]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (draftPromptedRef.current) return;
+    if (initialArtifactId || initialTemplateUam) return;
+    const storedDraft = readStoredWorkbenchDraftMeta();
+    if (!storedDraft || !storedDraft.hasDraft || storedDraft.hasArtifactId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraftPrompt({ lastSavedAt: storedDraft.lastSavedAt });
+    draftPromptedRef.current = true;
+  }, [initialArtifactId, initialTemplateUam, mounted]);
 
   const scanSummary = useMemo(() => {
     if (!scanContext) return null;
@@ -233,6 +247,21 @@ export function WorkbenchPageClient({
     }
   };
 
+  const handleRestoreDraft = () => {
+    useWorkbenchStore.persist.rehydrate();
+    setDraftPrompt(null);
+  };
+
+  const handleDiscardDraft = () => {
+    discardDraft();
+    setDraftPrompt(null);
+  };
+
+  const draftSavedLabel = useMemo(() => {
+    if (!draftPrompt?.lastSavedAt) return 'Saved on this device.';
+    return `Last saved ${new Date(draftPrompt.lastSavedAt).toLocaleString()}`;
+  }, [draftPrompt]);
+
   if (!mounted) return null;
 
   return (
@@ -257,6 +286,33 @@ export function WorkbenchPageClient({
               </Button>
               <Button size="sm" variant="ghost" onClick={clearSaveConflict}>
                 Keep editing
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {draftPrompt ? (
+        <div
+          data-testid="workbench-draft-restore"
+          className="border-b border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-mdt-3">
+            <div className="space-y-mdt-1">
+              <Text size="caption" tone="muted">
+                Draft found
+              </Text>
+              <Text weight="semibold">Restore your last Workbench draft?</Text>
+              <Text size="bodySm" tone="muted">
+                {draftSavedLabel}
+              </Text>
+            </div>
+            <div className="flex flex-wrap items-center gap-mdt-2">
+              <Button size="sm" onClick={handleRestoreDraft}>
+                Restore draft
+              </Button>
+              <Button size="sm" variant="secondary" onClick={handleDiscardDraft}>
+                Discard draft
               </Button>
             </div>
           </div>

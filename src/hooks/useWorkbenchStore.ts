@@ -65,19 +65,53 @@ type WorkbenchScopeInput =
       patterns?: string[];
     };
 
+const inMemoryStorage = new Map<string, string>();
+
 function safeLocalStorage(): StateStorage {
   return {
-    getItem: (name) => (typeof localStorage === 'undefined' ? null : localStorage.getItem(name)),
+    getItem: (name) => {
+      if (typeof localStorage === 'undefined') return inMemoryStorage.get(name) ?? null;
+      try {
+        const value = localStorage.getItem(name);
+        if (!value) return inMemoryStorage.get(name) ?? null;
+        try {
+          JSON.parse(value);
+        } catch {
+          localStorage.removeItem(name);
+          inMemoryStorage.delete(name);
+          return null;
+        }
+        return value;
+      } catch {
+        return inMemoryStorage.get(name) ?? null;
+      }
+    },
     setItem: (name, value) => {
-      if (typeof localStorage === 'undefined') return;
-      localStorage.setItem(name, value);
+      if (typeof localStorage === 'undefined') {
+        inMemoryStorage.set(name, value);
+        return;
+      }
+      try {
+        localStorage.setItem(name, value);
+        inMemoryStorage.delete(name);
+      } catch {
+        inMemoryStorage.set(name, value);
+      }
     },
     removeItem: (name) => {
+      inMemoryStorage.delete(name);
       if (typeof localStorage === 'undefined') return;
-      localStorage.removeItem(name);
+      try {
+        localStorage.removeItem(name);
+      } catch {
+        // ignore storage errors
+      }
     },
   };
 }
+
+const WORKBENCH_STORAGE_KEY = 'workbench-storage';
+const WORKBENCH_STORAGE_VERSION = 3;
 
 const SCAN_CONTEXT_STORAGE_KEY = 'workbench-scan-context-v1';
 const SCAN_CONTEXT_STORAGE_VERSION = 1;
@@ -142,6 +176,62 @@ function clearStoredScanContext() {
   const storage = safeSessionStorage();
   if (!storage) return;
   storage.removeItem(SCAN_CONTEXT_STORAGE_KEY);
+}
+
+function hasMeaningfulDraft(uam: UamV1, persisted?: Partial<PersistedWorkbenchState>): boolean {
+  const normalized = normalizeWorkbenchUam(uam);
+  const title = normalized.meta.title?.trim() ?? '';
+  const description = normalized.meta.description?.trim() ?? '';
+  const hasMeta = (title.length > 0 && title !== 'Untitled Agent') || description.length > 0;
+  const hasBlocks = normalized.blocks.length > 0;
+  const hasCapabilities = normalized.capabilities.length > 0;
+  const hasTargets = normalized.targets.length > 0;
+  const hasScopes = normalized.scopes.length > 1;
+  const hasVisibility = persisted?.visibility !== undefined && persisted.visibility !== 'PRIVATE';
+  const hasTags = Array.isArray(persisted?.tags) && persisted.tags.length > 0;
+  return hasMeta || hasBlocks || hasCapabilities || hasTargets || hasScopes || hasVisibility || hasTags;
+}
+
+type StoredDraftMeta = {
+  hasDraft: boolean;
+  lastSavedAt: number | null;
+  hasArtifactId: boolean;
+};
+
+export function readStoredWorkbenchDraftMeta(): StoredDraftMeta | null {
+  const storage = safeLocalStorage();
+  const raw = storage.getItem(WORKBENCH_STORAGE_KEY);
+  if (!raw || typeof raw !== 'string') return null;
+  try {
+    const parsed = JSON.parse(raw) as { state?: unknown };
+    const state = (isRecord(parsed) && 'state' in parsed ? parsed.state : parsed) as unknown;
+    if (!isRecord(state)) {
+      storage.removeItem(WORKBENCH_STORAGE_KEY);
+      return null;
+    }
+    const uam = (state as { uam?: unknown }).uam;
+    const parsedUam = safeParseUamV1(uam);
+    if (!parsedUam.success) {
+      storage.removeItem(WORKBENCH_STORAGE_KEY);
+      return null;
+    }
+    const persisted = state as PersistedWorkbenchState;
+    const lastSavedAt = typeof persisted.lastSavedAt === 'number' ? persisted.lastSavedAt : null;
+    const hasArtifactId = typeof persisted.id === 'string' && persisted.id.trim().length > 0;
+    return {
+      hasDraft: hasMeaningfulDraft(parsedUam.data, persisted),
+      lastSavedAt,
+      hasArtifactId,
+    };
+  } catch {
+    storage.removeItem(WORKBENCH_STORAGE_KEY);
+    return null;
+  }
+}
+
+export function clearStoredWorkbenchDraft() {
+  const storage = safeLocalStorage();
+  storage.removeItem(WORKBENCH_STORAGE_KEY);
 }
 
 function debounce<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delayMs: number) {
@@ -249,6 +339,7 @@ type PersistedWorkbenchState = {
   selectedSkillId?: string | null;
   visibility?: ArtifactVisibility;
   tags?: string[];
+  lastSavedAt?: number | null;
 };
 
 interface WorkbenchState {
@@ -323,6 +414,7 @@ interface WorkbenchState {
   clearSecretScan: () => void;
   reloadArtifact: () => Promise<void>;
   resetDraft: () => void;
+  discardDraft: () => void;
   initializeFromTemplate: (uam: UamV1) => void;
   loadArtifact: (idOrSlug: string) => Promise<ArtifactLoadResult>;
   applyScanContext: (context: ScanContext) => void;
@@ -839,17 +931,48 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             selectedBlockId: null,
             compilationResult: null,
             autosaveStatus: 'idle',
-        lastSavedAt: null,
-        visibility: 'PRIVATE',
-        tags: [],
-        cloudSaveStatus: 'idle',
-        cloudLastSavedAt: null,
-        saveConflict: { status: 'idle' },
-        secretScan: { status: 'idle', matches: [] },
-        secretScanAck: false,
-        scanContext: null,
+            lastSavedAt: null,
+            visibility: 'PRIVATE',
+            tags: [],
+            cloudSaveStatus: 'idle',
+            cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
+            secretScan: { status: 'idle', matches: [] },
+            secretScanAck: false,
+            scanContext: null,
           });
           onPersisted();
+        },
+
+        discardDraft: () => {
+          const uam = createEmptyUamV1({ title: 'Untitled Agent' });
+          set({
+            id: undefined,
+            uam,
+            baselineUam: null,
+            baselineVersion: null,
+            baselineUpdatedAt: null,
+            title: uam.meta.title,
+            description: uam.meta.description ?? '',
+            scopes: ['root'],
+            blocks: [],
+            targets: [],
+            selectedScopeId: GLOBAL_SCOPE_ID,
+            selectedScope: 'root',
+            selectedBlockId: null,
+            compilationResult: null,
+            autosaveStatus: 'idle',
+            lastSavedAt: null,
+            visibility: 'PRIVATE',
+            tags: [],
+            cloudSaveStatus: 'idle',
+            cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
+            secretScan: { status: 'idle', matches: [] },
+            secretScanAck: false,
+            scanContext: null,
+          });
+          clearStoredWorkbenchDraft();
         },
 
         initializeFromTemplate: (templateUam) => {
@@ -969,8 +1092,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
       };
     },
     {
-      name: 'workbench-storage',
-      version: 2,
+      name: WORKBENCH_STORAGE_KEY,
+      version: WORKBENCH_STORAGE_VERSION,
       storage: createJSONStorage(() => safeLocalStorage()),
       partialize: (state): PersistedWorkbenchState => ({
         id: state.id,
@@ -980,6 +1103,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         selectedSkillId: state.selectedSkillId,
         visibility: state.visibility,
         tags: state.tags,
+        lastSavedAt: state.lastSavedAt,
       }),
       migrate: (persistedState, version) => {
         const raw = (persistedState as { state?: unknown })?.state ?? persistedState;
@@ -995,6 +1119,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             selectedSkillId: persisted.selectedSkillId ?? null,
             visibility: persisted.visibility,
             tags: persisted.tags,
+            lastSavedAt: typeof persisted.lastSavedAt === 'number' ? persisted.lastSavedAt : null,
           } satisfies PersistedWorkbenchState;
         }
 
@@ -1030,6 +1155,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           selectedBlockId: legacy.selectedBlockId ?? null,
           selectedScopeId,
           selectedSkillId: null,
+          lastSavedAt: null,
         } satisfies PersistedWorkbenchState;
       },
       merge: (persistedState, currentState) => {
