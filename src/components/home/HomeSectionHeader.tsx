@@ -22,17 +22,17 @@ export function HomeSectionHeader({
   const alignClass = align === "center" ? "items-center text-center" : "items-start text-left";
 
   return (
-    <Stack gap={2} className={cn(alignClass, className)} {...props}>
+    <Stack gap={3} className={cn(alignClass, className)} {...props}>
       {eyebrow ? (
-        <Text size="caption" tone="muted" className="uppercase tracking-wide">
+        <Text size="caption" tone="muted" className="uppercase tracking-[0.28em] font-semibold">
           {eyebrow}
         </Text>
       ) : null}
-      <Heading level="h2" as="h3">
+      <Heading level="h2" as="h3" className="text-balance">
         {title}
       </Heading>
       {description ? (
-        <Text size="bodySm" tone="muted" className="max-w-2xl">
+        <Text size="bodySm" tone="muted" className="max-w-2xl text-balance">
           {description}
         </Text>
       ) : null}

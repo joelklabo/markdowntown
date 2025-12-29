@@ -48,6 +48,7 @@ export function HomeCtaCluster({
           placement={placement}
           slot="primary"
           size="lg"
+          className="shadow-mdt-lg"
         />
         {secondary ? (
           <HomeTrackedButton
@@ -58,6 +59,7 @@ export function HomeCtaCluster({
             slot="secondary"
             size="lg"
             variant="secondary"
+            className="shadow-mdt-sm"
           />
         ) : null}
       </Row>

@@ -44,7 +44,7 @@ export default async function Home() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-mdt-bg text-mdt-text">
-        <div className="relative overflow-hidden border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]">
+        <div className="relative overflow-hidden border-b border-mdt-border-strong bg-mdt-surface-raised">
           <Container size="lg" padding="lg" className="py-mdt-14 md:py-mdt-16">
             <Surface tone="raised" padding="lg" className="mx-auto max-w-3xl space-y-mdt-5 border-mdt-border-strong text-center shadow-mdt-lg">
               <Row justify="center">
@@ -92,9 +92,9 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-mdt-bg text-mdt-text">
-      <div className="relative overflow-hidden border-b border-mdt-border bg-[color:var(--mdt-color-surface-raised)]">
+      <div className="relative overflow-hidden border-b border-mdt-border-strong bg-mdt-surface-raised">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(54,214,255,0.08),transparent_55%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,var(--mdt-color-primary-soft),transparent_60%)]"
           aria-hidden
         />
 
@@ -123,7 +123,7 @@ export default async function Home() {
 
               <Card
                 padding="lg"
-                className="grid gap-mdt-5 sm:grid-cols-[1fr_auto] sm:items-center"
+                className="grid gap-mdt-5 border-mdt-border-strong shadow-mdt-lg sm:grid-cols-[1fr_auto] sm:items-center"
               >
                 <Stack gap={3}>
                   <Text size="caption" tone="muted">Start with scan</Text>
@@ -145,7 +145,7 @@ export default async function Home() {
             </div>
 
             <div className="relative">
-              <Surface tone="raised" padding="lg" className="space-y-mdt-6">
+              <Surface tone="raised" padding="lg" className="space-y-mdt-6 border-mdt-border-strong shadow-mdt-lg">
                 <Row align="center" justify="between" gap={3}>
                   <Stack gap={1}>
                     <Text size="caption" tone="muted">After the scan</Text>
@@ -161,7 +161,7 @@ export default async function Home() {
                     variant="secondary"
                   />
                 </Row>
-                <Surface tone="subtle" padding="md" className="space-y-mdt-4">
+                <Surface tone="subtle" padding="md" className="space-y-mdt-4 border-mdt-border-strong">
                   <Row align="center" gap={2} className="text-body-sm text-mdt-muted">
                     <span className="h-2 w-2 rounded-full bg-[color:var(--mdt-color-success)]" aria-hidden />
                     Sample output ready - autosave off for anon
@@ -200,7 +200,13 @@ export default async function Home() {
 
       <Container size="lg" padding="lg" className="pb-mdt-16 pt-mdt-12">
         <Stack gap={12}>
-          <Surface as="section" id="build-in-60s" padding="lg" className="grid gap-mdt-6 border-mdt-border-strong md:grid-cols-[1.4fr_1fr]">
+          <Surface
+            as="section"
+            id="build-in-60s"
+            tone="raised"
+            padding="lg"
+            className="grid gap-mdt-6 border-mdt-border-strong shadow-mdt-md md:grid-cols-[1.4fr_1fr]"
+          >
             <Stack gap={3}>
               <HomeSectionHeader
                 eyebrow="Scan to export"
@@ -220,7 +226,7 @@ export default async function Home() {
               </Row>
             </Stack>
 
-            <Surface tone="subtle" padding="md" className="space-y-mdt-3 border-dashed">
+            <Surface tone="subtle" padding="md" className="space-y-mdt-3 border-dashed border-mdt-border-strong">
               <Text size="caption" tone="muted">Why it feels fast</Text>
               <Text size="bodySm" tone="muted">
                 Scan locally, review what loads, and move straight into Workbench. The same flow works on desktop and mobile without extra setup.
@@ -231,7 +237,13 @@ export default async function Home() {
             </Surface>
           </Surface>
 
-          <Surface as="section" id="library-preview" padding="lg" className="space-y-mdt-6 border-mdt-border-strong">
+          <Surface
+            as="section"
+            id="library-preview"
+            tone="raised"
+            padding="lg"
+            className="space-y-mdt-6 border-mdt-border-strong shadow-mdt-sm"
+          >
             <HomeSectionHeader
               eyebrow="Library preview"
               title="Reuse a public artifact"
@@ -259,7 +271,7 @@ export default async function Home() {
             </Row>
           </Surface>
 
-          <div className="mx-auto max-w-4xl rounded-mdt-lg border border-mdt-border-strong bg-[color:var(--mdt-color-surface-raised)] p-mdt-10 text-center shadow-mdt-lg space-y-mdt-4 sm:p-mdt-12">
+          <div className="mx-auto max-w-4xl space-y-mdt-4 rounded-mdt-lg border border-mdt-border-strong bg-mdt-surface-raised p-mdt-10 text-center shadow-mdt-lg sm:p-mdt-12">
             <Heading level="h1" as="h2" align="center">Start with a scan</Heading>
             <Text tone="muted" align="center">
               Scan a repo to see what loads, then open Workbench to refine and export agents.md. Use the Library when you want inspiration.

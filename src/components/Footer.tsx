@@ -4,7 +4,7 @@ import { Text } from "./ui/Text";
 
 export function Footer() {
   return (
-    <footer className="mt-mdt-16 border-t border-mdt-border-strong bg-mdt-surface py-mdt-12 text-body-sm text-mdt-muted">
+    <footer className="mt-mdt-16 border-t border-mdt-border-strong bg-mdt-surface-raised py-mdt-12 text-body-sm text-mdt-muted">
       <Container as="div" padding="lg" className="grid gap-mdt-10 md:grid-cols-[minmax(0,1.1fr),minmax(0,2fr)]">
         <div className="space-y-mdt-3">
           <Text as="p" weight="semibold" tone="default">

@@ -333,13 +333,13 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
       <header
         ref={headerRef}
         className={cn(
-          "z-30 border-b border-mdt-border-strong bg-mdt-surface-raised backdrop-blur-lg shadow-mdt-md",
+          "z-30 border-b border-mdt-border-strong bg-mdt-surface backdrop-blur-lg shadow-mdt-md",
           sticky && "sticky top-0"
         )}
       >
-        <div className="border-b border-mdt-border">
+        <div className="border-b border-mdt-border-strong bg-mdt-surface-subtle">
           <div className="w-full overflow-hidden">
-            <div className="mdt-site-header-banner">
+            <div className="mdt-site-header-banner bg-mdt-surface-subtle">
               {featureFlags.wordmarkBannerV1 ? (
                 <LivingCityWordmark
                   className="mdt-wordmark--banner"
@@ -406,7 +406,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
             <form
               role="search"
               onSubmit={onSearch}
-              className="hidden min-w-[220px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border-strong bg-mdt-surface px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:max-w-[420px]"
+              className="hidden min-w-[220px] flex-1 items-center gap-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface-raised px-mdt-3 py-mdt-2 text-body-sm shadow-mdt-sm transition duration-mdt-fast ease-mdt-standard focus-within:border-mdt-border-strong focus-within:shadow-mdt-md md:flex lg:max-w-[420px]"
             >
               <input
                 name="q"
@@ -440,7 +440,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
                 <ThemeToggle />
               </div>
               {user ? (
-                <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
+                <div className="hidden min-w-0 items-center gap-2 rounded-mdt-pill border border-mdt-border-strong bg-mdt-surface-raised px-mdt-3 py-mdt-2 text-sm font-medium text-mdt-muted shadow-mdt-sm md:flex">
                   {user.image && (
                     <Image
                       src={user.image}
@@ -493,7 +493,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
               <button
                 type="button"
                 className={cn(
-                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border-strong bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
+                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border-strong bg-mdt-surface-raised text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -509,7 +509,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
               <button
                 type="button"
                 className={cn(
-                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border-strong bg-mdt-surface text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
+                  "flex h-mdt-11 w-mdt-11 items-center justify-center rounded-mdt-md border border-mdt-border-strong bg-mdt-surface-raised text-mdt-muted shadow-mdt-sm hover:bg-mdt-surface-subtle hover:text-mdt-text",
                   interactiveBase,
                   focusRing
                 )}
@@ -525,7 +525,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
 
       {/* Mobile bottom nav */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border-strong bg-mdt-surface px-3 py-3 text-caption font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-mdt-border-strong bg-mdt-surface-raised px-3 py-3 text-caption font-medium text-mdt-muted shadow-mdt-lg backdrop-blur-md md:hidden"
         role="navigation"
         aria-label="Primary"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 10px)" }}
@@ -574,7 +574,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
       <Sheet open={showMobileSearch} onOpenChange={(open) => setShowMobileSearch(open)}>
         <SheetContent
           side="top"
-          className="md:hidden p-mdt-5 rounded-b-2xl"
+          className="md:hidden rounded-b-2xl bg-mdt-surface-raised p-mdt-5"
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             requestAnimationFrame(() => inputRef.current?.focus());
@@ -679,7 +679,7 @@ export function SiteNav({ user, sticky = true }: { user?: User; sticky?: boolean
       <Sheet open={showOverflowSheet} onOpenChange={(open) => setShowOverflowSheet(open)}>
         <SheetContent
           side="bottom"
-          className="md:hidden rounded-t-2xl p-mdt-5"
+          className="md:hidden rounded-t-2xl bg-mdt-surface-raised p-mdt-5"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             const shouldSuppress = suppressOverflowRestoreRef.current;

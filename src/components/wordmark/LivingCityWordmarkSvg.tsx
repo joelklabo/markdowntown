@@ -171,6 +171,7 @@ export function LivingCityWordmarkSvg({
   }, [detail, resolution, bannerScale]);
 
   const palette = useMemo(() => getCityWordmarkPalette(timeOfDay, scheme), [scheme, timeOfDay]);
+  const useTokenPalette = scheme === "classic";
   const gridBuilding = useMemo(
     () => lerpRgb(palette.building, palette.buildingMuted, 0.2),
     [palette]
@@ -350,7 +351,11 @@ export function LivingCityWordmarkSvg({
       )}
 
         {celestial.moon.visible && (
-          <g fill={rgbToCss(palette.moon)} opacity={clamp01(nightness * 1.1)}>
+          <g
+            fill={rgbToCss(palette.moon)}
+            opacity={clamp01(nightness * 1.1)}
+            data-mtw={useTokenPalette ? "moon" : undefined}
+          >
           {renderCelestialBodyRects(moonX, moonY, bodySize, "moon", gridScale)}
         </g>
       )}
@@ -367,6 +372,7 @@ export function LivingCityWordmarkSvg({
             fill={rgbToCss(palette.star)}
             opacity={starOpacity}
             data-mtw-anim="twinkle"
+            data-mtw={useTokenPalette ? "star" : undefined}
             style={{ animationDelay: `${twinkleDelay}s` }}
           />
           );
@@ -375,11 +381,15 @@ export function LivingCityWordmarkSvg({
         <g
           fill={useGridPatterns ? `url(#${titleId}-building-muted-grid)` : rgbToCss(palette.buildingMuted)}
           opacity={0.9}
+          data-mtw={useTokenPalette ? "building-muted" : undefined}
         >
           <path d={skylinePath} />
         </g>
 
-        <g fill={useGridPatterns ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}>
+        <g
+          fill={useGridPatterns ? `url(#${titleId}-building-grid)` : rgbToCss(palette.building)}
+          data-mtw={useTokenPalette ? "building" : undefined}
+        >
           <path d={wordmarkPath} />
         </g>
 
@@ -390,10 +400,16 @@ export function LivingCityWordmarkSvg({
           height={resolution}
           fill={rgbToCss(palette.buildingMuted)}
           opacity={0.25}
+          data-mtw={useTokenPalette ? "building-muted" : undefined}
         />
 
         {windowsPath.length > 0 && (
-          <g fill={rgbToCss(palette.window)} opacity={clamp01(nightness * 1.15)} data-mtw-anim="shimmer">
+          <g
+            fill={rgbToCss(palette.window)}
+            opacity={clamp01(nightness * 1.15)}
+            data-mtw-anim="shimmer"
+            data-mtw={useTokenPalette ? "window" : undefined}
+          >
             <path d={windowsPath} />
           </g>
         )}
