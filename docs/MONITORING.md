@@ -9,12 +9,13 @@
 - Set `NEXT_PUBLIC_POSTHOG_KEY` (and `NEXT_PUBLIC_POSTHOG_HOST` if self-hosted).
 - Verify pageviews and key events in PostHog; add alerts as needed in PostHog insights.
   - UX telemetry events:
-    - `ui_route_view`, `ui_shell_loaded` (route-level engagement)
+    - `ui_route_view`, `ui_shell_loaded`, `session_start` (route-level engagement + timing anchor)
     - `nav_click`, `nav_search_open`, `nav_search_submit`, `nav_search_quick_filter`
     - `ui_home_cta_click` (landing CTA hierarchy)
     - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
     - `translate_start`, `translate_complete`, `translate_download`, `translate_open_workbench`
     - `library_action` (open_workbench, copy, download, fork)
+    - `open_workbench` (entry source + time-to-open timing)
   - Onboarding funnel events (see `docs/analytics/events.md`):
     - `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_scan_cancel`, `atlas_simulator_scan_error`
     - `atlas_simulator_simulate`, `atlas_simulator_health_check`, `atlas_simulator_health_template_copy`

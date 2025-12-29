@@ -11,6 +11,7 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 ## Core UI telemetry events
 - `ui_route_view`: page views with path/referrer/viewport context.
 - `ui_shell_loaded`: first shell render per session.
+- `session_start`: session timing anchor used for time-to-* metrics.
 - `ui_header_ready`: header render metrics (`status`, `bannerHeight`, `navHeight`, `elapsedMs`, `hasWordmark`).
 - `ui_theme_change`: theme toggles (`theme`, `previous`).
 - `ui_density_change`: density toggles (`density`, `previous`).
@@ -30,7 +31,7 @@ Scope: UI telemetry, error signals, and performance metrics for public release.
 These are emitted by specific surfaces and should be reviewed by feature area:
 - Navigation: `nav_click`, `nav_search_submit`, `nav_search_suggestion_click`.
 - Atlas Simulator: `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_next_step_action`.
-- Workbench: `workbench_export_download`, `workbench_export_copy`, `workbench_save_artifact` (export events include `entrySource`).
+- Workbench: `open_workbench` (includes `entrySource`, optional `time_to_open_workbench_ms`), `workbench_export_download`, `workbench_export_copy`, `workbench_save_artifact` (export events include `entrySource`, optional `time_to_export_ms`).
 - Library: `library_action`.
 - Translate: `translate_download`.
 - Builder/Browse/Templates/Snippets: `builder_copy`, `browse_card_use_template`, `template_use_builder`, etc.

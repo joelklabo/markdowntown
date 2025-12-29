@@ -12,6 +12,8 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `route`
 - `ui_shell_loaded` — fired once per session.
   - Properties: `route`
+- `session_start` — session start marker used for timing metrics.
+  - Properties: none
 - `nav_click` — navigation clicks.
   - Properties: `href`, `placement`, optional `cta`
 - `ui_home_cta_click` — home page CTA clicks.
@@ -88,12 +90,14 @@ This file defines canonical event names and properties for the UX and onboarding
 
 ### Workbench (implemented)
 - `ui_route_view` with `route=/workbench` — use as the entry signal.
+- `open_workbench`
+  - Properties: `entrySource` (`scan` | `library` | `translate` | `direct`), optional `time_to_open_workbench_ms`
 - `workbench_save_artifact`
   - Properties: `id`
 - `workbench_export_download`
-  - Properties: `targetIds`, `fileCount`
+  - Properties: `targetIds`, `fileCount`, `entrySource`, optional `time_to_export_ms`
 - `workbench_export_copy`
-  - Properties: `path`, `targetId`
+  - Properties: `path`, `targetId`, `entrySource`
 
 ## Funnel definition (scan → build → export)
 1. `atlas_simulator_scan_start`
