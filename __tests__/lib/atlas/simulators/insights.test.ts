@@ -104,4 +104,22 @@ describe('atlas/simulators/insights', () => {
     expect(missingPatterns).toContain('apps/GEMINI.md');
     expect(missingPatterns).toContain('apps/web/GEMINI.md');
   });
+
+  it('reports Cursor rule patterns', () => {
+    const tree = {
+      files: [
+        { path: '.cursor/rules/general.mdc', content: '' },
+        { path: '.cursorrules', content: '' },
+      ],
+    };
+
+    const insights = computeSimulatorInsights({ tool: 'cursor', tree, cwd: '' });
+
+    expect(insights.expectedPatterns.map(pattern => pattern.pattern)).toEqual([
+      '.cursor/rules/*.mdc',
+      '.cursorrules',
+    ]);
+    expect(insights.foundFiles).toEqual(['.cursor/rules/general.mdc', '.cursorrules']);
+    expect(insights.missingFiles).toHaveLength(0);
+  });
 });

@@ -68,6 +68,22 @@ describe('atlas/simulators/detectTool', () => {
     expect(result.candidates[0].paths).toContain('.github/instructions/code.instructions.md');
   });
 
+  it('detects Cursor from .cursor/rules', () => {
+    const result = detectTool(['.cursor/rules/general.mdc']);
+
+    expect(result.tool).toBe('cursor');
+    expect(result.confidence).toBe('high');
+    expect(result.candidates[0].paths).toContain('.cursor/rules/general.mdc');
+  });
+
+  it('detects Cursor from legacy .cursorrules', () => {
+    const result = detectTool(['.cursorrules']);
+
+    expect(result.tool).toBe('cursor');
+    expect(result.confidence).toBe('high');
+    expect(result.candidates[0].paths).toContain('.cursorrules');
+  });
+
   it('treats root copilot instructions as ambiguous', () => {
     const result = detectTool(['.github/copilot-instructions.md']);
 

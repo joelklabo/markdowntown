@@ -46,6 +46,7 @@ import { featureFlags } from "@/lib/flags";
 const TOOL_OPTIONS: Array<{ id: SimulatorToolId; label: string }> = [
   { id: "github-copilot", label: "GitHub Copilot" },
   { id: "copilot-cli", label: "Copilot CLI" },
+  { id: "cursor", label: "Cursor" },
   { id: "claude-code", label: "Claude Code" },
   { id: "gemini-cli", label: "Gemini CLI" },
   { id: "codex-cli", label: "Codex CLI" },
@@ -68,6 +69,8 @@ const SCAN_EXAMPLE_TREE = [
   "AGENTS.override.md",
   "CLAUDE.md",
   "GEMINI.md",
+  ".cursor/rules/*.mdc",
+  ".cursorrules",
 ].join("\n");
 
 type RepoSignals = {
@@ -79,6 +82,8 @@ type RepoSignals = {
   hasAgentsOverrideAny: boolean;
   hasClaudeAny: boolean;
   hasGeminiAny: boolean;
+  hasCursorRules: boolean;
+  hasCursorLegacy: boolean;
 };
 
 function parseRepoPaths(text: string): string[] {
@@ -129,6 +134,8 @@ function isInstructionPath(path: string): boolean {
   if (path === "AGENTS.override.md" || path.endsWith("/AGENTS.override.md")) return true;
   if (path === "CLAUDE.md" || path.endsWith("/CLAUDE.md")) return true;
   if (path === "GEMINI.md" || path.endsWith("/GEMINI.md")) return true;
+  if (path.startsWith(".cursor/rules/")) return true;
+  if (path === ".cursorrules") return true;
   return false;
 }
 
@@ -142,6 +149,8 @@ function analyzeRepo(paths: string[]): RepoSignals {
     hasAgentsOverrideAny: false,
     hasClaudeAny: false,
     hasGeminiAny: false,
+    hasCursorRules: false,
+    hasCursorLegacy: false,
   };
 
   for (const rawPath of paths) {
@@ -177,6 +186,14 @@ function analyzeRepo(paths: string[]): RepoSignals {
     }
     if (path === "GEMINI.md" || path.endsWith("/GEMINI.md")) {
       signals.hasGeminiAny = true;
+      continue;
+    }
+    if (path.startsWith(".cursor/rules/")) {
+      signals.hasCursorRules = true;
+      continue;
+    }
+    if (path === ".cursorrules") {
+      signals.hasCursorLegacy = true;
       continue;
     }
   }
@@ -472,6 +489,14 @@ export function ContextSimulator({ toolRulesMeta }: ContextSimulatorProps) {
       }
       if (!cwd) {
         return "Set cwd to a directory inside the repo so ancestor scans can find GEMINI.md.";
+      }
+    }
+
+    if (tool === "cursor") {
+      if (!repoSignals.hasCursorRules && !repoSignals.hasCursorLegacy) {
+        return repoSource === "manual"
+          ? "No Cursor rule files in the list. Add .cursor/rules/*.mdc or .cursorrules."
+          : "No Cursor rule files found. Add .cursor/rules/*.mdc or .cursorrules.";
       }
     }
 

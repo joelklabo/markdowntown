@@ -28,6 +28,7 @@ function collectMatches(paths: string[]): Record<SimulatorToolId, MatchBucket> {
     'gemini-cli': { paths: [], reasonParts: [], score: 0 },
     'copilot-cli': { paths: [], reasonParts: [], score: 0 },
     'github-copilot': { paths: [], reasonParts: [], score: 0 },
+    cursor: { paths: [], reasonParts: [], score: 0 },
   };
 
   const normalizedPaths = paths.map(normalizePath).filter(Boolean);
@@ -37,6 +38,8 @@ function collectMatches(paths: string[]): Record<SimulatorToolId, MatchBucket> {
   const agentsOverride = normalizedPaths.filter((path) => isNamedFile(path, 'AGENTS.override.md'));
   const claude = normalizedPaths.filter((path) => isNamedFile(path, 'CLAUDE.md'));
   const gemini = normalizedPaths.filter((path) => isNamedFile(path, 'GEMINI.md'));
+  const cursorRules = normalizedPaths.filter((path) => path.startsWith('.cursor/rules/'));
+  const cursorLegacy = normalizedPaths.filter((path) => isNamedFile(path, '.cursorrules'));
 
   const copilotRoot = pathSet.has('.github/copilot-instructions.md')
     ? ['.github/copilot-instructions.md']
@@ -98,6 +101,18 @@ function collectMatches(paths: string[]): Record<SimulatorToolId, MatchBucket> {
     buckets['github-copilot'].paths.push(...githubCopilotScoped);
     buckets['github-copilot'].score += githubCopilotScoped.length * 3;
     buckets['github-copilot'].reasonParts.push('.github/instructions/*.instructions.md');
+  }
+
+  if (cursorRules.length) {
+    buckets.cursor.paths.push(...cursorRules);
+    buckets.cursor.score += cursorRules.length * 3;
+    buckets.cursor.reasonParts.push('.cursor/rules/*');
+  }
+
+  if (cursorLegacy.length) {
+    buckets.cursor.paths.push(...cursorLegacy);
+    buckets.cursor.score += cursorLegacy.length * 3;
+    buckets.cursor.reasonParts.push('.cursorrules');
   }
 
   return buckets;

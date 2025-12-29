@@ -13,6 +13,7 @@ const TOOL_FACTS: Record<SimulatorToolId, AtlasPlatformId> = {
   "claude-code": "claude-code",
   "gemini-cli": "gemini-cli",
   "codex-cli": "codex-cli",
+  cursor: "cursor",
 };
 
 function buildToolRulesMeta(): ToolRulesMetadataMap {

@@ -36,6 +36,7 @@ const TOOL_LABELS: Record<SimulatorToolId, string> = {
   'claude-code': 'Claude Code',
   'gemini-cli': 'Gemini CLI',
   'codex-cli': 'Codex CLI',
+  cursor: 'Cursor',
 };
 
 export function WorkbenchPageClient({

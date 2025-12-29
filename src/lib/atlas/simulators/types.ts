@@ -1,4 +1,10 @@
-export type SimulatorToolId = 'github-copilot' | 'copilot-cli' | 'claude-code' | 'gemini-cli' | 'codex-cli';
+export type SimulatorToolId =
+  | 'github-copilot'
+  | 'copilot-cli'
+  | 'claude-code'
+  | 'gemini-cli'
+  | 'codex-cli'
+  | 'cursor';
 
 export type ToolRulesMetadata = {
   docUrl?: string;

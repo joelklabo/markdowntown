@@ -305,6 +305,7 @@ const SCAN_TOOL_TARGET_MAP: Record<SimulatorToolId, string> = {
   'gemini-cli': 'gemini-cli',
   'github-copilot': 'github-copilot',
   'copilot-cli': 'github-copilot',
+  cursor: 'cursor-rules',
 };
 
 function targetIdForScanTool(tool: SimulatorToolId): string | null {

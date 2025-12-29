@@ -76,6 +76,7 @@ const TOOL_LABELS: Record<SimulatorToolId, string> = {
   "codex-cli": "Codex CLI",
   "claude-code": "Claude Code",
   "gemini-cli": "Gemini CLI",
+  cursor: "Cursor",
 };
 
 function formatCount(count: number, label: string): string {
@@ -317,6 +318,26 @@ function geminiCliInsights(index: TreeIndex, cwd: string): SimulatorInsights {
   );
 }
 
+function cursorInsights(index: TreeIndex): SimulatorInsights {
+  const patterns = [
+    prefixPattern(
+      'cursor.rules',
+      'Cursor rule files',
+      '.cursor/rules/*.mdc',
+      '.cursor/rules/',
+      '.mdc',
+    ),
+    exactPattern('cursor.legacy', 'Legacy .cursorrules', '.cursorrules'),
+  ];
+
+  return buildResult(
+    'cursor',
+    patterns,
+    ['Rules in .cursor/rules take precedence over .cursorrules.'],
+    index,
+  );
+}
+
 export function computeSimulatorInsights({ tool, tree, cwd }: SimulationInput): SimulatorInsights {
   const index = buildIndex(tree);
 
@@ -334,6 +355,9 @@ export function computeSimulatorInsights({ tool, tree, cwd }: SimulationInput): 
   }
   if (tool === 'gemini-cli') {
     return geminiCliInsights(index, cwd);
+  }
+  if (tool === 'cursor') {
+    return cursorInsights(index);
   }
 
   return buildResult(tool, [], [], index);
