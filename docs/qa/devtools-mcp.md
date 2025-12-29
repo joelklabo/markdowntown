@@ -19,6 +19,16 @@ The health probe issues a lightweight `HEAD` request before launching Playwright
 - `DEVTOOLS_SMOKE_RETRY_DELAY=500`
 
 ## Troubleshooting
+- Transport closed errors (common causes):
+  - MCP bridge/agent stopped or restarted.
+  - Chrome closed or the DevTools target was refreshed mid-session.
+  - Multiple DevTools sessions open against the same target.
+  - Dev server still compiling and the page never reached a stable state.
+- Recovery steps:
+  1) Close any existing DevTools MCP pages/tabs.
+  2) Restart the MCP bridge/agent, then rerun `npm run mcp:health`.
+  3) Re-open a fresh DevTools page and retry the console/network capture.
+  4) If it still fails, run the fallback smoke check: `node scripts/qa/devtools-smoke.mjs --url http://127.0.0.1:3000 --health 1 --retries 2`.
 - MCP timeouts: restart the MCP bridge/agent and rerun `npm run mcp:health`.
 - Slow dev server startup: increase `DEVTOOLS_SMOKE_RETRIES` and `DEVTOOLS_SMOKE_TIMEOUT`.
 - EMFILE watch errors: set `WATCHPACK_POLLING=true` and `WATCHPACK_POLLING_INTERVAL=1000` before `npm run dev`.
