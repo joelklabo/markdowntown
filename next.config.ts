@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  outputFileTracingIncludes: {
+    "/atlas/**": ["./atlas/**"],
+    "/api/atlas/**": ["./atlas/**"],
+  },
   async headers() {
     return [
       {
