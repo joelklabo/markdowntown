@@ -20,6 +20,7 @@
 - Ensure the Living City header band is visible in `/`, `/browse`, `/builder`, `/atlas`, and `/docs` baselines.
 - Interaction E2E specs run via Vitest (`npm run test:e2e -- <SpecName>`), not the Playwright test CLI.
 - Known dev warnings to ignore vs investigate are listed in `docs/qa/known-warnings.md`.
+- If the dev server logs Watchpack `EMFILE` warnings or routes 404 during QA, restart with Watchpack polling (`WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev`) and see `docs/DEV_ONBOARDING.md`.
 
 ## Smoke interactions
 - Nav: open/close search sheet; theme toggle; command palette open+close.

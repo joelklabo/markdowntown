@@ -44,6 +44,7 @@ If you hit `EMFILE` (file descriptor limit), HMR WebSocket errors, or hydration 
 ```bash
 WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 pnpm dev
 ```
+Polling prevents watcher exhaustion that can surface as route 404s (e.g. `/library`, `/translate`) during local QA runs.
 
 ## Tests & quality
 ```bash
