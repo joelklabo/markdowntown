@@ -34,3 +34,6 @@ The health probe issues a lightweight `HEAD` request before launching Playwright
 - Slow dev server startup: increase `DEVTOOLS_SMOKE_RETRIES` and `DEVTOOLS_SMOKE_TIMEOUT`.
 - EMFILE watch errors: set `WATCHPACK_POLLING=true` and `WATCHPACK_POLLING_INTERVAL=1000` before `npm run dev`.
 - If MCP is unavailable: rely on `node scripts/qa/devtools-smoke.mjs` and attach screenshots/logs to QA notes.
+
+## Known warnings
+- Review `docs/qa/known-warnings.md` for expected dev log warnings and when they are actionable.
