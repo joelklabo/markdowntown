@@ -297,7 +297,7 @@ export function readStoredWorkbenchDraftMeta(): StoredDraftMeta | null {
   }
 }
 
-export function clearStoredWorkbenchDraft() {
+function clearStoredWorkbenchDraft() {
   const storage = safeLocalStorage();
   storage.removeItem(WORKBENCH_STORAGE_KEY);
 }
