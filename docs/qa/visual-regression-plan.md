@@ -33,6 +33,11 @@
 - Add Playwright visual job gated on changed UI files.
 - Fail CI on unexpected diffs; allow approve/update via `PLAYWRIGHT_UPDATE_SNAPSHOTS=1`.
 
+## Manual dispatch (Nightly Visual & Bundle Checks)
+- UI: GitHub → Actions → "Nightly Visual & Bundle Checks" → Run workflow → branch `main`.
+- CLI: `gh workflow run nightly-visual.yml --ref main` requires repo write access plus a token with `workflow` scope (`gh auth refresh -s workflow`).
+- If CLI returns HTTP 403, use the UI run or request elevated permissions from a repo admin.
+
 ## Acceptance per PR
 - Baseline updated or unchanged for scoped pages.
 - No hex lint failures; light/dark checked at least for `/` and `/browse`.
