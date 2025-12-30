@@ -189,7 +189,7 @@
   /* Text */
   --mdt-color-text: var(--mdt-neutral-900);
   --mdt-color-text-muted: var(--mdt-neutral-600);
-  --mdt-color-text-subtle: var(--mdt-neutral-500);
+  --mdt-color-text-subtle: hsl(222 16% 46%);
   --mdt-color-text-on-strong: var(--mdt-neutral-900);
 
   /* Data viz palette */

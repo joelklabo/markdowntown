@@ -19,10 +19,10 @@ Owner: @honk
 | --- | --- | --- |
 | Text on surface (`text` / `surface`) | 18.18 | Pass |
 | Muted text on surface (`text-muted` / `surface`) | 6.89 | Pass |
-| Subtle text on surface (`text-subtle` / `surface`) | 4.66 | Pass (borderline) |
+| Subtle text on surface (`text-subtle` / `surface`) | 4.98 | Pass |
 | Text on surface-subtle (`text` / `surface-subtle`) | 16.90 | Pass |
 | Muted text on surface-subtle (`text-muted` / `surface-subtle`) | 6.40 | Pass |
-| Subtle text on surface-subtle (`text-subtle` / `surface-subtle`) | 4.33 | Fail (normal text) |
+| Subtle text on surface-subtle (`text-subtle` / `surface-subtle`) | 4.63 | Pass |
 | Primary button text (`text-on-strong` / `primary`) | 8.30 | Pass |
 | Primary-strong button text (`text-on-strong` / `primary-strong`) | 6.72 | Pass |
 | Success text on success-soft | 4.72 | Pass |
@@ -57,12 +57,12 @@ Owner: @honk
 | Ring on dark surface-subtle (`ring` updated) | 9.35 | Pass |
 
 ## Findings
-- Light theme `text-subtle` on `surface-subtle` is below 4.5:1 (4.33).
+- Light theme `text-subtle` on `surface-subtle` now meets 4.5:1 (4.63).
 - Focus ring contrast now meets >=3:1 on light/dark surfaces after token updates.
 - Status soft variants now meet >=4.5:1 in light theme, and danger-soft meets >=4.5:1 in dark theme after token updates.
 
 ## Recommendations
-- Reserve `text-subtle` for large or non-critical text on light `surface-subtle`; otherwise use `text-muted`.
+- `text-subtle` on light `surface-subtle` now passes but remains near the threshold; prefer `text-muted` for dense body copy.
 
 ## Follow-up tasks
 - markdowntown-e1tq — Improve subtle text contrast on surface-subtle.

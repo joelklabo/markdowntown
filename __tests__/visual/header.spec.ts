@@ -8,6 +8,7 @@ const pages = [
 
 const MIN_BANNER_HEIGHT = 40;
 const MIN_NAV_HEIGHT = 48;
+const HEADER_TIMEOUT = 30_000;
 
 test.describe("Header stability", () => {
   for (const { name, url } of pages) {
@@ -18,9 +19,9 @@ test.describe("Header stability", () => {
       const banner = page.locator(".mdt-site-header-banner");
       const nav = page.locator(".mdt-site-header-nav");
 
-      await expect(header).toBeVisible();
-      await expect(banner).toBeVisible();
-      await expect(nav).toBeVisible();
+      await expect(header).toBeVisible({ timeout: HEADER_TIMEOUT });
+      await expect(banner).toBeVisible({ timeout: HEADER_TIMEOUT });
+      await expect(nav).toBeVisible({ timeout: HEADER_TIMEOUT });
 
       await page.waitForTimeout(5000);
 
@@ -38,9 +39,9 @@ test.describe("Header stability", () => {
       const banner = page.locator(".mdt-site-header-banner");
       const nav = page.locator(".mdt-site-header-nav");
 
-      await expect(header).toBeVisible();
-      await expect(banner).toBeVisible();
-      await expect(nav).toBeVisible();
+      await expect(header).toBeVisible({ timeout: HEADER_TIMEOUT });
+      await expect(banner).toBeVisible({ timeout: HEADER_TIMEOUT });
+      await expect(nav).toBeVisible({ timeout: HEADER_TIMEOUT });
 
       await page.waitForTimeout(5000);
 

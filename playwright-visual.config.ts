@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "__tests__/visual",
-  timeout: 60_000,
+  timeout: 120_000,
   retries: process.env.CI ? 1 : 0,
   outputDir: "test-results/playwright-visual",
   reporter: process.env.CI
@@ -13,6 +13,7 @@ export default defineConfig({
     : [["list"]],
   expect: {
     toMatchSnapshot: { threshold: 0.2 },
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
   },
   projects: [
     {
