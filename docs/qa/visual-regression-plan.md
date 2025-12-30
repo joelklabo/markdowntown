@@ -38,6 +38,16 @@
 - CLI: `gh workflow run nightly-visual.yml --ref main` requires repo write access plus a token with `workflow` scope (`gh auth refresh -s workflow`).
 - If CLI returns HTTP 403, use the UI run or request elevated permissions from a repo admin.
 
+## CI artifact snapshot recovery (fallback)
+- Use when Docker/Linux reproduction is unavailable (e.g., containerd temp dir I/O errors).
+- Identify the failing run in GitHub Actions and note the `nightly-visual-artifacts` ID.
+- Download artifacts: `gh run download <run-id> --name nightly-visual-artifacts --dir /tmp/nightly-visual-artifacts`.
+- Replace linux snapshots with the `*-actual.png` files from the artifact:
+  - Example: `cp /tmp/nightly-visual-artifacts/translate-Translate-page-visual-light-mode-chromium-mobile/translate-light-actual.png __tests__/visual/translate.spec.ts-snapshots/translate-light-chromium-mobile-linux.png`.
+- If darwin snapshots drift in local runs with `NEXT_PUBLIC_WORDMARK_ANIM_V1=false`, update locally:
+  - `BASE_URL=http://localhost:3000 NEXT_PUBLIC_WORDMARK_ANIM_V1=false env -u NO_COLOR pnpm exec playwright test --config=playwright-visual.config.ts --update-snapshots=all <specs>`.
+- Validate size/viewport with `sips -g pixelWidth -g pixelHeight <file>` before committing.
+
 ## Acceptance per PR
 - Baseline updated or unchanged for scoped pages.
 - No hex lint failures; light/dark checked at least for `/` and `/browse`.
