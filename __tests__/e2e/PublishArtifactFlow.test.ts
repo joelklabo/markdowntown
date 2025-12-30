@@ -16,9 +16,12 @@ describe("Publish artifact flow", () => {
     await browser?.close();
   });
 
-  const maybe = process.env.E2E_TEST_USER ? it : it.skip;
+  const hasAuthEnv = Boolean(process.env.E2E_TEST_USER && process.env.E2E_STORAGE_STATE);
+  const run = hasAuthEnv ? it : it.skip;
+  const testName = "publishes an artifact, verifies visibility, and finds it in Library";
+  const skippedName = `${testName} (set E2E_TEST_USER and E2E_STORAGE_STATE; see docs/qa/e2e-test-user.md)`;
 
-  maybe("publishes an artifact, verifies visibility, and finds it in Library", async () => {
+  run(hasAuthEnv ? testName : skippedName, async () => {
     const title = `E2E Publish ${Date.now()}`;
 
     await withE2EPage(
