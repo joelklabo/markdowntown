@@ -16,6 +16,7 @@
 - Tool: Playwright screenshot tests per route and breakpoint (1280x720, 390x844).
 - Store baseline images in `__tests__/__screenshots__` (or Playwright default).
 - Update snapshots only via intentional run; review diffs in PRs.
+- `pnpm test:visual` clears `NO_COLOR` to avoid Playwright FORCE_COLOR warnings while keeping output readable.
 - Ensure the Living City header band is visible in `/`, `/browse`, `/builder`, `/atlas`, and `/docs` baselines.
 - Interaction E2E specs run via Vitest (`npm run test:e2e -- <SpecName>`), not the Playwright test CLI.
 
