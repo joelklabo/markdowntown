@@ -80,9 +80,7 @@ describe("Translate → Workbench handoff", () => {
         const blockBody = workbenchPage.locator("#workbench-block-body");
 
         if (await blockBody.count() === 0) {
-          const addOrOpenButton = editorPanel
-            .getByRole("button", { name: /open first block|add a block/i })
-            .first();
+          const addOrOpenButton = editorPanel.getByTestId("workbench-add-block").first();
           if (await addOrOpenButton.isVisible()) {
             await addOrOpenButton.click();
           }

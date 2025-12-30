@@ -45,11 +45,16 @@ export function EditorPanel() {
               : 'Add a block to write your first instructions.'}
           </Text>
           {hasBlocks ? (
-            <Button size="xs" onClick={handleSelectFirst} disabled={!firstBlockId}>
+            <Button
+              size="xs"
+              onClick={handleSelectFirst}
+              disabled={!firstBlockId}
+              data-testid="workbench-add-block"
+            >
               Open first block
             </Button>
           ) : (
-            <Button size="xs" onClick={handleAddBlock}>
+            <Button size="xs" onClick={handleAddBlock} data-testid="workbench-add-block">
               Add a block
             </Button>
           )}

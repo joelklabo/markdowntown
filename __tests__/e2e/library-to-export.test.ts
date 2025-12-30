@@ -75,9 +75,7 @@ describe("Library to export", () => {
         // If we landed on a fresh workbench or empty state, ensure we have a block
         // (The seed item usually has blocks, but let's be safe)
         if (await blockBody.count() === 0) {
-          const addOrOpenButton = editorPanel
-            .getByRole("button", { name: /open first block|add a block/i })
-            .first();
+          const addOrOpenButton = editorPanel.getByTestId("workbench-add-block").first();
           if (await addOrOpenButton.isVisible()) {
             await addOrOpenButton.click();
           }
