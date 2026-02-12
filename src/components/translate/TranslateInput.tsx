@@ -17,6 +17,9 @@ interface TranslateInputProps {
 export function TranslateInput({ value, onChange, disabled, helperText }: TranslateInputProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const helperTextId = helperText ? "translate-input-helper" : undefined;
+  const tipId = "translate-input-tip";
+  const describedBy = helperTextId ? `${helperTextId} ${tipId}` : tipId;
 
   const readFile = useCallback(
     async (file: File) => {
@@ -43,10 +46,11 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
       <div className="flex flex-wrap items-center justify-between gap-mdt-3">
         <div className="space-y-mdt-1">
           <Text as="label" htmlFor="translate-input-content" size="caption" tone="muted">
-            Input
+            Step 2 · Input
           </Text>
           <Text size="bodySm" tone="muted">
-            Paste Markdown or UAM v1 JSON. You can also drop a file into this panel.
+            Paste your instructions or drop a file. We detect Markdown vs UAM JSON automatically, then compile files you can
+            take into Workbench.
           </Text>
         </div>
         <div className="flex items-center gap-mdt-2">
@@ -94,16 +98,17 @@ export function TranslateInput({ value, onChange, disabled, helperText }: Transl
           onChange={(e) => onChange(e.target.value)}
           className="min-h-[320px] flex-1 font-mono text-body-sm resize-none"
           placeholder="Paste Markdown or UAM v1 JSON…"
+          aria-describedby={describedBy}
           disabled={disabled}
         />
         <div className="space-y-mdt-1">
           {helperText && (
-            <Text size="caption" tone="muted">
+            <Text id={helperTextId} size="caption" tone="muted">
               {helperText}
             </Text>
           )}
-          <Text size="caption" tone="muted">
-            Tip: drag and drop a single file anywhere in this panel.
+          <Text id={tipId} size="caption" tone="muted">
+            Tip: drop a single file here to replace the input.
           </Text>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { cn, focusRing, interactiveBase } from "@/lib/cn";
 const inputVariants = cva(
   cn(
     "w-full rounded-mdt-md border border-mdt-border bg-mdt-surface text-mdt-text placeholder:text-mdt-muted",
-    "focus-visible:border-[color:var(--mdt-color-border-strong)] aria-invalid:border-[color:var(--mdt-color-danger)] aria-invalid:focus-visible:ring-[color:var(--mdt-color-danger)]",
+    "hover:border-[color:var(--mdt-color-border-strong)] focus-visible:border-[color:var(--mdt-color-primary)] focus-visible:shadow-mdt-sm aria-invalid:border-[color:var(--mdt-color-danger)] aria-invalid:focus-visible:ring-[color:var(--mdt-color-danger)]",
     "disabled:bg-mdt-surface-subtle disabled:text-mdt-muted",
     interactiveBase,
     focusRing

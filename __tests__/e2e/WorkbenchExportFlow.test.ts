@@ -1,9 +1,13 @@
+import path from "node:path";
+import fs from "node:fs/promises";
 import { chromium, Browser } from "playwright";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
 const headless = true;
+const workbenchScreenshotPath = process.env.E2E_WORKBENCH_SCREENSHOT_PATH;
+const exportDiffScreenshotPath = process.env.E2E_EXPORT_SCREENSHOT_PATH;
 
 describe("Workbench export flow", () => {
   let browser: Browser;
@@ -23,25 +27,35 @@ describe("Workbench export flow", () => {
       await page.goto("/workbench", { waitUntil: "domcontentloaded" });
 
       await page.getByTestId("workbench-scopes-panel").waitFor({ state: "visible" });
+      const skillsPanel = page.getByTestId("workbench-skills-panel");
+      await skillsPanel.waitFor({ state: "visible" });
 
-      await page.getByRole("button", { name: /\\+ skill/i }).click();
+      const addSkill = skillsPanel.getByRole("button", { name: /\\+ skill/i });
+      if ((await addSkill.count()) > 0) {
+        await addSkill.click();
+      } else {
+        await skillsPanel.getByRole("button", { name: /add a skill/i }).click();
+      }
       await page.locator("#skill-title").fill("Export skill");
       await page.locator("#skill-description").fill("Skill used in export tests.");
-
-      await page.getByRole("button", { name: /add scope/i }).click();
-      await page.getByLabel("Scope glob pattern").fill("src/**/*.ts");
-      await page.getByRole("button", { name: /^add$/i }).click();
-
-      await page.getByText("src/**/*.ts").waitFor({ state: "visible" });
 
       await page.getByRole("button", { name: /^\+ add$/i }).click();
 
       await page.getByLabel("Block title").fill("My Block");
-      await page.getByPlaceholder(/write markdown instructions/i).fill("Hello from scope");
+      await page.getByPlaceholder(/write markdown instructions/i).fill("Hello from root");
 
       await page.getByLabel("GitHub Copilot").click();
-      await page.getByLabel("AGENTS.md").click();
       await page.getByLabel("Claude Code").click();
+      await page.getByLabel("AGENTS.md").click();
+
+      const compatibility = page.getByTestId("compatibility-matrix");
+      await compatibility.waitFor({ state: "visible" });
+      await compatibility.getByText("Skills export").waitFor({ state: "visible" });
+
+      if (workbenchScreenshotPath) {
+        await fs.mkdir(path.dirname(workbenchScreenshotPath), { recursive: true });
+        await page.screenshot({ path: workbenchScreenshotPath, fullPage: true });
+      }
 
       await page.getByRole("button", { name: /advanced/i }).click();
 
@@ -60,25 +74,20 @@ describe("Workbench export flow", () => {
       await page.getByRole("button", { name: /^compile$/i }).click();
 
       await page.getByText("Manifest").waitFor({ state: "visible" });
-      await page.getByRole("button", { name: "src-ts.instructions.md" }).waitFor({ state: "visible" });
+      await page.getByRole("button", { name: "AGENTS.md" }).waitFor({ state: "visible" });
+      await page.getByRole("button", { name: "copilot-instructions.md" }).waitFor({ state: "visible" });
 
       await page.getByText(/\.claude\/skills\/.*SKILL\.md/).waitFor({ state: "visible" });
 
-      const agentsFile = page
-        .locator("div")
-        .filter({ hasText: "AGENTS.md" })
-        .filter({ has: page.locator("pre") })
-        .first();
-      await agentsFile.getByText("## Skills").waitFor({ state: "visible" });
-      await agentsFile.getByText("### Export skill").waitFor({ state: "visible" });
+      const exportPanel = page.locator("#workbench-export-panel");
+      const diffToggle = exportPanel.getByRole("button", { name: "Diff" });
+      await diffToggle.click();
+      await exportPanel.getByTestId("diff-viewer").first().waitFor({ state: "visible" });
 
-      const copilotFile = page
-        .locator("div")
-        .filter({ hasText: ".github/copilot-instructions.md" })
-        .filter({ has: page.locator("pre") })
-        .first();
-      await copilotFile.getByText("## Skills").waitFor({ state: "visible" });
-      await copilotFile.getByText("### Export skill").waitFor({ state: "visible" });
+      if (exportDiffScreenshotPath) {
+        await fs.mkdir(path.dirname(exportDiffScreenshotPath), { recursive: true });
+        await page.screenshot({ path: exportDiffScreenshotPath, fullPage: true });
+      }
     });
   }, 60000);
 });

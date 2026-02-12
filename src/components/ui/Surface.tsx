@@ -8,7 +8,7 @@ const surfaceVariants = cva("rounded-mdt-md border border-mdt-border", {
       default: "bg-mdt-surface",
       subtle: "bg-mdt-surface-subtle",
       strong: "bg-mdt-surface-strong",
-      raised: "bg-mdt-surface-raised border-mdt-border-strong shadow-mdt-sm",
+      raised: "bg-mdt-surface-raised border-mdt-border shadow-mdt-sm",
     },
     padding: {
       none: "p-0",

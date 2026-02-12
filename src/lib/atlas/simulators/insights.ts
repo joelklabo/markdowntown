@@ -76,13 +76,14 @@ const TOOL_LABELS: Record<SimulatorToolId, string> = {
   "codex-cli": "Codex CLI",
   "claude-code": "Claude Code",
   "gemini-cli": "Gemini CLI",
+  cursor: "Cursor",
 };
 
 function formatCount(count: number, label: string): string {
   return `${count} ${label}${count === 1 ? "" : "s"}`;
 }
 
-export function formatInsightsSummary(insights: SimulatorInsights, extraFilesCount: number): InsightsSummary {
+export function formatInsightsSummary(insights: SimulatorInsights, shadowedCount: number): InsightsSummary {
   const toolLabel = TOOL_LABELS[insights.tool] ?? insights.tool;
   const foundCount = insights.foundFiles.length;
   const missingCount = insights.missingFiles.length;
@@ -103,19 +104,19 @@ export function formatInsightsSummary(insights: SimulatorInsights, extraFilesCou
     }
   }
 
-  if (extraFilesCount > 0) {
-    bodyParts.push(`${formatCount(extraFilesCount, "extra instruction file")} won't load for this tool.`);
+  if (shadowedCount > 0) {
+    bodyParts.push(`${formatCount(shadowedCount, "shadowed instruction file")} won't load for this tool.`);
   }
 
   let nextStep = "";
   if (missingCount > 0) {
     nextStep = `Next step: add the missing instruction file${missingCount === 1 ? "" : "s"} or copy a template, then rescan.`;
-  } else if (extraFilesCount > 0) {
-    nextStep = "Next step: switch tools or remove extra files to avoid conflicts.";
+  } else if (shadowedCount > 0) {
+    nextStep = "Next step: switch tools or remove shadowed files to avoid conflicts.";
   } else if (foundCount === 0) {
     nextStep = "Next step: add a tool instruction file to get guidance, then rescan.";
   } else {
-    nextStep = "Next step: review precedence notes and any warnings below.";
+    nextStep = "Next step: open Workbench to build and export agents.md.";
   }
 
   const note =
@@ -317,6 +318,26 @@ function geminiCliInsights(index: TreeIndex, cwd: string): SimulatorInsights {
   );
 }
 
+function cursorInsights(index: TreeIndex): SimulatorInsights {
+  const patterns = [
+    prefixPattern(
+      'cursor.rules',
+      'Cursor rule files',
+      '.cursor/rules/*.mdc',
+      '.cursor/rules/',
+      '.mdc',
+    ),
+    exactPattern('cursor.legacy', 'Legacy .cursorrules', '.cursorrules'),
+  ];
+
+  return buildResult(
+    'cursor',
+    patterns,
+    ['Rules in .cursor/rules take precedence over .cursorrules.'],
+    index,
+  );
+}
+
 export function computeSimulatorInsights({ tool, tree, cwd }: SimulationInput): SimulatorInsights {
   const index = buildIndex(tree);
 
@@ -334,6 +355,9 @@ export function computeSimulatorInsights({ tool, tree, cwd }: SimulationInput): 
   }
   if (tool === 'gemini-cli') {
     return geminiCliInsights(index, cwd);
+  }
+  if (tool === 'cursor') {
+    return cursorInsights(index);
   }
 
   return buildResult(tool, [], [], index);

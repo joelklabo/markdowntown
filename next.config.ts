@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  outputFileTracingIncludes: {
+    "/atlas/**": ["./atlas/**"],
+    "/api/atlas/**": ["./atlas/**"],
+  },
   async headers() {
     return [
       {
@@ -77,6 +81,17 @@ const nextConfig: NextConfig = {
   },
   // Keep Turbopack config available for opt-in dev:turbo runs (default dev disables it).
   turbopack: {},
+  webpack: (config, { dev }) => {
+    if (dev && process.env.WATCHPACK_POLLING === "true") {
+      const pollInterval = Number(process.env.WATCHPACK_POLLING_INTERVAL) || 1000;
+      config.watchOptions = {
+        ...(config.watchOptions ?? {}),
+        poll: pollInterval,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
 };
 
 export default withSentryConfig(analyzer(nextConfig), {

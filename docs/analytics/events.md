@@ -12,8 +12,33 @@ This file defines canonical event names and properties for the UX and onboarding
   - Properties: `route`
 - `ui_shell_loaded` — fired once per session.
   - Properties: `route`
+- `session_start` — session start marker used for timing metrics.
+  - Properties: none
 - `nav_click` — navigation clicks.
   - Properties: `href`, `placement`, optional `cta`
+- `ui_home_cta_click` — home page CTA clicks.
+  - Properties: `cta` (`scan` | `workbench` | `library`), `slot` (`primary` | `secondary` | `tertiary` | `single`),
+    `placement` (`hero` | `proof` | `build-steps` | `library-preview` | `final-cta` | `empty-state`), `href`
+- `ui_scan_start`
+  - Properties: `method` (`directory_picker` | `file_input`), `tool`
+- `ui_scan_complete`
+  - Properties: `method`, `tool`, `totalFiles`, `matchedFiles`, `truncated`
+- `ui_scan_results_cta`
+  - Properties: `source` (`next_steps` | `actions` | `post_scan`), `tool`, `repoSource`, `loaded`, `missing`
+- `ui_scan_next_step_click`
+  - Properties: `actionId`, `stepId`, `tool`, `repoSource`, `isStale`, `fileCount`, `source` (`next_steps`)
+- `translate_start`
+  - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`
+- `translate_complete`
+  - Properties: `targetIds`, `targetCount`, `inputChars`, `fileCount`, `warningCount`, `infoCount`
+- `translate_download`
+  - Properties: `targetIds`, `targetCount`, `fileCount`, `byteSize`
+- `translate_open_workbench`
+  - Properties: `targetIds`, `targetCount`, `fileCount`
+- `translate_error`
+  - Properties: `targetIds`, `targetCount`, `inputChars`, `detectedLabel`, optional `reason`, plus error `message`
+- `library_action`
+  - Properties: `action` (`open_workbench` | `copy` | `download` | `fork`), `id`, optional `slug`, `title`, `source`, `targetIds`
 
 ## Onboarding funnel events
 
@@ -27,7 +52,7 @@ This file defines canonical event names and properties for the UX and onboarding
 - `atlas_simulator_scan_cancel`
   - Properties: `method`, `tool`, `cwd`
 - `atlas_simulator_scan_error`
-  - Properties: `method`, `tool`, `cwd`, `message` (from error tracking)
+  - Properties: `method`, `tool`, `cwd`, `errorName`
 - `atlas_simulator_simulate`
   - Properties: `tool`, `repoSource`, `trigger`, `cwd`, `fileCount`
 - `atlas_simulator_health_check`
@@ -37,6 +62,7 @@ This file defines canonical event names and properties for the UX and onboarding
 - `atlas_simulator_next_step_action`
   - Properties: `tool`, `repoSource`, `cwd`, `actionId`, `stepId`, `isStale`, `fileCount`
   - Action IDs:
+    - `open-workbench` (primary CTA when Ready state is shown)
     - `open-docs`
     - `refresh-results`
     - `scan-folder`
@@ -49,6 +75,8 @@ This file defines canonical event names and properties for the UX and onboarding
     - `download-report`
     - `copy-template`
     - `copy-base-template`
+- `atlas_simulator_report_inaccuracy`
+  - Properties: `tool`, `repoSource`, `fileCount`, `missingCount`, `warningCount`, `shadowedCount`, `truncated`
 - `atlas_simulator_next_step_template_copy`
   - Properties: `tool`, `repoSource`, `templateId`, `templatePath`, `actionId`, `stepId`
 - `atlas_simulator_next_step_template_error`
@@ -62,12 +90,14 @@ This file defines canonical event names and properties for the UX and onboarding
 
 ### Workbench (implemented)
 - `ui_route_view` with `route=/workbench` — use as the entry signal.
+- `open_workbench`
+  - Properties: `entrySource` (`scan` | `library` | `translate` | `direct`), optional `time_to_open_workbench_ms`
 - `workbench_save_artifact`
   - Properties: `id`
 - `workbench_export_download`
-  - Properties: `targetIds`, `fileCount`
+  - Properties: `targetIds`, `fileCount`, `entrySource`, optional `time_to_export_ms`
 - `workbench_export_copy`
-  - Properties: `path`, `targetId`
+  - Properties: `path`, `targetId`, `entrySource`
 
 ## Funnel definition (scan → build → export)
 1. `atlas_simulator_scan_start`

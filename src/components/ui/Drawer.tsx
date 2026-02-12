@@ -30,7 +30,7 @@ export function DrawerContent({
         aria-describedby={ariaDescribedBy ?? undefined}
         className={cn(
           "mdt-radix-panel-slide-right",
-          "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-mdt-border bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
+          "fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-mdt-border-strong bg-mdt-surface-raised shadow-[var(--mdt-shadow-md)]",
           className
         )}
       >
@@ -55,7 +55,7 @@ export function DrawerCloseButton() {
   return (
     <DrawerClose
       className={cn(
-        "rounded-mdt-md p-mdt-2 text-mdt-muted hover:bg-[color:var(--mdt-color-surface-subtle)]",
+        "rounded-mdt-md p-mdt-2 text-mdt-muted hover:bg-[color:var(--mdt-color-surface-strong)]",
         interactiveBase,
         focusRing
       )}

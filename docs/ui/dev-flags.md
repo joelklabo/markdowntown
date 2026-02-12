@@ -12,7 +12,7 @@ Use these NEXT_PUBLIC flags to stage UI changes safely in development. Flags are
 
 | Flag | Default | Purpose |
 | --- | --- | --- |
-| NEXT_PUBLIC_THEME_REFRESH_V1 | false | Enables theme refresh tokens and related UI tweaks. |
+| NEXT_PUBLIC_THEME_REFRESH_V1 | false | Enables theme refresh tokens and related UI tweaks (`data-theme-refresh` on root). |
 | NEXT_PUBLIC_UX_CLARITY_V1 | false | Enables UX clarity improvements across core surfaces. |
 | NEXT_PUBLIC_HEADER_STABILITY_V1 | false | Enables header stability fixes for banner + nav sizing. |
 | NEXT_PUBLIC_INSTRUCTION_HEALTH_V1 | false | Enables instruction file health warnings and checks. |
@@ -25,6 +25,7 @@ Use these NEXT_PUBLIC flags to stage UI changes safely in development. Flags are
 ## Notes
 
 - Header stability work should be tested with wordmark animation on and off.
+- Theme refresh should be verified on `/tokens` (light/dark) after restarting the dev server.
 - Scan clarity work should be tested with empty folders and missing instruction files.
 - Scan clarity enables the scan setup guidance blocks and “What we scan” reference panel.
 - If you see hydration mismatch warnings tied to theme or motion, verify cookies/localStorage values. The UI now defaults to stable SSR values and updates client preferences after hydration to avoid mismatches.

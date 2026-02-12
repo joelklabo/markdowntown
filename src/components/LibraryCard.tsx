@@ -7,6 +7,7 @@ import { Row, Stack } from "./ui/Stack";
 import { Text } from "./ui/Text";
 import { cn } from "@/lib/cn";
 import type { SampleItem } from "@/lib/sampleContent";
+import { ForkButton } from "@/components/artifact/ForkButton";
 
 // Compatible with SampleItem for now, but prefer PublicItem
 type Item = SampleItem;
@@ -44,10 +45,12 @@ export function LibraryCard({
   draggable,
   onDragStart,
   onDragEnd,
+  variant = "default",
   className,
   ...rest
-}: { item: Item } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
+}: { item: Item; variant?: "default" | "preview" } & Handlers & React.HTMLAttributes<HTMLDivElement>) {
   const badge = badgeLabel(item.badge);
+  const isPreview = variant === "preview";
   const typeLabel =
     item.type === "snippet"
       ? "Snippet"
@@ -59,7 +62,8 @@ export function LibraryCard({
             ? "Skill"
             : "File";
   const slug = item.slug ?? item.id;
-  const visibleTags = item.tags.slice(0, 3);
+  const workbenchHref = item.slug ? `/workbench?slug=${item.slug}` : `/workbench?id=${item.id}`;
+  const visibleTags = item.tags.slice(0, isPreview ? 2 : 3);
   const overflowCount = item.tags.length - visibleTags.length;
   const actionSize = "sm" as const;
   const detailHref =
@@ -72,62 +76,128 @@ export function LibraryCard({
           : `/snippets/${slug}`;
 
   const primaryAction =
-    item.type === "template"
-      ? { label: "Use template", href: `/templates/${slug}` }
-      : item.type === "file"
-        ? { label: "Download", href: `/files/${slug}` }
-        : { label: copied ? "Copied" : "Copy", href: detailHref };
-
-  const secondaryAction =
     item.type === "file"
-      ? null
-      : { label: "Add to Workbench", href: `/workbench?add=${slug}` };
+      ? { label: "Download", href: detailHref }
+      : { label: "Open in Workbench", href: workbenchHref };
 
   const renderPrimary = () => {
-    if (item.type === "snippet" && onCopySnippet) {
-      return (
-        <Button size={actionSize} onClick={() => onCopySnippet(item)} aria-label={`Copy ${item.title}`}>
-          {primaryAction.label}
-        </Button>
-      );
-    }
-    if (item.type === "template" && onUseTemplate) {
-      return (
-        <Button size={actionSize} onClick={() => onUseTemplate(item)} aria-label={`Use template ${item.title}`}>
-          {primaryAction.label}
-        </Button>
-      );
-    }
     if (item.type === "file" && onDownloadFile) {
       return (
-        <Button size={actionSize} onClick={() => onDownloadFile(item)} aria-label={`Download ${item.title}`}>
+        <Button
+          size={actionSize}
+          variant="primary"
+          onClick={() => onDownloadFile(item)}
+          aria-label={`Download ${item.title}`}
+        >
           {primaryAction.label}
         </Button>
       );
     }
-    // Agent primary action? Maybe "Fork"? Or "View"?
-    // For now View.
+    if (item.type !== "file" && onAddToBuilder) {
+      return (
+        <Button
+          size={actionSize}
+          variant="primary"
+          onClick={() => onAddToBuilder(item)}
+          aria-label={`Open ${item.title} in Workbench`}
+        >
+          {primaryAction.label}
+        </Button>
+      );
+    }
     return (
-      <Button size={actionSize} asChild>
+      <Button size={actionSize} variant="primary" asChild>
         <Link href={primaryAction.href}>{primaryAction.label}</Link>
       </Button>
     );
   };
 
 
-  const renderSecondary = () => {
-    if (!secondaryAction) return null;
-    if (onAddToBuilder) {
-      return (
-        <Button variant="secondary" size={actionSize} onClick={() => onAddToBuilder(item)} aria-label={`Add ${item.title} to Workbench`}>
-          {secondaryAction.label}
+  const renderOverflow = () => {
+    const items: React.ReactNode[] = [];
+    const detailLabel =
+      item.type === "template"
+        ? "Open template"
+        : item.type === "snippet"
+          ? "Open snippet"
+          : item.type === "agent"
+            ? "Open agent"
+            : item.type === "skill"
+              ? "Open skill"
+              : "Open detail";
+
+    if (onPreview) {
+      items.push(
+        <Button key="preview" variant="ghost" size={actionSize} onClick={() => onPreview(item)} className="w-full justify-start">
+          Preview
         </Button>
       );
     }
+    if (onCopySnippet) {
+      items.push(
+        <Button
+          key="copy"
+          variant="ghost"
+          size={actionSize}
+          onClick={() => onCopySnippet(item)}
+          className="w-full justify-start"
+        >
+          {copied ? "Copied" : "Copy snippet"}
+        </Button>
+      );
+    }
+    if (onUseTemplate) {
+      items.push(
+        <Button
+          key="template"
+          variant="ghost"
+          size={actionSize}
+          onClick={() => onUseTemplate(item)}
+          className="w-full justify-start"
+        >
+          Open template
+        </Button>
+      );
+    }
+    if (item.type === "file" && onDownloadFile) {
+      items.push(
+        <Button
+          key="download"
+          variant="ghost"
+          size={actionSize}
+          onClick={() => onDownloadFile(item)}
+          className="w-full justify-start"
+        >
+          Download file
+        </Button>
+      );
+    }
+    if (item.type !== "file") {
+      items.push(
+        <ForkButton key="fork" artifactId={item.id} size={actionSize} variant="ghost" label="Fork" className="w-full justify-start" />
+      );
+    }
+    if (detailHref && item.type !== "file") {
+      items.push(
+        <Button key="detail" variant="ghost" size={actionSize} asChild className="w-full justify-start">
+          <Link href={detailHref}>{detailLabel}</Link>
+        </Button>
+      );
+    }
+
+    if (items.length === 0) return null;
+
     return (
-      <Button variant="secondary" size={actionSize} asChild>
-        <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
-      </Button>
+      <details className="relative">
+        <Button variant="secondary" size={actionSize} asChild>
+          <summary className="list-none [&::-webkit-details-marker]:hidden [&::marker]:hidden">More</summary>
+        </Button>
+        <div className="absolute right-0 z-10 mt-mdt-2 w-48 rounded-mdt-md border border-mdt-border bg-mdt-surface-raised p-mdt-2 shadow-mdt-lg">
+          <Stack gap={1}>
+            {items}
+          </Stack>
+        </div>
+      </details>
     );
   };
 
@@ -198,15 +268,12 @@ export function LibraryCard({
             {item.stats.votes.toLocaleString()} votes
           </Text>
         </Row>
-        <Row gap={2} align="center" wrap className="relative z-10 w-full justify-start sm:justify-end">
-          {onPreview && (
-            <Button variant="ghost" size={actionSize} onClick={() => onPreview(item)} aria-label={`Preview ${item.title}`}>
-              Preview
-            </Button>
-          )}
-          {renderPrimary()}
-          {renderSecondary()}
-        </Row>
+        {!isPreview && (
+          <Row gap={2} align="center" wrap className="relative z-10 w-full justify-start sm:justify-end">
+            {renderPrimary()}
+            {renderOverflow()}
+          </Row>
+        )}
       </div>
     </Card>
   );

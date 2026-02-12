@@ -2,6 +2,9 @@
 
 ## Tokens
 - **Color roles (light/dark via CSS vars):** primary / primary-strong / primary-soft, accent / accent-soft, success, warning, danger, info, bg, surface, surface-subtle, surface-strong, surface-raised, overlay, border, border-strong, ring, text, text-muted, text-subtle, text-on-strong. See `src/app/globals.css`.
+- **Palette direction:** cool cyan primary + warm amber accent; documented in `docs/design/palette-refresh.md`.
+- **Token map:** semantic role mapping and usage examples in `docs/design/palette-token-map.md`.
+- **Contrast targets:** body text >= 4.5:1, muted text >= 3.0:1, focus ring >= 3.0:1 against surfaces (see palette doc).
 - **Radii:** `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-pill`.
 - **Shadows:** `mdt-sm`, `mdt-md`, `mdt-lg`, `mdt-focus`, `mdt-btn`, `mdt-btn-hover`.
 - **Motion:** `duration-mdt-fast|base|slow`, easing `ease-mdt-standard|mdt-emphasized` (CSS vars).

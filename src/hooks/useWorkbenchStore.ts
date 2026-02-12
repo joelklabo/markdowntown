@@ -3,10 +3,12 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 import type { CompilationResult } from '@/lib/uam/adapters';
 import type { UAMBlock, UAMBlockType } from '@/lib/uam/types';
 import type { SimulatorToolId } from '@/lib/atlas/simulators/types';
+import { scanUamForSecrets } from '@/lib/secretScan';
 import {
   createEmptyUamV1,
   createUamTargetV1,
   GLOBAL_SCOPE_ID,
+  getStructuredBlockDefaults,
   normalizeUamTargetsV1,
   type UamBlockKindV1,
   type UamBlockV1,
@@ -19,10 +21,32 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 
 type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export type ArtifactVisibility = 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+type ArtifactLoadResult =
+  | { status: 'loaded'; title: string }
+  | { status: 'error'; message: string };
 type ScanContext = {
   tool: SimulatorToolId;
   cwd: string;
   paths: string[];
+};
+type SaveConflictDetails = {
+  currentVersion?: string | null;
+  updatedAt?: string | null;
+  expectedVersion?: string | null;
+  expectedUpdatedAt?: string | null;
+};
+type SaveConflict = {
+  status: 'idle' | 'conflict';
+  details?: SaveConflictDetails;
+};
+type SecretScanMatch = {
+  label: string;
+  redacted: string;
+};
+type SecretScanState = {
+  status: 'idle' | 'blocked';
+  matches: SecretScanMatch[];
+  checkedAt?: number;
 };
 
 type BlockUpsertInput = Partial<UAMBlock> & {
@@ -30,6 +54,16 @@ type BlockUpsertInput = Partial<UAMBlock> & {
   kind?: UamBlockKindV1;
   title?: string;
   body?: string;
+};
+
+type StructuredAssistScopeKind = 'current' | 'global' | 'dir' | 'glob';
+
+type StructuredAssistInput = {
+  scopeKind: StructuredAssistScopeKind;
+  scopeValue?: string;
+  scopeName?: string;
+  blockKind: UamBlockKindV1;
+  blockTitle?: string;
 };
 
 type WorkbenchScopeInput =
@@ -42,18 +76,230 @@ type WorkbenchScopeInput =
       patterns?: string[];
     };
 
+const inMemoryStorage = new Map<string, string>();
+
 function safeLocalStorage(): StateStorage {
   return {
-    getItem: (name) => (typeof localStorage === 'undefined' ? null : localStorage.getItem(name)),
+    getItem: (name) => {
+      if (typeof localStorage === 'undefined') return inMemoryStorage.get(name) ?? null;
+      try {
+        const value = localStorage.getItem(name);
+        if (!value) return inMemoryStorage.get(name) ?? null;
+        try {
+          JSON.parse(value);
+        } catch {
+          localStorage.removeItem(name);
+          inMemoryStorage.delete(name);
+          return null;
+        }
+        return value;
+      } catch {
+        return inMemoryStorage.get(name) ?? null;
+      }
+    },
     setItem: (name, value) => {
-      if (typeof localStorage === 'undefined') return;
-      localStorage.setItem(name, value);
+      if (typeof localStorage === 'undefined') {
+        inMemoryStorage.set(name, value);
+        return;
+      }
+      try {
+        localStorage.setItem(name, value);
+        inMemoryStorage.delete(name);
+      } catch {
+        inMemoryStorage.set(name, value);
+      }
     },
     removeItem: (name) => {
+      inMemoryStorage.delete(name);
       if (typeof localStorage === 'undefined') return;
-      localStorage.removeItem(name);
+      try {
+        localStorage.removeItem(name);
+      } catch {
+        // ignore storage errors
+      }
     },
   };
+}
+
+const WORKBENCH_STORAGE_KEY = 'workbench-storage';
+const WORKBENCH_STORAGE_VERSION = 3;
+
+const SCAN_CONTEXT_STORAGE_KEY = 'workbench-scan-context-v1';
+const SCAN_CONTEXT_STORAGE_VERSION = 1;
+const SCAN_CONTEXT_STORAGE_MAX_BYTES = 250_000;
+const SCAN_CONTEXT_TRUNCATED_PATHS = 50;
+
+type StoredScanContext = {
+  version: number;
+  storedAt: number;
+  context: ScanContext;
+};
+
+function safeSessionStorage() {
+  return typeof sessionStorage === 'undefined' ? null : sessionStorage;
+}
+
+function isValidScanContext(value: unknown): value is ScanContext {
+  if (!isRecord(value)) return false;
+  if (typeof value.tool !== 'string') return false;
+  if (!(value.tool in SCAN_TOOL_TARGET_MAP)) return false;
+  if (typeof value.cwd !== 'string') return false;
+  if (!Array.isArray(value.paths)) return false;
+  return value.paths.every((entry) => typeof entry === 'string');
+}
+
+export function readStoredScanContext(): ScanContext | null {
+  const storage = safeSessionStorage();
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(SCAN_CONTEXT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredScanContext;
+    if (!parsed || parsed.version !== SCAN_CONTEXT_STORAGE_VERSION) {
+      clearStoredScanContext();
+      return null;
+    }
+    if (!isValidScanContext(parsed.context)) {
+      clearStoredScanContext();
+      return null;
+    }
+    return parsed.context;
+  } catch {
+    clearStoredScanContext();
+    return null;
+  }
+}
+
+type PersistScanContextResult = {
+  status: 'stored' | 'truncated' | 'failed';
+  context: ScanContext;
+  byteLength: number;
+  originalPathCount: number;
+};
+
+function buildStoredScanContextPayload(context: ScanContext) {
+  const payload: StoredScanContext = {
+    version: SCAN_CONTEXT_STORAGE_VERSION,
+    storedAt: Date.now(),
+    context,
+  };
+  const json = JSON.stringify(payload);
+  return { json, byteLength: getByteLength(json) };
+}
+
+export function persistScanContextForHandoff(
+  rawContext: ScanContext,
+  options?: { dryRun?: boolean },
+): PersistScanContextResult {
+  const storage = safeSessionStorage();
+  if (!storage) {
+    return {
+      status: 'failed',
+      context: rawContext,
+      byteLength: 0,
+      originalPathCount: rawContext.paths?.length ?? 0,
+    };
+  }
+
+  const normalized: ScanContext = {
+    tool: rawContext.tool,
+    cwd: normalizeDirScope(rawContext.cwd ?? ''),
+    paths: normalizeScanPaths(rawContext.paths ?? []),
+  };
+  const originalPathCount = normalized.paths.length;
+  let candidate = normalized;
+  let status: PersistScanContextResult['status'] = 'stored';
+  let { json, byteLength } = buildStoredScanContextPayload(candidate);
+
+  if (byteLength > SCAN_CONTEXT_STORAGE_MAX_BYTES) {
+    const truncatedPaths = normalized.paths.slice(0, Math.min(SCAN_CONTEXT_TRUNCATED_PATHS, normalized.paths.length));
+    candidate = { ...normalized, paths: truncatedPaths };
+    status = 'truncated';
+    ({ json, byteLength } = buildStoredScanContextPayload(candidate));
+  }
+
+  if (byteLength > SCAN_CONTEXT_STORAGE_MAX_BYTES) {
+    candidate = { ...candidate, paths: [] };
+    status = 'truncated';
+    ({ json, byteLength } = buildStoredScanContextPayload(candidate));
+  }
+
+  if (options?.dryRun) {
+    return { status, context: candidate, byteLength, originalPathCount };
+  }
+
+  try {
+    storage.setItem(SCAN_CONTEXT_STORAGE_KEY, json);
+    return { status, context: candidate, byteLength, originalPathCount };
+  } catch {
+    return { status: 'failed', context: candidate, byteLength, originalPathCount };
+  }
+}
+
+function writeStoredScanContext(context: ScanContext) {
+  persistScanContextForHandoff(context);
+}
+
+function clearStoredScanContext() {
+  const storage = safeSessionStorage();
+  if (!storage) return;
+  storage.removeItem(SCAN_CONTEXT_STORAGE_KEY);
+}
+
+function hasMeaningfulDraft(uam: UamV1, persisted?: Partial<PersistedWorkbenchState>): boolean {
+  const normalized = normalizeWorkbenchUam(uam);
+  const title = normalized.meta.title?.trim() ?? '';
+  const description = normalized.meta.description?.trim() ?? '';
+  const hasMeta = (title.length > 0 && title !== 'Untitled Agent') || description.length > 0;
+  const hasBlocks = normalized.blocks.length > 0;
+  const hasCapabilities = normalized.capabilities.length > 0;
+  const hasTargets = normalized.targets.length > 0;
+  const hasScopes = normalized.scopes.length > 1;
+  const hasVisibility = persisted?.visibility !== undefined && persisted.visibility !== 'PRIVATE';
+  const hasTags = Array.isArray(persisted?.tags) && persisted.tags.length > 0;
+  return hasMeta || hasBlocks || hasCapabilities || hasTargets || hasScopes || hasVisibility || hasTags;
+}
+
+type StoredDraftMeta = {
+  hasDraft: boolean;
+  lastSavedAt: number | null;
+  hasArtifactId: boolean;
+};
+
+export function readStoredWorkbenchDraftMeta(): StoredDraftMeta | null {
+  const storage = safeLocalStorage();
+  const raw = storage.getItem(WORKBENCH_STORAGE_KEY);
+  if (!raw || typeof raw !== 'string') return null;
+  try {
+    const parsed = JSON.parse(raw) as { state?: unknown };
+    const state = (isRecord(parsed) && 'state' in parsed ? parsed.state : parsed) as unknown;
+    if (!isRecord(state)) {
+      storage.removeItem(WORKBENCH_STORAGE_KEY);
+      return null;
+    }
+    const uam = (state as { uam?: unknown }).uam;
+    const parsedUam = safeParseUamV1(uam);
+    if (!parsedUam.success) {
+      storage.removeItem(WORKBENCH_STORAGE_KEY);
+      return null;
+    }
+    const persisted = state as PersistedWorkbenchState;
+    const lastSavedAt = typeof persisted.lastSavedAt === 'number' ? persisted.lastSavedAt : null;
+    const hasArtifactId = typeof persisted.id === 'string' && persisted.id.trim().length > 0;
+    return {
+      hasDraft: hasMeaningfulDraft(parsedUam.data, persisted),
+      lastSavedAt,
+      hasArtifactId,
+    };
+  } catch {
+    storage.removeItem(WORKBENCH_STORAGE_KEY);
+    return null;
+  }
+}
+
+function clearStoredWorkbenchDraft() {
+  const storage = safeLocalStorage();
+  storage.removeItem(WORKBENCH_STORAGE_KEY);
 }
 
 function debounce<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delayMs: number) {
@@ -69,6 +315,13 @@ function randomId() {
   return `id_${Math.random().toString(16).slice(2)}`;
 }
 
+function getByteLength(value: string): number {
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder().encode(value).length;
+  }
+  return value.length;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -77,6 +330,17 @@ function normalizeDirScope(dir: string): string {
   const normalized = dir.replace(/\\/g, '/').trim().replace(/^\.\/+/, '').replace(/\/+$/, '');
   if (normalized === '' || normalized === '.' || normalized === '/') return '';
   return normalized;
+}
+
+const MAX_SCAN_PATHS = 200;
+
+function normalizeScanPath(path: string): string {
+  return path.replace(/\\/g, '/').trim().replace(/^\.\/+/, '').replace(/\/+$/, '');
+}
+
+function normalizeScanPaths(paths: string[]): string[] {
+  const normalized = paths.map((path) => normalizeScanPath(String(path))).filter(Boolean);
+  return Array.from(new Set(normalized)).slice(0, MAX_SCAN_PATHS);
 }
 
 function legacyScopeLabel(scope: UamScopeV1): string {
@@ -150,12 +414,15 @@ type PersistedWorkbenchState = {
   selectedSkillId?: string | null;
   visibility?: ArtifactVisibility;
   tags?: string[];
+  lastSavedAt?: number | null;
 };
 
 interface WorkbenchState {
   id?: string;
   uam: UamV1;
   baselineUam: UamV1 | null;
+  baselineVersion: string | null;
+  baselineUpdatedAt: string | null;
 
   // Legacy/compat fields (kept in sync with `uam`)
   title: string;
@@ -179,6 +446,9 @@ interface WorkbenchState {
   lastSavedAt: number | null;
   cloudSaveStatus: AutosaveStatus;
   cloudLastSavedAt: number | null;
+  saveConflict: SaveConflict;
+  secretScan: SecretScanState;
+  secretScanAck: boolean;
   scanContext: ScanContext | null;
 
   // Actions
@@ -195,6 +465,7 @@ interface WorkbenchState {
   selectScope: (scopeId: string | null) => void;
 
   addBlock: (block: BlockUpsertInput) => string;
+  insertStructuredBlock: (input: StructuredAssistInput) => string | null;
   updateBlock: (id: string, updates: BlockUpsertInput) => void;
   updateBlockBody: (id: string, body: string) => void;
   updateBlockTitle: (id: string, title?: string) => void;
@@ -212,9 +483,16 @@ interface WorkbenchState {
   setCompilationResult: (result: CompilationResult | null) => void;
   setAutosaveStatus: (status: AutosaveStatus) => void;
   saveArtifact: () => Promise<string | null>;
+  setSaveConflict: (conflict: SaveConflict) => void;
+  clearSaveConflict: () => void;
+  setSecretScan: (scan: SecretScanState) => void;
+  setSecretScanAck: (acknowledged: boolean) => void;
+  clearSecretScan: () => void;
+  reloadArtifact: () => Promise<void>;
   resetDraft: () => void;
+  discardDraft: () => void;
   initializeFromTemplate: (uam: UamV1) => void;
-  loadArtifact: (idOrSlug: string) => Promise<void>;
+  loadArtifact: (idOrSlug: string) => Promise<ArtifactLoadResult>;
   applyScanContext: (context: ScanContext) => void;
   clearScanContext: () => void;
 }
@@ -226,6 +504,7 @@ const SCAN_TOOL_TARGET_MAP: Record<SimulatorToolId, string> = {
   'gemini-cli': 'gemini-cli',
   'github-copilot': 'github-copilot',
   'copilot-cli': 'github-copilot',
+  cursor: 'cursor-rules',
 };
 
 function targetIdForScanTool(tool: SimulatorToolId): string | null {
@@ -237,7 +516,13 @@ export const useWorkbenchStore = create<WorkbenchState>()(
     (set, get) => {
       const markDirty = () => {
         const status = get().autosaveStatus;
-        if (status !== 'saving') set({ autosaveStatus: 'saving' });
+        const next: Partial<WorkbenchState> = {};
+        if (status !== 'saving') next.autosaveStatus = 'saving';
+        if (get().secretScan.status !== 'idle' || get().secretScanAck) {
+          next.secretScan = { status: 'idle', matches: [] };
+          next.secretScanAck = false;
+        }
+        if (Object.keys(next).length > 0) set(next);
       };
 
       const onPersisted = debounce(() => {
@@ -270,6 +555,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         id: undefined,
         uam: createEmptyUamV1({ title: 'Untitled Agent' }),
         baselineUam: null,
+        baselineVersion: null,
+        baselineUpdatedAt: null,
 
         title: 'Untitled Agent',
         description: '',
@@ -291,6 +578,9 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         lastSavedAt: null,
         cloudSaveStatus: 'idle',
         cloudLastSavedAt: null,
+        saveConflict: { status: 'idle' },
+        secretScan: { status: 'idle', matches: [] },
+        secretScanAck: false,
         scanContext: null,
 
         setId: (id) => set({ id }),
@@ -410,6 +700,84 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           markDirty();
           onPersisted();
           return id;
+        },
+
+        insertStructuredBlock: (input) => {
+          const trimmedTitle = input.blockTitle?.trim() || undefined;
+          const trimmedScopeName = input.scopeName?.trim() || undefined;
+          const defaults = getStructuredBlockDefaults(input.blockKind);
+
+          let targetScopeId = get().selectedScopeId;
+          let uam = normalizeWorkbenchUam(get().uam);
+          let scopes = [...uam.scopes];
+
+          if (input.scopeKind === 'global') {
+            uam = ensureGlobalScope(uam);
+            scopes = [...uam.scopes];
+            targetScopeId = GLOBAL_SCOPE_ID;
+          }
+
+          if (input.scopeKind === 'dir') {
+            const normalizedDir = normalizeDirScope(input.scopeValue ?? '');
+            if (!normalizedDir) return null;
+            const existing = scopes.find(
+              (scope) => scope.kind === 'dir' && normalizeDirScope(scope.dir) === normalizedDir
+            );
+            if (existing) {
+              targetScopeId = existing.id;
+            } else {
+              const scopeId = randomId();
+              scopes = [...scopes, { id: scopeId, kind: 'dir', dir: normalizedDir, name: trimmedScopeName }];
+              targetScopeId = scopeId;
+            }
+          }
+
+          if (input.scopeKind === 'glob') {
+            const pattern = (input.scopeValue ?? '').trim();
+            if (!pattern) return null;
+            const existing = scopes.find(
+              (scope) => scope.kind === 'glob' && scope.patterns.some((entry) => entry === pattern)
+            );
+            if (existing) {
+              targetScopeId = existing.id;
+            } else {
+              const scopeId = randomId();
+              scopes = [...scopes, { id: scopeId, kind: 'glob', patterns: [pattern], name: trimmedScopeName }];
+              targetScopeId = scopeId;
+            }
+          }
+
+          if (input.scopeKind === 'current') {
+            targetScopeId = ensureSelectedScopeId(uam, targetScopeId);
+          }
+
+          const nextUam = { ...uam, scopes };
+          const scopedId = ensureSelectedScopeId(nextUam, targetScopeId);
+          const blockId = randomId();
+          const nextBlock: UamBlockV1 = {
+            id: blockId,
+            scopeId: scopedId,
+            kind: input.blockKind,
+            title: trimmedTitle ?? defaults.title,
+            body: defaults.body,
+          };
+          const nextBlocks = [...nextUam.blocks, nextBlock];
+          const normalized = normalizeWorkbenchUam({ ...nextUam, blocks: nextBlocks });
+          const selectedScopeId = ensureSelectedScopeId(normalized, scopedId);
+          const selectedScope =
+            legacyScopeLabel(normalized.scopes.find((scope) => scope.id === selectedScopeId) ?? normalized.scopes[0]!);
+
+          set({
+            uam: normalized,
+            blocks: syncLegacyBlocksFromUam(normalized.blocks),
+            scopes: normalized.scopes.map(legacyScopeLabel),
+            selectedScopeId,
+            selectedScope,
+            selectedBlockId: blockId,
+          });
+          markDirty();
+          onPersisted();
+          return blockId;
         },
 
         updateBlock: (id, updates) => {
@@ -588,9 +956,25 @@ export const useWorkbenchStore = create<WorkbenchState>()(
 
         saveArtifact: async () => {
           const state = get();
-          set({ cloudSaveStatus: 'saving' });
+          set({ cloudSaveStatus: 'saving', saveConflict: { status: 'idle' } });
 
           try {
+            const requiresSecretAck = state.visibility === 'PUBLIC' || state.visibility === 'UNLISTED';
+            if (requiresSecretAck) {
+              const scan = scanUamForSecrets(state.uam);
+              if (scan.hasSecrets && !state.secretScanAck) {
+                set({
+                  cloudSaveStatus: 'idle',
+                  secretScan: {
+                    status: 'blocked',
+                    matches: scan.matches.map(match => ({ label: match.label, redacted: match.redacted })),
+                    checkedAt: Date.now(),
+                  },
+                });
+                return null;
+              }
+            }
+
             const payload = {
               id: state.id,
               title: state.title,
@@ -598,6 +982,9 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               visibility: state.visibility,
               uam: state.uam,
               message: 'Saved via Workbench',
+              ...(requiresSecretAck ? { secretScanAck: true } : {}),
+              ...(state.baselineVersion ? { expectedVersion: state.baselineVersion } : {}),
+              ...(state.baselineUpdatedAt ? { expectedUpdatedAt: state.baselineUpdatedAt } : {}),
             };
 
             const res = await fetch('/api/artifacts/save', {
@@ -606,24 +993,78 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               body: JSON.stringify(payload),
             });
 
+            if (res.status === 409) {
+              const body = (await res.json().catch(() => null)) as { details?: SaveConflictDetails } | null;
+              set({
+                cloudSaveStatus: 'error',
+                saveConflict: {
+                  status: 'conflict',
+                  details: body?.details,
+                },
+              });
+              return null;
+            }
+
             if (!res.ok) {
               const body = await res.json().catch(() => null);
               const message = body?.error ?? 'Save failed';
               throw new Error(message);
             }
 
-            const data = (await res.json()) as { id?: string };
+            const data = (await res.json()) as { id?: string; updatedAt?: string };
             if (data.id) {
               state.setId(data.id);
             }
 
-            set({ cloudSaveStatus: 'saved', cloudLastSavedAt: Date.now(), baselineUam: state.uam });
+            const nextBaselineVersion = (() => {
+              if (state.baselineVersion) {
+                const parsed = Number.parseInt(state.baselineVersion, 10);
+                return Number.isFinite(parsed) ? String(parsed + 1) : state.baselineVersion;
+              }
+              if (!state.id && data.id) return '1';
+              return state.baselineVersion ?? null;
+            })();
+
+            set({
+              cloudSaveStatus: 'saved',
+              cloudLastSavedAt: Date.now(),
+              baselineUam: state.uam,
+              baselineVersion: nextBaselineVersion,
+              baselineUpdatedAt: data.updatedAt ?? state.baselineUpdatedAt,
+              saveConflict: { status: 'idle' },
+              secretScan: { status: 'idle', matches: [] },
+              secretScanAck: false,
+            });
             return data.id ?? null;
           } catch (err) {
             console.error(err);
             set({ cloudSaveStatus: 'error' });
             return null;
+          } finally {
+            if (state.secretScanAck) {
+              set({ secretScanAck: false });
+            }
           }
+        },
+
+        setSaveConflict: (conflict) => set({ saveConflict: conflict }),
+
+        clearSaveConflict: () => set({ saveConflict: { status: 'idle' } }),
+
+        setSecretScan: (scan) => set({ secretScan: scan }),
+
+        setSecretScanAck: (acknowledged) => set({ secretScanAck: acknowledged }),
+
+        clearSecretScan: () => set({ secretScan: { status: 'idle', matches: [] }, secretScanAck: false }),
+
+        reloadArtifact: async () => {
+          const artifactId = get().id;
+          if (!artifactId) {
+            set({ saveConflict: { status: 'idle' } });
+            return;
+          }
+          await get().loadArtifact(artifactId);
+          set({ saveConflict: { status: 'idle' } });
         },
 
         resetDraft: () => {
@@ -632,6 +1073,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             id: undefined,
             uam,
             baselineUam: null,
+            baselineVersion: null,
+            baselineUpdatedAt: null,
             title: uam.meta.title,
             description: uam.meta.description ?? '',
             scopes: ['root'],
@@ -647,17 +1090,29 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
+            secretScan: { status: 'idle', matches: [] },
+            secretScanAck: false,
             scanContext: null,
           });
           onPersisted();
         },
 
-        initializeFromTemplate: (templateUam) => {
-          const normalized = normalizeWorkbenchUam(templateUam);
+        discardDraft: () => {
+          const uam = createEmptyUamV1({ title: 'Untitled Agent' });
           set({
             id: undefined,
-            ...deriveFromUam(normalized, null),
-            baselineUam: normalized,
+            uam,
+            baselineUam: null,
+            baselineVersion: null,
+            baselineUpdatedAt: null,
+            title: uam.meta.title,
+            description: uam.meta.description ?? '',
+            scopes: ['root'],
+            blocks: [],
+            targets: [],
+            selectedScopeId: GLOBAL_SCOPE_ID,
+            selectedScope: 'root',
             selectedBlockId: null,
             compilationResult: null,
             autosaveStatus: 'idle',
@@ -666,6 +1121,33 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             tags: [],
             cloudSaveStatus: 'idle',
             cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
+            secretScan: { status: 'idle', matches: [] },
+            secretScanAck: false,
+            scanContext: null,
+          });
+          clearStoredWorkbenchDraft();
+        },
+
+        initializeFromTemplate: (templateUam) => {
+          const normalized = normalizeWorkbenchUam(templateUam);
+          set({
+            id: undefined,
+            ...deriveFromUam(normalized, null),
+            baselineUam: normalized,
+            baselineVersion: null,
+            baselineUpdatedAt: null,
+            selectedBlockId: null,
+            compilationResult: null,
+            autosaveStatus: 'idle',
+            lastSavedAt: null,
+            visibility: 'PRIVATE',
+            tags: [],
+            cloudSaveStatus: 'idle',
+            cloudLastSavedAt: null,
+            saveConflict: { status: 'idle' },
+            secretScan: { status: 'idle', matches: [] },
+            secretScanAck: false,
             scanContext: null,
           });
           markDirty();
@@ -676,16 +1158,22 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           try {
             const res = await fetch(`/api/artifacts/${idOrSlug}`);
             if (!res.ok) {
-              throw new Error(`Failed to load artifact (${res.status})`);
+              const body = await res.json().catch(() => null);
+              const message =
+                typeof body?.error === 'string' && body.error.length > 0
+                  ? body.error
+                  : `Failed to load artifact (${res.status})`;
+              throw new Error(message);
             }
 
             const data = (await res.json()) as {
               artifact?: { id?: string; visibility?: unknown; tags?: unknown };
-              latestVersion?: { uam?: unknown };
+              latestVersion?: { uam?: unknown; version?: unknown };
             };
             const artifactId = data.artifact?.id ?? idOrSlug;
             const visibility = data.artifact?.visibility;
             const tags = data.artifact?.tags;
+            const updatedAt = (data.artifact as { updatedAt?: unknown } | undefined)?.updatedAt;
             const uam = data.latestVersion?.uam;
             if (!uam) throw new Error('Artifact has no versions');
 
@@ -693,10 +1181,15 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             if (!parsed.success) throw new Error('Artifact has invalid UAM');
 
             const normalized = normalizeWorkbenchUam(parsed.data);
+            const baselineVersion =
+              typeof data.latestVersion?.version === 'string' ? data.latestVersion.version : null;
+            const baselineUpdatedAt = typeof updatedAt === 'string' ? updatedAt : null;
             set({
               id: artifactId,
               ...deriveFromUam(normalized, get().selectedScopeId),
               baselineUam: normalized,
+              baselineVersion,
+              baselineUpdatedAt,
               selectedBlockId: null,
               compilationResult: null,
               autosaveStatus: 'idle',
@@ -708,16 +1201,30 @@ export const useWorkbenchStore = create<WorkbenchState>()(
               tags: Array.isArray(tags) ? tags.map(v => String(v).trim()).filter(Boolean) : [],
               cloudSaveStatus: 'idle',
               cloudLastSavedAt: null,
+              saveConflict: { status: 'idle' },
+              secretScan: { status: 'idle', matches: [] },
+              secretScanAck: false,
               scanContext: null,
             });
+            return { status: 'loaded', title: normalized.meta.title ?? 'Untitled Agent' };
           } catch (err) {
             console.error(err);
+            return {
+              status: 'error',
+              message: err instanceof Error ? err.message : 'Failed to load artifact',
+            };
           }
         },
 
         applyScanContext: (context) => {
-          set({ scanContext: context });
-          const targetId = targetIdForScanTool(context.tool);
+          const nextContext = {
+            tool: context.tool,
+            cwd: normalizeDirScope(context.cwd ?? ''),
+            paths: normalizeScanPaths(context.paths ?? []),
+          };
+          set({ scanContext: nextContext });
+          writeStoredScanContext(nextContext);
+          const targetId = targetIdForScanTool(nextContext.tool);
           if (!targetId) return;
           const nextUam = { ...get().uam, targets: [createUamTargetV1(targetId)] };
           get().setUam(nextUam);
@@ -726,6 +1233,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         clearScanContext: () => {
           const context = get().scanContext;
           set({ scanContext: null });
+          clearStoredScanContext();
           if (!context) return;
           const targetId = targetIdForScanTool(context.tool);
           if (!targetId) return;
@@ -738,8 +1246,8 @@ export const useWorkbenchStore = create<WorkbenchState>()(
       };
     },
     {
-      name: 'workbench-storage',
-      version: 2,
+      name: WORKBENCH_STORAGE_KEY,
+      version: WORKBENCH_STORAGE_VERSION,
       storage: createJSONStorage(() => safeLocalStorage()),
       partialize: (state): PersistedWorkbenchState => ({
         id: state.id,
@@ -749,6 +1257,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
         selectedSkillId: state.selectedSkillId,
         visibility: state.visibility,
         tags: state.tags,
+        lastSavedAt: state.lastSavedAt,
       }),
       migrate: (persistedState, version) => {
         const raw = (persistedState as { state?: unknown })?.state ?? persistedState;
@@ -764,6 +1273,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
             selectedSkillId: persisted.selectedSkillId ?? null,
             visibility: persisted.visibility,
             tags: persisted.tags,
+            lastSavedAt: typeof persisted.lastSavedAt === 'number' ? persisted.lastSavedAt : null,
           } satisfies PersistedWorkbenchState;
         }
 
@@ -799,6 +1309,7 @@ export const useWorkbenchStore = create<WorkbenchState>()(
           selectedBlockId: legacy.selectedBlockId ?? null,
           selectedScopeId,
           selectedSkillId: null,
+          lastSavedAt: null,
         } satisfies PersistedWorkbenchState;
       },
       merge: (persistedState, currentState) => {

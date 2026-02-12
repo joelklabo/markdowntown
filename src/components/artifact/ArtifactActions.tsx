@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Row, Stack } from "@/components/ui/Stack";
 import { createZip } from "@/lib/compile/zip";
 import { ForkButton } from "@/components/artifact/ForkButton";
+import { trackLibraryAction } from "@/lib/analytics";
 
 export type ArtifactActionsProps = {
   artifactId: string;
@@ -25,6 +26,13 @@ export function ArtifactActions({ artifactId, slug, uam, targets }: ArtifactActi
       await navigator.clipboard.writeText(JSON.stringify(uam, null, 2));
       setCopied(true);
       setTimeout(() => setCopied(false), 1000);
+      trackLibraryAction({
+        action: "copy",
+        id: artifactId,
+        slug,
+        source: "artifact_detail",
+        targetIds: targets,
+      });
     } catch {
       setError("Copy failed");
     }
@@ -62,6 +70,13 @@ export function ArtifactActions({ artifactId, slug, uam, targets }: ArtifactActi
       a.download = `${slug}-outputs.zip`;
       a.click();
       URL.revokeObjectURL(url);
+      trackLibraryAction({
+        action: "download",
+        id: artifactId,
+        slug,
+        source: "artifact_detail",
+        targetIds: targets,
+      });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Export failed");
     } finally {
@@ -72,19 +87,35 @@ export function ArtifactActions({ artifactId, slug, uam, targets }: ArtifactActi
   return (
     <Stack gap={2} align="end">
       <Row gap={2} align="center" wrap>
+        <Button asChild size="sm">
+          <Link
+            href={`/workbench?id=${artifactId}`}
+            onClick={() =>
+              trackLibraryAction({
+                action: "open_workbench",
+                id: artifactId,
+                slug,
+                source: "artifact_detail",
+                targetIds: targets,
+              })
+            }
+          >
+            Open in Workbench
+          </Link>
+        </Button>
         <Button size="sm" variant="secondary" onClick={handleCopy}>
           {copied ? "Copied" : "Copy"}
         </Button>
         <Button size="sm" variant="secondary" onClick={handleExport} disabled={exporting}>
           {exporting ? "Exporting…" : "Export"}
         </Button>
-        <ForkButton artifactId={artifactId} size="sm" />
-        <Button asChild size="sm">
-          <Link href={`/workbench?id=${artifactId}`}>Open in Workbench</Link>
-        </Button>
+        <ForkButton
+          artifactId={artifactId}
+          size="sm"
+          analytics={{ source: "artifact_detail", slug }}
+        />
       </Row>
       {error && <div className="text-xs text-mdt-danger">{error}</div>}
     </Stack>
   );
 }
-

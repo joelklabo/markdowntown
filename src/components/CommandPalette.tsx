@@ -254,7 +254,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
       <Dialog open={open} onOpenChange={setOpen}>
       <DialogOverlay className="mdt-radix-overlay fixed inset-0 z-50 bg-[color:var(--mdt-color-overlay)] backdrop-blur-sm" />
       <DialogContent
-        className="mdt-radix-panel-scale fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border bg-mdt-surface-raised p-mdt-4 shadow-mdt-lg"
+        className="mdt-radix-panel-scale fixed left-1/2 top-24 z-50 w-[90vw] max-w-2xl -translate-x-1/2 rounded-mdt-lg border border-mdt-border-strong bg-mdt-surface-raised p-mdt-4 shadow-mdt-lg"
         aria-label="Command palette"
       >
         <DialogTitle className="sr-only">Command palette</DialogTitle>
@@ -266,7 +266,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="mt-mdt-3 max-h-[60vh] overflow-auto rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle">
+        <div className="mt-mdt-3 max-h-[60vh] overflow-auto rounded-mdt-md border border-mdt-border bg-mdt-surface">
           {commands.length === 0 && (
             <div className="p-mdt-4 text-body-sm text-mdt-muted">No matches.</div>
           )}
@@ -292,7 +292,7 @@ export function CommandPalette({ suggestions = [] }: PaletteProps) {
                       interactiveBase,
                       active
                         ? "bg-[color:var(--mdt-color-surface-strong)] text-mdt-text shadow-mdt-sm"
-                        : "text-mdt-text hover:bg-[color:var(--mdt-color-surface-subtle)]"
+                        : "text-mdt-text hover:bg-mdt-surface-subtle"
                     )}
                   >
                     <span>{item.label}</span>

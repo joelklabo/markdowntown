@@ -4,7 +4,7 @@ import { Text } from "./ui/Text";
 
 export function Footer() {
   return (
-    <footer className="mt-mdt-16 border-t border-mdt-border/70 bg-[color:var(--mdt-color-surface-subtle)]/95 py-mdt-12 text-body-sm text-mdt-muted">
+    <footer className="mt-mdt-16 border-t border-mdt-border-strong bg-mdt-surface-raised py-mdt-12 text-body-sm text-mdt-muted">
       <Container as="div" padding="lg" className="grid gap-mdt-10 md:grid-cols-[minmax(0,1.1fr),minmax(0,2fr)]">
         <div className="space-y-mdt-3">
           <Text as="p" weight="semibold" tone="default">
@@ -23,17 +23,17 @@ export function Footer() {
               Product
             </Text>
             <div className="flex flex-col gap-mdt-2 text-body-sm text-mdt-muted">
-              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/library">
-                Library
+              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/atlas/simulator">
+                Scan
               </Link>
               <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/workbench">
                 Workbench
               </Link>
+              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/library">
+                Library
+              </Link>
               <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/translate">
                 Translate
-              </Link>
-              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/atlas">
-                Atlas
               </Link>
             </div>
           </div>
@@ -45,17 +45,6 @@ export function Footer() {
               <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/docs">
                 Docs
               </Link>
-              <Link className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text" href="/changelog">
-                Changelog
-              </Link>
-              <a
-                className="transition-colors duration-mdt-fast ease-mdt-standard hover:text-mdt-text"
-                href="https://github.com/joelklabo/markdowntown"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
             </div>
           </div>
           <div className="space-y-mdt-2">
@@ -72,7 +61,7 @@ export function Footer() {
             </div>
           </div>
         </nav>
-        <div className="md:col-span-2 border-t border-mdt-border/60 pt-mdt-4 text-caption text-mdt-muted">
+        <div className="md:col-span-2 border-t border-mdt-border pt-mdt-4 text-caption text-mdt-muted">
           © 2025 mark downtown. All rights reserved.
         </div>
       </Container>

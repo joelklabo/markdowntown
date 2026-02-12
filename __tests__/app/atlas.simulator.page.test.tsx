@@ -8,11 +8,12 @@ describe("/atlas/simulator page", () => {
     expect(screen.getByRole("heading", { name: "Scan a folder" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Scan setup" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Results" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Upload folder")).toBeInTheDocument();
+    expect(screen.getByText(/show advanced settings/i)).toBeInTheDocument();
+    screen.getByText(/show advanced settings/i).click();
     expect(screen.getByLabelText("Tool")).toBeInTheDocument();
     expect(screen.getByLabelText("Current directory (cwd)")).toBeInTheDocument();
-    expect(screen.getByLabelText("Upload folder")).toBeInTheDocument();
-    expect(screen.getByText(/advanced: paste repo paths/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Loaded files" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Actions" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Quick actions" })).toBeInTheDocument();
   });
 });

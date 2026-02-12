@@ -16,9 +16,15 @@ describe("Authenticated artifact flow", () => {
     await browser?.close();
   });
 
-  const maybe = process.env.E2E_TEST_USER ? it : it.skip;
+  const hasAuthEnv = Boolean(process.env.E2E_TEST_USER && process.env.E2E_STORAGE_STATE);
+  const skipReason =
+    "requires E2E_TEST_USER and E2E_STORAGE_STATE (see docs/qa/e2e-test-user.md)";
+  const maybe = hasAuthEnv ? it : it.skip;
+  const testName = hasAuthEnv
+    ? "signs in (storage) and saves an artifact from Workbench"
+    : `signs in (storage) and saves an artifact from Workbench (skipped: ${skipReason})`;
 
-  maybe("signs in (storage) and saves an artifact from Workbench", async () => {
+  maybe(testName, async () => {
     await withE2EPage(
       browser,
       { baseURL, storageState: process.env.E2E_STORAGE_STATE ?? undefined },

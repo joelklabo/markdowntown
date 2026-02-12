@@ -29,6 +29,7 @@ describe("Translate export flow", () => {
         page.setDefaultNavigationTimeout(120000);
 
         await page.goto("/translate", { waitUntil: "domcontentloaded" });
+        await page.waitForTimeout(1000);
 
         const markdown = `# Translate E2E
 
@@ -55,10 +56,10 @@ This is a test export.
         await page.getByRole("checkbox", { name: /github copilot/i }).click();
         await page.getByRole("checkbox", { name: /github copilot/i }).click();
 
-        const compile = page.getByRole("button", { name: /^compile$/i });
+        const compile = page.getByRole("button", { name: /compile files/i });
         await page.waitForFunction(
           () => {
-            const btn = Array.from(document.querySelectorAll("button")).find((b) => b.textContent?.trim() === "Compile") as
+            const btn = Array.from(document.querySelectorAll("button")).find((b) => b.textContent?.trim() === "Compile files") as
               | HTMLButtonElement
               | undefined;
             return Boolean(btn && !btn.disabled);
@@ -68,8 +69,8 @@ This is a test export.
         );
         await compile.click();
 
-        await page.locator("div.font-mono", { hasText: "AGENTS.md" }).waitFor({ state: "visible" });
-        await page.locator("div.font-mono", { hasText: ".github/copilot-instructions.md" }).waitFor({ state: "visible" });
+        await page.locator(".font-mono", { hasText: "AGENTS.md" }).waitFor({ state: "visible" });
+        await page.locator(".font-mono", { hasText: ".github/copilot-instructions.md" }).waitFor({ state: "visible" });
 
         const [download] = await Promise.all([
           page.waitForEvent("download"),

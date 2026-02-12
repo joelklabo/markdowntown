@@ -36,6 +36,10 @@ The Instruction health panel validates file placement for the selected tool and 
 
 See the dedicated guide: `docs/atlas/instruction-health.md`.
 
+## Rules verification
+Use the monthly checklist to keep platform rule metadata current:
+`docs/atlas/rules-verification.md`.
+
 ## Optional content linting
 Enable “Content linting (local-only)” to read instruction files locally and surface common formatting issues.
 - Only allowlisted instruction paths are read.

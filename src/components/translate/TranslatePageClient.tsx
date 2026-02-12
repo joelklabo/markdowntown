@@ -11,6 +11,15 @@ import { safeParseUamV1 } from '@/lib/uam/uamValidate';
 import { createZip } from '@/lib/compile/zip';
 import { createUamTargetV1, wrapMarkdownAsGlobal, type UamTargetV1, type UamV1 } from '@/lib/uam/uamTypes';
 import { emitCityWordmarkEvent } from '@/components/wordmark/sim/bridge';
+import {
+  trackTranslateComplete,
+  trackTranslateDownload,
+  trackTranslateError,
+  trackTranslateOpenWorkbench,
+  trackTranslateStart,
+} from '@/lib/analytics';
+
+const COMPILE_TIMEOUT_MS = 30_000;
 
 type TranslatePageClientProps = {
   initialInput: string;
@@ -67,14 +76,30 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
   };
 
   const handleCompile = async () => {
+    const analyticsContext = {
+      targetIds: targets.map((target) => target.targetId),
+      targetCount: targets.length,
+      inputChars: input.length,
+      detectedLabel: detected.label,
+    };
+    let timeoutId: number | null = null;
     setLoading(true);
     setError(null);
+    setResult(null);
+    trackTranslateStart(analyticsContext);
     try {
       if (isTooLarge) {
+        trackTranslateError(new Error('Input too large'), {
+          ...analyticsContext,
+          reason: 'input_too_large',
+        });
         setError('Input is too large to compile.');
         emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
         return;
       }
+
+      const controller = new AbortController();
+      timeoutId = window.setTimeout(() => controller.abort(), COMPILE_TIMEOUT_MS);
 
       const res = await fetch('/api/compile', {
         method: 'POST',
@@ -83,20 +108,49 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
           uam: detected.uam,
           targets,
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
         const body = await res.json().catch(() => null);
         const message = body?.error ?? 'Compilation failed';
-        throw new Error(message);
+        let safeMessage = message;
+        if (message === 'Invalid payload') {
+          safeMessage = 'Input is invalid. Please check the format and try again.';
+        } else if (message === 'Payload too large' || message.includes('Payload too large')) {
+          safeMessage = 'Input is too large. Please shorten it and try again.';
+        } else if (message === 'No valid targets selected' || message === 'Unknown target selection') {
+          safeMessage = 'Select at least one supported target to compile.';
+        } else if (message === 'Rate limit exceeded') {
+          safeMessage = 'You are doing that too often. Please wait a moment and try again.';
+        }
+        throw new Error(safeMessage);
       }
 
       const data = await res.json();
       setResult(data);
+      trackTranslateComplete({
+        ...analyticsContext,
+        fileCount: Array.isArray(data?.files) ? data.files.length : 0,
+        warningCount: Array.isArray(data?.warnings) ? data.warnings.length : 0,
+        infoCount: Array.isArray(data?.info) ? data.info.length : 0,
+      });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error compiling');
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        const timeoutError = new Error('Compilation timed out. Please try again.');
+        trackTranslateError(timeoutError, { ...analyticsContext, reason: 'timeout' });
+        setError(timeoutError.message);
+        emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
+        return;
+      }
+      const error = err instanceof Error ? err : new Error('Error compiling');
+      trackTranslateError(error, { ...analyticsContext, reason: 'compile_failed' });
+      setError(error.message);
       emitCityWordmarkEvent({ type: 'alert', kind: 'ambulance' });
     } finally {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
       setLoading(false);
     }
   };
@@ -104,11 +158,23 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
   const handleDownload = async () => {
     if (!result) return;
     try {
+      const downloadName =
+        targets.length === 1
+          ? `${targets[0].targetId}.zip`
+          : targets.length > 1
+            ? `translate-${targets.map((target) => target.targetId).join('-')}.zip`
+            : 'translate-output.zip';
       const blob = await createZip(result.files);
+      trackTranslateDownload({
+        targetIds: targets.map((target) => target.targetId),
+        targetCount: targets.length,
+        fileCount: Array.isArray(result?.files) ? result.files.length : 0,
+        byteSize: blob.size,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'outputs.zip';
+      a.download = downloadName;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err: unknown) {
@@ -117,16 +183,34 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
     }
   };
 
+  const handleOpenWorkbench = () => {
+    if (!result) return;
+    trackTranslateOpenWorkbench({
+      targetIds: targets.map((target) => target.targetId),
+      targetCount: targets.length,
+      fileCount: Array.isArray(result?.files) ? result.files.length : 0,
+    });
+  };
+
   return (
     <Container size="xl" padding="lg" className="py-mdt-10 md:py-mdt-12">
       <Stack gap={8}>
         <Stack gap={3} className="max-w-2xl">
           <Text size="caption" tone="muted">Translate</Text>
-          <Heading level="display" leading="tight">Translate markdown into agent-ready formats</Heading>
+          <Heading level="display" leading="tight">Translate instructions into Workbench-ready files</Heading>
           <Text tone="muted" leading="relaxed">
-            Paste Markdown or UAM JSON, choose your targets, and compile into ready-to-ship instruction files.
+            Paste your instructions, choose targets, compile, and open in Workbench to refine and export.
           </Text>
         </Stack>
+
+        <div className="flex flex-wrap items-center gap-mdt-4 rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-4 py-mdt-3">
+          <Text size="caption" tone="muted" className="uppercase tracking-wide">
+            Steps
+          </Text>
+          <Text size="bodySm" tone="muted">1. Select targets</Text>
+          <Text size="bodySm" tone="muted">2. Paste input</Text>
+          <Text size="bodySm" tone="muted">3. Compile + open Workbench</Text>
+        </div>
 
         <div className="grid gap-mdt-6 lg:grid-cols-[minmax(0,1fr),minmax(0,1fr)] lg:items-start">
           <TranslateInput value={input} onChange={setInput} disabled={loading} helperText={helperText} />
@@ -136,6 +220,7 @@ export function TranslatePageClient({ initialInput, initialTargets, initialError
             onUpdateTarget={updateTarget}
             onCompile={handleCompile}
             onDownloadZip={handleDownload}
+            onOpenWorkbench={handleOpenWorkbench}
             loading={loading}
             error={error}
             detectedLabel={detected.label}

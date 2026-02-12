@@ -10,6 +10,7 @@ const chunksDir = path.join(process.cwd(), ".next", "static", "chunks");
 const budget = Number(process.env.BUNDLE_BUDGET_BYTES || 1_500_000); // ~1.5 MB default (updated 2025-12-27)
 const ignoredPrefixes = ["framework-", "main-", "polyfills-", "webpack-"];
 const reactLoadablePath = path.join(process.cwd(), ".next", "react-loadable-manifest.json");
+const buildManifestPath = path.join(process.cwd(), ".next", "build-manifest.json");
 
 const optionalModules = [
   { pattern: "posthog", enabled: Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY) },
@@ -30,6 +31,18 @@ if (fs.existsSync(reactLoadablePath)) {
     }
   } catch (err) {
     console.warn("Unable to parse react-loadable-manifest.json for optional chunk filtering", err);
+  }
+}
+
+const rootMainFiles = new Set();
+if (fs.existsSync(buildManifestPath)) {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(buildManifestPath, "utf8"));
+    for (const file of manifest.rootMainFiles || []) {
+      rootMainFiles.add(path.basename(file));
+    }
+  } catch (err) {
+    console.warn("Unable to parse build-manifest.json for root main files", err);
   }
 }
 
@@ -56,6 +69,9 @@ let largest = { file: "", size: 0 };
 for (const file of files) {
   const name = path.basename(file);
   if (ignoredPrefixes.some((prefix) => name.startsWith(prefix))) {
+    continue;
+  }
+  if (rootMainFiles.has(name)) {
     continue;
   }
   const rel = path.join("static", "chunks", name);

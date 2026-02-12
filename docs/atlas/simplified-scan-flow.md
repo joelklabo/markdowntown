@@ -7,7 +7,7 @@ Reduce time-to-value by letting a first-time user upload a folder and immediatel
 1. **Idle state**
    - Primary CTA: “Scan a folder”.
    - Secondary CTA: “Paste paths”.
-   - Helper text: local-only scan, no uploads.
+   - Helper text: local-only scan, no uploads. “File contents never leave your device.”
    - Advanced controls collapsed by default.
 
 2. **Upload → scan (automatic)**
@@ -24,7 +24,7 @@ Reduce time-to-value by letting a first-time user upload a folder and immediatel
 4. **Results + summary**
    - Summarize: tool detected, number of instruction files found, missing critical files.
    - Show prioritized next steps (copy template, open docs, rescan smaller scope).
-   - Include a primary CTA to open Workbench with scan context.
+   - Include a primary CTA to open Workbench with scan context when ready; errors keep recovery CTAs primary.
 
 5. **Advanced controls (optional)**
    - Tool selector, cwd input, manual paths input, and content linting opt-in.
@@ -49,8 +49,12 @@ Reduce time-to-value by letting a first-time user upload a folder and immediatel
   - Show “Scan canceled” message and return to idle state.
 - **Scan error:**
   - Show error panel with “Try again” CTA.
+- **Permission denied:**
+  - Show “Allow access” CTA and explain access is required to scan.
+- **Empty scan (no instruction files):**
+  - Show “Copy template” CTA and explain a root file is required.
 - **Large repo truncated:**
-  - Warn and suggest scanning a smaller folder.
+  - Warn and suggest scanning a smaller folder; allow Workbench with caution copy.
 - **Mixed-tool detection:**
   - Show a tool picker prompt and explain why.
 

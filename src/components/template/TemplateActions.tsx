@@ -13,7 +13,7 @@ type Props = {
 
 export function TemplateActions({ id, slug, title, rendered, variant = "inline" }: Props) {
   const detailHref = `/templates/${slug ?? id}`;
-  const workbenchHref = `/workbench?template=${slug ?? id}`;
+  const workbenchHref = slug ? `/workbench?slug=${slug}` : `/workbench?id=${id}`;
   const actionSize = "sm";
 
   async function copy() {
@@ -60,36 +60,47 @@ export function TemplateActions({ id, slug, title, rendered, variant = "inline" 
     }
   }
 
+  const renderOverflow = () => (
+    <details className="relative">
+      <Button variant="secondary" size={actionSize} asChild>
+        <summary className="list-none [&::-webkit-details-marker]:hidden [&::marker]:hidden">More</summary>
+      </Button>
+      <div className="absolute right-0 z-10 mt-mdt-2 w-48 rounded-mdt-md border border-mdt-border bg-mdt-surface-raised p-mdt-2 shadow-mdt-lg">
+        <div className="flex flex-col gap-mdt-1">
+          <Button variant="ghost" size={actionSize} onClick={copy} className="w-full justify-start">
+            Copy
+          </Button>
+          <Button variant="ghost" size={actionSize} onClick={download} className="w-full justify-start">
+            Download
+          </Button>
+          <Button variant="ghost" size={actionSize} onClick={share} className="w-full justify-start" aria-label={`Share ${title}`}>
+            Share
+          </Button>
+          <Button variant="ghost" size={actionSize} asChild className="w-full justify-start">
+            <a href={detailHref}>Open detail</a>
+          </Button>
+        </div>
+      </div>
+    </details>
+  );
+
   if (variant === "bar") {
     return (
       <div className="flex w-full gap-mdt-2">
-        <Button size={actionSize} onClick={useWorkbench} className="flex-1" aria-label={`Use ${title} in Workbench`}>
-          Workbench
+        <Button size={actionSize} onClick={useWorkbench} className="flex-1" aria-label={`Open ${title} in Workbench`}>
+          Open in Workbench
         </Button>
-        <Button variant="secondary" size={actionSize} onClick={copy}>
-          Copy
-        </Button>
+        {renderOverflow()}
       </div>
     );
   }
 
   return (
     <div className="flex flex-wrap items-center gap-mdt-2">
-      <Button size={actionSize} onClick={useWorkbench} aria-label={`Use ${title} in Workbench`}>
-        Use in Workbench
+      <Button size={actionSize} onClick={useWorkbench} aria-label={`Open ${title} in Workbench`}>
+        Open in Workbench
       </Button>
-      <Button variant="secondary" size={actionSize} onClick={copy}>
-        Copy
-      </Button>
-      <Button variant="secondary" size={actionSize} onClick={download}>
-        Download
-      </Button>
-      <Button variant="ghost" size={actionSize} onClick={share} aria-label={`Share ${title}`}>
-        Share
-      </Button>
-      <Button variant="ghost" size={actionSize} asChild>
-        <a href={detailHref}>Open detail</a>
-      </Button>
+      {renderOverflow()}
     </div>
   );
 }

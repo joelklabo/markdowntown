@@ -52,4 +52,43 @@ describe('atlas/simulators/simulate', () => {
     expect(result.warnings.some(w => w.code === 'scan-risk.large-tree')).toBe(true);
     expect(result.warnings.some(w => w.code === 'scan-risk.cursor-rules')).toBe(true);
   });
+
+  it('loads Cursor rules and legacy file with reasons', () => {
+    const tree = {
+      files: [
+        { path: '.cursor/rules/general.mdc', content: '' },
+        { path: '.cursor/rules/typing.mdc', content: '' },
+        { path: '.cursorrules', content: '' },
+      ],
+    };
+
+    const result = simulateContextResolution({ tool: 'cursor', tree, cwd: '' });
+
+    expect(result.loaded).toEqual([
+      { path: '.cursor/rules/general.mdc', reason: 'cursor rule (.cursor/rules/*.mdc)' },
+      { path: '.cursor/rules/typing.mdc', reason: 'cursor rule (.cursor/rules/*.mdc)' },
+      { path: '.cursorrules', reason: 'legacy cursor rules (.cursorrules, deprecated)' },
+    ]);
+    expect(result.warnings.some(w => w.code === 'deprecated.cursorrules')).toBe(true);
+  });
+
+  it('resolves Claude @path imports from CLAUDE.md', () => {
+    const tree = {
+      files: [
+        { path: 'CLAUDE.md', content: '@docs/overview.md\n@prompts/base.md' },
+        { path: 'docs/overview.md', content: '@../prompts/shared.md' },
+        { path: 'prompts/base.md', content: 'Base instructions.' },
+        { path: 'prompts/shared.md', content: 'Shared instructions.' },
+      ],
+    };
+
+    const result = simulateContextResolution({ tool: 'claude-code', tree, cwd: '' });
+
+    expect(result.loaded.map(item => item.path)).toEqual([
+      'CLAUDE.md',
+      'docs/overview.md',
+      'prompts/shared.md',
+      'prompts/base.md',
+    ]);
+  });
 });

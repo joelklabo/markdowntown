@@ -156,7 +156,38 @@ async function listPublicItemsRaw(input: ListPublicItemsInput = {}): Promise<Pub
   const hasScopesFilter = normalizeInputHasScopes(input.hasScopes);
 
   if (!hasDatabaseEnv) {
-    return [];
+    if (!isDevEnv) return [];
+    const demo = demoPublicItemDetail(DEMO_ITEM_SLUG);
+    if (!demo) return [];
+
+    const demoItem: PublicItem = {
+      id: demo.id,
+      slug: demo.slug,
+      title: demo.title,
+      description: demo.description,
+      tags: demo.tags,
+      targets: demo.targets,
+      hasScopes: demo.hasScopes,
+      lintGrade: demo.lintGrade,
+      scopeCount: demo.scopeCount,
+      blockCount: demo.blockCount,
+      stats: demo.stats,
+      type: demo.type,
+      createdAt: demo.createdAt,
+      updatedAt: demo.updatedAt,
+    };
+
+    if (type !== "all" && demoItem.type !== type) return [];
+    if (normalizedTags.length > 0 && !normalizedTags.some((tag) => demoItem.tags.includes(tag))) return [];
+    if (normalizedTargets.length > 0 && !normalizedTargets.some((target) => demoItem.targets.includes(target))) return [];
+    if (hasScopesFilter !== undefined && demoItem.hasScopes !== hasScopesFilter) return [];
+    if (search) {
+      const needle = search.toLowerCase();
+      const matches = demoItem.title.toLowerCase().includes(needle) || demoItem.description.toLowerCase().includes(needle);
+      if (!matches) return [];
+    }
+
+    return [demoItem].slice(0, Math.min(limit, 100));
   }
 
   const where: Prisma.ArtifactWhereInput = {

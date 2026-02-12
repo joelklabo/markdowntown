@@ -99,7 +99,7 @@ export default async function LibraryPage(props: { searchParams: Promise<SearchP
           </Text>
           <Heading level="h1">Library</Heading>
           <Text tone="muted" className="max-w-2xl">
-            Browse public artifacts and open them in Workbench. Use filters when you need to narrow down by tool, tags, or scopes.
+            Browse public artifacts and open them in Workbench to export agents.md. Use filters when you need to narrow down by tool, tags, or scopes.
           </Text>
         </Stack>
 

@@ -1,6 +1,6 @@
 # Scan-First UX Flow
 
-Date: 2025-12-26
+Date: 2025-12-28
 Scope: Atlas Simulator scan flow (first-time user to value).
 
 ## Goals
@@ -10,7 +10,7 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 
 ## Primary entry points
 - Global nav: Scan → `/atlas/simulator`
-- Home CTA(s): Scan a folder, Validate your setup
+- Home CTA: Scan a folder
 - Library empty state: link to Scan if no artifacts found
 - Docs: Scan quickstart
 
@@ -26,7 +26,8 @@ Scope: Atlas Simulator scan flow (first-time user to value).
    - Local-only callout visible above the CTA.
 2. **Scan a folder**
    - Primary CTA: "Scan a folder" (Directory Picker).
-   - Secondary: "Paste paths" (manual input).
+   - Secondary: "Upload folder" when picker is unavailable.
+   - Disable the CTA while the picker is open to prevent duplicate picker errors.
    - Advanced controls (tool selector + cwd input) collapsed by default.
 3. **Auto-detect tool + cwd**
    - After scan completes, detect likely tool based on instruction files.
@@ -35,16 +36,18 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 4. **Results summary**
    - Summary card: loaded, missing, extra, warnings.
    - Show missing patterns first with fix suggestions.
+   - Order: Summary → Next steps → Instruction health → Files list.
 5. **Next steps**
-   - Primary action: "Open in Workbench"
+   - Primary action: "Open Workbench" once results are ready.
    - Secondary action: "Rescan with different tool" / "Adjust CWD"
-   - Tertiary: "Export report" or "Copy results"
+   - Tertiary: "Download report" or "Copy summary"
 
 ## Key UI elements and copy requirements
 - Local-only messaging above the CTA (no uploads, processed in browser).
 - "What we look for" list: AGENTS.md, .github/copilot-instructions.md, etc.
 - Missing patterns explained in plain language (why they matter).
 - Results summary uses user-facing labels (not internal names).
+- Ready state copy explicitly points to Workbench as the next step to export agents.md.
 
 ## Empty and error states
 - Empty folder: show "No instruction files found" + suggested fixes.
@@ -65,3 +68,6 @@ Scope: Atlas Simulator scan flow (first-time user to value).
 - scan_complete (loaded_count, missing_count, warning_count, truncated)
 - scan_error (type, reason)
 - scan_next_step_click (cta, tool, missing_count)
+
+## Feature flags
+- Local QA flags: see `docs/DEV_ONBOARDING.md#scan-flow-qa-flags`.

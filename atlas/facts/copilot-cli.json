@@ -104,5 +104,6 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  }
+  },
+  "docHome": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli"
 }

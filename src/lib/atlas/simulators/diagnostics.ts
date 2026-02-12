@@ -1,4 +1,5 @@
 import type { InstructionDiagnostic, InstructionDiagnostics, RepoTree, SimulatorToolId } from './types';
+import { resolveClaudeImports } from './claudeImports';
 
 type DiagnosticsInput = {
   tool: SimulatorToolId;
@@ -9,6 +10,7 @@ type DiagnosticsInput = {
 type TreeIndex = {
   has: (filePath: string) => boolean;
   listPaths: () => string[];
+  getContent: (filePath: string) => string | null;
 };
 
 function normalizePath(value: string): string {
@@ -19,14 +21,19 @@ function normalizePath(value: string): string {
 
 function buildIndex(tree: RepoTree): TreeIndex {
   const paths = new Set<string>();
+  const contents = new Map<string, string>();
   for (const file of tree.files) {
     const normalized = normalizePath(file.path);
     if (!normalized) continue;
     paths.add(normalized);
+    if (file.content) {
+      contents.set(normalized, file.content);
+    }
   }
   return {
     has: (filePath: string) => paths.has(normalizePath(filePath)),
     listPaths: () => Array.from(paths).sort(),
+    getContent: (filePath: string) => contents.get(normalizePath(filePath)) ?? null,
   };
 }
 
@@ -76,6 +83,8 @@ export function computeInstructionDiagnostics({ tool, tree, cwd = '' }: Diagnost
   const agentsOverride = paths.filter((path) => path === 'AGENTS.override.md' || path.endsWith('/AGENTS.override.md'));
   const claudeFiles = paths.filter((path) => path === 'CLAUDE.md' || path.endsWith('/CLAUDE.md'));
   const geminiFiles = paths.filter((path) => path === 'GEMINI.md' || path.endsWith('/GEMINI.md'));
+  const cursorRuleFiles = paths.filter((path) => path.startsWith('.cursor/rules/'));
+  const cursorLegacyFiles = paths.filter((path) => path === '.cursorrules');
 
   const copilotCliRoot = index.has('.github/copilot-instructions.md');
   const copilotCliScoped = paths.some(
@@ -250,6 +259,38 @@ export function computeInstructionDiagnostics({ tool, tree, cwd = '' }: Diagnost
         });
       }
     }
+
+    const imports = resolveClaudeImports(index, claudeFiles);
+    for (const issue of imports.issues) {
+      if (issue.type === 'missing') {
+        addDiagnostic(diagnostics, {
+          code: 'claude-import.missing',
+          severity: 'warning',
+          message: `Claude import not found: ${issue.rawPath}.`,
+          suggestion: 'Add the missing file or update the @path reference.',
+          path: issue.sourcePath,
+          expectedPath: issue.resolvedPath,
+        });
+      } else if (issue.type === 'outside-root') {
+        addDiagnostic(diagnostics, {
+          code: 'claude-import.outside-root',
+          severity: 'error',
+          message: `Claude import points outside the repo: ${issue.rawPath}.`,
+          suggestion: 'Use a repo-relative path in @path imports.',
+          path: issue.sourcePath,
+          expectedPath: issue.resolvedPath,
+        });
+      } else if (issue.type === 'circular') {
+        addDiagnostic(diagnostics, {
+          code: 'claude-import.circular',
+          severity: 'error',
+          message: `Circular Claude import detected via ${issue.rawPath}.`,
+          suggestion: 'Remove the cycle by flattening or removing one @path reference.',
+          path: issue.sourcePath,
+          expectedPath: issue.resolvedPath,
+        });
+      }
+    }
   }
 
   if (tool === 'gemini-cli') {
@@ -289,6 +330,19 @@ export function computeInstructionDiagnostics({ tool, tree, cwd = '' }: Diagnost
           suggestion: 'Confirm cwd and place GEMINI.md in the repo root or a parent directory.',
         });
       }
+    }
+  }
+
+  if (tool === 'cursor') {
+    if (cursorLegacyFiles.length > 0 && cursorRuleFiles.length > 0) {
+      addDiagnostic(diagnostics, {
+        code: 'deprecated.cursorrules',
+        severity: 'warning',
+        message: 'Legacy .cursorrules found alongside .cursor/rules.',
+        suggestion: 'Move legacy rules into .cursor/rules and remove .cursorrules.',
+        path: cursorLegacyFiles[0],
+        expectedPath: '.cursor/rules/',
+      });
     }
   }
 

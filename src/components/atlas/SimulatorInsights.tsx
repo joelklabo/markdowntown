@@ -2,15 +2,16 @@ import Link from "next/link";
 import { Stack } from "@/components/ui/Stack";
 import { Text } from "@/components/ui/Text";
 import { formatInsightsSummary } from "@/lib/atlas/simulators/insights";
-import type { SimulatorInsights as SimulatorInsightsData } from "@/lib/atlas/simulators/types";
+import type { ShadowedFile, SimulatorInsights as SimulatorInsightsData } from "@/lib/atlas/simulators/types";
 
 type SimulatorInsightsProps = {
   insights: SimulatorInsightsData;
-  extraFiles: string[];
+  shadowedFiles: ShadowedFile[];
 };
 
-export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsProps) {
-  const summary = formatInsightsSummary(insights, extraFiles.length);
+export function SimulatorInsights({ insights, shadowedFiles }: SimulatorInsightsProps) {
+  const summary = formatInsightsSummary(insights, shadowedFiles.length);
+  const nextStepText = summary.nextStep.replace(/^next step:\s*/i, "");
 
   return (
     <div className="rounded-mdt-lg border border-mdt-border bg-mdt-surface-subtle p-mdt-3">
@@ -28,7 +29,7 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
               <Text size="bodySm" weight="semibold">{summary.title}</Text>
               <Text tone="muted" size="bodySm">{summary.body}</Text>
               <Text size="bodySm" weight="semibold">
-                Next step: {summary.nextStep}
+                Next step: {nextStepText}
               </Text>
               {summary.note ? <Text tone="muted" size="bodySm">{summary.note}</Text> : null}
             </Stack>
@@ -57,18 +58,19 @@ export function SimulatorInsights({ insights, extraFiles }: SimulatorInsightsPro
 
           <div className="space-y-mdt-2 rounded-mdt-md border border-mdt-border bg-mdt-surface px-mdt-3 py-mdt-2">
             <Text as="h4" size="caption" weight="semibold" tone="muted" className="uppercase tracking-wide">
-              Extra instruction files
+              Shadowed or overridden files
             </Text>
             <Text tone="muted" size="bodySm">
-              These files exist but do not load for the selected tool. Consider removing them or switching tools.
+              These files exist but do not load for the selected tool. Review the reason and switch tools if needed.
             </Text>
-            {extraFiles.length === 0 ? (
-              <Text tone="muted" size="bodySm">No extra instruction files detected for this tool.</Text>
+            {shadowedFiles.length === 0 ? (
+              <Text tone="muted" size="bodySm">No shadowed instruction files detected for this tool.</Text>
             ) : (
-              <ul className="space-y-mdt-2" aria-label="Extra instruction files">
-                {extraFiles.map((path) => (
-                  <li key={path} className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
-                    <div className="font-mono text-body-sm text-mdt-text">{path}</div>
+              <ul className="space-y-mdt-2" aria-label="Shadowed instruction files">
+                {shadowedFiles.map((file) => (
+                  <li key={file.path} className="rounded-mdt-md border border-mdt-border bg-mdt-surface-subtle px-mdt-3 py-mdt-2">
+                    <div className="font-mono text-body-sm text-mdt-text">{file.path}</div>
+                    <div className="text-body-xs text-mdt-muted">{file.reason}</div>
                   </li>
                 ))}
               </ul>

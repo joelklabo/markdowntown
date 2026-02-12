@@ -7,4 +7,5 @@
 - Close: `bd close <id> --reason "done"`
 - Add dependency: `bd dep add <child> <parent> --type parent-child`
 - Keep epics out of `bd ready` while children are open: `node scripts/bd-sync-epic-readiness.mjs`
+- Validate beads JSONL: `pnpm bd:validate`
 - Sync: beads are git-tracked in `.beads`; commit changes with code.

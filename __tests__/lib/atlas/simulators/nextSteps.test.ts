@@ -53,6 +53,20 @@ describe('atlas/simulators/nextSteps', () => {
     expect(steps[0].primaryAction?.id).toBe('paste-paths');
   });
 
+  it('promotes scan upload CTA when repo source is folder', () => {
+    const steps = computeNextSteps(
+      makeInput({
+        repoSource: 'folder',
+        repoFileCount: 0,
+      }),
+    );
+
+    expect(steps[0].id).toBe('no-scan');
+    expect(steps[0].primaryAction?.id).toBe('scan-folder');
+    const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
+    expect(secondaryIds).toContain('paste-paths');
+  });
+
   it('orders steps by severity after stale', () => {
     const steps = computeNextSteps(
       makeInput({
@@ -89,6 +103,9 @@ describe('atlas/simulators/nextSteps', () => {
     expect(steps).toHaveLength(1);
     expect(steps[0].id).toBe('ready');
     expect(steps[0].severity).toBe('ready');
+    expect(steps[0].primaryAction?.id).toBe('open-workbench');
+    const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
+    expect(secondaryIds).toEqual(['copy-summary', 'download-report']);
   });
 
   it('includes expected path for missing root instructions', () => {
@@ -161,5 +178,6 @@ describe('atlas/simulators/nextSteps', () => {
     expect(steps[0].primaryAction?.id).toBe('scan-smaller-folder');
     const secondaryIds = steps[0].secondaryActions?.map((item) => item.id) ?? [];
     expect(secondaryIds).toContain('paste-paths');
+    expect(steps.some((step) => step.id === 'ready')).toBe(false);
   });
 });

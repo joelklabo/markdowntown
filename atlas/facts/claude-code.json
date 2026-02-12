@@ -56,5 +56,6 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  }
+  },
+  "docHome": "https://code.claude.com/docs/en/memory"
 }

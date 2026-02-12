@@ -143,6 +143,9 @@ export function LivingCityWordmark({
     </span>
   );
 
+  const stableNowMs = isVisualTest ? 0 : sim.nowMs;
+  const stableActorRects = isVisualTest ? [] : sim.actorRects;
+
   return (
     <span ref={containerRef} className={mergedContainerClassName}>
       <WordmarkErrorBoundary
@@ -158,8 +161,8 @@ export function LivingCityWordmark({
           seed={sim.config.seed}
           timeOfDay={sim.config.timeOfDay}
           scheme={sim.config.scheme}
-          nowMs={sim.nowMs}
-          actorRects={sim.actorRects}
+          nowMs={stableNowMs}
+          actorRects={stableActorRects}
           voxelScale={sim.config.render.voxelScale}
           renderDetail={sim.config.render.detail}
           bannerScale={resolvedBannerScale}

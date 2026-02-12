@@ -20,8 +20,8 @@ describe('TranslatePage', () => {
   it('renders input and output sections', async () => {
     const jsx = await TranslatePage({ searchParams: Promise.resolve({}) });
     render(jsx);
-    expect(screen.getByText('Input')).toBeInTheDocument();
-    expect(screen.getByText('Output')).toBeInTheDocument();
+    expect(screen.getByText(/Step 2/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Results/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Compile/i })).toBeInTheDocument();
   });
 

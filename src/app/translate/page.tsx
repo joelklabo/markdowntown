@@ -4,6 +4,8 @@ import { createUamTargetV1 } from '@/lib/uam/uamTypes';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
+export const dynamic = 'force-dynamic';
+
 function firstString(value: string | string[] | undefined): string | null {
   if (!value) return null;
   if (Array.isArray(value)) return typeof value[0] === 'string' ? value[0] : null;

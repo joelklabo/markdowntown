@@ -21,8 +21,9 @@ Last updated: Dec 20, 2025
 
 #### Decision points / friction (Library)
 - Multiple competing CTAs on home may obscure the primary path.
-- “Builder” vs “Workbench” language appears across surfaces (nav, hero, routes).
+- Legacy `/builder` references appear across surfaces; prefer “Workbench” naming.
 - Library rows present 3–4 actions with similar emphasis.
+- Templates/Tags routes compete with Library and dilute discovery.
 - Workbench has limited onboarding; empty states are terse and do not guide next action.
 
 ### Flow B: Home → Atlas Simulator → Workbench
@@ -38,7 +39,7 @@ Last updated: Dec 20, 2025
 - Summary of outcomes is verbose; “next step” is not obvious.
 
 ### Flow C: Direct Workbench entry
-1. Land on `/workbench` or `/builder`.
+1. Land on `/workbench` (legacy `/builder` redirect).
 2. View Structure panel; only “Loading structure…” then Scopes/Blocks.
 3. Output panel shows tabs but no explicit “first action.”
 
@@ -59,7 +60,7 @@ Last updated: Dec 20, 2025
 
 ## Pain points (prioritized)
 1. **Primary task ambiguity**: Home and nav do not clearly signal “Scan folder → understand instructions → build/export.”
-2. **Naming drift**: Builder vs Workbench vs Templates adds cognitive load.
+2. **Naming drift**: legacy `/builder` references vs Workbench vs Templates adds cognitive load.
 3. **Action overload**: Library row CTAs compete for attention; no primary action.
 4. **Simulator complexity**: Folder scan and manual entry appear equally prominent.
 5. **Onboarding gaps**: Workbench uses technical terms without explanation.
@@ -67,6 +68,7 @@ Last updated: Dec 20, 2025
 ## Hypotheses for simplification
 - Make Atlas Simulator the top-level “Start here” CTA.
 - Collapse Library filters and show “Advanced” for long-tail options.
+- De-emphasize Templates/Tags routes in navigation; keep Library as the primary discovery entry.
 - Add a 3-step quick-start card in Workbench with a single primary action.
 - Consolidate redirects and ensure one naming system across UI and routes.
 

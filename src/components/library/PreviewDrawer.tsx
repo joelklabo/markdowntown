@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { FileTree } from "@/components/ui/FileTree";
 import { Text } from "@/components/ui/Text";
 import { Drawer, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/Drawer";
+import { trackLibraryAction } from "@/lib/analytics";
 
 type CompileResult = {
   files: Array<{ path: string; content: string }>;
@@ -122,10 +123,25 @@ export function PreviewDrawer({ artifactId, title, targets }: PreviewDrawerProps
           <div className="min-w-0">
             <DrawerTitle className="text-h3">Preview</DrawerTitle>
             <div className="mt-1 text-body-sm text-mdt-muted truncate">{title}</div>
+            <Text size="bodySm" tone="muted" className="mt-2">
+              This preview shows what will load in Workbench. Open in Workbench to export agents.md.
+            </Text>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" asChild>
-              <Link href={`/workbench?id=${artifactId}`}>Open in Workbench</Link>
+            <Button size="sm" variant="primary" asChild>
+              <Link
+                href={`/workbench?id=${artifactId}`}
+                onClick={() =>
+                  trackLibraryAction({
+                    action: "open_workbench",
+                    id: artifactId,
+                    title,
+                    source: "library_preview",
+                  })
+                }
+              >
+                Open in Workbench
+              </Link>
             </Button>
             <DrawerCloseButton />
           </div>

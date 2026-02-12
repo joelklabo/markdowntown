@@ -2,9 +2,9 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn, focusRing, interactiveBase } from "@/lib/cn";
 
 const triggerBase = cn(
-  "inline-flex min-h-[var(--mdt-space-11)] items-center justify-center gap-mdt-2 rounded-mdt-pill px-mdt-3 py-mdt-2 text-body-sm font-medium border border-transparent whitespace-nowrap",
-  "text-[color:var(--mdt-color-text-muted)] hover:bg-[color:var(--mdt-color-surface-subtle)]",
-  "data-[state=active]:bg-[color:var(--mdt-color-surface-strong)] data-[state=active]:border-[color:var(--mdt-color-border)] data-[state=active]:text-[color:var(--mdt-color-text)] data-[state=active]:shadow-mdt-sm",
+  "inline-flex min-h-[var(--mdt-space-11)] items-center justify-center gap-mdt-2 rounded-mdt-md px-mdt-4 py-mdt-2 text-body-sm font-medium border-b-2 border-transparent whitespace-nowrap",
+  "text-[color:var(--mdt-color-text-muted)] hover:text-[color:var(--mdt-color-text)] hover:border-[color:var(--mdt-color-border-strong)]",
+  "data-[state=active]:text-[color:var(--mdt-color-text)] data-[state=active]:border-[color:var(--mdt-color-primary)]",
   interactiveBase,
   focusRing
 );
@@ -15,7 +15,7 @@ export function TabsList({ className, ...props }: React.ComponentPropsWithoutRef
   return (
     <TabsPrimitive.List
       className={cn(
-        "flex max-w-full items-center gap-mdt-1 overflow-x-auto rounded-mdt-pill bg-[color:var(--mdt-color-surface-subtle)] p-mdt-1",
+        "flex max-w-full items-center gap-mdt-2 overflow-x-auto border-b border-mdt-border px-mdt-1 pb-mdt-1",
         className
       )}
       {...props}

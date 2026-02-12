@@ -9,6 +9,7 @@ import { Text } from "@/components/ui/Text";
 import { cn } from "@/lib/cn";
 import { ForkButton } from "@/components/artifact/ForkButton";
 import { PreviewDrawer } from "@/components/library/PreviewDrawer";
+import { trackLibraryAction } from "@/lib/analytics";
 
 export type ArtifactRowItem = {
   id: string;
@@ -42,6 +43,13 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1200);
+      trackLibraryAction({
+        action: "copy",
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        source: "library_card",
+      });
     } catch (err) {
       console.warn("copy failed", err);
     }
@@ -98,14 +106,33 @@ export function ArtifactRow({ item }: { item: ArtifactRowItem }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-start gap-mdt-2 sm:flex-col sm:items-end sm:justify-start">
-        <Button size="sm" asChild>
-          <Link href={`/workbench?id=${item.id}`}>Open in Workbench</Link>
+        <Button size="sm" variant="primary" asChild>
+          <Link
+            href={`/workbench?id=${item.id}`}
+            onClick={() =>
+              trackLibraryAction({
+                action: "open_workbench",
+                id: item.id,
+                slug: item.slug,
+                title: item.title,
+                source: "library_card",
+              })
+            }
+          >
+            Open in Workbench
+          </Link>
         </Button>
         <PreviewDrawer artifactId={item.id} title={item.title} targets={item.targets} />
         <Button size="xs" variant="ghost" onClick={handleCopy} aria-label={`Copy link for ${item.title}`}>
           {copied ? "Copied" : "Copy link"}
         </Button>
-        <ForkButton artifactId={item.id} size="xs" variant="ghost" label="Fork" />
+        <ForkButton
+          artifactId={item.id}
+          size="xs"
+          variant="ghost"
+          label="Fork"
+          analytics={{ source: "library_card", title: item.title, slug: item.slug }}
+        />
       </div>
     </Card>
   );

@@ -38,5 +38,6 @@
     "repo-instructions": "yes",
     "path-scoping": "no",
     "imports": "no"
-  }
+  },
+  "docHome": "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/gemini-md.md"
 }

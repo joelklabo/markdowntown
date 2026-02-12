@@ -39,4 +39,3 @@ export async function createZip(files: CompiledFile[], options: ZipOptions = {})
 
   return await zip.generateAsync({ type: 'blob' });
 }
-

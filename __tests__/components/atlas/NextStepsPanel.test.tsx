@@ -85,4 +85,29 @@ describe("NextStepsPanel", () => {
     await userEvent.click(openDocsButtons[0]);
     expect(onAction).toHaveBeenCalledWith(steps[1].secondaryActions?.[0], steps[1]);
   });
+
+  it("prioritizes ready when there are no blocking steps", () => {
+    const steps: NextStep[] = [
+      {
+        id: "info-step",
+        severity: "info",
+        title: "Review expected patterns",
+        body: "Check the patterns we scan.",
+        primaryAction: { id: "open-docs", label: "Open docs" },
+      },
+      {
+        id: "ready",
+        severity: "ready",
+        title: "You're ready to go",
+        body: "All required files are in place.",
+        primaryAction: { id: "open-workbench", label: "Open Workbench" },
+      },
+    ];
+
+    const { container } = render(<NextStepsPanel steps={steps} />);
+
+    const titles = Array.from(container.querySelectorAll("p.font-semibold")).map((node) => node.textContent);
+    expect(titles[0]).toBe("You're ready to go");
+    expect(screen.getByText("Start here")).toBeInTheDocument();
+  });
 });

@@ -102,9 +102,6 @@ export function SkillCard({ skill, className, ...rest }: { skill: PublicSkillSum
 
       <div className="mt-auto flex flex-wrap gap-mdt-2">
         <Button size="sm" asChild>
-          <Link href={detailHref}>View skill</Link>
-        </Button>
-        <Button size="sm" variant="secondary" asChild>
           <Link
             href={`/workbench?id=${skill.id}`}
             onClick={() =>
@@ -118,6 +115,9 @@ export function SkillCard({ skill, className, ...rest }: { skill: PublicSkillSum
           >
             Open in Workbench
           </Link>
+        </Button>
+        <Button size="sm" variant="secondary" asChild>
+          <Link href={detailHref}>View skill</Link>
         </Button>
       </div>
     </Card>

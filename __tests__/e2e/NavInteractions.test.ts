@@ -37,10 +37,10 @@ describe("Navigation and interaction smoke", () => {
       await page.waitForFunction(() => window.location.search.includes("q=tools"));
       expect(page.url()).toMatch(/library\?q=tools/);
 
-      // Atlas link exists and navigates
-      await page.locator("header").getByRole("link", { name: /^atlas$/i }).first().click();
+      // Scan link exists and navigates
+      await page.locator("header").getByRole("link", { name: /^scan$/i }).first().click();
       await page.waitForURL(/\/atlas/);
-      await page.getByRole("heading", { name: /^atlas$/i }).waitFor({ state: "visible" });
+      await page.getByRole("heading", { name: /^scan a folder$/i }).waitFor({ state: "visible" });
     });
   }, 45000);
 });

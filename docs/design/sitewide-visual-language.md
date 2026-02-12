@@ -14,13 +14,13 @@ Use the header palette as a guide, not a literal theme.
 
 ### Core tokens (existing)
 - `--mdt-color-surface`, `--mdt-color-surface-raised`, `--mdt-color-border`
-- `--mdt-color-text`, `--mdt-color-muted`
-- Accent tokens: `--mdt-color-primary`, `--mdt-color-accent`, `--mdt-color-warning`, `--mdt-color-danger`
+- `--mdt-color-text`, `--mdt-color-text-muted`, `--mdt-color-text-subtle`
+- Accent tokens: `--mdt-color-primary` (cyan), `--mdt-color-accent` (amber), `--mdt-color-warning`, `--mdt-color-danger`
 
 ### Guidance
 - **Header**: maintain the night-sky banner but add breathing room above/below the strip. Avoid hard clipping.
 - **Surfaces**: introduce a faint cool tint on raised surfaces (2–4% shift toward the wordmark sky color).
-- **Accents**: reserve saturated accents for primary CTA and active states; secondary actions should use muted blue-gray.
+- **Accents**: reserve saturated cyan for primary CTA/focus; use warm amber sparingly for highlights, badges, and key emphasis.
 - **Dividers**: use softer borders (opacity 40–60%) to reduce harsh contrast against the header.
 - **Footer**: consider a subtle cool wash or gradient pulled from the header palette.
 
@@ -60,4 +60,3 @@ Use the header palette as a guide, not a literal theme.
 - Prefer token adjustments in `src/app/globals.css` rather than per-component overrides.
 - If introducing new tokens, document them in `docs/design/sitewide-visual-language.md`.
 - Keep the header as the primary brand surface; avoid repeating the wordmark motif elsewhere.
-

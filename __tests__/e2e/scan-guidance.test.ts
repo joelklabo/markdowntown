@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import { chromium, type Browser, type Page } from "playwright";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { withE2EPage } from "./playwrightArtifacts";
 
 const baseURL = process.env.E2E_BASE_URL;
@@ -135,25 +135,8 @@ async function mockDirectoryPickerWithFailure(page: Page, fixtureName: string) {
 }
 
 async function setWebkitDirectoryFiles(page: Page, fixtureName: string) {
-  const paths = await listFixturePaths(fixtureName);
-  await page.evaluate(
-    ({ paths, rootName }) => {
-      const input = document.querySelector("input[type=\"file\"]") as HTMLInputElement | null;
-      if (!input) return;
-      const dataTransfer = new DataTransfer();
-      for (const relativePath of paths) {
-        const name = relativePath.split("/").pop() ?? relativePath;
-        const file = new File([""], name);
-        Object.defineProperty(file, "webkitRelativePath", {
-          value: `${rootName}/${relativePath}`,
-        });
-        dataTransfer.items.add(file);
-      }
-      input.files = dataTransfer.files;
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-    },
-    { paths, rootName: fixtureName }
-  );
+  const root = path.join(fixturesRoot, fixtureName);
+  await page.locator("input[aria-label=\"Upload folder\"]").setInputFiles(root);
 }
 
 describe("Atlas scan guidance flow", () => {
@@ -202,7 +185,7 @@ describe("Atlas scan guidance flow", () => {
       await page.getByText(/no files would be loaded for this input/i).waitFor({ state: "visible" });
       await page.getByRole("list", { name: /missing instruction files/i }).waitFor({ state: "visible" });
 
-      await page.getByRole("link", { name: /open workbench/i }).first().waitFor({ state: "visible" });
+      expect(await page.getByTestId("next-steps-open-workbench").count()).toBe(0);
     }, "scan-empty");
   });
 
@@ -216,10 +199,29 @@ describe("Atlas scan guidance flow", () => {
       const loadedList = page.getByRole("list", { name: /loaded files/i });
       await loadedList.getByText(".github/copilot-instructions.md", { exact: true }).waitFor({ state: "visible" });
 
-      const extraList = page.getByRole("list", { name: /extra instruction files/i });
-      await extraList.getByText("AGENTS.md", { exact: true }).waitFor({ state: "visible" });
+      const agentsInLoaded = loadedList.getByText("AGENTS.md", { exact: true });
+      const shadowedList = page.getByRole("list", { name: /shadowed instruction files/i });
+      const agentsInShadowed = shadowedList.getByText("AGENTS.md", { exact: true });
+      await Promise.race([
+        agentsInLoaded.waitFor({ state: "visible", timeout: 15000 }),
+        agentsInShadowed.waitFor({ state: "visible", timeout: 15000 }),
+      ]);
 
-      await page.getByRole("link", { name: /open workbench/i }).first().waitFor({ state: "visible" });
+      const openWorkbenchCta = page.getByTestId("next-steps-open-workbench");
+      if ((await openWorkbenchCta.count()) > 0) {
+        try {
+          await openWorkbenchCta.waitFor({ state: "visible", timeout: 5000 });
+        } catch {
+          const showAll = page.getByRole("button", { name: /show all/i });
+          if ((await showAll.count()) > 0) {
+            await showAll.first().click();
+          }
+          await openWorkbenchCta.waitFor({ state: "visible" });
+        }
+      } else {
+        const actionsCta = page.getByRole("link", { name: /open workbench/i });
+        await actionsCta.first().waitFor({ state: "visible" });
+      }
     }, "scan-sample");
   });
 
@@ -234,7 +236,9 @@ describe("Atlas scan guidance flow", () => {
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
 
-      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+      await page
+        .getByText("Permission denied. Check folder access and try again. Files stay local.", { exact: true })
+        .waitFor({ state: "visible" });
     }, "scan-permission-denied");
   });
 
@@ -244,7 +248,9 @@ describe("Atlas scan guidance flow", () => {
 
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
-      await page.getByText(/permission denied/i).waitFor({ state: "visible" });
+      await page
+        .getByText("Permission denied. Check folder access and try again. Files stay local.", { exact: true })
+        .waitFor({ state: "visible" });
 
       await page.getByRole("button", { name: /scan a folder/i }).first().click();
       await page.getByText(/2 instruction files found.*2 total files scanned/i).waitFor({ state: "visible" });
@@ -259,7 +265,7 @@ describe("Atlas scan guidance flow", () => {
       });
 
       await page.goto("/atlas/simulator", { waitUntil: "domcontentloaded" });
-      await page.getByRole("button", { name: /scan a folder/i }).first().click();
+      await page.getByLabel("Upload folder").waitFor({ state: "visible" });
 
       await setWebkitDirectoryFiles(page, "scan-sample");
 

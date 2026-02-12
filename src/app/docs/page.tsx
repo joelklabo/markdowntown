@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const repoBase = "https://github.com/joelklabo/markdowntown/blob/main";
 const getStartedLink = {
-  label: "User guide",
+  label: "Scan → Workbench → Export guide",
   description: "Scan a folder, review loaded instructions, and export agents.md.",
   href: `${repoBase}/docs/USER_GUIDE.md`,
 };
@@ -64,7 +64,7 @@ export default function DocsPage() {
           <div className="grid gap-mdt-6 lg:grid-cols-2">
             <Card id="get-started" tone="subtle" padding="lg" className="space-y-mdt-5">
               <Text size="caption" tone="muted">Get started</Text>
-              <Heading level="h3" as="h3">Launch the scan → export flow</Heading>
+              <Heading level="h3" as="h3">Launch the Scan → Workbench → Export flow</Heading>
               <Text tone="muted" leading="relaxed">
                 Follow the user guide to run your first scan, review what loads, and export a clean agents.md.
               </Text>

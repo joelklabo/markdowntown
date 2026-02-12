@@ -21,18 +21,21 @@ export const fetchCache = "force-no-store";
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
+  preload: false,
   variable: "--font-inter",
 });
 
 const display = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
+  preload: false,
   variable: "--font-display",
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
+  preload: false,
   variable: "--font-mono",
 });
 

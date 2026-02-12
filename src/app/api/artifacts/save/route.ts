@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireSession } from '@/lib/requireSession';
 import { auditLog, withAPM } from '@/lib/observability';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
@@ -19,18 +18,31 @@ const SaveSchema = z.object({
   compiled: z.unknown().optional(),
   lint: z.unknown().optional(),
   message: z.string().optional(),
+  expectedVersion: z.union([z.string(), z.number()]).optional(),
+  expectedUpdatedAt: z.string().datetime().optional(),
+  secretScanAck: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
   return withAPM(req, async () => {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { session, response } = await requireSession();
+    if (response) {
+      return response;
     }
 
     try {
       const json = await req.json();
       const body = SaveSchema.parse(json);
+      const requiresSecretAck = body.visibility === Visibility.PUBLIC || body.visibility === Visibility.UNLISTED;
+      if (requiresSecretAck && body.secretScanAck !== true) {
+        return NextResponse.json(
+          {
+            error: 'Secret scan acknowledgement required',
+            details: { visibility: body.visibility },
+          },
+          { status: 400 },
+        );
+      }
 
       const parsedUam = safeParseUamV1(body.uam);
       if (!parsedUam.success) {
@@ -63,7 +75,7 @@ export async function POST(req: Request) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        // Calculate next numeric version (stored as a string). Ignore non-numeric versions like "draft".
+        // Calculate current + next numeric version (stored as a string). Ignore non-numeric versions like "draft".
         const versions = await prisma.artifactVersion.findMany({
           where: { artifactId: body.id },
           select: { version: true },
@@ -72,6 +84,27 @@ export async function POST(req: Request) {
           const parsed = Number.parseInt(v.version, 10);
           return Number.isFinite(parsed) ? Math.max(max, parsed) : max;
         }, 0);
+        const currentVersion = String(maxNumeric);
+        const expectedVersion = body.expectedVersion !== undefined ? String(body.expectedVersion) : undefined;
+        const currentUpdatedAt = existing.updatedAt instanceof Date ? existing.updatedAt : new Date(existing.updatedAt);
+        const expectedUpdatedAt = body.expectedUpdatedAt ? new Date(body.expectedUpdatedAt) : undefined;
+        const versionMismatch = !!expectedVersion && expectedVersion !== currentVersion;
+        const updatedAtMismatch =
+          !!expectedUpdatedAt && Number.isFinite(currentUpdatedAt.getTime()) && expectedUpdatedAt.getTime() !== currentUpdatedAt.getTime();
+        if (versionMismatch || updatedAtMismatch) {
+          return NextResponse.json(
+            {
+              error: 'Conflict',
+              details: {
+                currentVersion,
+                updatedAt: Number.isFinite(currentUpdatedAt.getTime()) ? currentUpdatedAt.toISOString() : null,
+                expectedVersion: expectedVersion ?? null,
+                expectedUpdatedAt: body.expectedUpdatedAt ?? null,
+              },
+            },
+            { status: 409 },
+          );
+        }
         const nextVersion = String(maxNumeric + 1);
 
         artifact = await prisma.artifact.update({

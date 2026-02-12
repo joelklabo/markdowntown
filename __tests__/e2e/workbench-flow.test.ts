@@ -42,7 +42,7 @@ describe("Workbench flow", () => {
 
       await page.getByRole("button", { name: /^compile$/i }).click();
       await page.getByText("Manifest").waitFor({ state: "visible" });
-      await page.getByRole("button", { name: "readme.instructions.md" }).waitFor({ state: "visible" });
+      await page.getByRole("button", { name: "readme-md.instructions.md" }).waitFor({ state: "visible" });
     });
   });
 });

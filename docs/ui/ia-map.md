@@ -1,6 +1,6 @@
 # IA Map (Information Architecture)
 
-Date: 2025-12-26
+Date: 2025-12-28
 Scope: Primary navigation, secondary paths, and key user journeys.
 
 ## Global navigation
@@ -21,16 +21,17 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 - Command palette (header + overflow) → global action surface
 - Theme + density toggles (header / overflow)
 - Auth: Sign in/out → `/signin`, `/api/auth/*`
-- “Use a template” CTA → `/templates`
+- “Use a template” CTA → `/templates` (de-emphasized, not primary nav)
+- Templates/Tags live inside Library filters; no primary nav entries.
 
 ## Core surfaces
 
 ### Home
-- `/` (hero, CTA to Scan/Workbench, library previews)
+- `/` (hero with Scan/Workbench CTAs, quick-start steps, proof preview, minimal library preview, final CTA; Browse Library appears once)
 
 ### Atlas (instruction discovery)
-- `/atlas` (Explore)
 - `/atlas/simulator` (Scan a folder)
+- `/atlas` (Explore, de-emphasized)
 - `/atlas/compare`
 - `/atlas/platforms/[platformId]`
 - `/atlas/concepts`
@@ -43,12 +44,12 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 
 ### Library / Browse (public artifacts)
 - `/library` (filters + list)
-- `/browse` (public browsing surface)
-- `/tags`, `/snippets`, `/templates`
+- `/browse` (de-emphasized)
+- `/tags`, `/snippets`, `/templates` (de-emphasized)
 - `/a/[slug]` (artifact detail)
 
 ### Translate
-- `/translate` (compile markdown/UAM to target formats)
+- `/translate` (select target → paste → compile → download)
 
 ### Docs / Legal
 - `/docs`
@@ -64,7 +65,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 
 ### Entry points
 - Nav: Scan → `/atlas/simulator`
-- Home CTA: Scan a folder / Validate instructions
+- Home CTA: Scan a folder
 - Docs quickstart: Scan guide → `/atlas/simulator`
 - Library empty state: "Scan a folder to see what loads"
 
@@ -80,7 +81,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 2. **Template discovery**
    - Home/Library → Open artifact → Workbench (edit) → Export
 3. **Translation path**
-   - Translate → Paste or upload → Compile → Download
+   - Translate → Select target → Paste input → Compile → Download
 4. **Docs-driven**
    - Docs → Atlas (concepts/recipes/platforms) → Scan or Workbench
 
@@ -92,3 +93,7 @@ Scope: Primary navigation, secondary paths, and key user journeys.
 - “Scan” label in nav maps to `/atlas/simulator`, but Atlas section also has “Explore,” which dilutes hierarchy.
 - “Use a template” CTA routes to `/templates`, but Library also contains templates → duplicate discovery paths.
 - Changelog appears under both `/changelog` and `/atlas/changelog/*` (fragmented update story).
+
+## Focus decisions
+- Primary surfaces: Scan, Workbench, Library, Translate, Docs.
+- De-emphasized surfaces: Atlas hub, Templates/Tags/Browse, legacy Builder routes.

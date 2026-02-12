@@ -1,4 +1,17 @@
-export type SimulatorToolId = 'github-copilot' | 'copilot-cli' | 'claude-code' | 'gemini-cli' | 'codex-cli';
+export type SimulatorToolId =
+  | 'github-copilot'
+  | 'copilot-cli'
+  | 'claude-code'
+  | 'gemini-cli'
+  | 'codex-cli'
+  | 'cursor';
+
+export type ToolRulesMetadata = {
+  docUrl?: string;
+  lastVerified?: string;
+};
+
+export type ToolRulesMetadataMap = Record<SimulatorToolId, ToolRulesMetadata>;
 
 export type ToolDetectionConfidence = 'high' | 'medium' | 'low' | 'none';
 
@@ -56,9 +69,15 @@ export type SimulationWarning = {
   message: string;
 };
 
+export type ShadowedFile = {
+  path: string;
+  reason: string;
+};
+
 export type SimulationResult = {
   loaded: LoadedFile[];
   warnings: SimulationWarning[];
+  shadowed: ShadowedFile[];
 };
 
 export type SimulatorInsightPattern = {
@@ -99,6 +118,7 @@ export type NextStepActionId =
   | 'refresh-results'
   | 'copy-template'
   | 'open-docs'
+  | 'open-workbench'
   | 'set-cwd'
   | 'copy-base-template'
   | 'switch-tool'

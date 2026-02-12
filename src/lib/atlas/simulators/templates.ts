@@ -124,6 +124,20 @@ These instructions apply to this folder.
 `,
     },
   },
+  cursor: {
+    root: {
+      id: "cursor-root",
+      label: "Cursor rule (root)",
+      path: ".cursor/rules/project.mdc",
+      content: `---\ndescription: \"Project rules\"\nglobs: \"**/*\"\nalwaysApply: true\n---\n\n# Project rules\n- Keep changes small and reviewable.\n- Use pnpm for installs and scripts.\n- Run tests before finalizing changes.\n`,
+    },
+    scoped: {
+      id: "cursor-scoped",
+      label: "Cursor rule (scoped)",
+      path: ".cursor/rules/components.mdc",
+      content: `---\ndescription: \"Component-specific rules\"\nglobs: \"src/components/**/*.{ts,tsx}\"\n---\n\n# Component rules\n- Keep UI components focused and accessible.\n- Prefer existing UI primitives and tokens.\n`,
+    },
+  },
   "copilot-cli": {
     root: {
       id: "copilot-cli-root",

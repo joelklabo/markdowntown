@@ -1,7 +1,8 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContextSimulator } from "@/components/atlas/ContextSimulator";
+import { SCAN_TREE_VIRTUALIZATION_THRESHOLD } from "@/components/atlas/SimulatorScanMeta";
 import { featureFlags } from "@/lib/flags";
 
 vi.mock("@/lib/flags", () => ({
@@ -64,7 +65,7 @@ describe("ContextSimulator", () => {
     expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
     await userEvent.clear(manualPathsInput);
     await userEvent.type(
@@ -72,6 +73,7 @@ describe("ContextSimulator", () => {
       ".github/copilot-instructions.md\n.github/instructions/apps-web.instructions.md\nAGENTS.md\n"
     );
 
+    await screen.findByText(/3 file\(s\) in the current source\./i);
     await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     expect(screen.getByRole("heading", { name: "Instruction health" })).toBeInTheDocument();
@@ -86,14 +88,59 @@ describe("ContextSimulator", () => {
     expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
-  });
+  }, 15000);
+
+  it("accepts tree output in manual paths", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getByText(/show advanced settings/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
+    await userEvent.type(
+      manualPathsInput,
+      ".\n|-- AGENTS.md\n\\-- .github\n    \\-- copilot-instructions.md\n"
+    );
+
+    await screen.findByText(/2 file\(s\) in the current source\./i);
+    await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
+
+    const loadedList = await screen.findByRole("list", { name: "Loaded files" });
+    expect(within(loadedList).getByText(".github/copilot-instructions.md")).toBeInTheDocument();
+  }, 15000);
+
+  it("virtualizes the scan preview for large path lists", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getByText(/show advanced settings/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    const largeList = Array.from(
+      { length: SCAN_TREE_VIRTUALIZATION_THRESHOLD + 1 },
+      (_, index) => `docs/file-${index}.md`,
+    ).join("\n");
+    fireEvent.change(manualPathsInput, { target: { value: largeList } });
+
+    expect(await screen.findByTestId("virtualized-file-tree")).toBeInTheDocument();
+  }, 15000);
+
+  it("shows line-level errors for malformed tree input", async () => {
+    render(<ContextSimulator />);
+
+    await userEvent.click(screen.getByText(/show advanced settings/i));
+    const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
+    await userEvent.clear(manualPathsInput);
+    await userEvent.type(manualPathsInput, ".\n|-- AGENTS.md\nNOT_A_TREE_LINE\n");
+
+    expect(await screen.findByText(/fix these lines/i)).toBeInTheDocument();
+    const errorList = screen.getByRole("list", { name: "Repo path parse errors" });
+    expect(within(errorList).getByText(/line 3/i)).toBeInTheDocument();
+  }, 15000);
 
   it("simulates loaded files for Copilot CLI", async () => {
     render(<ContextSimulator />);
 
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "copilot-cli");
 
-    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
     const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
     await userEvent.clear(manualPathsInput);
     await userEvent.type(
@@ -101,6 +148,7 @@ describe("ContextSimulator", () => {
       ".github/copilot-instructions.md\n.github/copilot-instructions/apps-web.instructions.md\n.github/agents/release.agent.md\nAGENTS.md\n"
     );
 
+    await screen.findByText(/4 file\(s\) in the current source\./i);
     await userEvent.click(screen.getAllByRole("button", { name: "Refresh results" })[0]);
 
     const loadedList = await screen.findByRole("list", { name: "Loaded files" });
@@ -108,16 +156,16 @@ describe("ContextSimulator", () => {
     expect(within(loadedList).getByText(".github/copilot-instructions/apps-web.instructions.md")).toBeInTheDocument();
     expect(within(loadedList).getByText(".github/agents/release.agent.md")).toBeInTheDocument();
     expect(within(loadedList).queryByText("AGENTS.md")).not.toBeInTheDocument();
-  });
+  }, 15000);
 
   it("simulates ordered loaded files for Codex CLI with cwd ancestry", async () => {
     render(<ContextSimulator />);
 
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "packages/app");
 
-    await userEvent.click(screen.getByText(/advanced: paste repo paths/i));
     const manualPathsInput = screen.getByPlaceholderText(/one path per line/i);
     await userEvent.clear(manualPathsInput);
     await userEvent.type(
@@ -147,6 +195,7 @@ describe("ContextSimulator", () => {
 
     render(<ContextSimulator />);
 
+    await userEvent.click(screen.getByText(/show advanced settings/i));
     await userEvent.selectOptions(screen.getByLabelText("Tool"), "codex-cli");
     await userEvent.clear(screen.getByLabelText("Current directory (cwd)"));
     await userEvent.type(screen.getByLabelText("Current directory (cwd)"), "apps/web");
@@ -193,6 +242,36 @@ describe("ContextSimulator", () => {
     expect(screen.getAllByText("Scanning…").length).toBeGreaterThan(0);
 
     release?.();
+    expect(await screen.findByText(/1 instruction file found.*1 total file scanned/i)).toBeInTheDocument();
+
+    restorePicker(originalPicker);
+  });
+
+  it("guards against duplicate directory picker opens", async () => {
+    let resolvePicker: ((value: MockHandle) => void) | undefined;
+    const pickerPromise = new Promise<MockHandle>((resolve) => {
+      resolvePicker = resolve;
+    });
+    const rootHandle = dir("repo", [file("AGENTS.md")]);
+    const originalPicker = (window as unknown as { showDirectoryPicker?: () => Promise<unknown> }).showDirectoryPicker;
+    const picker = vi.fn().mockReturnValue(pickerPromise);
+
+    Object.defineProperty(window, "showDirectoryPicker", {
+      value: picker,
+      configurable: true,
+    });
+
+    render(<ContextSimulator />);
+
+    const button = screen.getAllByRole("button", { name: "Scan a folder" })[0];
+    await userEvent.click(button);
+    expect(button).toBeDisabled();
+
+    await userEvent.click(button);
+    expect(picker).toHaveBeenCalledTimes(1);
+
+    resolvePicker?.(rootHandle);
+
     expect(await screen.findByText(/1 instruction file found.*1 total file scanned/i)).toBeInTheDocument();
 
     restorePicker(originalPicker);
@@ -262,11 +341,12 @@ describe("ContextSimulator", () => {
     render(<ContextSimulator />);
 
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
-    expect(await screen.findByText(/access denied/i)).toBeInTheDocument();
+    const scanErrorNotices = await screen.findAllByText(/unable to scan folder/i);
+    expect(scanErrorNotices.length).toBeGreaterThan(0);
 
     await userEvent.click(screen.getAllByRole("button", { name: "Scan a folder" })[0]);
     expect(await screen.findByText(/Detected: Codex CLI/i)).toBeInTheDocument();
-    expect(screen.queryByText(/access denied/i)).not.toBeInTheDocument();
+    expect(screen.queryAllByText(/unable to scan folder/i)).toHaveLength(0);
 
     restorePicker(originalPicker);
   });

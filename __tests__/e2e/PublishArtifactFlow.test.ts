@@ -16,9 +16,12 @@ describe("Publish artifact flow", () => {
     await browser?.close();
   });
 
-  const maybe = process.env.E2E_TEST_USER ? it : it.skip;
+  const hasAuthEnv = Boolean(process.env.E2E_TEST_USER && process.env.E2E_STORAGE_STATE);
+  const run = hasAuthEnv ? it : it.skip;
+  const testName = "publishes an artifact, verifies visibility, and finds it in Library";
+  const skippedName = `${testName} (set E2E_TEST_USER and E2E_STORAGE_STATE; see docs/qa/e2e-test-user.md)`;
 
-  maybe("publishes an artifact, verifies visibility, and finds it in Library", async () => {
+  run(hasAuthEnv ? testName : skippedName, async () => {
     const title = `E2E Publish ${Date.now()}`;
 
     await withE2EPage(
@@ -40,16 +43,51 @@ describe("Publish artifact flow", () => {
 
         await page.getByText(/cloud: saved/i).waitFor({ state: "visible" });
 
+        const staleContextPage = await page.context().newPage();
+        await staleContextPage.goto(`/workbench?id=${artifactId}`, { waitUntil: "domcontentloaded" });
+        await staleContextPage.getByText(/library item loaded/i).waitFor({ state: "visible" });
+        await staleContextPage.getByLabel(/agent title/i).fill(`${title} v2`);
+        const secondSave = staleContextPage.waitForResponse(
+          (res) => res.url().includes("/api/artifacts/save") && res.request().method() === "POST" && res.ok()
+        );
+        await staleContextPage.getByRole("button", { name: /^save$/i }).click();
+        await secondSave;
+        await staleContextPage.getByText(/cloud: saved/i).waitFor({ state: "visible" });
+        await staleContextPage.close();
+
+        await page.getByLabel(/agent title/i).fill(`${title} local`);
+        const conflictSave = page.waitForResponse(
+          (res) => res.url().includes("/api/artifacts/save") && res.request().method() === "POST" && res.status() === 409
+        );
+        await page.getByRole("button", { name: /^save$/i }).click();
+        await conflictSave;
+        await page.getByText(/save conflict detected/i).waitFor({ state: "visible" });
+        await page.getByRole("button", { name: /reload latest/i }).click();
+
         // Unauthenticated reads should be forbidden while PRIVATE.
         const privateRes = await fetch(`${baseURL}/api/artifacts/${artifactId}`);
         expect(privateRes.status).toBe(403);
 
+        const blockBody = page.getByPlaceholder(/write markdown instructions/i);
+        if ((await blockBody.count()) === 0) {
+          await page.getByRole("button", { name: /^\+ add$/i }).click();
+          await page.getByLabel("Block title").fill("Publish Secret Scan Block");
+        }
+        await page
+          .getByPlaceholder(/write markdown instructions/i)
+          .fill("Contains secret ghp_0123456789abcdef0123456789abcdef0123");
+
         // Publish as PUBLIC (creates a new version).
         await page.getByLabel(/visibility/i).selectOption("PUBLIC");
+        await page.getByRole("button", { name: /^save$/i }).click();
+        await page.getByText(/secret scan warning/i).waitFor({ state: "visible" });
+        await page.getByRole("button", { name: /review/i }).click();
+        await page.getByText(/review potential secrets/i).waitFor({ state: "visible" });
+        await page.getByRole("checkbox", { name: /i understand/i }).check();
         const publishSave = page.waitForResponse(
           (res) => res.url().includes("/api/artifacts/save") && res.request().method() === "POST" && res.ok()
         );
-        await page.getByRole("button", { name: /^save$/i }).click();
+        await page.getByRole("button", { name: /acknowledge/i }).click();
         await publishSave;
         await page.getByText(/cloud: saved/i).waitFor({ state: "visible" });
 

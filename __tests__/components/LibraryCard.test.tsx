@@ -4,6 +4,10 @@ import { vi } from "vitest";
 import { LibraryCard } from "@/components/LibraryCard";
 import type { SampleItem } from "@/lib/sampleContent";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 vi.mock("next/link", () => {
   type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children: React.ReactNode };
   return {
@@ -41,9 +45,10 @@ describe("LibraryCard", () => {
     expect(screen.getByText("12 copies")).toBeInTheDocument();
     expect(screen.getByText("5 votes")).toBeInTheDocument();
 
-    screen.getByRole("button", { name: /copy snippet demo/i });
-    screen.getByRole("button", { name: /add snippet demo to workbench/i });
-    screen.getByRole("button", { name: /copy/i }).click();
+    screen.getByRole("button", { name: /open snippet demo in workbench/i }).click();
+    expect(onAdd).toHaveBeenCalledWith(item);
+    screen.getByText("More").click();
+    screen.getByRole("button", { name: /copy snippet/i }).click();
     expect(onCopy).toHaveBeenCalled();
   });
 });

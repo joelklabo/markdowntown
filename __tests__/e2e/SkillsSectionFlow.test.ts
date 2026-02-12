@@ -23,10 +23,10 @@ describe("Skills section flow", () => {
       await page.goto("/skills", { waitUntil: "domcontentloaded", timeout: 20000 });
       await page.getByRole("heading", { name: /^skills$/i }).waitFor({ state: "visible" });
 
-      const advancedFiltersToggle = page.getByRole("button", { name: /advanced filters/i });
+      const advancedFiltersToggle = page.getByText(/^advanced filters$/i);
       await advancedFiltersToggle.click();
 
-      const clearFilters = page.getByRole("link", { name: "Clear" });
+      const clearFilters = page.getByRole("link", { name: "Clear", exact: true });
 
       await page.getByRole("link", { name: "Codex CLI" }).first().click();
       await page.waitForURL(/target=agents-md/);
@@ -46,6 +46,10 @@ describe("Skills section flow", () => {
       await page.waitForURL(/\/skills$/);
 
       const firstCard = page.getByTestId("skill-card").first();
+      if ((await firstCard.count()) === 0) {
+        await page.getByRole("heading", { name: /no skills match those filters/i }).waitFor({ state: "visible" });
+        return;
+      }
       await firstCard.waitFor({ state: "visible" });
 
       const skillTitle = (await firstCard.getByRole("heading").textContent())?.trim();

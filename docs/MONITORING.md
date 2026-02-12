@@ -9,9 +9,13 @@
 - Set `NEXT_PUBLIC_POSTHOG_KEY` (and `NEXT_PUBLIC_POSTHOG_HOST` if self-hosted).
 - Verify pageviews and key events in PostHog; add alerts as needed in PostHog insights.
   - UX telemetry events:
-    - `ui_route_view`, `ui_shell_loaded` (route-level engagement)
+    - `ui_route_view`, `ui_shell_loaded`, `session_start` (route-level engagement + timing anchor)
     - `nav_click`, `nav_search_open`, `nav_search_submit`, `nav_search_quick_filter`
+    - `ui_home_cta_click` (landing CTA hierarchy)
     - `builder_load`, `builder_save_success`, `builder_download`, `builder_copy`
+    - `translate_start`, `translate_complete`, `translate_download`, `translate_open_workbench`
+    - `library_action` (open_workbench, copy, download, fork)
+    - `open_workbench` (entry source + time-to-open timing)
   - Onboarding funnel events (see `docs/analytics/events.md`):
     - `atlas_simulator_scan_start`, `atlas_simulator_scan_complete`, `atlas_simulator_scan_cancel`, `atlas_simulator_scan_error`
     - `atlas_simulator_simulate`, `atlas_simulator_health_check`, `atlas_simulator_health_template_copy`
@@ -22,12 +26,33 @@
   - `web_vital_lcp`, `web_vital_cls`, `web_vital_inp`, `web_vital_ttfb`, `web_vital_fcp`
   - `perf_navigation`, `perf_api`, `spa_nav` (see `docs/perf-report.md` for dashboards)
 
+## Core flow funnel (landing → scan/library/translate → workbench → export)
+Primary flow KPIs and suggested targets:
+- **Landing CTA rate:** `ui_home_cta_click(cta=scan) / ui_route_view(route=/)` → target 10%+
+- **Scan completion rate:** `atlas_simulator_scan_complete / atlas_simulator_scan_start` → target 70%+
+- **Library open rate:** `library_action(action=open_workbench) / ui_route_view(route=/library)` → target 15%+
+- **Translate workbench rate:** `translate_open_workbench / translate_complete` → target 40%+
+- **Workbench entry rate:** `ui_route_view(route=/workbench) / (atlas_simulator_scan_complete or library_action(open_workbench) or translate_open_workbench)` → target 40%+
+- **Export rate:** `workbench_export_download or workbench_export_copy / ui_route_view(route=/workbench)` → target 25%+
+- **Median time to export:** time from entry event to export → target < 5 minutes
+
+Suggested alert thresholds:
+- **Landing CTA drop:** `< 5%` over 24h (CTA regression).
+- **Scan completion drop:** `< 50%` over 24h (baseline regression).
+- **Library open drop:** `< 8%` over 24h (discovery or CTA regression).
+- **Translate workbench drop:** `< 25%` over 24h (CTA not visible or broken).
+- **Workbench entry drop:** `< 20%` over 24h (handoff broken).
+- **Export rate drop:** `< 15%` over 24h (export surface broken).
+- **Time-to-export spike:** median `> 10 minutes` over 24h (performance regression).
+- **Scan error spike:** `> 10%` over 1h (possible upload/permissions issue).
+
 ## Onboarding funnel (scan → build → export)
 Primary flow KPIs and suggested targets:
 - **Scan completion rate:** `atlas_simulator_scan_complete / atlas_simulator_scan_start` → target 70%+
 - **Auto-detect adoption:** `atlas_simulator_simulate(repoSource=folder, trigger=scan) / atlas_simulator_scan_complete` → target 90%+
 - **Override rate:** `atlas_simulator_simulate(repoSource=folder, trigger=manual) / atlas_simulator_scan_complete` → target < 25%
 - **Workbench entry rate:** `ui_route_view(route=/workbench) / atlas_simulator_scan_complete` → target 40%+
+- **Open Workbench CTA rate:** `ui_scan_next_step_click(actionId=open-workbench) / atlas_simulator_scan_complete` → target 30%+
 - **Export rate:** `workbench_export_download or workbench_export_copy / ui_route_view(route=/workbench)` → target 25%+
 - **Median time to export:** time from `atlas_simulator_scan_start` to export → target < 5 minutes
 - **Scan error rate:** `atlas_simulator_scan_error / atlas_simulator_scan_start` → target < 5%
@@ -36,8 +61,35 @@ Suggested alert thresholds (PostHog or similar):
 - **Scan completion drop:** `< 50%` over 24h (baseline regression).
 - **Scan error spike:** `> 10%` over 1h (possible upload/permissions issue).
 - **Workbench entry drop:** `< 20%` over 24h (handoff broken).
+- **Open Workbench CTA drop:** `< 15%` over 24h (CTA not visible or broken).
 - **Export rate drop:** `< 15%` over 24h (export surface broken).
 - **Time-to-export spike:** median `> 10 minutes` over 24h (performance regression).
+
+## Translate funnel (select → compile → workbench/download)
+Translate KPIs and suggested targets:
+- **Translate completion rate:** `translate_complete / translate_start` → target 60%+.
+- **Translate error rate:** `translate_error / translate_start` → target < 5%.
+- **Translate workbench rate:** `translate_open_workbench / translate_complete` → target 40%+.
+- **Translate download rate:** `translate_download / translate_complete` → target 80%+ (if `translate_download` is not yet tracked, treat `translate_complete` as a proxy for now).
+- **Median time to download:** time from `translate_start` to download → target < 2 minutes.
+
+Suggested alert thresholds:
+- **Translate completion drop:** `< 40%` over 24h (flow broken or confusing).
+- **Translate error spike:** `> 10%` over 1h (compile/regression).
+- **Translate workbench drop:** `< 25%` over 24h (CTA broken or unclear).
+- **Translate download drop:** `< 60%` over 24h (download CTA broken or unclear).
+
+## Library funnel (discover → open → export)
+Library KPIs and suggested targets:
+- **Library CTR:** `library_action(action=open_workbench) / ui_route_view(route=/library)` → target 15%+.
+- **Preview CTR:** `library_action(action=open_workbench, source=library_preview) / ui_route_view(route=/library)` → target 5%+.
+- **Export rate:** `workbench_export_download or workbench_export_copy / library_action(action=open_workbench)` → target 30%+.
+- **Library error rate:** `library_action(action=error) / ui_route_view(route=/library)` → target < 2% (if errors are emitted).
+
+Suggested alert thresholds:
+- **Library CTR drop:** `< 8%` over 24h (discovery or CTA regression).
+- **Export rate drop:** `< 20%` over 24h (handoff or export regression).
+- **Preview CTR drop:** `< 2%` over 24h (preview not engaging or broken).
 
 ## Instruction health check KPIs
 - **Health check run rate:** `atlas_simulator_health_check / atlas_simulator_simulate` → target 95%+ (feature enabled)

@@ -1,14 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/artifacts/save/route';
-import { getServerSession } from 'next-auth';
+import { requireSession } from '@/lib/requireSession';
 import { prisma } from '@/lib/prisma';
 
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+vi.mock('@/lib/requireSession', () => ({
+  requireSession: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -30,14 +26,16 @@ describe('POST /api/artifacts/save', () => {
   });
 
   it('rejects unauthorized requests', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      response: new Response(null, { status: 401 }),
+    });
     const req = new Request('http://localhost', { method: 'POST' });
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
 
   it('creates new artifact', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
     (prisma.artifact.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1' });
 
     const req = new Request('http://localhost', {
@@ -73,9 +71,61 @@ describe('POST /api/artifacts/save', () => {
     }));
   });
 
+  it('requires secret scan ack for public saves', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Public Agent',
+        visibility: 'PUBLIC',
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'Public Agent' },
+          scopes: [],
+          blocks: [],
+          targets: [{ targetId: 'agents-md', adapterVersion: '1', options: {} }],
+        },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Secret scan acknowledgement required');
+  });
+
+  it('allows public saves with secret scan ack', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1' });
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'Public Agent',
+        visibility: 'PUBLIC',
+        secretScanAck: true,
+        uam: {
+          schemaVersion: 1,
+          meta: { title: 'Public Agent' },
+          scopes: [],
+          blocks: [],
+          targets: [{ targetId: 'agents-md', adapterVersion: '1', options: {} }],
+        },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+  });
+
   it('updates existing artifact', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
-    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', userId: 'u1' });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'a1',
+      userId: 'u1',
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
     (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '1' }]);
     (prisma.artifact.update as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1' });
 
@@ -84,6 +134,7 @@ describe('POST /api/artifacts/save', () => {
       body: JSON.stringify({
         id: 'a1',
         title: 'Updated Agent',
+        expectedVersion: '1',
         uam: {
           schemaVersion: 1,
           meta: { title: 'Updated Agent' },
@@ -115,7 +166,7 @@ describe('POST /api/artifacts/save', () => {
   });
 
   it('forbids updates for non-owners', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u2' } });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u2' } } });
     (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'a1', userId: 'u1' });
 
     const req = new Request('http://localhost', {
@@ -131,8 +182,68 @@ describe('POST /api/artifacts/save', () => {
     expect(res.status).toBe(403);
   });
 
+  it('returns conflict on stale version', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'a1',
+      userId: 'u1',
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
+    (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '2' }]);
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: 'a1',
+        title: 'Stale Agent',
+        expectedVersion: '1',
+        uam: { schemaVersion: 1, meta: { title: 'Stale Agent' }, scopes: [], blocks: [] },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.details).toEqual(
+      expect.objectContaining({
+        currentVersion: '2',
+        expectedVersion: '1',
+      }),
+    );
+  });
+
+  it('returns conflict on stale updatedAt', async () => {
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
+    (prisma.artifact.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'a1',
+      userId: 'u1',
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
+    (prisma.artifactVersion.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ version: '3' }]);
+
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: 'a1',
+        title: 'Stale Timestamp',
+        expectedUpdatedAt: '2023-12-31T00:00:00.000Z',
+        uam: { schemaVersion: 1, meta: { title: 'Stale Timestamp' }, scopes: [], blocks: [] },
+      }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.details).toEqual(
+      expect.objectContaining({
+        currentVersion: '3',
+        expectedUpdatedAt: '2023-12-31T00:00:00.000Z',
+      }),
+    );
+  });
+
   it('rejects invalid UAM payloads', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
 
     const req = new Request('http://localhost', {
       method: 'POST',
@@ -147,7 +258,7 @@ describe('POST /api/artifacts/save', () => {
   });
 
   it('rejects unknown target configurations', async () => {
-    (getServerSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ user: { id: 'u1' } });
+    (requireSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ session: { user: { id: 'u1' } } });
 
     const req = new Request('http://localhost', {
       method: 'POST',

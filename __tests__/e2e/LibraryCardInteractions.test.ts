@@ -27,13 +27,20 @@ describe("Library interactions", () => {
           await context.grantPermissions(["clipboard-write"], { origin: baseURL });
         }
 
-        await page.goto("/browse?type=snippet", { waitUntil: "domcontentloaded" });
+        await page.goto("/library?type=snippet", { waitUntil: "domcontentloaded" });
         expect(page.url()).toMatch(/\/library/);
 
         const rows = page.getByTestId("artifact-row");
+        const emptyState = page.getByRole("heading", { name: /no public items match those filters|no public items/i }).first();
+
+        await Promise.race([
+          rows.first().waitFor({ state: "visible", timeout: 15000 }),
+          emptyState.waitFor({ state: "visible", timeout: 15000 }),
+        ]);
+
         const rowCount = await rows.count();
         if (rowCount === 0) {
-          await page.getByText(/no public items found|no public items/i).first().waitFor({ state: "visible" });
+          await emptyState.waitFor({ state: "visible" });
           return;
         }
 

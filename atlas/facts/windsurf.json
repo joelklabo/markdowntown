@@ -53,5 +53,6 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  }
+  },
+  "docHome": "https://docs.windsurf.com/windsurf/cascade/agents-md.md"
 }

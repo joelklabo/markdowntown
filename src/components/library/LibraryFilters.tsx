@@ -42,7 +42,7 @@ function buildHref(next: Filters): string {
 
 export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, availableTargets }: LibraryFiltersProps) {
   const selected: Filters = { q, type, tags, targets, hasScopes };
-  const advancedOpen = tags.length > 0 || targets.length > 0 || hasScopes === true;
+  const advancedOpen = tags.length > 0 || hasScopes === true;
 
   return (
     <Card className="space-y-mdt-5" padding="lg" tone="raised">
@@ -52,7 +52,7 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
             Filters
           </Heading>
           <Text size="caption" tone="muted">
-            Refine by type, tags, or scopes.
+            Refine by type, targets, tags, or scopes.
           </Text>
         </div>
         <Button variant="ghost" size="xs" asChild>
@@ -83,23 +83,51 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
       </form>
 
       <Stack gap={4}>
-        <div className="space-y-mdt-2">
+        <div className="space-y-mdt-3">
           <Text size="caption" tone="muted">
-            Type
+            Common filters
           </Text>
-          <Row wrap gap={2}>
-            {(["all", "agent", "skill", "template", "snippet", "file"] as const).map((t) => {
-              const active = type === t;
-              const label = t === "all" ? "All" : t === "agent" ? "Artifacts" : t === "skill" ? "Skills" : t[0]!.toUpperCase() + t.slice(1);
-              return (
-                <Link key={t} href={buildHref({ ...selected, type: t })}>
-                  <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
-                    {label}
-                  </Pill>
-                </Link>
-              );
-            })}
-          </Row>
+          <div className="space-y-mdt-2">
+            <Text size="caption" tone="muted">
+              Type
+            </Text>
+            <Row wrap gap={2}>
+              {(["all", "agent", "skill", "template", "snippet", "file"] as const).map((t) => {
+                const active = type === t;
+                const label = t === "all" ? "All" : t === "agent" ? "Artifacts" : t === "skill" ? "Skills" : t[0]!.toUpperCase() + t.slice(1);
+                return (
+                  <Link key={t} href={buildHref({ ...selected, type: t })}>
+                    <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
+                      {label}
+                    </Pill>
+                  </Link>
+                );
+              })}
+            </Row>
+          </div>
+
+          <div className="space-y-mdt-2">
+            <Text size="caption" tone="muted">
+              Targets
+            </Text>
+            <Row wrap gap={2}>
+              {availableTargets.slice(0, 8).map((t) => {
+                const active = targets.includes(t);
+                return (
+                  <Link key={t} href={buildHref({ ...selected, targets: toggle(targets, t) })}>
+                    <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
+                      {t}
+                    </Pill>
+                  </Link>
+                );
+              })}
+              {availableTargets.length === 0 && (
+                <Text size="caption" tone="muted">
+                  No target metadata yet.
+                </Text>
+              )}
+            </Row>
+          </div>
         </div>
 
         <details
@@ -110,29 +138,6 @@ export function LibraryFilters({ q, type, tags, targets, hasScopes, topTags, ava
             Advanced filters
           </summary>
           <div className="mt-mdt-3 space-y-mdt-4">
-            <div className="space-y-mdt-2">
-              <Text size="caption" tone="muted">
-                Targets
-              </Text>
-              <Row wrap gap={2}>
-                {availableTargets.slice(0, 8).map((t) => {
-                  const active = targets.includes(t);
-                  return (
-                    <Link key={t} href={buildHref({ ...selected, targets: toggle(targets, t) })}>
-                      <Pill tone={active ? "blue" : "gray"} className={active ? "" : "hover:bg-mdt-surface-strong"}>
-                        {t}
-                      </Pill>
-                    </Link>
-                  );
-                })}
-                {availableTargets.length === 0 && (
-                  <Text size="caption" tone="muted">
-                    No target metadata yet.
-                  </Text>
-                )}
-              </Row>
-            </div>
-
             <div className="space-y-mdt-2">
               <Text size="caption" tone="muted">
                 Scopes

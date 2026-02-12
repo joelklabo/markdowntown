@@ -149,8 +149,8 @@ export function DiffViewer({ before, after, fileName = "diff.txt", className }: 
             className={cn(
               "block whitespace-pre",
               line.kind === "meta" && "text-mdt-muted",
-              line.kind === "add" && "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-color-success)]",
-              line.kind === "del" && "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-color-danger)]"
+              line.kind === "add" && "bg-[color:var(--mdt-color-success-soft)] text-[color:var(--mdt-success-700)]",
+              line.kind === "del" && "bg-[color:var(--mdt-color-danger-soft)] text-[color:var(--mdt-danger-700)]"
             )}
           >
             {line.text}
@@ -161,4 +161,3 @@ export function DiffViewer({ before, after, fileName = "diff.txt", className }: 
     </pre>
   );
 }
-

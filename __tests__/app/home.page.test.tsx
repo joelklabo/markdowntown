@@ -1,36 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const { listPublicItems, listTopTags } = vi.hoisted(() => ({
+const { listPublicItems } = vi.hoisted(() => ({
   listPublicItems: vi.fn(),
-  listTopTags: vi.fn(),
 }));
 
 vi.mock("@/lib/publicItems", () => ({
   listPublicItems,
 }));
 
-vi.mock("@/lib/publicTags", () => ({
-  listTopTags,
-}));
-
-vi.mock("@/lib/prisma", () => ({
-  hasDatabaseEnv: false,
-  prisma: {
-    artifact: {
-      aggregate: vi.fn(),
-    },
-  },
-}));
-
 import Home from "@/app/page";
 
 describe("Home page", () => {
   beforeEach(() => {
-    listTopTags.mockReset();
     listPublicItems.mockReset();
-
-    listTopTags.mockResolvedValue([{ tag: "agents-md", count: 12 }]);
     listPublicItems.mockResolvedValue([
       {
         id: "1",
@@ -56,7 +39,7 @@ describe("Home page", () => {
     render(jsx);
 
     expect(
-      screen.getByRole("heading", { name: /Scan your repo\. See which instructions load\./i })
+      screen.getByRole("heading", { name: /Scan your repo\. See what loads locally\./i })
     ).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Scan a folder" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Open Workbench" }).length).toBeGreaterThan(0);

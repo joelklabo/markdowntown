@@ -56,5 +56,6 @@
     "repo-instructions": "yes",
     "path-scoping": "yes",
     "imports": "no"
-  }
+  },
+  "docHome": "https://github.com/openai/codex/blob/main/docs/agents_md.md"
 }

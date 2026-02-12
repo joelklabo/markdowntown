@@ -102,4 +102,3 @@ export async function createAtlasExamplesZip(
   const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
   return { zip: zipBuffer, fileCount: unique.size, totalBytes };
 }
-

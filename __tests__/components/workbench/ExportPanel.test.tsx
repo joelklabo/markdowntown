@@ -14,6 +14,7 @@ vi.mock('@/lib/analytics', () => ({
   track: vi.fn(),
   trackSkillExportAction: vi.fn(),
   trackSkillExportConfig: vi.fn(),
+  getTimeSinceSessionStartMs: vi.fn(() => 1200),
 }));
 
 global.URL.createObjectURL = vi.fn(() => 'blob:url');
@@ -56,7 +57,15 @@ describe('ExportPanel', () => {
       expect(screen.getByText('# Hello')).toBeInTheDocument();
     });
 
-    const download = screen.getByRole('button', { name: /Download zip/i });
+    expect(screen.getByRole('button', { name: 'Raw' })).toBeInTheDocument();
+    const diffButton = screen.getByRole('button', { name: 'Diff' });
+    fireEvent.click(diffButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diff-viewer')).toBeInTheDocument();
+    });
+
+    const download = screen.getByRole('button', { name: /Export AGENTS.md/i });
     expect(download).toBeEnabled();
 
     fireEvent.click(download);
@@ -71,6 +80,8 @@ describe('ExportPanel', () => {
     expect(trackMock).toHaveBeenCalledWith('workbench_export_download', {
       targetIds: ['agents-md'],
       fileCount: 1,
+      entrySource: 'direct',
+      time_to_export_ms: 1200,
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
@@ -79,6 +90,7 @@ describe('ExportPanel', () => {
       expect(trackMock).toHaveBeenCalledWith('workbench_export_copy', {
         path: 'AGENTS.md',
         targetId: 'agents-md',
+        entrySource: 'direct',
       });
     });
   });
@@ -96,5 +108,38 @@ describe('ExportPanel', () => {
     await waitFor(() => {
       expect(screen.getByText('Invalid payload')).toBeInTheDocument();
     });
+  });
+
+  it('shows compatibility warnings for unsupported scopes and skills', () => {
+    act(() => {
+      const store = useWorkbenchStore.getState();
+      store.setUam({
+        ...store.uam,
+        scopes: [
+          { id: 'global', kind: 'global', name: 'Global' },
+          { id: 'dir-scope', kind: 'dir', dir: 'src' },
+          { id: 'glob-scope', kind: 'glob', patterns: ['**/*.md'] },
+        ],
+        blocks: [
+          { id: 'block-global', scopeId: 'global', kind: 'markdown', body: 'Root rules' },
+          { id: 'block-dir', scopeId: 'dir-scope', kind: 'markdown', body: 'Dir rules' },
+          { id: 'block-glob', scopeId: 'glob-scope', kind: 'markdown', body: 'Glob rules' },
+        ],
+        capabilities: [{ id: 'cap-1', title: 'Skill', description: 'Demo', params: {} }],
+        targets: [
+          createUamTargetV1('agents-md'),
+          createUamTargetV1('github-copilot'),
+          createUamTargetV1('gemini-cli'),
+        ],
+      });
+    });
+
+    render(<ExportPanel />);
+
+    expect(screen.getByText('Compatibility')).toBeInTheDocument();
+    expect(screen.getByTestId('compatibility-matrix')).toBeInTheDocument();
+    expect(screen.getByText(/does not support glob scopes/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not support directory scopes/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not export skills/i)).toBeInTheDocument();
   });
 });

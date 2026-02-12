@@ -16,6 +16,7 @@ Scope: Core surfaces and global UI across breakpoints.
   - Header shows compact controls; search, command palette, and density toggle hidden.
   - Mobile search + overflow sheets used for search/links.
   - Header banner height: 48px; nav min-height: 56px; padding y: 12px.
+  - Mobile CTAs must sit above `env(safe-area-inset-bottom)` and remain tappable.
 - **md**
   - Desktop header nav appears; mobile bottom nav hidden.
   - Theme toggle shown; search bar visible.
@@ -44,6 +45,8 @@ Scope: Core surfaces and global UI across breakpoints.
 - Base → tabbed interface (`md:hidden`) for Structure / Editor / Output.
 - md → three-column layout (`md:grid-cols-[280px_minmax(0,1fr)_320px]`).
 - Height locked to viewport (`h-[calc(100vh-64px)]`) with internal scroll regions.
+- Verify dynamic viewport handling on mobile (address bar collapse/expand, `dvh` vs `vh`).
+- When OSK opens, ensure editor remains usable and CTAs are not occluded.
 
 ### Translate (`/translate`)
 - Base → input/output stacked.
@@ -58,3 +61,5 @@ Scope: Core surfaces and global UI across breakpoints.
 - Workbench fixed-height layout risks clipping on short mobile screens.
 - Atlas Simulator left/right columns may feel narrow at small `lg` widths; check card density.
 - Header + sticky components can stack (header + sticky filters + bottom nav), which can reduce usable content height.
+- Toasts/snackbars should not cover bottom nav CTAs.
+- Landscape mode can over-constrain vertical space; confirm primary CTA remains tappable.

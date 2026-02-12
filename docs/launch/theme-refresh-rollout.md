@@ -46,4 +46,5 @@ Safely ship the visual refresh (header + spacing + tabs) behind a feature flag w
 ## Light/Dark Coverage
 - Verify light/dark for `/`, `/library`, `/workbench`, `/docs`.
 - Confirm tab picker contrast and focus rings in both modes.
-
+- Visit `/tokens` to confirm the theme refresh flag state and review primary/surface token colors.
+- Spot-check primary CTA text contrast in light mode (buttons, tabs, pagination).
