@@ -152,7 +152,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: lh-artifacts
-          if-no-artifact-found: ignore
       - name: Build PR comment
         id: comment
         run: |
@@ -160,6 +159,12 @@ jobs:
           const fs = require('fs');
           const path = require('path');
           const rows = [];
+          if (!fs.existsSync('lh-artifacts')) {
+            const body = '⚠️ Lighthouse checks were skipped (site returned 403 - likely blocked GitHub Actions IPs)';
+            fs.writeFileSync('comment.md', body);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `body<<EOF\n${body}\nEOF\n`);
+            process.exit(0);
+          }
           for (const dir of fs.readdirSync('lh-artifacts')) {
             const metricsPath = path.join('lh-artifacts', dir, 'lh-metrics.csv');
             if (!fs.existsSync(metricsPath)) continue;
@@ -191,6 +196,7 @@ jobs:
             await github.rest.issues.createComment({ owner, repo, issue_number, body });
       - name: Upload combined metrics
         uses: actions/upload-artifact@v4
+        if: hashFiles('combined-metrics.csv') != ''
         with:
           name: lh-trends
           path: combined-metrics.csv
