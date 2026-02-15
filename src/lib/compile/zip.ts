@@ -23,6 +23,7 @@ export async function createZip(files: CompiledFile[], options: ZipOptions = {})
     throw new Error(`Zip contents too large: ${totalBytes} bytes (max ${maxTotalBytes})`);
   }
 
+  // Lazy load JSZip only when needed (typically on user export action)
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();
   const seenPaths = new Set<string>();

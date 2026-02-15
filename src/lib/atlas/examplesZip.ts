@@ -71,6 +71,7 @@ export async function createAtlasExamplesZip(
     throw new AtlasExamplesZipError(`Too many files selected (max ${maxFiles}).`, 413);
   }
 
+  // Lazy load JSZip only when needed
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();
   let totalBytes = 0;

@@ -1,0 +1,98 @@
+name: Auto-merge Dependabot PRs
+
+on:
+  pull_request:
+    types: [opened, labeled, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-merge-dependabot:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    steps:
+      - name: Check for auto-merge label
+        uses: actions/github-script@v7
+        id: check-label
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            const hasAutoMergeLabel = labels.includes('auto-merge');
+            const isPatchOrMinor = labels.includes('dependencies') || labels.includes('dependabot');
+            core.setOutput('auto-merge', hasAutoMergeLabel || isPatchOrMinor);
+
+      - name: Wait for CI checks
+        uses: lewagon/wait-on-check-action@v1.3.4
+        if: steps.check-label.outputs.auto-merge == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Checks'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+          verbose: true
+
+      - name: Approve PR
+        if: steps.check-label.outputs.auto-merge == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: 'Auto-approved by workflow - passing dependency update'
+            });
+
+      - name: Enable auto-merge
+        if: steps.check-label.outputs.auto-merge == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              merge_method: 'squash',
+              commit_title: `Auto-merge ${context.payload.pull_request.title}`,
+              commit_message: context.payload.pull_request.body || ''
+            });
+
+  auto-merge-manual:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved'
+    steps:
+      - name: Check if PR has auto-merge label
+        uses: actions/github-script@v7
+        id: check-label
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            const hasAutoMergeLabel = labels.includes('auto-merge');
+            core.setOutput('auto-merge', hasAutoMergeLabel);
+
+      - name: Wait for CI checks
+        uses: lewagon/wait-on-check-action@v1.3.4
+        if: steps.check-label.outputs.auto-merge == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Checks'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+          verbose: true
+
+      - name: Merge PR
+        if: steps.check-label.outputs.auto-merge == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              merge_method: 'squash'
+            });

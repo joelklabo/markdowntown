@@ -1,6 +1,7 @@
 import { CompiledFile } from '../adapters';
 
 export async function createZip(files: CompiledFile[]): Promise<Blob> {
+  // Lazy load JSZip only when needed (typically on user export action)
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();
   

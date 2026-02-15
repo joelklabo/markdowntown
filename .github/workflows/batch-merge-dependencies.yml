@@ -1,0 +1,139 @@
+name: Batch Merge Dependencies
+
+on:
+  schedule:
+    # Run on the 1st and 15th of every month at 2 AM UTC
+    - cron: '0 2 1,15 * *'
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  batch-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find open dependency PRs
+        id: find-prs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'created',
+              direction: 'asc',
+              per_page: 100
+            });
+
+            const dependabotPrs = pullRequests.filter(pr =>
+              pr.user.login === 'dependabot[bot]' ||
+              pr.labels.some(l => l.name === 'dependencies') ||
+              pr.labels.some(l => l.name === 'dependabot')
+            );
+
+            console.log(`Found ${dependabotPrs.length} dependency PRs`);
+            core.setOutput('pr-count', dependabotPrs.length);
+            core.setOutput('pr-numbers', dependabotPrs.map(pr => pr.number).join(','));
+
+      - name: Create batch summary
+        id: summary
+        run: |
+          PR_COUNT="${{ steps.find-prs.outputs.pr-count }}"
+          PR_NUMBERS="${{ steps.find-prs.outputs.pr-numbers }}"
+
+          if [ "$PR_COUNT" -eq 0 ]; then
+            echo "No dependency PRs to merge"
+            exit 0
+          fi
+
+          echo "# Batch Merge Dependency Updates ($PR_COUNT PRs)" > summary.md
+          echo "" >> summary.md
+          echo "PRs to merge: $PR_NUMBERS" >> summary.md
+          echo "" >> summary.md
+          echo "This workflow will automatically merge all passing dependency PRs." >> summary.md
+
+          # Save summary for GitHub comment
+          cat summary.md
+
+      - name: Check and merge each PR
+        env:
+          PR_NUMBERS: ${{ steps.find-prs.outputs.pr-numbers }}
+        run: |
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No PRs to merge"
+            exit 0
+          fi
+
+          # Convert comma-separated to newline-separated
+          echo "$PR_NUMBERS" | tr ',' '\n' | while read pr_number; do
+            echo "Processing PR #$pr_number..."
+
+            # Wait for checks to complete
+            echo "Waiting for checks to pass on PR #$pr_number..."
+            gh api \
+              --method GET \
+              -H "Accept: application/vnd.github.v3+json" \
+              "/repos/${GITHUB_REPOSITORY}/pulls/$pr_number" \
+              --jq '.mergeable' > /tmp/mergeable.txt
+
+            MERGEABLE=$(cat /tmp/mergeable.txt)
+            if [ "$MERGEABLE" != "true" ]; then
+              echo "PR #$pr_number is not mergeable, skipping"
+              continue
+            fi
+
+            # Merge the PR
+            echo "Merging PR #$pr_number..."
+            gh pr merge "$pr_number" \
+              --squash \
+              --delete-branch \
+              --subject "Batch merge: $pr_number" \
+              || echo "Failed to merge PR #$pr_number"
+
+            echo "PR #$pr_number merged successfully"
+          done
+
+      - name: Comment with summary
+        if: steps.find-prs.outputs.pr-count > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prCount = ${{ steps.find-prs.outputs.pr-count }};
+            const prNumbers = '${{ steps.find-prs.outputs.pr-numbers }}'.split(',');
+
+            const body = [
+              `## Batch Merge Complete`,
+              `Merged ${prCount} dependency PRs:`,
+              ...prNumbers.map(n => `- PR #${n}`),
+              `---`,
+              `Auto-merged on ${new Date().toISOString()}`
+            ].join('\n');
+
+            // Find or create an issue for batch merge tracking
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'batch-merge',
+              per_page: 1
+            });
+
+            if (issues.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues[0].number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Batch Merge Dependency Updates',
+                body,
+                labels: ['batch-merge', 'automation']
+              });
+            }
