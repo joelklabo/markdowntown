@@ -30,7 +30,7 @@ jobs:
         if: steps.check-label.outputs.auto-merge == 'true'
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Checks'
+          check-name: 'Checks & Coverage'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
           verbose: true
@@ -80,7 +80,7 @@ jobs:
         if: steps.check-label.outputs.auto-merge == 'true'
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Checks'
+          check-name: 'Checks & Coverage'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
           verbose: true

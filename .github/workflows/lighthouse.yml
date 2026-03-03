@@ -12,6 +12,11 @@ concurrency:
   group: lighthouse-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   lhci:
     runs-on: ubuntu-latest
