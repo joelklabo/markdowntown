@@ -64,7 +64,7 @@
     "require-in-the-middle": "7.5.2",
     "web-vitals": "^4.2.0",
     "yaml": "^2.8.1",
-    "zod": "^4.1.13",
+    "zod": "^4.3.6",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
